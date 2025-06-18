@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <UseWPF>true</UseWPF>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Amazon.Extensions.CognitoAuthentication" Version="3.1.0" />
+    <PackageReference Include="AWSSDK.CognitoIdentity" Version="4.0.0.7" />
+    <PackageReference Include="AWSSDK.CognitoIdentityProvider" Version="4.0.1.5" />
+    <PackageReference Include="AWSSDK.Core" Version="4.0.0.9" />
+    <PackageReference Include="AWSSDK.SecurityToken" Version="4.0.0.7" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\POCO\POCO.csproj" />
+  </ItemGroup>
+
+</Project>

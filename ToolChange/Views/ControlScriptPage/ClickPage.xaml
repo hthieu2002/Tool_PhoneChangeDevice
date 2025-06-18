@@ -1,0 +1,315 @@
+﻿<Page x:Class="ToolChange.Views.ControlScriptPage.ClickPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      xmlns:local="clr-namespace:ToolChange.Views.ControlScriptPage"
+      mc:Ignorable="d"
+      d:DesignHeight="450"
+      d:DesignWidth="800">
+
+    <Grid Background="#F5F7FC">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="6.5*" />
+            <ColumnDefinition Width="3.5*" />
+        </Grid.ColumnDefinitions>
+        <Grid Grid.Column="0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            <GroupBox Header="{Binding LanguageVM.TitleClickControl}"
+                      FontWeight="Bold"
+                      Padding="10,2,0,2"
+                      Margin="5,10,0,0"
+                      Grid.Row="0"
+                      BorderBrush="#A0A0A0"
+                      Style="{StaticResource MaterialDesignHeaderedContentControl}"
+                      BorderThickness="1">
+                <Border  Background="#F5F7FC"
+                         BorderBrush="#FFC8C2C2"
+                         CornerRadius="2"
+                         BorderThickness="1">
+                    <WrapPanel Orientation="Horizontal"
+                               HorizontalAlignment="Left"
+                               VerticalAlignment="Top">
+                        <Button Content="{Binding LanguageVM.ControlClickXY}"
+                                Command="{Binding ScriptAutomationVM.AppendTextCommand}"
+                                CommandParameter="ClickXY(500,500)"
+                                Margin="5"
+                                Padding="10,5"
+                                Background="#A28DFF"
+                                Foreground="White"
+                                FontSize="11"
+                                HorizontalAlignment="Left"
+                                VerticalAlignment="Center" />
+
+                        <Button Content="{Binding LanguageVM.ControlSwipe}"
+                                Command="{Binding ScriptAutomationVM.AppendTextCommand}"
+                                CommandParameter="Swipe(500 500 5 10 500)"
+                                Margin="5"
+                                Padding="10,5"
+                                Background="#A28DFF"
+                                Foreground="White"
+                                FontSize="11"
+                                HorizontalAlignment="Left"
+                                VerticalAlignment="Center" />
+
+                        <Button Content="{Binding LanguageVM.ControlRandomClick}"
+                                Command="{Binding ScriptAutomationVM.AppendTextCommand}"
+                                CommandParameter="RandomClick(100 100, 900 1900)"
+                                Margin="5"
+                                Padding="10,5"
+                                Background="#A28DFF"
+                                Foreground="White"
+                                FontSize="11"
+                                HorizontalAlignment="Left"
+                                VerticalAlignment="Center" />
+
+                        <Button Content="{Binding LanguageVM.ControlWait}"
+                                Command="{Binding ScriptAutomationVM.AppendTextCommand}"
+                                CommandParameter="Wait(1000)"
+                                Margin="5"
+                                Padding="10,5"
+                                Background="#A28DFF"
+                                Foreground="White"
+                                FontSize="11"
+                                HorizontalAlignment="Left"
+                                VerticalAlignment="Center" />
+                    </WrapPanel>
+                </Border>
+            </GroupBox>
+            <GroupBox Header="{Binding LanguageVM.TitleClick2Control}"
+                      FontWeight="Bold"
+                      Padding="10,2,0,2"
+                      Margin="5,10,0,0"
+                      Grid.Row="1"
+                      BorderBrush="#A0A0A0"
+                      Style="{StaticResource MaterialDesignHeaderedContentControl}"
+                      BorderThickness="1">
+                <Border  Background="#F5F7FC"
+                         BorderBrush="#FFC8C2C2"
+                         CornerRadius="2"
+                         BorderThickness="1">
+                    <WrapPanel Orientation="Horizontal"
+                               HorizontalAlignment="Left"
+                               VerticalAlignment="Top">
+                        <Button Content="{Binding LanguageVM.ControlSearchAndClick}"
+                                Command="{Binding ScriptAutomationVM.AppendTextCommand}"
+                                CommandParameter="SearchAndClick(&quot;&quot;)"
+                                Margin="5"
+                                Padding="10,5"
+                                Background="#A28DFF"
+                                Foreground="White"
+                                FontSize="11"
+                                HorizontalAlignment="Left"
+                                VerticalAlignment="Center" />
+
+                        <Button Content="{Binding LanguageVM.ControlSearchWaitClick}"
+                                Command="{Binding ScriptAutomationVM.AppendTextCommand}"
+                                CommandParameter="SearchWaitClick(&quot;&quot;, 1000)"
+                                Margin="5"
+                                Padding="10,5"
+                                Background="#A28DFF"
+                                Foreground="White"
+                                FontSize="11"
+                                HorizontalAlignment="Left"
+                                VerticalAlignment="Center" />
+
+                        <Button Content="{Binding LanguageVM.ControlSearchAndContinue}"
+                                Command="{Binding ScriptAutomationVM.AppendTextCommand}"
+                                CommandParameter="SearchAndContinue(&quot;&quot;)"
+                                Margin="5"
+                                Padding="10,5"
+                                Background="#A28DFF"
+                                Foreground="White"
+                                FontSize="11"
+                                HorizontalAlignment="Left"
+                                VerticalAlignment="Center" />
+
+
+                    </WrapPanel>
+                </Border>
+            </GroupBox>
+            <GroupBox Header="{Binding LanguageVM.TitleClick3Control}"
+                      FontWeight="Bold"
+                      Padding="10,2,0,2"
+                      Margin="5,10,0,0"
+                      Grid.Row="2"
+                      Style="{StaticResource MaterialDesignHeaderedContentControl}"
+                      BorderBrush="#A0A0A0"
+                      BorderThickness="1">
+                <Border  Background="#F5F7FC"
+                         BorderBrush="#FFC8C2C2"
+                         CornerRadius="2"
+                         BorderThickness="1">
+                    <WrapPanel Orientation="Horizontal"
+                               HorizontalAlignment="Left"
+                               VerticalAlignment="Top">
+                        <Button Content="{Binding LanguageVM.ControlFindAndClick}"
+                                Command="{Binding ScriptAutomationVM.AppendTextCommand}"
+                                CommandParameter="FindAndClick(&quot;&quot;)"
+                                Margin="5"
+                                Padding="10,5"
+                                Background="#A28DFF"
+                                Foreground="White"
+                                FontSize="11"
+                                HorizontalAlignment="Left"
+                                VerticalAlignment="Center" />
+
+                        <Button Content="{Binding LanguageVM.ControlFindWaitClick}"
+                                Command="{Binding ScriptAutomationVM.AppendTextCommand}"
+                                CommandParameter="findWaitClick(&quot;&quot;, 1000)"
+                                Margin="5"
+                                Padding="10,5"
+                                Background="#A28DFF"
+                                Foreground="White"
+                                FontFamily="Segoe UI"
+                                FontSize="11"
+                                HorizontalAlignment="Left"
+                                VerticalAlignment="Center" />
+
+                        <Button Content="{Binding LanguageVM.ControlFindAndContinue}"
+                                Command="{Binding ScriptAutomationVM.AppendTextCommand}"
+                                CommandParameter="FindAndContinue(&quot;&quot;)"
+                                Margin="5"
+                                Padding="10,5"
+                                Background="#A28DFF"
+                                Foreground="White"
+                                FontSize="11"
+                                HorizontalAlignment="Left"
+                                VerticalAlignment="Center" />
+
+
+                    </WrapPanel>
+                </Border>
+            </GroupBox>
+        </Grid>
+        <Grid Grid.Column="1">
+            <GroupBox Header="{Binding LanguageVM.TitleClick4Control}"
+                      FontWeight="Bold"
+                      Padding="10,2,0,2"
+                      Margin="5,10,0,0"
+                      Grid.Row="0"
+                      BorderBrush="#A0A0A0"
+                      Style="{StaticResource MaterialDesignHeaderedContentControl}"
+                      BorderThickness="1">
+                <Border  Background="#F5F7FC"
+                         BorderBrush="#FFC8C2C2"
+                         CornerRadius="2"
+                         Height="310"
+                         BorderThickness="1">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto"
+                                  Height="310"
+                                  HorizontalScrollBarVisibility="Disabled">
+                        <WrapPanel Orientation="Vertical"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Top">
+                            <Button Content="FOR LOOP"
+                                    Command="{Binding ScriptAutomationVM.AppendTextCommand}"
+                                    CommandParameter="for= ,end=100 &#10;
+{ 
+&#10;
+&#10;
+ }"
+                                    Margin="5,5,5,0"
+                                    Padding="10,5"
+                                    Background="#A28DFF"
+                                    Foreground="White"
+                                    FontSize="11"
+                                    HorizontalAlignment="Left"
+                                    VerticalAlignment="Center"
+                                    Width="120" />
+
+                            <Button Content="IF"
+                                    Command="{Binding ScriptAutomationVM.AppendTextCommand}"
+                                    CommandParameter="if= &#10;
+ { 
+&#10;
+&#10;
+ }"
+                                    Margin="5,5,5,0"
+                                    Padding="10,5"
+                                    Background="#A28DFF"
+                                    Foreground="White"
+                                    FontSize="11"
+                                    HorizontalAlignment="Left"
+                                    VerticalAlignment="Center"
+                                    Width="120" />
+
+                            <Button Content="BREAK"
+                                    Command="{Binding ScriptAutomationVM.AppendTextCommand}"
+                                    CommandParameter="break"
+                                    Margin="5,5,5,0"
+                                    Padding="10,5"
+                                    Background="#A28DFF"
+                                    Foreground="White"
+                                    FontSize="11"
+                                    HorizontalAlignment="Left"
+                                    VerticalAlignment="Center"
+                                    Width="120" />
+
+                            <Button Content="CONTINUE"
+                                    Command="{Binding ScriptAutomationVM.AppendTextCommand}"
+                                    CommandParameter="continue"
+                                    Margin="5,5,5,0"
+                                    Padding="10,5"
+                                    Background="#A28DFF"
+                                    Foreground="White"
+                                    FontSize="11"
+                                    HorizontalAlignment="Left"
+                                    VerticalAlignment="Center"
+                                    Width="120" />
+                            <Button Content="STOP SCRIPT"
+                                    Command="{Binding ScriptAutomationVM.AppendTextCommand}"
+                                    CommandParameter="StopScript()"
+                                    Margin="5,5,5,0"
+                                    Padding="10,5"
+                                    Background="#A28DFF"
+                                    Foreground="White"
+                                    FontSize="11"
+                                    HorizontalAlignment="Left"
+                                    VerticalAlignment="Center"
+                                    Width="120" />
+                            <Button Content="RETURN"
+                                    Command="{Binding ScriptAutomationVM.AppendTextCommand}"
+                                    CommandParameter="return"
+                                    Margin="5,5,5,0"
+                                    Padding="10,5"
+                                    Background="#A28DFF"
+                                    Foreground="White"
+                                    FontSize="11"
+                                    HorizontalAlignment="Left"
+                                    VerticalAlignment="Center"
+                                    Width="120" />
+                            <Button Content="COMMENT"
+                                    Command="{Binding ScriptAutomationVM.AppendTextCommand}"
+                                    CommandParameter="//"
+                                    Margin="5,5,5,0"
+                                    Padding="10,5"
+                                    Background="#A28DFF"
+                                    Foreground="White"
+                                    FontSize="11"
+                                    HorizontalAlignment="Left"
+                                    VerticalAlignment="Center"
+                                    Width="120" />
+                            <Button Content="LOG"
+                                    Command="{Binding ScriptAutomationVM.AppendTextCommand}"
+                                    CommandParameter="Log(&quot;&quot;)"
+                                    Margin="5,5,5,5"
+                                    Padding="10,5"
+                                    Background="#A28DFF"
+                                    Foreground="White"
+                                    FontSize="11"
+                                    HorizontalAlignment="Left"
+                                    VerticalAlignment="Center"
+                                    Width="120" />
+                        </WrapPanel>
+                    </ScrollViewer>
+                </Border>
+            </GroupBox>
+        </Grid>
+
+    </Grid>
+</Page>

@@ -1,0 +1,626 @@
+﻿<Page x:Class="ToolChange.Views.Device"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+      xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      xmlns:local="clr-namespace:ToolChange.Views"
+      xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
+      xmlns:ei="http://schemas.microsoft.com/expression/2010/interactions"
+      mc:Ignorable="d"
+      d:DesignHeight="450"
+      d:DesignWidth="800">
+
+    <Grid Background="#F5F7FC">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="40" />
+            <RowDefinition Height="6.0*" />
+            <RowDefinition Height="4.0*" />
+        </Grid.RowDefinitions>
+
+        <Grid Grid.Row="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="200" />
+                <ColumnDefinition Width="1*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <Label Grid.Column="0"
+                   Content="{Binding LanguageVM.Device}"
+                   Background="Transparent"
+                   FontSize="14"
+                   HorizontalContentAlignment="Left"
+                   VerticalContentAlignment="Center"
+                   Padding="20,0,0,0" />
+            <materialDesign:PackIcon Grid.Column="1"
+                                     Kind="User"
+                                     Width="24"
+                                     Height="24"
+                                     VerticalAlignment="Center"
+                                     HorizontalAlignment="Right" />
+            <Label Content="{Binding DeviceListVM.User}"
+                   Grid.Column="2"
+                   HorizontalContentAlignment="Right"
+                   Padding="10"
+                   VerticalContentAlignment="Center"
+                   Margin="10,0,20,0" />
+
+
+        </Grid>
+        <Grid Grid.Row="1"
+              Margin="3">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="600*" />
+                <ColumnDefinition Width="33*" />
+                <ColumnDefinition Width="161*" />
+            </Grid.ColumnDefinitions>
+            <!-- Không cần ScrollViewer ở đây -->
+
+            <DataGrid x:Name="DeviceDataGrid"
+                      Background="#F0F2F5"
+                      AutoGenerateColumns="False"
+                      CanUserAddRows="False"
+                      HeadersVisibility="Column"
+                      IsReadOnly="False"
+                      RowHeight="35"
+                      AlternatingRowBackground="LightGray"
+                      BorderBrush="Gray"
+                      BorderThickness="1"
+                      ScrollViewer.VerticalScrollBarVisibility="Auto"
+                      ItemsSource="{Binding DeviceListVM.Devices}"
+                      ContextMenuOpening="DeviceDataGrid_ContextMenuOpening"
+                      Grid.ColumnSpan="3">
+                <DataGrid.ContextMenu>
+                    <ContextMenu x:Name="DeviceContextMenu">
+                        <MenuItem Header="{Binding LanguageVM.ControlDeviceMenuDropBox1}"
+                                  Command="{Binding DeviceListVM.CopyDeviceIdCommand}"
+                                  CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=ContextMenu}, Path=PlacementTarget.SelectedItem}" />
+                        <MenuItem Header="{Binding LanguageVM.ControlDeviceMenuDropBox2}"
+                                  Command="{Binding DeviceListVM.DetailsDeviceIdCommand}"
+                                  CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=ContextMenu}, Path=PlacementTarget.SelectedItem}" />
+                       
+                        <MenuItem Header="{Binding LanguageVM.ControlDeviceMenuDropBox4}"
+                                  Command="{Binding DeviceListVM.FakeProxyDeviceIdCommand}"
+                                  CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=ContextMenu}, Path=PlacementTarget.SelectedItem}" />
+                        <MenuItem Header="{Binding LanguageVM.ControlDeviceMenuDropBox5}"
+                                  Command="{Binding DeviceListVM.DeleteDeviceCommand}"
+                                  CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=ContextMenu}, Path=PlacementTarget.SelectedItem}" />
+                    </ContextMenu>
+                </DataGrid.ContextMenu>
+
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="#"
+                                        Binding="{Binding Index}"
+                                        Width="40"
+                                        IsReadOnly="True"
+                                        MinWidth="50" />
+                    <DataGridTemplateColumn Header="Box"
+                                            Width="60"
+                                            MinWidth="60">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <CheckBox IsChecked="{Binding IsChecked, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                          Command="{Binding DataContext.DeviceListVM.IsCheckBoxDevice, RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                                          CommandParameter="{Binding}"
+                                          HorizontalAlignment="Center" />
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTemplateColumn Header="Name"
+                                            Width="100"
+                                            MinWidth="50">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Name}"
+                                           Padding="0"
+                                         
+                                           VerticalAlignment="Center" 
+                                           />
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+
+                        <DataGridTemplateColumn.CellEditingTemplate>
+                            <DataTemplate>
+                                <TextBox Text="{Binding Name, Mode=TwoWay, UpdateSourceTrigger=LostFocus}"
+                                         LostFocus="TextBox_LostFocus"
+                                         VerticalContentAlignment="Center"
+                                         Padding="0"
+                                         Margin="0"
+                                         FontSize="11" />
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellEditingTemplate>
+                    </DataGridTemplateColumn>
+
+                    <DataGridTextColumn Header="Device ID"
+                                        Binding="{Binding DeviceId}"
+                                        IsReadOnly="True"
+                                        Width="80"
+                                        MinWidth="120" />
+                    <DataGridTextColumn Header="%"
+                                        Binding="{Binding Percentage}"
+                                        IsReadOnly="True"
+                                        Width="70"
+                                        MinWidth="70" />
+                    <DataGridTextColumn Header="Progress"
+                                        Binding="{Binding Progress}"
+                                        IsReadOnly="True"
+                                        Width="*"
+                                        MinWidth="100" />
+
+                    <!-- Status Column with Conditional Style -->
+                    <DataGridTemplateColumn Header="Status"
+                                            Width="80"
+                                            MinWidth="50">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Status}">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock">
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding Status}"
+                                                             Value="Online">
+                                                    <Setter Property="Foreground"
+                                                            Value="Green" />
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding Status}"
+                                                             Value="Offline">
+                                                    <Setter Property="Foreground"
+                                                            Value="Red" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+
+                    <!-- Active Column with Conditional Style -->
+                    <DataGridTemplateColumn Header="Active"
+                                            Width="80"
+                                            MinWidth="50">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Active}">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock">
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding Active}"
+                                                             Value="YES">
+                                                    <Setter Property="Foreground"
+                                                            Value="Green" />
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding Active}"
+                                                             Value="NO">
+                                                    <Setter Property="Foreground"
+                                                            Value="Red" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                </DataGrid.Columns>
+            </DataGrid>
+
+        </Grid>
+
+        <Border Grid.Row="2"
+                BorderThickness="1"
+                CornerRadius="5"
+                Background="#F0F2F5"
+                Padding="3">
+            <Grid Background="#F0F2F5">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="2*" />
+                    <ColumnDefinition Width="1*" />
+                </Grid.ColumnDefinitions>
+
+                <Border Grid.Column="0"
+                        Background="#F0F2F5"
+                        BorderBrush="#FFC8C2C2"
+                        CornerRadius="2"
+                        BorderThickness="1">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto">
+                        <UniformGrid Columns="4"
+                                     Rows="4">
+                            <Grid Width="200"
+                                  Height="35"
+                                  Margin="5,5,5,10">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="70" />
+                                    <ColumnDefinition Width="130" />
+                                </Grid.ColumnDefinitions>
+                                <Label Content="BRAND"
+                                       Grid.Column="0"
+                                       HorizontalAlignment="Left"
+                                       VerticalAlignment="Center" />
+                                <ComboBox Grid.Column="1"
+                                          ItemsSource="{Binding DeviceListVM.DeviceTypes}"
+                                          SelectedItem="{Binding DeviceListVM.Brand, Mode=TwoWay}"
+                                          Height="30"
+                                          VerticalAlignment="Center"
+                                          HorizontalAlignment="Stretch"
+                                          Background="Transparent" />
+                            </Grid>
+                            <Grid Width="200"
+                                  Height="35"
+                                  Margin="5,5,5,10">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="70" />
+                                    <ColumnDefinition Width="130" />
+                                </Grid.ColumnDefinitions>
+                                <Label Content="NAME"
+                                       Grid.Column="0"
+                                       HorizontalAlignment="Left"
+                                       VerticalAlignment="Center" />
+                                <TextBox Grid.Column="1"
+                                         Text="{Binding DeviceListVM.Name}"
+                                         Padding="5,0,0,5"
+                                         Style="{StaticResource MaterialDesignTextBoxBase}"
+                                         VerticalAlignment="Center"
+                                         HorizontalAlignment="Stretch" />
+                            </Grid>
+                            <Grid Width="200"
+                                  Height="35"
+                                  Margin="5,5,5,10">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="70" />
+                                    <ColumnDefinition Width="130" />
+                                </Grid.ColumnDefinitions>
+                                <Label Content="MODEL"
+                                       Grid.Column="0"
+                                       HorizontalAlignment="Left"
+                                       VerticalAlignment="Center" />
+                                <TextBox Grid.Column="1"
+                                         Padding="5,0,0,5"
+                                         Text="{Binding DeviceListVM.Model}"
+                                         Style="{StaticResource MaterialDesignTextBoxBase}"
+                                         VerticalAlignment="Center"
+                                         HorizontalAlignment="Stretch" />
+                            </Grid>
+                            <Grid Width="200"
+                                  Height="35"
+                                  Margin="5,5,5,10">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="70" />
+                                    <ColumnDefinition Width="130" />
+                                </Grid.ColumnDefinitions>
+                                <Label Content="OS"
+                                       Grid.Column="0"
+                                       HorizontalAlignment="Left"
+                                       VerticalAlignment="Center" />
+                                <ComboBox Grid.Column="1"
+                                          Height="30"
+                                          ItemsSource="{Binding DeviceListVM.DeviceTypesOs}"
+                                          SelectedItem="{Binding DeviceListVM.Os, Mode=TwoWay}"
+                                          VerticalAlignment="Center"
+                                          HorizontalAlignment="Stretch"
+                                          Background="Transparent" />
+                            </Grid>
+                            <Grid Width="200"
+                                  Height="35"
+                                  Margin="5,5,5,10">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="70" />
+                                    <ColumnDefinition Width="130" />
+                                </Grid.ColumnDefinitions>
+                                <Label Content="COUNTRY"
+                                       Grid.Column="0"
+                                       HorizontalAlignment="Left"
+                                       VerticalAlignment="Center" />
+                                <ComboBox Grid.Column="1"
+                                          Height="30"
+                                          ItemsSource="{Binding DeviceListVM.Countries}"
+                                          SelectedItem="{Binding DeviceListVM.SelectedCountry, Mode=TwoWay}"
+                                          VerticalAlignment="Center"
+                                          HorizontalAlignment="Stretch"
+                                          Background="Transparent">
+                                    <ComboBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{Binding CountryName}" />
+                                        </DataTemplate>
+                                    </ComboBox.ItemTemplate>
+                                </ComboBox>
+                            </Grid>
+                            <Grid Width="200"
+                                  Height="35"
+                                  Margin="5,5,5,10">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="70" />
+                                    <ColumnDefinition Width="130" />
+                                </Grid.ColumnDefinitions>
+                                <Label Content="SIM"
+                                       Grid.Column="0"
+                                       HorizontalAlignment="Left"
+                                       VerticalAlignment="Center" />
+                                <ComboBox Grid.Column="1"
+                                          Height="30"
+                                          ItemsSource="{Binding DeviceListVM.SimOptions}"
+                                          SelectedItem="{Binding DeviceListVM.SelectedSim, Mode=TwoWay}"
+                                          VerticalAlignment="Center"
+                                          HorizontalAlignment="Stretch"
+                                          Background="Transparent">
+                                    <ComboBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{Binding Name}" />
+                                        </DataTemplate>
+                                    </ComboBox.ItemTemplate>
+                                </ComboBox>
+                            </Grid>
+                            <Grid Width="200"
+                                  Height="35"
+                                  Margin="5,5,5,10">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="70" />
+                                    <ColumnDefinition Width="130" />
+                                </Grid.ColumnDefinitions>
+                                <Label Content="SERIAL"
+                                       Grid.Column="0"
+                                       HorizontalAlignment="Left"
+                                       VerticalAlignment="Center" />
+                                <TextBox Grid.Column="1"
+                                         Padding="5,0,0,5"
+                                         Text="{Binding DeviceListVM.Serial}"
+                                         Style="{StaticResource MaterialDesignTextBoxBase}"
+                                         VerticalAlignment="Center"
+                                         HorizontalAlignment="Stretch" />
+                            </Grid>
+                            <Grid Width="200"
+                                  Height="35"
+                                  Margin="5,5,5,10">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="70" />
+                                    <ColumnDefinition Width="130" />
+                                </Grid.ColumnDefinitions>
+                                <Label Content="CODE"
+                                       Grid.Column="0"
+                                       HorizontalAlignment="Left"
+                                       VerticalAlignment="Center" />
+                                <TextBox Grid.Column="1"
+                                         Padding="5,0,0,5"
+                                         Text="{Binding DeviceListVM.Code}"
+                                         Style="{StaticResource MaterialDesignTextBoxBase}"
+                                         VerticalAlignment="Center"
+                                         HorizontalAlignment="Stretch" />
+                            </Grid>
+                            <Grid Width="200"
+                                  Height="35"
+                                  Margin="5,5,5,10">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="70" />
+                                    <ColumnDefinition Width="130" />
+                                </Grid.ColumnDefinitions>
+                                <Label Content="PHONE"
+                                       Grid.Column="0"
+                                       HorizontalAlignment="Left"
+                                       VerticalAlignment="Center" />
+                                <TextBox Grid.Column="1"
+                                         Padding="5,0,0,5"
+                                         Text="{Binding DeviceListVM.Phone}"
+                                         Style="{StaticResource MaterialDesignTextBoxBase}"
+                                         VerticalAlignment="Center"
+                                         HorizontalAlignment="Stretch" />
+                            </Grid>
+                            <Grid Width="200"
+                                  Height="35"
+                                  Margin="5,5,5,10">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="70" />
+                                    <ColumnDefinition Width="130" />
+                                </Grid.ColumnDefinitions>
+                                <Label Content="IMEI"
+                                       Grid.Column="0"
+                                       HorizontalAlignment="Left"
+                                       VerticalAlignment="Center" />
+                                <TextBox Grid.Column="1"
+                                         Text="{Binding DeviceListVM.Imei}"
+                                         Padding="5,0,0,5"
+                                         Style="{StaticResource MaterialDesignTextBoxBase}"
+                                         VerticalAlignment="Center"
+                                         HorizontalAlignment="Stretch" />
+                            </Grid>
+                            <Grid Width="200"
+                                  Height="35"
+                                  Margin="5,5,5,10">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="70" />
+                                    <ColumnDefinition Width="130" />
+                                </Grid.ColumnDefinitions>
+                                <Label Content="IMSI"
+                                       Grid.Column="0"
+                                       HorizontalAlignment="Left"
+                                       VerticalAlignment="Center" />
+                                <TextBox Grid.Column="1"
+                                         Text="{Binding DeviceListVM.Imsi}"
+                                         Padding="5,0,0,5"
+                                         Style="{StaticResource MaterialDesignTextBoxBase}"
+                                         VerticalAlignment="Center"
+                                         HorizontalAlignment="Stretch" />
+                            </Grid>
+                            <Grid Width="200"
+                                  Height="35"
+                                  Margin="5,5,5,10">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="70" />
+                                    <ColumnDefinition Width="130" />
+                                </Grid.ColumnDefinitions>
+                                <Label Content="ICCID"
+                                       Grid.Column="0"
+                                       HorizontalAlignment="Left"
+                                       VerticalAlignment="Center" />
+                                <TextBox Grid.Column="1"
+                                         Text="{Binding DeviceListVM.Iccid}"
+                                         Padding="5,0,0,5"
+                                         Style="{StaticResource MaterialDesignTextBoxBase}"
+                                         VerticalAlignment="Center"
+                                         HorizontalAlignment="Stretch" />
+                            </Grid>
+                            <Grid Width="200"
+                                  Height="35"
+                                  Margin="5,5,5,10">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="70" />
+                                    <ColumnDefinition Width="130" />
+                                </Grid.ColumnDefinitions>
+                                <Label Content="MAC"
+                                       Grid.Column="0"
+                                       HorizontalAlignment="Left"
+                                       VerticalAlignment="Center" />
+                                <TextBox Grid.Column="1"
+                                         Padding="5,0,0,5"
+                                         Text="{Binding DeviceListVM.Mac}"
+                                         Style="{StaticResource MaterialDesignTextBoxBase}"
+                                         VerticalAlignment="Center"
+                                         HorizontalAlignment="Stretch" />
+                            </Grid>
+                            <Grid Width="200"
+                                  Height="35"
+                                  Margin="5,5,5,10">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="130" />
+                                </Grid.ColumnDefinitions>
+                                <Label Content="Change Sim"
+                                       Grid.Column="0"
+                                       Margin="10,0,10,0"
+                                       HorizontalAlignment="Left"
+                                       VerticalAlignment="Center"
+                                       FontWeight="Bold" />
+                                <CheckBox IsChecked="{Binding DeviceListVM.IsCheckedSim, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                          HorizontalAlignment="Left" 
+                                          Grid.Column="1"/>
+                            </Grid>
+                            <Grid Width="200"
+                                  Height="35"
+                                  Margin="5,5,5,10">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="130" />
+                                </Grid.ColumnDefinitions>
+                                <Label Content="Push Keybox"
+                                       Grid.Column="0"
+                                       Margin="10,0,10,0"
+                                       HorizontalAlignment="Left"
+                                       VerticalAlignment="Center"
+                                       FontWeight="Bold" />
+                                <CheckBox IsChecked="{Binding DeviceListVM.IsCheckedKeyBox, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                          HorizontalAlignment="Left"
+                                          Grid.Column="1" />
+                            </Grid>
+                            <Grid Width="200"
+                                  Height="35"
+                                  Margin="5,5,5,10">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="130" />
+                                </Grid.ColumnDefinitions>
+                                <Label Content="Push pif"
+                                       Grid.Column="0"
+                                       Margin="10,0,10,0"
+                                       HorizontalAlignment="Left"
+                                       VerticalAlignment="Center"
+                                       FontWeight="Bold" />
+                                <CheckBox IsChecked="{Binding DeviceListVM.IsCheckedpif, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                          HorizontalAlignment="Left"
+                                          Grid.Column="1" />
+                            </Grid>
+                        </UniformGrid>
+                    </ScrollViewer>
+
+                </Border>
+                <Border Grid.Column="1"
+                        Background="#F0F2F5"
+                        BorderBrush="#FFC8C2C2"
+                        CornerRadius="2"
+                        BorderThickness="1">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto">
+                        <WrapPanel>
+                            <Button Content="Random Device"
+                                    IsEnabled="{Binding DeviceListVM.IsRandomButtonEnabled}"
+                                    Padding="0"
+                                    Width="120"
+                                    Margin="5,5,0,0"
+                                    Command="{Binding DeviceListVM.RandomDeviceCommand}"
+                                    CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=ContextMenu}, Path=PlacementTarget.SelectedItem}" />
+                            <Button Content="Change Device"
+                                    Width="120"
+                                    IsEnabled="{Binding DeviceListVM.IsButtonChangeDevice}"
+                                    Margin="5,5,0,0"
+                                    Padding="0"
+                                    Command="{Binding DeviceListVM.ChangeDeviceCommand}"
+                                    CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=ContextMenu}, Path=PlacementTarget.SelectedItem}" />
+                            <Button Content="Auto Change Full"
+                                    IsEnabled="{Binding DeviceListVM.IsButtonChangeFull}"
+                                    Width="120"
+                                    Margin="5,5,0,0"
+                                    Padding="0"
+                                    Command="{Binding DeviceListVM.AutoChangeFullCommand}"
+                                    CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=ContextMenu}, Path=PlacementTarget.SelectedItem}" />
+                            <Button Content="Random Sim"
+                                    Width="120"
+                                    IsEnabled="{Binding DeviceListVM.IsRandomButtonSimEnabled}"
+                                    Margin="5,5,0,0"
+                                    Padding="0"
+                                    Command="{Binding DeviceListVM.RandomSimCommand}"
+                                    CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=ContextMenu}, Path=PlacementTarget.SelectedItem}" />
+                            <Button Content="Change Sim"
+                                    Width="120"
+                                    IsEnabled="{Binding DeviceListVM.IsButtonChangeSim}"
+                                    Margin="5,5,0,0"
+                                    Padding="0"
+                                    Command="{Binding DeviceListVM.ChangeSimCommand}"
+                                    CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=ContextMenu}, Path=PlacementTarget.SelectedItem}" />
+                            <Button Content="Auto Change Sim"
+                                    Width="120"
+                                    IsEnabled="{Binding DeviceListVM.IsButtonChangeSimFull}"
+                                    Margin="5,5,0,0"
+                                    Padding="0"
+                                    Command="{Binding DeviceListVM.AutoChangeSimCommand}"
+                                    CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=ContextMenu}, Path=PlacementTarget.SelectedItem}" />
+                            <Button Content="Open URL"
+                                    Width="120"
+                                    Margin="5,5,0,0"
+                                    Padding="0"
+                                    Command="{Binding DeviceListVM.OpenUrlCommand}"
+                                    CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=ContextMenu}, Path=PlacementTarget.SelectedItem}" />
+                            <Button Content="Screenshot"
+                                    Width="120"
+                                    Margin="5,5,0,0"
+                                    Padding="0"
+                                    Command="{Binding DeviceListVM.ScreenshotCommand}"
+                                    CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=ContextMenu}, Path=PlacementTarget.SelectedItem}" />
+                            <Button Content="Fake Location"
+                                    Width="120"
+                                    Margin="5,5,0,0"
+                                    Padding="0"
+                                    Command="{Binding DeviceListVM.FakeLocationCommand}"
+                                    CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=ContextMenu}, Path=PlacementTarget.SelectedItem}" />
+                            <Grid  Width="240"
+                                   Margin="5,5,0,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <TextBox Grid.Column="0"
+                                         Padding="5,0,0,5"
+                                         Style="{StaticResource MaterialDesignTextBoxBase}"
+                                         VerticalAlignment="Center"
+                                         HorizontalAlignment="Stretch" />
+                                <Button Content="Restore"
+                                        Width="120"
+                                        Margin="5,5,0,0"
+                                        Padding="0"
+                                        Grid.Column="1" />
+                            </Grid>
+
+                        </WrapPanel>
+                    </ScrollViewer>
+
+                </Border>
+            </Grid>
+        </Border>
+
+    </Grid>
+</Page>
