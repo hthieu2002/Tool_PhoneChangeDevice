@@ -287,7 +287,8 @@
                                         Margin="10,0,10,0"
                                         Padding="0"
                                         Style="{StaticResource MaterialDesignRaisedButton}"
-                                        FontSize="11">
+                                        FontSize="11"
+                                        >
                                     <StackPanel Orientation="Horizontal">
                                         <materialDesign:PackIcon Kind="Play"
                                                                  Width="16"

@@ -871,6 +871,38 @@ namespace ToolChange.ViewModels
 
             try
             {
+                if (Brand == "Random")
+                {
+                    // brand random
+                    RandomizeBrand();
+                }
+                else
+                {
+                    if (Brand == "Samsung")
+                    {
+                        BrandValue = "samsung";
+                    }
+                    else if (Brand == "Oppo")
+                    {
+                        BrandValue = "OPPO";
+                    }
+                    else if (Brand == "Vivo")
+                    {
+                        BrandValue = "vivo";
+                    }
+                    else if (Brand == "Realme")
+                    {
+                        BrandValue = "realme";
+                    }
+                    else if (Brand == "Google")
+                    {
+                        BrandValue = "Google";
+                    }
+                    else
+                    {
+                        BrandValue = "Xiaomi";
+                    }
+                }
                 if (Os == "Random")
                 {
                     // brand random
@@ -878,52 +910,80 @@ namespace ToolChange.ViewModels
                 }
                 else
                 {
-                    if (Os == "Android 7")
+                    if (Os == "Android 8.1.0")
                     {
-                        OsValue = "24";
-                        OsValueMax = "25";
+                        OsValue = "27";
+                    }
+                    else if (Os == "Android 7")
+                    {
+                        OsValue = "30";
+                        // OsValueMax = "25";
                     }
                     else if (Os == "Android 8")
                     {
                         OsValue = "26";
-                        OsValueMax = "27";
+                        // OsValueMax = "27";
                     }
                     else if (Os == "Android 9")
                     {
                         OsValue = "28";
-                        OsValueMax = "28";
+                        //   OsValueMax = "28";
                     }
                     else if (Os == "Android 10")
                     {
                         OsValue = "29";
-                        OsValueMax = "29";
+                        //  OsValueMax = "29";
                     }
                     else if (Os == "Android 11")
                     {
                         OsValue = "30";
-                        OsValueMax = "30";
+                        //   OsValueMax = "30";
                     }
                     else if (Os == "Android 12")
                     {
                         System.Windows.MessageBox.Show("Hiện tại chưa random android 12");
-                        //throw new Exception("Devices not existed, please try again");
                         // OsValue = "31";
                         // OsValueMax = "31";
                     }
                     else if (Os == "Android 13")
                     {
                         System.Windows.MessageBox.Show("Hiện tại chưa random android 13");
-                        //throw new Exception("Devices not existed, please try again");
                         // OsValue = "32";
                         // OsValueMax = "32";
                     }
                     else
                     {
-                        OsValue = "30";
+                        OsValue = "29";
+                    }
+                }
+                if (BrandValue == "Google")
+                {
+                    OsValue = "30";
+                }
+                if (BrandValue == "realme" || BrandValue == "vivo")
+                {
+                    if (OsValue == "29" || OsValue == "30")
+                    {
+
+                    }
+                    else
+                    {
+                        OsValue = "29";
+                    }
+                }
+                if (BrandValue == "OPPO" || BrandValue == "Xiaomi")
+                {
+                    if (OsValue == "29" || OsValue == "30" || OsValue == "28" || OsValue == "27")
+                    {
+
+                    }
+                    else
+                    {
+                        OsValue = "29";
                     }
                 }
 
-                tempDevice = await miChangerGraphQLClient.GetRandomDeviceV3(sdkMin: int.Parse(OsValue), sdkMax: int.Parse(OsValueMax));
+                tempDevice = await miChangerGraphQLClient.GetRandomDeviceV3(brand: BrandValue,sdkMin: int.Parse(OsValue), sdkMax: int.Parse(OsValue));
                 if (tempDevice.Model == null)
                 {
                     throw new Exception("Devices not existed, please try again");
@@ -1055,7 +1115,7 @@ namespace ToolChange.ViewModels
                     }
                     else
                     {
-                        OsValue = "30";
+                        OsValue = "29";
                     }
                 }
                 if (BrandValue == "Google")
