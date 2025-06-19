@@ -617,64 +617,64 @@ namespace ToolChange.ViewModels
                 System.Windows.MessageBox.Show($"Lỗi không xác định khi load ảnh:\n{ex.Message}\nChi tiết: {ex.StackTrace}", "Lỗi Load Ảnh", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
-        private void LoadUiElements(string xmlPath)
+      private void LoadUiElements(string xmlPath)
+{
+    if (!File.Exists(xmlPath))
+    {
+        System.Windows.MessageBox.Show($"Không tìm thấy file: {xmlPath}");
+        return;
+    }
+
+    XmlDocument doc = new();
+    doc.Load(xmlPath);
+
+    XmlNodeList nodeList = doc.GetElementsByTagName("node");
+    if (nodeList == null || nodeList.Count == 0)
+    {
+        System.Windows.MessageBox.Show("Không có node nào trong XML.");
+        return;
+    }
+
+    _uiElements.Clear();
+    ElementDetailPairs.Clear();
+
+    foreach (XmlNode node in nodeList)
+    {
+        // Chỉ xử lý node có class
+        if (node.Attributes?["class"] == null)
+            continue;
+
+        // Lấy className nếu bạn muốn lọc nâng cao sau này
+        string className = node.Attributes["class"].Value;
+
+        // Bỏ qua nếu không có bounds
+        if (string.IsNullOrEmpty(node.Attributes["bounds"]?.Value))
+            continue;
+
+        var element = new UiElement
         {
-            if (!File.Exists(xmlPath))
-            {
-                System.Windows.MessageBox.Show($"Không tìm thấy file: {xmlPath}");
-                return;
-            }
+            Index = node.Attributes["index"]?.Value,
+            Text = node.Attributes["text"]?.Value,
+            ResourceId = node.Attributes["resource-id"]?.Value,
+            Class = node.Attributes["class"]?.Value,
+            Package = node.Attributes["package"]?.Value,
+            ContentDesc = node.Attributes["content-desc"]?.Value,
+            Checkable = node.Attributes["checkable"]?.Value,
+            Checked = node.Attributes["checked"]?.Value,
+            Clickable = node.Attributes["clickable"]?.Value,
+            Enabled = node.Attributes["enabled"]?.Value,
+            Focusable = node.Attributes["focusable"]?.Value,
+            Focused = node.Attributes["focused"]?.Value,
+            Scrollable = node.Attributes["scrollable"]?.Value,
+            LongClickable = node.Attributes["long-clickable"]?.Value,
+            Password = node.Attributes["password"]?.Value,
+            Selected = node.Attributes["selected"]?.Value,
+            Bounds = node.Attributes["bounds"]?.Value
+        };
 
-            XmlDocument doc = new();
-            doc.Load(xmlPath);
-
-            XmlNodeList nodeList = doc.GetElementsByTagName("node");
-            if (nodeList == null || nodeList.Count == 0)
-            {
-                System.Windows.MessageBox.Show("Không có node nào trong XML.");
-                return;
-            }
-
-            _uiElements.Clear();
-            ElementDetailPairs.Clear();
-
-            foreach (XmlNode node in nodeList)
-            {
-                // Chỉ xử lý node có class
-                if (node.Attributes?["class"] == null)
-                    continue;
-
-                // Lấy className nếu bạn muốn lọc nâng cao sau này
-                string className = node.Attributes["class"].Value;
-
-                // Bỏ qua nếu không có bounds
-                if (string.IsNullOrEmpty(node.Attributes["bounds"]?.Value))
-                    continue;
-
-                var element = new UiElement
-                {
-                    Index = node.Attributes["index"]?.Value,
-                    Text = node.Attributes["text"]?.Value,
-                    ResourceId = node.Attributes["resource-id"]?.Value,
-                    Class = node.Attributes["class"]?.Value,
-                    Package = node.Attributes["package"]?.Value,
-                    ContentDesc = node.Attributes["content-desc"]?.Value,
-                    Checkable = node.Attributes["checkable"]?.Value,
-                    Checked = node.Attributes["checked"]?.Value,
-                    Clickable = node.Attributes["clickable"]?.Value,
-                    Enabled = node.Attributes["enabled"]?.Value,
-                    Focusable = node.Attributes["focusable"]?.Value,
-                    Focused = node.Attributes["focused"]?.Value,
-                    Scrollable = node.Attributes["scrollable"]?.Value,
-                    LongClickable = node.Attributes["long-clickable"]?.Value,
-                    Password = node.Attributes["password"]?.Value,
-                    Selected = node.Attributes["selected"]?.Value,
-                    Bounds = node.Attributes["bounds"]?.Value
-                };
-
-                _uiElements.Add(element);
-            }
-        }
+        _uiElements.Add(element);
+    }
+}
 
         public UiElement FindElementAt(int x, int y)
         {

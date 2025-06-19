@@ -193,6 +193,7 @@ namespace ToolChange.Views
         public void InsertTextAtCaret(string text)
         {
             if (string.IsNullOrEmpty(text)) return;
+            if (FileScript.Text == "") { System.Windows.MessageBox.Show("Tạo file trước khi send"); return; }
             string formatted = "\n" + text;
             int caretIndex = editTextBox.CaretIndex;
 

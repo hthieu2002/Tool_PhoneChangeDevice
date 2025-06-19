@@ -125,7 +125,8 @@
                             <ColumnDefinition Width="Auto" />
                             <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
-                        <ComboBox Margin="5,0,5,0"
+                        <ComboBox Name="FileScript"
+                                  Margin="5,0,5,0"
                                   materialDesign:HintAssist.Hint="Chọn file script"
                                   Padding="0"
                                   ItemsSource="{Binding ScriptAutomationVM.LoadFileScript}"
@@ -307,7 +308,7 @@
                                Source="{Binding ScriptAutomationVM.ScreenshotImage}"
                                Stretch="Uniform"
                                MouseMove="ImageContainer_MouseMove"
-                               MouseLeftButtonDown="ImageContainer_MouseLeftButtonDown"/>
+                               MouseLeftButtonDown="ImageContainer_MouseLeftButtonDown" />
 
                     </Border>
                 </Grid>
