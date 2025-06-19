@@ -294,17 +294,7 @@
                                     HorizontalAlignment="Left"
                                     VerticalAlignment="Center"
                                     Width="120" />
-                            <Button Content="LOG"
-                                    Command="{Binding ScriptAutomationVM.AppendTextCommand}"
-                                    CommandParameter="Log(&quot;&quot;)"
-                                    Margin="5,5,5,5"
-                                    Padding="10,5"
-                                    Background="#A28DFF"
-                                    Foreground="White"
-                                    FontSize="11"
-                                    HorizontalAlignment="Left"
-                                    VerticalAlignment="Center"
-                                    Width="120" />
+                         
                         </WrapPanel>
                     </ScrollViewer>
                 </Border>

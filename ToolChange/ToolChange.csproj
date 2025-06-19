@@ -38,6 +38,7 @@
     <None Remove="Resources\scrcpy.exe" />
     <None Remove="Resources\SDL2.dll" />
     <None Remove="Resources\swresample-5.dll" />
+    <None Remove="Resources\tessdata\eng.traineddata" />
     <None Remove="Resources\tun2socks" />
     <None Remove="Resources\webview.txt" />
   </ItemGroup>
@@ -71,6 +72,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </EmbeddedResource>
     <EmbeddedResource Include="Resources\icon.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\tessdata\eng.traineddata">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </EmbeddedResource>
     <Resource Include="Resources\Icons\en.png">
@@ -143,10 +147,12 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.14.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Scripting" Version="4.14.0" />
     <PackageReference Include="Microsoft.CodeAnalysis.Scripting.Common" Version="4.14.0" />
     <PackageReference Include="Microsoft.CodeAnalysis.VisualBasic" Version="4.14.0" />
     <PackageReference Include="Microsoft.Xaml.Behaviors.Wpf" Version="1.1.135" />
     <PackageReference Include="System.Drawing.Common" Version="9.0.6" />
+    <PackageReference Include="Tesseract" Version="5.2.0" />
   </ItemGroup>
 
   <ItemGroup>

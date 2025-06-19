@@ -36,6 +36,15 @@ namespace ToolChange.Views
             {
                 currentNumber++;
                 NumberTextBox.Text = currentNumber.ToString();
+
+                dynamic automationVM = DataContext;
+                var vm = automationVM?.AutomationListVM;
+
+
+                if (vm != null)
+                {
+                    vm.CountRunScript = int.Parse(NumberTextBox.Text);
+                }
             }
         }
 
@@ -45,6 +54,15 @@ namespace ToolChange.Views
             {
                 currentNumber--;
                 NumberTextBox.Text = currentNumber.ToString();
+
+                dynamic automationVM = DataContext;
+                var vm = automationVM?.AutomationListVM;
+
+
+                if (vm != null)
+                {
+                    vm.CountRunScript = int.Parse(NumberTextBox.Text);
+                }
             }
         }
 
