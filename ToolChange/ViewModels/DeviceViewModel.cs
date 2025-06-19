@@ -745,7 +745,7 @@ namespace ToolChange.ViewModels
                 proxy = vm.InputText;
             }
 
-            if (proxy != null || proxy != "")
+            if (!string.IsNullOrEmpty(proxy))
             {
                 // ok
                 try

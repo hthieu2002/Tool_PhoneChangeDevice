@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -24,6 +26,11 @@ namespace ToolChange.Views
     {
         private string _initialText = "";
         private int _selectedLine = -1;
+       
+        private double xCoord; 
+        private double yCoord;
+        public ObservableCollection<CustomKeyValuePair> ElementInfoList { get; set; } = new();
+
         public ScriptAutomation()
         {
             InitializeComponent();
@@ -50,9 +57,81 @@ namespace ToolChange.Views
 
             this.CommandBindings.Add(saveCommandBinding);
             this.InputBindings.Add(new InputBinding(ApplicationCommands.Save, saveGesture));
-
+          //  _uiElements = new List<UiElement>();
             UpdateLineNumbers();
         }
+        private void ImageContainer_MouseMove(object sender, System.Windows.Input.MouseEventArgs e)
+        {
+            var image = sender as System.Windows.Controls.Image;
+            var position = e.GetPosition(image);
+
+            System.Windows.Point uiPosition = e.GetPosition(image);
+            System.Windows.Point realPosition = GetRealImageCoordinates(image, uiPosition);
+
+            // Lấy ViewModel từ DataContext
+            dynamic context = DataContext;
+            context?.ScriptAutomationVM?.UpdateMousePosition(realPosition);
+
+        }
+        private void ImageContainer_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            var image = sender as System.Windows.Controls.Image;
+            if (image == null) return;
+
+            System.Windows.Point uiPosition = e.GetPosition(image);
+            System.Windows.Point realPosition = GetRealImageCoordinates(image, uiPosition);
+
+            dynamic scriptVM = DataContext;
+            var vm = scriptVM?.ScriptAutomationVM;
+
+            if (vm != null)
+            {
+                vm.ClickedX = realPosition.X;
+                vm.ClickedY = realPosition.Y;
+
+                vm.UpdateTextSendContext();
+            }
+
+            var element = vm.FindElementAt((int)vm.ClickedX, (int)vm.ClickedY);
+
+            if (element != null)
+            {
+                vm.DisplayElementInfo(element);
+            }
+            else
+            {
+              
+            }
+
+        }
+        
+        private System.Windows.Point GetRealImageCoordinates(System.Windows.Controls.Image image, System.Windows.Point uiPosition)
+        {
+            if (image.Source is not BitmapSource bitmap)
+                return new System.Windows.Point(0, 0);
+
+            double originalWidth = bitmap.PixelWidth;
+            double originalHeight = bitmap.PixelHeight;
+
+            double displayedWidth = image.ActualWidth;
+            double displayedHeight = image.ActualHeight;
+
+            double ratio = Math.Min(displayedWidth / originalWidth, displayedHeight / originalHeight);
+            double scaledWidth = originalWidth * ratio;
+            double scaledHeight = originalHeight * ratio;
+
+            double offsetX = (displayedWidth - scaledWidth) / 2;
+            double offsetY = (displayedHeight - scaledHeight) / 2;
+
+            double imageX = (uiPosition.X - offsetX) / ratio;
+            double imageY = (uiPosition.Y - offsetY) / ratio;
+
+            imageX = Math.Max(0, Math.Min(imageX, originalWidth - 1));
+            imageY = Math.Max(0, Math.Min(imageY, originalHeight - 1));
+
+            return new System.Windows.Point(imageX, imageY);
+        }
+
         private void EditTextBox_TextChanged(object sender, TextChangedEventArgs e)
         {
             System.Windows.Controls.TextBox textBox = (System.Windows.Controls.TextBox)sender;
@@ -109,6 +188,8 @@ namespace ToolChange.Views
                 lineNumbers.SelectedIndex = _selectedLine;
             }
         }
+      
+
         public void InsertTextAtCaret(string text)
         {
             if (string.IsNullOrEmpty(text)) return;
@@ -142,6 +223,7 @@ namespace ToolChange.Views
                 lineNumbers.SelectedIndex = _selectedLine;
             }
         }
+        
         private void Tab_Click(object sender, RoutedEventArgs e)
         {
             if (sender is TextBlock textBlock)
