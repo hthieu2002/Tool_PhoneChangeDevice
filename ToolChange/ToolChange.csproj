@@ -138,6 +138,13 @@
   <ItemGroup>
     <PackageReference Include="FFmpeg.AutoGen" Version="7.1.1" />
     <PackageReference Include="MaterialDesignInXamlToolkitAddOns" Version="0.0.63" />
+    <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="4.14.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.14.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.Scripting.Common" Version="4.14.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.VisualBasic" Version="4.14.0" />
     <PackageReference Include="Microsoft.Xaml.Behaviors.Wpf" Version="1.1.135" />
     <PackageReference Include="System.Drawing.Common" Version="9.0.6" />
   </ItemGroup>
