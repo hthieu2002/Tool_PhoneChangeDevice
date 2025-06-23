@@ -206,7 +206,7 @@ namespace ToolChange.ViewModels
         private void RandomizeOs()
         {
             var random = new Random();
-            int index = random.Next(AvailableBrands.Count);
+            int index = random.Next(AvailableOs.Count);
             OsValue = AvailableOs[index];
         }
         public ObservableCollection<string> DeviceTypes { get; } = new ObservableCollection<string>
@@ -692,7 +692,7 @@ namespace ToolChange.ViewModels
             string brand = GetDeviceInfoFromADB(device.DeviceId, "getprop ro.product.brand");
             string name = GetDeviceInfoFromADB(device.DeviceId, "getprop ro.android.board");
             string model = GetDeviceInfoFromADB(device.DeviceId, "getprop ro.product.model");
-            string os1 = GetDeviceInfoFromADB(device.DeviceId, "getprop ro.build.version.release");
+            string os1 = GetDeviceInfoFromADB(device.DeviceId, "getprop ro.bootimage.build.version.release");
             string os2 = GetDeviceInfoFromADB(device.DeviceId, "getprop ro.build.version.sdk");
             string country = GetDeviceInfoFromADB(device.DeviceId, "settings get global mi_sim_operator_country");
             string sim = GetDeviceInfoFromADB(device.DeviceId, "settings get global mi_sim_operator_name");
@@ -941,14 +941,14 @@ namespace ToolChange.ViewModels
                     }
                     else if (Os == "Android 12")
                     {
-                        System.Windows.MessageBox.Show("Hiện tại chưa random android 12");
-                        // OsValue = "31";
+                      //  System.Windows.MessageBox.Show("Hiện tại chưa random android 12");
+                        OsValue = "31";
                         // OsValueMax = "31";
                     }
                     else if (Os == "Android 13")
                     {
-                        System.Windows.MessageBox.Show("Hiện tại chưa random android 13");
-                        // OsValue = "32";
+                       // System.Windows.MessageBox.Show("Hiện tại chưa random android 13");
+                        OsValue = "32";
                         // OsValueMax = "32";
                     }
                     else
@@ -1103,14 +1103,14 @@ namespace ToolChange.ViewModels
                     }
                     else if (Os == "Android 12")
                     {
-                        System.Windows.MessageBox.Show("Hiện tại chưa random android 12");
-                        // OsValue = "31";
+                      //  System.Windows.MessageBox.Show("Hiện tại chưa random android 12");
+                         OsValue = "31";
                         // OsValueMax = "31";
                     }
                     else if (Os == "Android 13")
                     {
-                        System.Windows.MessageBox.Show("Hiện tại chưa random android 13");
-                        // OsValue = "32";
+                      // System.Windows.MessageBox.Show("Hiện tại chưa random android 13");
+                         OsValue = "32";
                         // OsValueMax = "32";
                     }
                     else
