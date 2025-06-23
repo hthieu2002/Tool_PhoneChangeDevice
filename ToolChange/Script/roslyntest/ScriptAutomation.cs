@@ -8,7 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using ToolChange.Models;
 
-namespace WindowsFormsApp.Script.Roslyn
+namespace ToolChange.Script.Roslyn
 {
     // test function
     public class ScriptAutomation

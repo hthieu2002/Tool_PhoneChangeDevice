@@ -35,9 +35,10 @@ namespace ToolChange.ViewModels
         private double x1, y1, x2, y2 = 0;
         private double _clickedX, _clickedY;
         private string _clickedPosition;
+        private string _titleTest = "Test";
         private List<UiElement> _uiElements;
         private ObservableCollection<string> _adbDevices = new ObservableCollection<string>();
-
+        private Process scrcpyProcess;
         public ObservableCollection<CustomKeyValuePair> ElementDetailPairs { get; set; } = new();
 
         private string _mousePosition;
@@ -71,6 +72,16 @@ namespace ToolChange.ViewModels
             {
                 _clickedY = value;
                 OnPropertyChanged(nameof(ClickedY));
+               
+            }
+        }
+        public string TitleTest
+        {
+            get => _titleTest;
+            set
+            {
+                _titleTest = value;
+                OnPropertyChanged(nameof(TitleTest));
                
             }
         }
@@ -261,6 +272,8 @@ namespace ToolChange.ViewModels
         public ICommand DeleteScriptCommand { get; }
         public ICommand LoadDevicesCommand { get; }
         public ICommand CaptureCommand { get; }
+        public ICommand ViewCommand { get; }
+        public ICommand TestCommand { get; }
         public ScriptAutomationViewModel()
         {
             _uiElements = new List<UiElement>();
@@ -282,6 +295,8 @@ namespace ToolChange.ViewModels
             CreateFileCommand = new RelayCommand(async () => await CreateFileAsync());
             CaptureCommand = new RelayCommand(async () => await ExecuteCapture());
             LoadDevicesCommand = new RelayCommandCD(_ => LoadDevices());
+            ViewCommand = new RelayCommand(async () => await ViewDevice());
+            TestCommand = new RelayCommand(async () => await Test());
             DeleteScriptCommand = new RelayCommand(async () =>
             {
                 string fileName = SelectedFileScript;
@@ -289,6 +304,77 @@ namespace ToolChange.ViewModels
             });
             TextBoxContent = string.Empty;
         }
+        private async Task Test()
+        {
+            string deviceID = SelectedDevice;
+            string contentTest = TextSendContext;
+
+            if (string.IsNullOrEmpty(deviceID))
+            {
+                System.Windows.MessageBox.Show("Chọn thiết bị test");
+                return;
+            }
+            if (string.IsNullOrEmpty(contentTest))
+            {
+                System.Windows.MessageBox.Show("Chọn chức năng test");
+                return;
+            }
+            try
+            {
+                TitleTest = "Running";
+                Script.Roslyn.ScriptAutomation scriptRolyn = new Script.Roslyn.ScriptAutomation();
+                await scriptRolyn.TestFunction(contentTest, deviceID);
+
+                await Task.Delay(2000);
+
+                await ExecuteCapture();
+
+                LogText = "";
+
+                TitleTest = "Test";
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+            LogText = "";
+        }
+        private async Task ViewDevice()
+        {
+            if (string.IsNullOrEmpty(SelectedDevice))
+            {
+                System.Windows.MessageBox.Show("Chọn thiết bị cần view", "Cảnh báo", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            try
+            {
+                // Đường dẫn scrcpy.exe từ thư mục Resources
+                string scrcpyPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Resources", "scrcpy.exe");
+
+                if (!File.Exists(scrcpyPath))
+                {
+                    System.Windows.MessageBox.Show("Không tìm thấy scrcpy.exe trong thư mục Resources.", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+                string deviceId = SelectedDevice;
+
+                ProcessStartInfo startInfo = new ProcessStartInfo
+                {
+                    FileName = scrcpyPath,
+                    Arguments = $"-s {deviceId} --always-on-top --window-x 0 --window-y 30",
+                    UseShellExecute = false,
+                    CreateNoWindow = true,
+                };
+
+                scrcpyProcess = Process.Start(startInfo);
+            }
+            catch (Exception ex)
+            {
+                System.Windows.MessageBox.Show("Lỗi khi mở scrcpy: " + ex.Message, "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
         private void LoadDevices()
         {
             var devices = ADBService.GetDevices();
