@@ -1,0 +1,43 @@
+﻿<Window x:Class="ToolChange.Views.ControlScriptPage.LoadApp"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:ToolChange.Views.ControlScriptPage"
+        mc:Ignorable="d"
+        Title="LoadApp" Height="450" Width="800">
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <StackPanel Orientation="Horizontal"
+                    Margin="0,0,0,10">
+            <ComboBox x:Name="ComboBoxDevices"
+                      Width="200"
+                      Margin="0,0,10,0" />
+            <Button x:Name="BtnLoadDevice"
+                    Content="Load Device"
+                    Width="120"
+                    Margin="0,0,10,0"
+                    Click="BtnLoadDevice_Click" />
+            <Button x:Name="BtnLoadAllApp"
+                    Content="Load all app"
+                    Width="120"
+                    Margin="0,0,10,0"
+                    Click="BtnLoadAllApp_Click" />
+            <Button x:Name="BtnLoadAppInstaller"
+                    Content="Load app installer"
+                    Width="160"
+                    Click="BtnLoadAppInstaller_Click" />
+        </StackPanel>
+
+        <DataGrid x:Name="DataGridApps"
+                  KeyDown="DataGridApps_KeyDown"
+                  Grid.Row="1"
+                  AutoGenerateColumns="True"
+                  IsReadOnly="True" />
+    </Grid>
+
+</Window>

@@ -199,7 +199,8 @@
                                 FontSize="10"
                                 HorizontalAlignment="Left"
                                 VerticalAlignment="Center"
-                                Width="120" />
+                                Width="120"
+                                Click="Button_Click" />
 
                     </WrapPanel>
                 </Grid>

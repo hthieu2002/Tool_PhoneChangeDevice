@@ -27,5 +27,11 @@ namespace ToolChange.Views.ControlScriptPage
             InitializeComponent();
             DataContext = ViewModelLocator.ScriptVM;
         }
+
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+            LoadApp load = new LoadApp();
+            load.Show();
+        }
     }
 }
