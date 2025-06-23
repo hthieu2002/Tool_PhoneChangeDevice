@@ -84,6 +84,7 @@ namespace ToolChange.Services
                     Dictionary<string, string> partitionList = new Dictionary<string, string>();
                     partitionList.Add("bootimage", "/system/build.prop");
                     partitionList.Add("vendor", "/vendor/build.prop");
+                    partitionList.Add("product", "/product/etc/build.prop");
                     partitionList.Add("system", "/system/build.prop");
                     partitionList.Add("odm", "/odm/etc/build.prop");
                     partitionList.Add("odm_dlkm", "/vendor/odm_dlkm/etc/build.prop");
