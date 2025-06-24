@@ -174,12 +174,7 @@
                                 Foreground="Black"
                                 Margin="2"
                                 FontSize="11" />
-                        <Button Content="Refresh"
-                                Background="#B0E0E6"
-                                Command="{Binding RefreshCommand}"
-                                Margin="2"
-                                Foreground="Black"
-                                FontSize="11" />
+                        
                         <Button Content="Push File"
                                 Background="#B0E0E6"
                                 Foreground="Black"

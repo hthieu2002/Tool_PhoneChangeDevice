@@ -310,6 +310,7 @@ namespace ToolChange.ViewModels
             foreach (var id in closedDevices)
             {
                 ViewedDevices.Remove(id);
+                
             }
         }
 
@@ -447,15 +448,26 @@ namespace ToolChange.ViewModels
 
                         System.Windows.Application.Current.Dispatcher.Invoke(() =>
                         {
-                            device.Screenshot = img;
-                            device.IsActive = true;
+                            if (device != null && img != null && img.PixelHeight > 0)
+                            {
+                                device.Screenshot = img;
+                                device.IsActive = true;
+                            }
                         });
 
-                       // await Task.Delay(13);
+
+                        // await Task.Delay(13);
                     }
                     catch
                     {
-                        System.Windows.Application.Current.Dispatcher.Invoke(() => device.IsActive = false);
+                        if (System.Windows.Application.Current != null)
+                        {
+                            System.Windows.Application.Current.Dispatcher.Invoke(() =>
+                            {
+                                device.IsActive = false;
+                            });
+                        }
+
                         await Task.Delay(500);
                     }
                 }
