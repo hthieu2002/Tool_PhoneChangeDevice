@@ -2474,5 +2474,19 @@ namespace Services
         {
             runCMDRoot(id, "shell screencap /sdcard/screenshot.png");
         }
+        public static void RunAdbCommand(string arguments)
+        {
+            var psi = new ProcessStartInfo("Resources/adb.exe", arguments)
+            {
+                UseShellExecute = false,
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+                CreateNoWindow = true
+            };
+
+            using var process = Process.Start(psi);
+            process.WaitForExit();
+        }
+
     }
 }

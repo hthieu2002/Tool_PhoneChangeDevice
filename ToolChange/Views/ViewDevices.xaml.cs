@@ -10,17 +10,28 @@ using System.Windows.Controls;
 using System.Windows.Forms;
 using System.Windows.Forms.Integration;
 using System.Windows.Media;
+using ToolChange.Services;
+using ToolChange.ViewModels;
 
 namespace ToolChange.Views
 {
     public partial class ViewDevices : System.Windows.Controls.Page
     {
+        private viewDevicesViewModel ViewModel => DataContext as viewDevicesViewModel;
         public ViewDevices()
         {
             InitializeComponent();
-           
+            DataContext = ViewModelLocator.ViewDevicesViewModel;
+        }
+        private void Page_Loaded(object sender, RoutedEventArgs e)
+        {
+            ViewModel?.StartMonitoring();
         }
 
+        private void Page_Unloaded(object sender, RoutedEventArgs e)
+        {
+            ViewModel?.StopMonitoring();
+        }
         private void Slider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
             if (sender is Slider slider)
@@ -36,5 +47,10 @@ namespace ToolChange.Views
         {
             System.Windows.MessageBox.Show("Tắt màn hình khi xem đã được kích hoạt!");
         }
+        private void CloseAllScrcpy_Click(object sender, RoutedEventArgs e)
+        {
+            ViewModel?.CloseScrcpyWindows();
+        }
+
     }
 }

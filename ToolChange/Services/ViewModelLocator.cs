@@ -15,7 +15,7 @@ namespace ToolChange.Services
         public static MainViewModel MainViewModel { get; } = new MainViewModel();
         public static AutomationViewModel AutomationListVM { get; } = new AutomationViewModel();
         public static ScriptAutomationViewModel ScriptAutomationVM { get; } = new ScriptAutomationViewModel();
-       // public static MainViewDeviceViewModel ViewDeviceVM { get; } = new MainViewDeviceViewModel();
+        public static viewDevicesViewModel ViewDeviceVM { get; } = new viewDevicesViewModel();
 
         public static DeviceViewModel DeviceVM => new DeviceViewModel
         {
@@ -32,11 +32,10 @@ namespace ToolChange.Services
             LanguageVM = Localization,
             ScriptAutomationVM = ScriptAutomationVM
         };
-        //public static MainViewDeviceViewModel ViewDevicesViewModel => new MainViewDeviceViewModel
-        //{
-        //    // LanguageVM = Localization,
-        //    ViewDeviceVM = ViewDeviceVM
-        //};
+        public static viewDevicesViewModel ViewDevicesViewModel => new viewDevicesViewModel
+        {
+            LanguageVM = Localization
+        };
     }
 
 }
