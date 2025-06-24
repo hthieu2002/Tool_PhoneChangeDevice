@@ -368,7 +368,7 @@ namespace ToolChange.Services
                 changedSystemInfo.Add($"ro.{partition.Key}.build.version.release", tempDevice.Release);
                 changedSystemInfo.Add($"ro.{partition.Key}.build.version.release_or_codename", tempDevice.Release);
                 //changedSystemInfo.Add($"ro.{partition.Key}.build.version.sdk", tempDevice.BuildDate);
-                changedSystemInfo.Add($"ro.product.{partition.Key}.brand", tempDevice.Brand);
+                changedSystemInfo.Add($"ro.product.{partition.Key}.brand", tempDevice.Manufacturer);
                 changedSystemInfo.Add($"ro.product.{partition.Key}.device", tempDevice.Code);
                 changedSystemInfo.Add($"ro.product.{partition.Key}.manufacturer", tempDevice.Manufacturer);
                 changedSystemInfo.Add($"ro.product.{partition.Key}.model", tempDevice.Model);
