@@ -26,31 +26,56 @@
                 </ItemsControl.ItemsPanel>
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
-                        <Border BorderThickness="1"
-                                BorderBrush="Gray"
-                                Margin="5"
-                                Padding="5"
+                        <Button  Command="{Binding DataContext.DeviceClickCommand,
+                           RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                CommandParameter="{Binding}"
+                                Background="Transparent"
+                                BorderThickness="0"
+                                Padding="0"
                                 Width="200"
-                                Height="400">
-                            <StackPanel>
-                                <TextBlock Text="{Binding DisplayName}"
-                                           FontWeight="Bold"
-                                           HorizontalAlignment="Center" />
-                                <TextBlock Text="{Binding DeviceId}"
-                                           FontStyle="Italic"
-                                           FontSize="10"
-                                           TextWrapping="Wrap"
-                                           HorizontalAlignment="Center" />
-                                <Image Source="{Binding Screenshot}"
-                                       Width="200"
-                                       Height="350"
-                                       Stretch="Uniform" />
-                            </StackPanel>
-                        </Border>
+                                Height="400"
+                                Margin="5">
+                            <Border BorderThickness="1"
+                                    BorderBrush="Gray"
+                                    CornerRadius="10"
+                                    Width="200"
+                                    Height="400">
+                                <Grid>
+                                    <Image Source="{Binding Screenshot}"
+                                           Stretch="Fill"
+                                           Margin="1"
+                                           Width="200"
+                                           Height="400">
+                                        <Image.Clip>
+                                            <RectangleGeometry Rect="0,0,200,400"
+                                                               RadiusX="10"
+                                                               RadiusY="10" />
+                                        </Image.Clip>
+                                    </Image>
+
+                                    <StackPanel VerticalAlignment="Top"
+                                                HorizontalAlignment="Center"
+                                                Background="Transparent"
+                                                Margin="0,10,0,0"
+                                                Orientation="Vertical">
+                                        <TextBlock Text="{Binding DisplayName}"
+                                                   Foreground="White"
+                                                   FontWeight="Bold"
+                                                   FontSize="14"
+                                                   TextWrapping="Wrap" />
+                                        <TextBlock Text="{Binding DeviceId}"
+                                                   Foreground="White"
+                                                   FontSize="10"
+                                                   TextWrapping="Wrap" />
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
+                        </Button>
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
         </ScrollViewer>
+
 
         <Rectangle Grid.Column="1"
                    Width="1"

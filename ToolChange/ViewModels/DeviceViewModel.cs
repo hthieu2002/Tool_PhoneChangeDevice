@@ -2,6 +2,7 @@
 using Dynamitey.Internal.Optimization;
 using Microsoft.Win32;
 using MiHttpClient;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using OpenPop.Mime;
 using POCO.Models;
@@ -471,6 +472,7 @@ namespace ToolChange.ViewModels
         public event PropertyChangedEventHandler PropertyChanged;
         public DeviceViewModel()
         {
+            ResetDeviceJson();
             LoadDevices();
             LoadData();
             DispatcherTimer timer = new DispatcherTimer
@@ -487,7 +489,9 @@ namespace ToolChange.ViewModels
 
             DeleteDeviceCommand = new RelayCommand<object>(DeleteDevice, CanDeleteDevice);
             CopyDeviceIdCommand = new RelayCommand<Models.DeviceModel>(CopyDeviceId);
-            DetailsDeviceIdCommand = new RelayCommand<Models.DeviceModel>(DetailsDevices);
+            // DetailsDeviceIdCommand = new RelayCommand<Models.DeviceModel>(DetailsDevices);
+            DetailsDeviceIdCommand = new RelayCommand<Models.DeviceModel>(async (device) => await DetailsDevices(device));
+
             FakeProxyDeviceIdCommand = new RelayCommand<Models.DeviceModel>(FakeProxyDeviceId);
             RandomDeviceCommand = new RelayCommand(async () => await RandomDevice());
             RandomSimCommand = new RelayCommand(async () => await RandomSim());
@@ -500,6 +504,24 @@ namespace ToolChange.ViewModels
             OpenUrlCommand = new RelayCommand(async () => await OpenUrl());
             IsCheckBoxDevice = new RelayCommand<Models.DeviceModel>(CheckBoxDevice);
         }
+        private void ResetDeviceJson()
+        {
+            var path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, ".\\Resources\\Devices\\devices.json");
+            if (!File.Exists(path)) return;
+
+            var json = File.ReadAllText(path);
+            var list = JsonConvert.DeserializeObject<List<Models.DeviceModel>>(json);
+            if (list == null) return;
+
+            foreach (var d in list)
+            {
+                d.Percentage = "0%";
+                d.Progress = "...";
+            }
+
+            File.WriteAllText(path, JsonConvert.SerializeObject(list, Formatting.Indented));
+        }
+
         private void LoadDevices()
         {
             try
@@ -511,7 +533,7 @@ namespace ToolChange.ViewModels
                     string jsonContent = File.ReadAllText(jsonFilePath);
                     Devices = string.IsNullOrWhiteSpace(jsonContent)
                         ? new ObservableCollection<Models.DeviceModel>()
-                        : JsonSerializer.Deserialize<ObservableCollection<Models.DeviceModel>>(jsonContent) ?? new ObservableCollection<Models.DeviceModel>();
+                        : System.Text.Json.JsonSerializer.Deserialize<ObservableCollection<Models.DeviceModel>>(jsonContent) ?? new ObservableCollection<Models.DeviceModel>();
                 }
                 else
                 {
@@ -582,12 +604,14 @@ namespace ToolChange.ViewModels
 
                             if (device.Status != newStatus || device.Active != newActive)
                             {
+                                DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "0%", "...");
                                 device.Status = newStatus;
                                 device.Active = newActive;
                             }
                         }
                         else if (device.Status != "Offline" || device.Active != "NO")
                         {
+                            DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "0%", "Device offline");
                             device.Status = "Offline";
                             device.Active = "NO";
                         }
@@ -649,7 +673,7 @@ namespace ToolChange.ViewModels
         {
             try
             {
-                var json = JsonSerializer.Serialize(Devices, new JsonSerializerOptions { WriteIndented = true });
+                var json = System.Text.Json.JsonSerializer.Serialize(Devices, new JsonSerializerOptions { WriteIndented = true });
                 File.WriteAllText(jsonFilePath, json);
             }
             catch (Exception ex)
@@ -677,50 +701,63 @@ namespace ToolChange.ViewModels
                 System.Windows.Clipboard.SetText(device.DeviceId);
             }
         }
-        private void DetailsDevices(Models.DeviceModel device)
+        private async Task DetailsDevices(Models.DeviceModel device)
         {
-            var vm = new DetailDeviceViewModel();
+            if (device == null) return;
+
+            // 1️⃣  Khởi tạo dialog & VM trước
+            var vm = new DetailDeviceViewModel
+            {
+                Title = DevicesLang.TitleDetailDevice
+            };
+
             var dialog = new DetailDevicesView
             {
-                Title = $"{DevicesLang.TitleDetailDevice} " + device.DeviceId,
+                Title = $"{DevicesLang.TitleDetailDevice} {device.DeviceId}",
                 Height = 500,
                 Width = 350,
                 ResizeMode = ResizeMode.NoResize,
                 WindowStartupLocation = WindowStartupLocation.CenterScreen,
-                DataContext = vm,
+                DataContext = vm
             };
 
-            string brand = GetDeviceInfoFromADB(device.DeviceId, "getprop ro.product.brand");
-            string name = GetDeviceInfoFromADB(device.DeviceId, "getprop ro.android.board");
-            string model = GetDeviceInfoFromADB(device.DeviceId, "getprop ro.product.model");
-            string os1 = GetDeviceInfoFromADB(device.DeviceId, "getprop ro.bootimage.build.version.release");
-            string os2 = GetDeviceInfoFromADB(device.DeviceId, "getprop ro.build.version.sdk");
-            string country = GetDeviceInfoFromADB(device.DeviceId, "settings get global mi_sim_operator_country");
-            string sim = GetDeviceInfoFromADB(device.DeviceId, "settings get global mi_sim_operator_name");
-            string serial = GetDeviceInfoFromADB(device.DeviceId, "getprop ro.serialno");
-            string codeSim = GetDeviceInfoFromADB(device.DeviceId, "settings get global mi_sim_operator_numeric");
-            string phone = GetDeviceInfoFromADB(device.DeviceId, "settings get global mi_line1_number");
-            string imei = GetDeviceInfoFromADB(device.DeviceId, "settings get global mi_imei_number");
-            string imsi = GetDeviceInfoFromADB(device.DeviceId, "settings get global mi_imsi");
-            string iccid = GetDeviceInfoFromADB(device.DeviceId, "settings get global mi_iccid");
-            string mac = GetDeviceMACAddress(device.DeviceId);
+            // 2️⃣  Chạy song song các lệnh ADB trên thread nền
+            var brandTask = Task.Run(() => GetDeviceInfoFromADB(device.DeviceId, "getprop ro.product.brand"));
+            var nameTask = Task.Run(() => GetDeviceInfoFromADB(device.DeviceId, "getprop ro.android.board"));
+            var modelTask = Task.Run(() => GetDeviceInfoFromADB(device.DeviceId, "getprop ro.product.model"));
+            var os1Task = Task.Run(() => GetDeviceInfoFromADB(device.DeviceId, "getprop ro.bootimage.build.version.release"));
+            var countryTask = Task.Run(() => GetDeviceInfoFromADB(device.DeviceId, "settings get global mi_sim_operator_country"));
+            var simTask = Task.Run(() => GetDeviceInfoFromADB(device.DeviceId, "settings get global mi_sim_operator_name"));
+            var serialTask = Task.Run(() => GetDeviceInfoFromADB(device.DeviceId, "getprop ro.serialno"));
+            var codeTask = Task.Run(() => GetDeviceInfoFromADB(device.DeviceId, "settings get global mi_sim_operator_numeric"));
+            var phoneTask = Task.Run(() => GetDeviceInfoFromADB(device.DeviceId, "settings get global mi_line1_number"));
+            var imeiTask = Task.Run(() => GetDeviceInfoFromADB(device.DeviceId, "settings get global mi_imei_number"));
+            var imsiTask = Task.Run(() => GetDeviceInfoFromADB(device.DeviceId, "settings get global mi_imsi"));
+            var iccidTask = Task.Run(() => GetDeviceInfoFromADB(device.DeviceId, "settings get global mi_iccid"));
+            var macTask = Task.Run(() => GetDeviceMACAddress(device.DeviceId));
 
-            vm.Brand = brand;
-            vm.Name = name;
-            vm.Model = model;
-            vm.Os = os1;
-            vm.Country = country;
-            vm.Serial = serial;
-            vm.Code = codeSim;
-            vm.Phone = phone;
-            vm.Imei = imei;
-            vm.Imsi = imsi;
-            vm.Iccid = iccid;
-            vm.Mac = mac;
-            vm.Title = DevicesLang.TitleDetailDevice;
+            await Task.WhenAll(brandTask, nameTask, modelTask, os1Task, countryTask,
+                               simTask, serialTask, codeTask, phoneTask,
+                               imeiTask, imsiTask, iccidTask, macTask);
+
+            // 3️⃣  Gán dữ liệu (đang ở UI-thread vì await đã về Dispatcher)
+            vm.Brand = brandTask.Result;
+            vm.Name = nameTask.Result;
+            vm.Model = modelTask.Result;
+            vm.Os = os1Task.Result;
+            vm.Country = countryTask.Result;
+            vm.Serial = serialTask.Result;
+            vm.Code = codeTask.Result;
+            vm.Phone = phoneTask.Result;
+            vm.Imei = imeiTask.Result;
+            vm.Imsi = imsiTask.Result;
+            vm.Iccid = iccidTask.Result;
+            vm.Mac = macTask.Result;
+
+            // 4️⃣  Hiển thị dialog
             dialog.ShowDialog();
-
         }
+
         private void FakeProxyDeviceId(Models.DeviceModel device)
         {
             DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "0%", DevicesLang.logTitleProxy);
@@ -1596,10 +1633,8 @@ namespace ToolChange.ViewModels
                 {
                     DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "0%", "Change device error!");
                     _processingDeviceIds.Remove(device.DeviceId);
-                    //     UpdateDeviceStatus(device.DeviceId, "0%", "Error!");
-                    _processingDeviceIds.Remove(device.DeviceId);
                     System.Windows.MessageBox.Show(DevicesLang.logErrorExChangeDevice
-                                            , DevicesLang.logErrorExTitleChangeDevice + device.DeviceId
+                                            , DevicesLang.logErrorExTitleChangeDevice +" " +device.DeviceId
                                             , MessageBoxButton.OK
                                             , MessageBoxImage.Error);
                 }

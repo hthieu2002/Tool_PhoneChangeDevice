@@ -306,22 +306,24 @@ namespace ToolChange.ViewModels
         }
         private async Task Test()
         {
+            TitleTest = "Running";
             string deviceID = SelectedDevice;
             string contentTest = TextSendContext;
 
             if (string.IsNullOrEmpty(deviceID))
             {
                 System.Windows.MessageBox.Show("Chọn thiết bị test");
+                TitleTest = "Test";
                 return;
             }
             if (string.IsNullOrEmpty(contentTest))
             {
                 System.Windows.MessageBox.Show("Chọn chức năng test");
+                TitleTest = "Test";
                 return;
             }
             try
             {
-                TitleTest = "Running";
                 Script.Roslyn.ScriptAutomation scriptRolyn = new Script.Roslyn.ScriptAutomation();
                 await scriptRolyn.TestFunction(contentTest, deviceID);
 

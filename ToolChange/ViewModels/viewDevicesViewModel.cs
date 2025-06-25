@@ -131,10 +131,12 @@ namespace ToolChange.ViewModels
             }
         }
 
+        public ICommand DeviceClickCommand { get; set; }
         public viewDevicesViewModel()
         {
             SelectedDeviceIds = new ObservableCollection<string>();
             SelectedDeviceCount = SelectedDeviceIds.Count;
+            DeviceClickCommand = new RelayCommand<Models.ViewDeviceModel>(async (device) => await DeviceClick(device));
         }
 
         public ICommand SelectDeviceCommand => new RelayCommand<ViewDeviceModel>(ToggleDeviceSelection);
@@ -142,7 +144,7 @@ namespace ToolChange.ViewModels
         public ICommand RefreshCommand => new RelayCommandView(Refresh);
         public ICommand PushFileCommand => new RelayCommandView(PushFileToDevices);
         public ICommand InstallApkCommand => new RelayCommandView(InstallApkToDevices);
-
+       
         private void ToggleDeviceSelection(ViewDeviceModel device)
         {
             if (device == null) return;
@@ -161,6 +163,10 @@ namespace ToolChange.ViewModels
             //MessageBox.Show(string.Join("\n", SelectedDeviceIds));
             SelectedDeviceCount = SelectedDeviceIds.Count;
             OnPropertyChanged(nameof(SelectedDeviceIds));
+        }
+        private async Task DeviceClick(Models.ViewDeviceModel model)
+        {
+            System.Windows.MessageBox.Show(model.DeviceId);
         }
         private async void PushFileToDevices()
         {
