@@ -13,6 +13,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Threading;
+using ToolChange.Language;
 using ToolChange.Services;
 using ToolChange.Views;
 using WindowsFormsApp.Script.RoslynScript;
@@ -216,7 +217,7 @@ namespace ToolChange.ViewModels
 
                 if (selectedCount == 0)
                 {
-                    System.Windows.MessageBox.Show("No devices selected.", "Information", MessageBoxButton.OK, MessageBoxImage.Information);
+                    System.Windows.MessageBox.Show(DevicesLang.logSelectDeviceChange, Lang.LogInfomation, MessageBoxButton.OK, MessageBoxImage.Information);
                     return;
                 }
 
@@ -250,13 +251,13 @@ namespace ToolChange.ViewModels
 
                     if (selectedCount == 0)
                     {
-                        System.Windows.MessageBox.Show("No devices selected.", "Information", MessageBoxButton.OK, MessageBoxImage.Information);
+                        System.Windows.MessageBox.Show(DevicesLang.logSelectDeviceChange, Lang.LogInfomation, MessageBoxButton.OK, MessageBoxImage.Information);
                         return;
                     }
 
                     if (SelectedFileScript == "" || SelectedFileScript == null)
                     {
-                        System.Windows.MessageBox.Show("Chọn script run !", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
+                        System.Windows.MessageBox.Show(AutomationLang.logRunScript, Lang.LogError, MessageBoxButton.OK, MessageBoxImage.Error);
                         return;
                     }
                     BtnRun = "Stop";
@@ -293,7 +294,7 @@ namespace ToolChange.ViewModels
                 var files = LoadScriptFiles().ToArray();
                 if (files.Length == 0)
                 {
-                    System.Windows.MessageBox.Show("Không có script tồn tại!", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    System.Windows.MessageBox.Show(AutomationLang.logLoadScript, Lang.LogInfomation, MessageBoxButton.OK, MessageBoxImage.Warning);
                     return;
                 }
 
@@ -332,7 +333,7 @@ namespace ToolChange.ViewModels
         private async Task ProcessScreenShotDeviceAsync(Models.DeviceModel device)
         {
             ADBService.ScreenshotAdb(device.DeviceId);
-            UpdateDeviceStatus(device.DeviceId, "100", "Đã chụp màn hình");
+            UpdateDeviceStatus(device.DeviceId, "100", "Success screen shot");
 
             _processingDeviceIds.Remove(device.DeviceId);
         }
@@ -352,7 +353,7 @@ namespace ToolChange.ViewModels
                             count++;
                             System.Windows.Application.Current.Dispatcher.Invoke(() =>
                             {
-                                UpdateDeviceStatus(device.DeviceId, "1", $"Chạy script vĩnh viễn lần {count}");
+                                UpdateDeviceStatus(device.DeviceId, "1", $"{AutomationLang.logUntimateRunSctiptInfo} {count}");
                             });
                            
                             RoslynScriptAutomation.Run($"./Resources/script/{SelectedFileScript}", device.DeviceId);
@@ -360,7 +361,7 @@ namespace ToolChange.ViewModels
                     });
                     System.Windows.Application.Current.Dispatcher.Invoke(() =>
                     {
-                        UpdateDeviceStatus(device.DeviceId, "100", $"Hoàn thành chạy vĩnh viễn");
+                        UpdateDeviceStatus(device.DeviceId, "100", $"{AutomationLang.logUntimateRunSctiptInfoSuccess}");
                     });
                     
                     _processingDeviceIds.Remove(device.DeviceId);
@@ -375,7 +376,7 @@ namespace ToolChange.ViewModels
                             if (token.IsCancellationRequested) return;
                             System.Windows.Application.Current.Dispatcher.Invoke(() =>
                             {
-                                UpdateDeviceStatus(device.DeviceId, "1", $"Chạy script lần {i + 1}");
+                                UpdateDeviceStatus(device.DeviceId, "1", $"{AutomationLang.logRunSctiptInfo} {i + 1}");
                             });
 
                             RoslynScriptAutomation.Run($"./Resources/script/{SelectedFileScript}", device.DeviceId);
@@ -383,7 +384,7 @@ namespace ToolChange.ViewModels
                     });
                     System.Windows.Application.Current.Dispatcher.Invoke(() =>
                     {
-                        UpdateDeviceStatus(device.DeviceId, "100", $"Hoàn thành script");
+                        UpdateDeviceStatus(device.DeviceId, "100", $"{AutomationLang.logRunSctiptInfoSuccess}");
                     });
                    
                     _processingDeviceIds.Remove(device.DeviceId);
@@ -399,12 +400,25 @@ namespace ToolChange.ViewModels
         public void UpdateDeviceStatus(string deviceId, string newPercentage, string newProgress)
         {
             var device = Devices.FirstOrDefault(d => d.DeviceId == deviceId);
-            if (device != null)
+            if (device == null) return;
+
+            // Kiểm tra Dispatcher hiện tại
+            var dispatcher = System.Windows.Application.Current?.Dispatcher;
+            if (dispatcher != null && !dispatcher.CheckAccess())
+            {
+                dispatcher.Invoke(() =>
+                {
+                    device.Percentage = newPercentage;
+                    device.Progress = newProgress;
+                });
+            }
+            else
             {
                 device.Percentage = newPercentage;
                 device.Progress = newProgress;
             }
         }
+
         private async Task UpdateDevicesStatus()
         {
             try

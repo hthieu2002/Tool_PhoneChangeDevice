@@ -1042,8 +1042,16 @@ namespace ToolChange.ViewModels
             ToolChange.Language.ViewDeviceLang.logInstallAPKSuccess = LocalizationService.Get("logInstallAPKSuccess");
             ToolChange.Language.ViewDeviceLang.logViewDevice = LocalizationService.Get("logViewDevice");
             ToolChange.Language.ViewDeviceLang.InfoViewDevice = LocalizationService.Get("InfoViewDevice");
+
+            // view automation
+            ToolChange.Language.AutomationLang.logRunScript = LocalizationService.Get("logRunScript");
+            ToolChange.Language.AutomationLang.logLoadScript = LocalizationService.Get("logLoadScript");
+            ToolChange.Language.AutomationLang.logUntimateRunSctiptInfo = LocalizationService.Get("logUntimateRunSctiptInfo");
+            ToolChange.Language.AutomationLang.logRunSctiptInfo = LocalizationService.Get("logRunSctiptInfo");
+            ToolChange.Language.AutomationLang.logUntimateRunSctiptInfoSuccess = LocalizationService.Get("logUntimateRunSctiptInfoSuccess");
+            ToolChange.Language.AutomationLang.logRunSctiptInfoSuccess = LocalizationService.Get("logRunSctiptInfoSuccess");
         }
-      
+
         public event PropertyChangedEventHandler PropertyChanged;
         protected void OnPropertyChanged(string propertyName)
         {
