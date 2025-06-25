@@ -1338,7 +1338,9 @@ namespace ToolChange.ViewModels
                         if (device.Status == "Offline")
                             continue;
                         if (_processingDeviceIds.Contains(device.DeviceId))
+                        {
                             continue;
+                        }
 
                         _processingDeviceIds.Add(device.DeviceId);
                         if (messageBoxPushFile == MessageBoxResult.Yes && selectedFilePath != null)
@@ -1368,7 +1370,7 @@ namespace ToolChange.ViewModels
             }
             finally
             {
-                _processingDeviceIds.Clear();
+               // _processingDeviceIds.Clear();
             }
         }
         private async Task AutoChangeFull()
@@ -1474,8 +1476,9 @@ namespace ToolChange.ViewModels
                         if (device.Status == "Offline")
                             continue;
                         if (_processingDeviceIds.Contains(device.DeviceId))
+                        { 
                             continue;
-
+                        }
                         _processingDeviceIds.Add(device.DeviceId);
                         if (messageBoxPushFile == MessageBoxResult.Yes && selectedFilePath != null)
                         {
@@ -1596,7 +1599,7 @@ namespace ToolChange.ViewModels
                     //     UpdateDeviceStatus(device.DeviceId, "0%", "Error!");
                     _processingDeviceIds.Remove(device.DeviceId);
                     System.Windows.MessageBox.Show(DevicesLang.logErrorExChangeDevice
-                                            , DevicesLang.logErrorExTitleChangeDevice
+                                            , DevicesLang.logErrorExTitleChangeDevice + device.DeviceId
                                             , MessageBoxButton.OK
                                             , MessageBoxImage.Error);
                 }
@@ -1642,7 +1645,7 @@ namespace ToolChange.ViewModels
             }
             finally
             {
-                _processingDeviceIds.Clear();
+               // _processingDeviceIds.Clear();
             }
         }
         private async Task AutoChangeSim()
