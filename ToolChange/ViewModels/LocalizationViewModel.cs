@@ -1032,6 +1032,16 @@ namespace ToolChange.ViewModels
             ToolChange.Language.Lang.LogInfomation = LocalizationService.Get("LogInfomation");
             ToolChange.Language.Lang.LogWarning = LocalizationService.Get("LogError");
             ToolChange.Language.Lang.LogError = LocalizationService.Get("LogWarning");
+
+            // view device
+            ToolChange.Language.StaticLang.DeviceCount = LocalizationService.Get("DeviceCount");
+            ToolChange.Language.ViewDeviceLang.logPushFile = LocalizationService.Get("logPushFile");
+            ToolChange.Language.ViewDeviceLang.logPushFileSuccess = LocalizationService.Get("logPushFileSuccess");
+            ToolChange.Language.ViewDeviceLang.InfoSuccess = LocalizationService.Get("InfoSuccess");
+            ToolChange.Language.ViewDeviceLang.logInstallAPK = LocalizationService.Get("logInstallAPK");
+            ToolChange.Language.ViewDeviceLang.logInstallAPKSuccess = LocalizationService.Get("logInstallAPKSuccess");
+            ToolChange.Language.ViewDeviceLang.logViewDevice = LocalizationService.Get("logViewDevice");
+            ToolChange.Language.ViewDeviceLang.InfoViewDevice = LocalizationService.Get("InfoViewDevice");
         }
       
         public event PropertyChangedEventHandler PropertyChanged;

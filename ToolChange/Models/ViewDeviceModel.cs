@@ -6,6 +6,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Media.Imaging;
+using ToolChange.Language;
 
 namespace ToolChange.Models
 {
@@ -15,7 +16,7 @@ namespace ToolChange.Models
         private bool _isActive;
 
         public string DeviceId { get; set; }
-        public string DisplayName => $"Device {Index + 1}";
+        public string DisplayName => $"{StaticLang.DeviceCount} {Index + 1}";
         private int _index;
 
         public BitmapImage Screenshot

@@ -13,6 +13,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
+using ToolChange.Language;
 using ToolChange.Models;
 using ToolChange.Services;
 using ToolChange.Views;
@@ -165,7 +166,7 @@ namespace ToolChange.ViewModels
         {
             if (SelectedDeviceIds == null || SelectedDeviceIds.Count == 0)
             {
-                System.Windows.MessageBox.Show("Vui lòng chọn ít nhất một thiết bị để push file.", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Warning);
+                System.Windows.MessageBox.Show(ViewDeviceLang.logPushFile, Lang.LogInfomation, MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
 
@@ -186,14 +187,14 @@ namespace ToolChange.ViewModels
                 }));
 
                 await Task.WhenAll(tasks);
-                System.Windows.MessageBox.Show("Đã push file đến các thiết bị.", "Thành công", MessageBoxButton.OK, MessageBoxImage.Information);
+                System.Windows.MessageBox.Show(ViewDeviceLang.logPushFileSuccess, ViewDeviceLang.InfoSuccess, MessageBoxButton.OK, MessageBoxImage.Information);
             }
         }
         private async void InstallApkToDevices()
         {
             if (SelectedDeviceIds == null || SelectedDeviceIds.Count == 0)
             {
-                System.Windows.MessageBox.Show("Vui lòng chọn ít nhất một thiết bị để cài APK.", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Warning);
+                System.Windows.MessageBox.Show(ViewDeviceLang.logInstallAPK, Lang.LogInfomation, MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
 
@@ -213,7 +214,7 @@ namespace ToolChange.ViewModels
                 }));
 
                 await Task.WhenAll(tasks);
-                System.Windows.MessageBox.Show("Đã cài APK cho các thiết bị.", "Thành công", MessageBoxButton.OK, MessageBoxImage.Information);
+                System.Windows.MessageBox.Show(ViewDeviceLang.logInstallAPKSuccess, ViewDeviceLang.InfoSuccess, MessageBoxButton.OK, MessageBoxImage.Information);
             }
         }
 
@@ -227,15 +228,15 @@ namespace ToolChange.ViewModels
         {
             if (SelectedDeviceIds == null || SelectedDeviceIds.Count == 0)
             {
-                System.Windows.MessageBox.Show("Vui lòng chọn ít nhất 1 thiết bị để hiển thị scrcpy.", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Warning);
+                System.Windows.MessageBox.Show(ViewDeviceLang.logViewDevice, Lang.LogInfomation, MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
             CleanupClosedScrcpyWindows();
             string scrcpyPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Resources", "scrcpy.exe");
             int startX = 0;
-            int startY = 100;
-            int windowWidth = 200;
-            int windowHeight = 400;
+            int startY = 50;
+            int windowWidth = 300;
+            int windowHeight = 600;
             int spacing = 10;
             int currentX = startX;
 
@@ -243,7 +244,7 @@ namespace ToolChange.ViewModels
             var pendingDevices = SelectedDeviceIds
                 .Where(id => !ViewedDevices.Contains(id))
                 .ToList();
-            System.Windows.MessageBox.Show($"🔄 Đang hiển thị thiết bị", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Information);
+            System.Windows.MessageBox.Show(ViewDeviceLang.InfoViewDevice,Lang.LogInfomation, MessageBoxButton.OK, MessageBoxImage.Information);
             while (pendingDevices.Any())
             {
                 foreach (var deviceId in pendingDevices.ToList())
@@ -373,7 +374,7 @@ namespace ToolChange.ViewModels
                             }
 
                             // Cập nhật số lượng
-                            CountDevice = new DeviceInfo($"Device {Devices.Count}", Devices.LastOrDefault()?.DeviceId ?? "");
+                            CountDevice = new DeviceInfo($"{StaticLang.DeviceCount} {Devices.Count}", Devices.LastOrDefault()?.DeviceId ?? "");
 
                             // Cập nhật lại Index theo đúng thứ tự
                             RefreshDeviceIndexes();

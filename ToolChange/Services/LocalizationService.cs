@@ -102,6 +102,14 @@ namespace ToolChange.Services
                 { "TitleProxyId", " có id " },
                 { "TitleLocation", "Fake Location" },
                 { "TitleUrl", "Nhập Url" },
+                { "DeviceCount", "Thiết bị" },
+                { "logPushFile", "Vui lòng chọn ít nhất một thiết bị để push file." },
+                { "logPushFileSuccess", "Đã push file đến các thiết bị." },
+                { "InfoSuccess", "Thành công" },
+                { "logInstallAPK", "Vui lòng chọn ít nhất một thiết bị để cài APK." },
+                { "logInstallAPKSuccess", "Đã cài APK cho các thiết bị." },
+                { "logViewDevice", "Vui lòng chọn ít nhất 1 thiết bị để hiển thị scrcpy." },
+                { "InfoViewDevice", "🔄 Đang hiển thị thiết bị" },
             }
         },
         {
@@ -191,6 +199,14 @@ namespace ToolChange.Services
     { "TitleProxyId", " with ID " },
     { "TitleLocation", "Fake Location" },
     { "TitleUrl", "Enter URL" },
+    { "DeviceCount", "Devices" },
+    { "logPushFile", "Please select at least one device to push the file." },
+    { "logPushFileSuccess", "File has been pushed to the devices." },
+    { "InfoSuccess", "Success" },
+    { "logInstallAPK", "Please select at least one device to install the APK." },
+    { "logInstallAPKSuccess", "APK has been installed on the devices." },
+    { "logViewDevice", "Please select at least one device to display with scrcpy." },
+    { "InfoViewDevice", "🔄 Displaying device" },
 
     }
         }
