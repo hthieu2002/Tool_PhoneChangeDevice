@@ -454,9 +454,6 @@ namespace ToolChange.ViewModels
                                 device.IsActive = true;
                             }
                         });
-
-
-                        // await Task.Delay(13);
                     }
                     catch
                     {

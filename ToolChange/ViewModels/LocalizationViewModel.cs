@@ -1011,6 +1011,27 @@ namespace ToolChange.ViewModels
             LabelNumberDevice = LocalizationService.Get("LabelNumberDevice");
             Setting = LocalizationService.Get("Setting");
             Document = LocalizationService.Get("Document");
+            // device
+            ToolChange.Language.DevicesLang.logTitleProxy = LocalizationService.Get("logTitleProxy");
+            ToolChange.Language.DevicesLang.logTitleProxySuccess = LocalizationService.Get("logTitleProxySuccess");
+            ToolChange.Language.DevicesLang.logCheckProxy = LocalizationService.Get("logCheckProxy");
+            ToolChange.Language.DevicesLang.logDeviceRandomEx = LocalizationService.Get("logDeviceRandomEx");
+            ToolChange.Language.DevicesLang.logSelectDeviceChange = LocalizationService.Get("logSelectDeviceChange");
+            ToolChange.Language.DevicesLang.logChangeDevice = LocalizationService.Get("logChangeDevice");
+            ToolChange.Language.DevicesLang.logChangeDeviceKeyBox = LocalizationService.Get("logChangeDeviceKeyBox");
+            ToolChange.Language.DevicesLang.logChangeDevicePif = LocalizationService.Get("logChangeDevicePif");
+            ToolChange.Language.DevicesLang.logErrorExChangeDevice = LocalizationService.Get("logErrorExChangeDevice");
+            ToolChange.Language.DevicesLang.logErrorExTitleChangeDevice = LocalizationService.Get("logErrorExTitleChangeDevice");
+            ToolChange.Language.DevicesLang.TitleDetailDevice = LocalizationService.Get("TitleDetailDevice");
+            ToolChange.Language.DevicesLang.TitleProxy = LocalizationService.Get("TitleProxy");
+            ToolChange.Language.DevicesLang.TitleProxyId = LocalizationService.Get("TitleProxyId");
+            ToolChange.Language.DevicesLang.TitleLocation = LocalizationService.Get("TitleLocation");
+            ToolChange.Language.DevicesLang.TitleUrl = LocalizationService.Get("TitleUrl");
+
+            //lang
+            ToolChange.Language.Lang.LogInfomation = LocalizationService.Get("LogInfomation");
+            ToolChange.Language.Lang.LogWarning = LocalizationService.Get("LogError");
+            ToolChange.Language.Lang.LogError = LocalizationService.Get("LogWarning");
         }
       
         public event PropertyChangedEventHandler PropertyChanged;

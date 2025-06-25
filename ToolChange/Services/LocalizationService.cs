@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Amazon.Runtime.Internal.Transform;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -83,6 +84,24 @@ namespace ToolChange.Services
                 { "LabelNumberDevice", "Số thiết bị được chọn" },
                 { "Setting", "Cài đặt" },
                 { "Document", "Hướng dẫn" },
+                { "LogInfomation", "Thông tin" },
+                { "LogError", "Lỗi" },
+                { "LogWarning", "Cảnh báo" },
+                { "logTitleProxy", "Bắt đầu fake proxy .." },
+                { "logTitleProxySuccess", "Fake proxy thành công" },
+                { "logCheckProxy", "Kiểm tra proxy trên web browserleaks" },
+                { "logDeviceRandomEx", "Thiết bị không tồn tại, vui lòng thử lại" },
+                { "logSelectDeviceChange", "Không có thiết bị được chọn" },
+                { "logChangeDevice", "Bạn có chắc chắn muốn tiếp tục với những thay đổi này và khởi động lại không?" },
+                { "logChangeDeviceKeyBox", "Bạn có muốn push file Keybox.xml vào điện thoại không?" },
+                { "logChangeDevicePif", "Bạn có muốn push file Pif.json vào điện thoại không?" },
+                { "logErrorExChangeDevice", "Thiết bị đã chọn này không thể thay đổi, vui lòng kiểm tra ROM và cài đặt nhà phát triển của bạn và thử tải lại." },
+                { "logErrorExTitleChangeDevice", "Thiết bị lỗi" },
+                { "TitleDetailDevice", "Thông tin thiết bị " },
+                { "TitleProxy", "Nhập proxy cho thiết bị " },
+                { "TitleProxyId", " có id " },
+                { "TitleLocation", "Fake Location" },
+                { "TitleUrl", "Nhập Url" },
             }
         },
         {
@@ -154,13 +173,32 @@ namespace ToolChange.Services
     { "LabelNumberDevice", "Number of Selected Devices" },
     { "Setting", "Settings" },
     { "Document", "Documents" },
-}
+    { "LogInfomation", "Information" },
+    { "LogError", "Error" },
+    { "LogWarning", "Warning" },
+    { "logTitleProxy", "Starting proxy spoofing..." },
+    { "logTitleProxySuccess", "Proxy spoofing successful" },
+    { "logCheckProxy", "Checking proxy on browserleaks website" },
+    { "logDeviceRandomEx", "Device does not exist, please try again" },
+    { "logSelectDeviceChange", "No device selected" },
+    { "logChangeDevice", "Are you sure you want to proceed with these changes and restart?" },
+    { "logChangeDeviceKeyBox", "Do you want to push the Keybox.xml file to the phone?" },
+    { "logChangeDevicePif", "Do you want to push the Pif.json file to the phone?" },
+    { "logErrorExChangeDevice", "The selected device cannot be changed. Please check your ROM and developer settings, then try reloading." },
+    { "logErrorExTitleChangeDevice", "Device Error" },
+    { "TitleDetailDevice", "Device Information" },
+    { "TitleProxy", "Enter proxy for device" },
+    { "TitleProxyId", " with ID " },
+    { "TitleLocation", "Fake Location" },
+    { "TitleUrl", "Enter URL" },
+
+    }
         }
     };
 
         public static void SetLanguage(string language)
         {
-            Properties.Settings.Default.lang = language; 
+            Properties.Settings.Default.lang = language;
             Properties.Settings.Default.Save();
 
             if (_translations.ContainsKey(language))

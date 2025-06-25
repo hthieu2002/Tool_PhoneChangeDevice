@@ -138,6 +138,13 @@ namespace ToolChange.Views
             BtnDevice.Style = (Style)FindResource("MaterialDesignFlatDarkButton");
             BtnSetting.Style = (Style)FindResource("MaterialDesignFlatDarkButton");
             BtnScreen.Style = (Style)FindResource("MaterialDesignFlatDarkButton");
+
+            string viewKey = "Document";
+            if (!viewCache.ContainsKey(viewKey))
+            {
+                viewCache[viewKey] = new Document();
+            }
+            HomeFrame.Content = viewCache[viewKey];
         }
 
         private void MainWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)

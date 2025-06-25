@@ -12,8 +12,8 @@ namespace ToolChange.Models
         private bool _isChecked;
         private string _name;
         private string _deviceId;
-        private string _percentage;
-        private string _progress;
+        private string _percentage = "0%";
+        private string _progress = "...";
         private string _status;
         private string _active;
         public int Index
@@ -68,7 +68,7 @@ namespace ToolChange.Models
             }
         }
 
-        public string Percentage
+        public string Percentage 
         {
             get => _percentage;
             set

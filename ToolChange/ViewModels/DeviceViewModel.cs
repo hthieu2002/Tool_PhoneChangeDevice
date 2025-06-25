@@ -20,6 +20,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Threading;
 using System.Xml.Linq;
+using ToolChange.Language;
 using ToolChange.Models;
 using ToolChange.Services;
 using ToolChange.ViewModels.Constants;
@@ -681,7 +682,7 @@ namespace ToolChange.ViewModels
             var vm = new DetailDeviceViewModel();
             var dialog = new DetailDevicesView
             {
-                Title = "Details device " + device.DeviceId,
+                Title = $"{DevicesLang.TitleDetailDevice} " + device.DeviceId,
                 Height = 500,
                 Width = 350,
                 ResizeMode = ResizeMode.NoResize,
@@ -716,17 +717,19 @@ namespace ToolChange.ViewModels
             vm.Imsi = imsi;
             vm.Iccid = iccid;
             vm.Mac = mac;
-            vm.Title = "Thông tin thiết bị";
+            vm.Title = DevicesLang.TitleDetailDevice;
             dialog.ShowDialog();
 
         }
         private void FakeProxyDeviceId(Models.DeviceModel device)
         {
+            DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "0%", DevicesLang.logTitleProxy);
             string proxy = "";
             var vm = new InputViewModel();
+            DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "1%", DevicesLang.logTitleProxy);
             var dialog = new InputView
             {
-                Title = "Nhập proxy cho thiết bị " + device.Name + " có id " + device.DeviceId,
+                Title = DevicesLang.GetTitieProxy(device.Name, device.DeviceId),
                 Height = 150,
                 Width = 300,
                 ResizeMode = ResizeMode.NoResize,
@@ -750,6 +753,7 @@ namespace ToolChange.ViewModels
                 // ok
                 try
                 {
+                    DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "5%", DevicesLang.logTitleProxy);
                     var peelProxy = proxy.Split(':');
                     var currentTask = TaskScheduler.FromCurrentSynchronizationContext();
                     Task.Run(() =>
@@ -757,9 +761,8 @@ namespace ToolChange.ViewModels
                         var isFakeTimeZone = FakeTimeZone(proxy, device.DeviceId);
                         if (isFakeTimeZone)
                         {
-                            UpdateDeviceStatus(device.DeviceId, "0%", "Faking proxy...");
+                            DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "10%", DevicesLang.logTitleProxy);
                             Thread.Sleep(10000);
-                            UpdateDeviceStatus(device.DeviceId, "10%", "Faking proxy...");
                             string ip = peelProxy[0];
                             int port = int.Parse(peelProxy[1]);
                             string user = (peelProxy.Length >= 3) ? peelProxy[2] : "";
@@ -767,20 +770,17 @@ namespace ToolChange.ViewModels
                             ADBService.enableWifi(false, device.DeviceId);
                             ADBService.rootAndRemount(device.DeviceId);
                             ADBService.putSetting("http_proxy", ":0", device.DeviceId);
-                            UpdateDeviceStatus(device.DeviceId, "30%", "Faking proxy...");
                             RedSocksService.stop(device.DeviceId);
                             if (ADBService.checkFileOnDevice("/data/local/tmp/redsocks.conf", device.DeviceId))
                             {
+                                DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "40%", Lang.LogError);
                                 RedSocksService.stop(device.DeviceId);
                             }
 
-                            UpdateDeviceStatus(device.DeviceId, "40%", "Faking proxy...");
                             RedSocksService.setUpRedSocksOnDevice("/data/local/tmp", device.DeviceId);
-
+                            DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "50%", DevicesLang.logTitleProxy);
                             RedSocksService.start(ip, port, "/data/local/tmp", device.DeviceId, user, password);
-                            UpdateDeviceStatus(device.DeviceId, "50%", "Faking proxy...");
                             ADBService.openWifiSettings(device.DeviceId);
-                            UpdateDeviceStatus(device.DeviceId, "60%", "Faking proxy...");
                             while (!ADBService.isWifiConnectedV2(device.DeviceId) && !ADBService.isWifiConnected(device.DeviceId))
                             {
                                 ADBService.openWifiSettings(device.DeviceId);
@@ -788,8 +788,7 @@ namespace ToolChange.ViewModels
                             }
                             Thread.Sleep(5000);
                             ADBService.OpenBrowserWithUrl("https://browserleaks.com/ip", device.DeviceId);
-                            UpdateDeviceStatus(device.DeviceId, "99%", "Faking proxy Done");
-
+                            DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "99%", DevicesLang.logCheckProxy);
                         }
                         else
                         {
@@ -797,13 +796,13 @@ namespace ToolChange.ViewModels
                         }
                     }).ContinueWith(task =>
                     {
-                        UpdateDeviceStatus(device.DeviceId, "100%", "Faking proxy Done");
+                        DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "100%", DevicesLang.logTitleProxySuccess);
                     }, currentTask);
 
                 }
                 catch (Exception ex)
                 {
-                    System.Windows.MessageBox.Show(ex.Message, "Exception", MessageBoxButton.OK, MessageBoxImage.Error);
+                    System.Windows.MessageBox.Show(ex.Message, Lang.LogError, MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
         }
@@ -941,13 +940,13 @@ namespace ToolChange.ViewModels
                     }
                     else if (Os == "Android 12")
                     {
-                      //  System.Windows.MessageBox.Show("Hiện tại chưa random android 12");
+                        //  System.Windows.MessageBox.Show("Hiện tại chưa random android 12");
                         OsValue = "31";
                         // OsValueMax = "31";
                     }
                     else if (Os == "Android 13")
                     {
-                       // System.Windows.MessageBox.Show("Hiện tại chưa random android 13");
+                        // System.Windows.MessageBox.Show("Hiện tại chưa random android 13");
                         OsValue = "32";
                         // OsValueMax = "32";
                     }
@@ -982,11 +981,11 @@ namespace ToolChange.ViewModels
                         OsValue = "29";
                     }
                 }
-
-                tempDevice = await miChangerGraphQLClient.GetRandomDeviceV3(brand: BrandValue,sdkMin: int.Parse(OsValue), sdkMax: int.Parse(OsValue));
+                await Task.Delay(1000);
+                tempDevice = await miChangerGraphQLClient.GetRandomDeviceV3(brand: BrandValue, sdkMin: int.Parse(OsValue), sdkMax: int.Parse(OsValue));
                 if (tempDevice.Model == null)
                 {
-                    throw new Exception("Devices not existed, please try again");
+                    throw new Exception(DevicesLang.logDeviceRandomEx);
                 }
 
                 tempDevice.IMSI = RandomService.generateIMSI(mcc, mnc);
@@ -1072,7 +1071,7 @@ namespace ToolChange.ViewModels
                 }
                 else
                 {
-                   if (Os == "Android 8.1.0")
+                    if (Os == "Android 8.1.0")
                     {
                         OsValue = "27";
                     }
@@ -1103,14 +1102,14 @@ namespace ToolChange.ViewModels
                     }
                     else if (Os == "Android 12")
                     {
-                      //  System.Windows.MessageBox.Show("Hiện tại chưa random android 12");
-                         OsValue = "31";
+                        //  System.Windows.MessageBox.Show("Hiện tại chưa random android 12");
+                        OsValue = "31";
                         // OsValueMax = "31";
                     }
                     else if (Os == "Android 13")
                     {
-                      // System.Windows.MessageBox.Show("Hiện tại chưa random android 13");
-                         OsValue = "32";
+                        // System.Windows.MessageBox.Show("Hiện tại chưa random android 13");
+                        OsValue = "32";
                         // OsValueMax = "32";
                     }
                     else
@@ -1148,7 +1147,7 @@ namespace ToolChange.ViewModels
                 tempDeviceAll = await miChangerGraphQLClient.GetRandomDeviceV3(brand: BrandValue, sdkMin: int.Parse(OsValue), sdkMax: int.Parse(OsValue));
                 if (tempDeviceAll.Model == null)
                 {
-                    throw new Exception("Devices not existed, please try again");
+                    throw new Exception(DevicesLang.logDeviceRandomEx);
                 }
                 Brand = tempDeviceAll.Manufacturer;
                 Name = tempDeviceAll.Board;
@@ -1206,7 +1205,7 @@ namespace ToolChange.ViewModels
                 tempDeviceAll = await miChangerGraphQLClient.GetRandomDeviceV3(sdkMin: 30);
                 if (tempDeviceAll.Model == null)
                 {
-                    throw new Exception("Devices not existed, please try again");
+                    throw new Exception(DevicesLang.logDeviceRandomEx);
                 }
                 tempDeviceAll.IMSI = RandomService.generateIMSI(mcc, mnc);
                 tempDeviceAll.ICCID = RandomService.generateICCID(currentSelectedCountry.CountryCode, mnc);
@@ -1245,20 +1244,20 @@ namespace ToolChange.ViewModels
 
                 if (selectedCount == 0)
                 {
-                    System.Windows.MessageBox.Show("No devices selected.", "Information", MessageBoxButton.OK, MessageBoxImage.Information);
+                    System.Windows.MessageBox.Show(DevicesLang.logSelectDeviceChange, Lang.LogInfomation, MessageBoxButton.OK, MessageBoxImage.Information);
                     return;
                 }
 
                 var tasks = new List<Task>();
 
-                var result = System.Windows.MessageBox.Show("Are you sure to proceed with these changes and reboot ?", "Thông báo", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+                var result = System.Windows.MessageBox.Show(DevicesLang.logChangeDevice, Lang.LogInfomation, MessageBoxButton.YesNo, MessageBoxImage.Warning);
                 if (result == MessageBoxResult.Yes)
                 {
                     var messageBoxPushFile = MessageBoxResult.No;
                     var messageBoxPushFileJson = MessageBoxResult.No;
                     if (IsCheckedKeyBox == true)
                     {
-                        messageBoxPushFile = System.Windows.MessageBox.Show("Are you push file keybox.xml to phone ?", "Thông báo", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+                        messageBoxPushFile = System.Windows.MessageBox.Show(DevicesLang.logChangeDeviceKeyBox, Lang.LogInfomation, MessageBoxButton.YesNo, MessageBoxImage.Warning);
                     }
 
                     if (messageBoxPushFile == MessageBoxResult.Yes)
@@ -1284,7 +1283,7 @@ namespace ToolChange.ViewModels
                                 {
                                     await System.Windows.Application.Current.Dispatcher.InvokeAsync(() =>
                                     {
-                                        System.Windows.MessageBox.Show("Error", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                                        System.Windows.MessageBox.Show(Lang.LogError, Lang.LogError, MessageBoxButton.OK, MessageBoxImage.Error);
                                     });
                                 }
                             }
@@ -1297,7 +1296,7 @@ namespace ToolChange.ViewModels
 
                     if (IsCheckedpif == true)
                     {
-                        messageBoxPushFileJson = System.Windows.MessageBox.Show("Are you push file pif.json to phone ?", "Thông báo", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+                        messageBoxPushFileJson = System.Windows.MessageBox.Show(DevicesLang.logChangeDevicePif, Lang.LogInfomation, MessageBoxButton.YesNo, MessageBoxImage.Warning);
                     }
 
                     if (messageBoxPushFileJson == MessageBoxResult.Yes)
@@ -1323,7 +1322,7 @@ namespace ToolChange.ViewModels
                                 {
                                     await System.Windows.Application.Current.Dispatcher.InvokeAsync(() =>
                                     {
-                                        System.Windows.MessageBox.Show("Error", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                                        System.Windows.MessageBox.Show(Lang.LogError, Lang.LogError, MessageBoxButton.OK, MessageBoxImage.Error);
                                     });
                                 }
                             }
@@ -1336,7 +1335,6 @@ namespace ToolChange.ViewModels
 
                     foreach (var device in selectedDevices)
                     {
-                        UpdateDeviceStatus(device.DeviceId, "1%", "Change device start");
                         if (device.Status == "Offline")
                             continue;
                         if (_processingDeviceIds.Contains(device.DeviceId))
@@ -1366,7 +1364,7 @@ namespace ToolChange.ViewModels
             }
             catch (Exception ex)
             {
-                System.Windows.MessageBox.Show($"Error in ChangeDevice: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                System.Windows.MessageBox.Show($"Error in ChangeDevice: {ex.Message}", Lang.LogError, MessageBoxButton.OK, MessageBoxImage.Error);
             }
             finally
             {
@@ -1382,20 +1380,20 @@ namespace ToolChange.ViewModels
 
                 if (selectedCount == 0)
                 {
-                    System.Windows.MessageBox.Show("No devices selected.", "Information", MessageBoxButton.OK, MessageBoxImage.Information);
+                    System.Windows.MessageBox.Show(DevicesLang.logSelectDeviceChange, Lang.LogInfomation, MessageBoxButton.OK, MessageBoxImage.Information);
                     return;
                 }
 
                 var tasks = new List<Task>();
 
-                var result = System.Windows.MessageBox.Show("Are you sure to proceed with these changes and reboot ?", "Thông báo", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+                var result = System.Windows.MessageBox.Show(DevicesLang.logChangeDevice, Lang.LogInfomation, MessageBoxButton.YesNo, MessageBoxImage.Warning);
                 if (result == MessageBoxResult.Yes)
                 {
                     var messageBoxPushFile = MessageBoxResult.No;
                     var messageBoxPushFileJson = MessageBoxResult.No;
                     if (IsCheckedKeyBox == true)
                     {
-                        messageBoxPushFile = System.Windows.MessageBox.Show("Are you push file keybox.xml to phone ?", "Thông báo", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+                        messageBoxPushFile = System.Windows.MessageBox.Show(DevicesLang.logChangeDeviceKeyBox,Lang.LogInfomation, MessageBoxButton.YesNo, MessageBoxImage.Warning);
                     }
 
                     if (messageBoxPushFile == MessageBoxResult.Yes)
@@ -1421,7 +1419,7 @@ namespace ToolChange.ViewModels
                                 {
                                     await System.Windows.Application.Current.Dispatcher.InvokeAsync(() =>
                                     {
-                                        System.Windows.MessageBox.Show("Error", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                                        System.Windows.MessageBox.Show(Lang.LogError, Lang.LogError, MessageBoxButton.OK, MessageBoxImage.Error);
                                     });
                                 }
                             }
@@ -1434,7 +1432,7 @@ namespace ToolChange.ViewModels
 
                     if (IsCheckedpif == true)
                     {
-                        messageBoxPushFileJson = System.Windows.MessageBox.Show("Are you push file pif.json to phone ?", "Thông báo", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+                        messageBoxPushFileJson = System.Windows.MessageBox.Show(DevicesLang.logChangeDevicePif, Lang.LogInfomation, MessageBoxButton.YesNo, MessageBoxImage.Warning);
                     }
 
                     if (messageBoxPushFileJson == MessageBoxResult.Yes)
@@ -1460,7 +1458,7 @@ namespace ToolChange.ViewModels
                                 {
                                     await System.Windows.Application.Current.Dispatcher.InvokeAsync(() =>
                                     {
-                                        System.Windows.MessageBox.Show("Error", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                                        System.Windows.MessageBox.Show(Lang.LogError, Lang.LogError, MessageBoxButton.OK, MessageBoxImage.Error);
                                     });
                                 }
                             }
@@ -1473,7 +1471,6 @@ namespace ToolChange.ViewModels
 
                     foreach (var device in selectedDevices)
                     {
-                        UpdateDeviceStatus(device.DeviceId, "1%", "Change device start");
                         if (device.Status == "Offline")
                             continue;
                         if (_processingDeviceIds.Contains(device.DeviceId))
@@ -1503,7 +1500,7 @@ namespace ToolChange.ViewModels
             }
             catch (Exception ex)
             {
-                System.Windows.MessageBox.Show($"Error in ChangeDevice: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                System.Windows.MessageBox.Show($"Error in ChangeDevice: {ex.Message}", Lang.LogError, MessageBoxButton.OK, MessageBoxImage.Error);
             }
             finally
             {
@@ -1512,35 +1509,56 @@ namespace ToolChange.ViewModels
         }
         private async Task ProcessChangeDeviceAsync(Models.DeviceModel device, int checkChange = 0)
         {
-            UpdateDeviceStatus(device.DeviceId, "0%", "Change device start");
+            //  UpdateDeviceStatus(device.DeviceId, "0%", "Change device start");
+            DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "0%", "Change device start");
             POCO.Models.DeviceModel deviceTemp = null;
             if (checkChange == 1)
             {
+                DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "0%", "Random device .. ");
                 deviceTemp = await RandomDevicePrivate();
+                while (deviceTemp == null)
+                {
+                    DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "0%", "Random device again .");
+                    deviceTemp = await RandomDevicePrivate();
+                    await Task.Delay(2000);
+                    if (deviceTemp != null)
+                    {
+                        DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "0%", "Random device success");
+                        break;
+                    }
+                }
+
             }
             var uiThreadScheduler = TaskScheduler.FromCurrentSynchronizationContext();
             var saveResult = true;
-            UpdateDeviceStatus(device.DeviceId, "5%", "Change device start");
+            //UpdateDeviceStatus(device.DeviceId, "5%", "Change device start");
+            DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "5%", "Change device start");
             await Task.Run(async () =>
             {
                 await System.Windows.Application.Current.Dispatcher.InvokeAsync(() =>
                 {
 
                 });
-
+                DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "7%", "Enable Wifi");
+              
                 ADBService.enableWifi(false, device.DeviceId);
                 await Task.Delay(2000);
-                UpdateDeviceStatus(device.DeviceId, "15%", "Change device ....");
+              //  UpdateDeviceStatus(device.DeviceId, "15%", "Change device ....");
                 Console.WriteLine(IsCheckedSim);
-                saveResult = Services.Util.SaveDeviceInfo(checkChange == 0 ? tempDeviceAll : deviceTemp, device.DeviceId, AppDomain.CurrentDomain.BaseDirectory, IsCheckedSim);
-                UpdateDeviceStatus(device.DeviceId, "75%", "Change device ....");
+                await Task.Delay(1000);
+                DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "9%", "Start change device ...");
+                saveResult = Services.Util.SaveDeviceInfo(this, Devices, checkChange == 0 ? tempDeviceAll : deviceTemp, device.DeviceId, AppDomain.CurrentDomain.BaseDirectory, IsCheckedSim);
+                //    UpdateDeviceStatus(device.DeviceId, "75%", "Change device ....");
+                DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "75%", "Change device check");
                 if (saveResult)
                 {
+                    DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "75%", "Change device Success");
                     await System.Windows.Application.Current.Dispatcher.InvokeAsync(() =>
                     {
 
                     });
-                    UpdateDeviceStatus(device.DeviceId, "85%", "Change device ....");
+                    //       UpdateDeviceStatus(device.DeviceId, "85%", "Change device ....");
+                    DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "85%", "Wipe device");
                     var packagesWipeAfterChanger = loadWipeListConfig();
                     wipePackagesChanger(packagesWipeAfterChanger, device.DeviceId);
 
@@ -1551,32 +1569,39 @@ namespace ToolChange.ViewModels
                     });
                     if (device.DeviceId.Length >= 12)
                     {
+                        DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "95%", "Reboot!");
                         _processingDeviceIds.Remove(device.DeviceId);
                         ADBService.restartDevice(device.DeviceId);
-                        Thread.Sleep(10000);
+                        await Task.Delay(10000);
                     }
                     else
                     {
+                        DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "95%", "Reboot!");
                         _processingDeviceIds.Remove(device.DeviceId);
                         ADBService.restartDevice(device.DeviceId);
-                        Thread.Sleep(10000);
+                        await Task.Delay(10000);
                         // FakeDevicePixelAction(device, checkBoxFakeSimInfo.Checked);
                     }
-                    UpdateDeviceStatus(device.DeviceId, "100%", "Change device success");
+                    //      UpdateDeviceStatus(device.DeviceId, "100%", "Change device success");
+                    DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "100%", "OK");
+                    await Task.Delay(2000);
+                    DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "0%", "...");
                 }
             }).ContinueWith(task =>
             {
                 if (!saveResult)
                 {
-                    UpdateDeviceStatus(device.DeviceId, "0%", "Error!");
+                    DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "0%", "Change device error!");
                     _processingDeviceIds.Remove(device.DeviceId);
-                    System.Windows.MessageBox.Show("This selected device cannot be changed, please check your rom and developer setting and try loading again."
-                                            , "Device Error"
+                    //     UpdateDeviceStatus(device.DeviceId, "0%", "Error!");
+                    _processingDeviceIds.Remove(device.DeviceId);
+                    System.Windows.MessageBox.Show(DevicesLang.logErrorExChangeDevice
+                                            , DevicesLang.logErrorExTitleChangeDevice
                                             , MessageBoxButton.OK
                                             , MessageBoxImage.Error);
                 }
             }, uiThreadScheduler);
-
+            _processingDeviceIds.Remove(device.DeviceId);
         }
         private async Task ChangeSim()
         {
@@ -1587,18 +1612,17 @@ namespace ToolChange.ViewModels
 
                 if (selectedCount == 0)
                 {
-                    System.Windows.MessageBox.Show("No devices selected.", "Information", MessageBoxButton.OK, MessageBoxImage.Information);
+                    System.Windows.MessageBox.Show(DevicesLang.logSelectDeviceChange, Lang.LogInfomation, MessageBoxButton.OK, MessageBoxImage.Information);
                     return;
                 }
 
                 var tasks = new List<Task>();
 
-                var result = System.Windows.MessageBox.Show("Are you sure to proceed with these changes and reboot ?", "Thông báo", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+                var result = System.Windows.MessageBox.Show(DevicesLang.logChangeDevice, Lang.LogInfomation, MessageBoxButton.YesNo, MessageBoxImage.Warning);
                 if (result == MessageBoxResult.Yes)
                 {
                     foreach (var device in selectedDevices)
                     {
-                        UpdateDeviceStatus(device.DeviceId, "1%", "Change sim start");
                         if (device.Status == "Offline")
                             continue;
                         if (_processingDeviceIds.Contains(device.DeviceId))
@@ -1630,18 +1654,17 @@ namespace ToolChange.ViewModels
 
                 if (selectedCount == 0)
                 {
-                    System.Windows.MessageBox.Show("No devices selected.", "Information", MessageBoxButton.OK, MessageBoxImage.Information);
+                    System.Windows.MessageBox.Show(DevicesLang.logSelectDeviceChange, Lang.LogInfomation, MessageBoxButton.OK, MessageBoxImage.Information);
                     return;
                 }
 
                 var tasks = new List<Task>();
 
-                var result = System.Windows.MessageBox.Show("Are you sure to proceed with these changes and reboot ?", "Thông báo", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+                var result = System.Windows.MessageBox.Show(DevicesLang.logChangeDevice, Lang.LogInfomation, MessageBoxButton.YesNo, MessageBoxImage.Warning);
                 if (result == MessageBoxResult.Yes)
                 {
                     foreach (var device in selectedDevices)
                     {
-                        UpdateDeviceStatus(device.DeviceId, "1%", "Change sim start");
                         if (device.Status == "Offline")
                             continue;
                         if (_processingDeviceIds.Contains(device.DeviceId))
@@ -1666,69 +1689,76 @@ namespace ToolChange.ViewModels
         }
         private async Task ProcessChangeSimAsync(Models.DeviceModel device, int checkChange = 0)
         {
+            DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "0%", "Start change sim..");
             POCO.Models.DeviceModel deviceTemp = null;
             if (checkChange == 1)
             {
+                DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "0%", "Random sim all");
                 deviceTemp = await RandomDevicePrivate();
+                while (deviceTemp == null) {
+                    DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "0%", "Random sim again.. ");
+                    deviceTemp = await RandomDevicePrivate();
+                    await Task.Delay(2000);
+                    if (deviceTemp != null)
+                    {
+                        DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "0%", "Random sim success ");
+                        break;
+                    }
+                }
             }
             var uiThreadScheduler = TaskScheduler.FromCurrentSynchronizationContext();
             var saveResult = true;
-            UpdateDeviceStatus(device.DeviceId, "5%", "Change sim device start");
+           
             await Task.Run(async () =>
             {
-                await System.Windows.Application.Current.Dispatcher.InvokeAsync(() =>
-                {
-
-                });
-
+                DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "5%", "Enable wifi ");
                 ADBService.enableWifi(false, device.DeviceId);
                 await Task.Delay(2000);
-                UpdateDeviceStatus(device.DeviceId, "15%", "Change sim device ....");
+                DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "9%", "Start change sim device .. ");
                 saveResult = Services.Util.SaveDeviceSIm(checkChange == 0 ? tempDeviceAll : deviceTemp, device.DeviceId, AppDomain.CurrentDomain.BaseDirectory);
-                UpdateDeviceStatus(device.DeviceId, "75%", "Change sim device ....");
+                DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "75%", "Check change sim devices success or error ");
                 if (saveResult)
                 {
-                    await System.Windows.Application.Current.Dispatcher.InvokeAsync(() =>
-                    {
-
-                    });
-                    UpdateDeviceStatus(device.DeviceId, "85%", "Change sim device ....");
+                    DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "76%", "Change sim success ");
+                   
+                    DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "80%", "Wipe");
                     var packagesWipeAfterChanger = loadWipeListConfig();
                     wipePackagesChanger(packagesWipeAfterChanger, device.DeviceId);
 
-                    ADBService.cleanGMSPackagesAndAccounts(device.DeviceId);
-                    await System.Windows.Application.Current.Dispatcher.InvokeAsync(() =>
-                    {
-
-                    });
+                 //   ADBService.cleanGMSPackagesAndAccounts(device.DeviceId);
+                  
                     if (device.DeviceId.Length >= 12)
                     {
+                        DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "99%", "Reboot!");
                         _processingDeviceIds.Remove(device.DeviceId);
                         ADBService.restartDevice(device.DeviceId);
                         Thread.Sleep(10000);
                     }
                     else
                     {
+                        DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "99%", "Reboot!");
                         _processingDeviceIds.Remove(device.DeviceId);
                         ADBService.restartDevice(device.DeviceId);
                         Thread.Sleep(10000);
                         // FakeDevicePixelAction(device, checkBoxFakeSimInfo.Checked);
                     }
-                    UpdateDeviceStatus(device.DeviceId, "100%", "Change sim device success");
+                    DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "100%", "Succcess !");
+                    await Task.Delay(1000);
+                    DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "0%", "...");
                 }
             }).ContinueWith(task =>
             {
                 if (!saveResult)
                 {
-
+                    DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "0%", "Error");
                     _processingDeviceIds.Remove(device.DeviceId);
-                    System.Windows.MessageBox.Show("This selected device cannot be changed, please check your rom and developer setting and try loading again."
-                                            , "Device Error"
+                    System.Windows.MessageBox.Show(DevicesLang.logErrorExChangeDevice
+                                            , DevicesLang.logErrorExTitleChangeDevice
                                             , MessageBoxButton.OK
                                             , MessageBoxImage.Error);
                 }
             }, uiThreadScheduler);
-
+            _processingDeviceIds.Remove(device.DeviceId);
         }
         private async Task Screenshot()
         {
@@ -1739,16 +1769,14 @@ namespace ToolChange.ViewModels
 
                 if (selectedCount == 0)
                 {
-                    System.Windows.MessageBox.Show("No devices selected.", "Information", MessageBoxButton.OK, MessageBoxImage.Information);
+                    System.Windows.MessageBox.Show(DevicesLang.logSelectDeviceChange, Lang.LogInfomation, MessageBoxButton.OK, MessageBoxImage.Information);
                     return;
                 }
                 var tasks = new List<Task>();
                 foreach (var device in selectedDevices)
                 {
-                    UpdateDeviceStatus(device.DeviceId, "1%", "Đang chụp màn hình thiết bị");
                     if (device.Status == "Offline")
                     {
-                        UpdateDeviceStatus(device.DeviceId, "100%", "Thiết bị offline");
                         continue;
                     }
 
@@ -1774,11 +1802,12 @@ namespace ToolChange.ViewModels
         }
         private async Task ProcessScreenshotAsync(Models.DeviceModel device)
         {
+            DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "0%", "Start Screen shot device ..");
             try
             {
-                UpdateDeviceStatus(device.DeviceId, "50%", "Đang thực hiện ... ");
+                DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "20%", "Start Screen shot device ..");
                 ADBService.ScreenShotDevice(device.DeviceId);
-                UpdateDeviceStatus(device.DeviceId, "100%", "Đã chụp màn hình xong");
+                DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "100%", "Success");
             }
             catch (Exception e)
             {
@@ -1796,14 +1825,14 @@ namespace ToolChange.ViewModels
 
                 if (selectedCount == 0)
                 {
-                    System.Windows.MessageBox.Show("No devices selected.", "Information", MessageBoxButton.OK, MessageBoxImage.Information);
+                    System.Windows.MessageBox.Show(DevicesLang.logSelectDeviceChange, Lang.LogInfomation, MessageBoxButton.OK, MessageBoxImage.Information);
                     return;
                 }
 
                 var vm = new InputCoordinateDialogViewModel();
                 var dialog = new DialogView
                 {
-                    Title = "Fake location",
+                    Title = DevicesLang.TitleLocation,
                     Height = 170,
                     Width = 250,
                     ResizeMode = ResizeMode.NoResize,
@@ -1826,10 +1855,8 @@ namespace ToolChange.ViewModels
                 var tasks = new List<Task>();
                 foreach (var device in selectedDevices)
                 {
-                    UpdateDeviceStatus(device.DeviceId, "1%", "Đang fake localtion");
                     if (device.Status == "Offline")
                     {
-                        UpdateDeviceStatus(device.DeviceId, "100%", "Thiết bị offline");
                         continue;
                     }
 
@@ -1863,14 +1890,14 @@ namespace ToolChange.ViewModels
 
                 if (selectedCount == 0)
                 {
-                    System.Windows.MessageBox.Show("No devices selected.", "Information", MessageBoxButton.OK, MessageBoxImage.Information);
+                    System.Windows.MessageBox.Show(DevicesLang.logSelectDeviceChange, Lang.LogInfomation, MessageBoxButton.OK, MessageBoxImage.Information);
                     return;
                 }
 
                 var vm = new InputViewModel();
                 var dialog = new InputView
                 {
-                    Title = "Nhập Url ",
+                    Title =DevicesLang.TitleUrl,
                     Height = 150,
                     Width = 300,
                     ResizeMode = ResizeMode.NoResize,
@@ -1909,22 +1936,26 @@ namespace ToolChange.ViewModels
         }
         private async Task ProcessFakeLocationAsync(Models.DeviceModel device, string x, string y)
         {
+            DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "0%", $"Start fake location for location {x} - {y}");
             if (x != "" && x != "")
             {
-                UpdateDeviceStatus(device.DeviceId, "10%", "Đang fake localtion");
+                DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "10%", $"Start fake location for location {x} - {y}");
                 ADBService.FakeLocation(x, y, device.DeviceId);
-                UpdateDeviceStatus(device.DeviceId, "100%", "Fake location success");
+                DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "100%", $"Success fake location for location {x} - {y}");
             }
-            else { UpdateDeviceStatus(device.DeviceId, "0%", "Giá trị latitude và longitude không có !"); }
+            else { UpdateDeviceStatus(device.DeviceId, "0%", "Value latitude and longitude is null !"); }
 
         }
         private async Task ProcessOpenUrlAsync(Models.DeviceModel device, string url)
         {
+            DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "0%", $"Start open url for {url}");
             if (url != null || url != "")
             {
+                DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "20%", $"Start open url for {url}");
                 ADBService.OpenUrl(url, device.DeviceId);
+                DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "100%", $"Success open url for {url}");
             }
-            else { UpdateDeviceStatus(device.DeviceId, "0%", ""); }
+            else { UpdateDeviceStatus(device.DeviceId, "0%", "Url null"); }
 
         }
         private void CheckBoxDevice(Models.DeviceModel device)

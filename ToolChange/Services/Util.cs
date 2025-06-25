@@ -2,11 +2,14 @@
 using Services;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using ToolChange.ViewModels;
 using ToolChange.ViewModels.Constants;
+using ToolChange.Views;
 
 namespace ToolChange.Services
 {
@@ -14,24 +17,27 @@ namespace ToolChange.Services
     {
         public static bool checkSim;
 
-        public static bool SaveDeviceInfo(DeviceModel tempDevice, string deviceId, string applicationPath, bool isFakeSim = false)
+        public static bool SaveDeviceInfo(DeviceViewModel model, ObservableCollection<ToolChange.Models.DeviceModel> deviceS , POCO.Models.DeviceModel tempDevice, string deviceId, string applicationPath, bool isFakeSim = false)
         {
             try
             {
+                ToolChange.Models.DeviceUpdater.UpdateProgress(deviceS, deviceId, "10%", "Change device ...");
                 if (tempDevice == null)
                 {
+                    ToolChange.Models.DeviceUpdater.UpdateProgress(deviceS, deviceId, "10%", "Null error");
                     return false;
                 }
 
                 if (ADBService.getDeviceStatus(deviceId) == DeviceStatus.ReadyToChange)
                 {
+                    ToolChange.Models.DeviceUpdater.UpdateProgress(deviceS, deviceId, "15%", "Change device ...");
                     ADBService.rootAndRemount(deviceId);
 
                     ADBService.shellRemoveIfContainSpecificText("/system/build.prop", "product is obsolete", deviceId);
                     var changedSystemInfo = new Dictionary<string, string>();
                     var changedDefaultInfo = new Dictionary<string, string>();
                     var tempBaseband = string.IsNullOrEmpty(tempDevice.Baseband) ? tempDevice.BuildIncremental : tempDevice.Baseband;
-                   
+                    ToolChange.Models.DeviceUpdater.UpdateProgress(deviceS, deviceId, "25%", "Change information ");
                     var lineageVersion = RandomService.generateLineageOsVersion(tempDevice.Release) + "-" + tempDevice.Code;
                     changedSystemInfo.Add(BuildKey_SYSTEM_S9.TYPE, "user");
                     changedSystemInfo.Add(BuildKey_SYSTEM_S9.USER, RandomService.generateUser());
@@ -79,7 +85,7 @@ namespace ToolChange.Services
 
                     changedSystemInfo.Add(BuildKey_SYSTEM_S9.FINGERPRINT_SYSTEM, tempDevice.Fingerprint);
                     //changedSystemInfo.Add(BuildKey_SYSTEM_S9.BUILD_PDA, tempBaseband);
-
+                    ToolChange.Models.DeviceUpdater.UpdateProgress(deviceS, deviceId, "45%", "save information ");
                     ADBService.replaceBuildProp("/system/build.prop", changedSystemInfo, deviceId);
                     Dictionary<string, string> partitionList = new Dictionary<string, string>();
                     partitionList.Add("bootimage", "/system/build.prop");
@@ -180,11 +186,12 @@ namespace ToolChange.Services
                      ADBService.putSetting("android_id", tempDevice.AndroidId, deviceId, "secure");*/
                     ADBService.updateInitRc(tempDevice.Imei, tempDevice.Imei1, tempDevice.SerialNo, tempDevice.Bootloader, tempDevice.Baseband, tempDevice.Model, deviceId, tempDevice.Hardware, tempDevice.Platform);
                     ADBService.fakeLocalHostNameV6(deviceId);
-
+                    ToolChange.Models.DeviceUpdater.UpdateProgress(deviceS, deviceId, "55%", "Save information ");
                     // fake wifi mac address
                     ADBService.fakeWifiMacAddress(tempDevice.WifiMacAddress, deviceId);
                     if (isFakeSim)
                     {
+                        ToolChange.Models.DeviceUpdater.UpdateProgress(deviceS, deviceId, "75%", "Fake sim .. ");
                         // setting sim card
                         ADBService.putSetting(GlobalAndroidSettings.SIM_OPERATOR_NUMERIC, tempDevice.SimOperatorNumeric, deviceId); // set sim numeric e.g. 42503
                         ADBService.putSetting(GlobalAndroidSettings.SIM_OPERATOR_COUNTRY, tempDevice.SimOperatorCountry, deviceId); // set country of operator code
@@ -211,6 +218,7 @@ namespace ToolChange.Services
                     }
                     else
                     {
+                        ToolChange.Models.DeviceUpdater.UpdateProgress(deviceS, deviceId, "75%", "Change device .. ");
                         // setting sim card
                         ADBService.deleteSetting(GlobalAndroidSettings.SIM_OPERATOR_NUMERIC, deviceId); // set sim numeric e.g. 42503
                         ADBService.deleteSetting(GlobalAndroidSettings.SIM_OPERATOR_COUNTRY, deviceId); // set country of operator code
@@ -244,15 +252,17 @@ namespace ToolChange.Services
                 }
                 else
                 {
+                    model.UpdateDeviceStatus(deviceId, "0%", "Error");
                     return false;
                 }
             }
             catch
             {
+                model.UpdateDeviceStatus(deviceId, "0%", "Error change");
                 return false;
             }
         }
-        public static bool SaveDeviceSIm(DeviceModel tempDevice, string deviceId, string applicationPath)
+        public static bool SaveDeviceSIm(POCO.Models.DeviceModel tempDevice, string deviceId, string applicationPath)
         {
             try
             {
