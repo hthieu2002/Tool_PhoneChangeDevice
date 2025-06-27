@@ -246,6 +246,7 @@ namespace ToolChange.Services
                     //string currentGSF = ADBService.getGSFNumber(deviceId);
                     //ADBService.stringReplace(currentGSF, tempGsfInLong, "data/data/com.google.android.gms/files/checkin_id_token", deviceId);
                     //ADBService.stringReplace(currentGSF, tempGsfInLong, "data/data/com.google.android.gms/shared_prefs/Checkin.xml", deviceId);
+                    ADBService.ChangeMacAddress(deviceId, tempDevice.WifiMacAddress);
                     Console.WriteLine("3.DONE put setting");
                     return true;
 

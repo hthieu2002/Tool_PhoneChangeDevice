@@ -230,7 +230,7 @@ namespace ToolChange.ViewModels
                         continue;
 
                     _processingDeviceIds.Add(device.DeviceId);
-
+                    UpdateDeviceStatus(device.DeviceId, "0%", "Start screenshot");
                     tasks.Add(ProcessScreenShotDeviceAsync(device));
                 }
                 await Task.WhenAll(tasks);
@@ -332,8 +332,9 @@ namespace ToolChange.ViewModels
         }
         private async Task ProcessScreenShotDeviceAsync(Models.DeviceModel device)
         {
+           
             ADBService.ScreenshotAdb(device.DeviceId);
-            UpdateDeviceStatus(device.DeviceId, "100", "Success screen shot");
+            UpdateDeviceStatus(device.DeviceId, "100%", "Success screenshot");
 
             _processingDeviceIds.Remove(device.DeviceId);
         }

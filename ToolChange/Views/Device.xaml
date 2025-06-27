@@ -77,7 +77,9 @@
                         <MenuItem Header="{Binding LanguageVM.ControlDeviceMenuDropBox2}"
                                   Command="{Binding DeviceListVM.DetailsDeviceIdCommand}"
                                   CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=ContextMenu}, Path=PlacementTarget.SelectedItem}" />
-                       
+                        <MenuItem Header="{Binding LanguageVM.ControlDeviceMenuDropBox3}"
+                                  Command="{Binding DeviceListVM.ViewDevicesCommand}"
+                                  CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=ContextMenu}, Path=PlacementTarget.SelectedItem}" />
                         <MenuItem Header="{Binding LanguageVM.ControlDeviceMenuDropBox4}"
                                   Command="{Binding DeviceListVM.FakeProxyDeviceIdCommand}"
                                   CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=ContextMenu}, Path=PlacementTarget.SelectedItem}" />
@@ -604,11 +606,14 @@
                                     <ColumnDefinition Width="*" />
                                 </Grid.ColumnDefinitions>
                                 <TextBox Grid.Column="0"
+                                         Text="{Binding DeviceListVM.FakeProxyData}"
                                          Padding="5,0,0,5"
                                          Style="{StaticResource MaterialDesignTextBoxBase}"
                                          VerticalAlignment="Center"
                                          HorizontalAlignment="Stretch" />
-                                <Button Content="Restore"
+                                <Button Content="Fake proxy"
+                                        Command="{Binding DeviceListVM.FakeProxyAllCommand}"
+                                        CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=ContextMenu}, Path=PlacementTarget.SelectedItem}"
                                         Width="120"
                                         Margin="5,5,0,0"
                                         Padding="0"

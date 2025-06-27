@@ -55,7 +55,7 @@
                 <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
             <Label Grid.Column="0"
-                   Content="Username:"
+                   Content="Password:"
                    VerticalAlignment="Center"
                    FontSize="14" />
             <PasswordBox x:Name="txtPassword"

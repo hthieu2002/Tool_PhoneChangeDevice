@@ -2472,7 +2472,11 @@ namespace Services
         }
         public static void ScreenshotAdb(string id)
         {
-            runCMDRoot(id, "shell screencap /sdcard/screenshot.png");
+            runCMDRoot("shell screencap /sdcard/screenshot.png", id);
+        }
+        public static void ChangeMacAddress(string id, string mac)
+        {
+            runCMDRoot($"shell settings put global mi_mac_address {mac}", id);
         }
         public static void RunAdbCommand(string arguments)
         {

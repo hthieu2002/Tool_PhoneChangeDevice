@@ -42,6 +42,7 @@ namespace ToolChange.ViewModels
         private string selectedFilePathJson;
         public ObservableCollection<SimCarrier> Countries { get; set; } = new();
         public ObservableCollection<POCO.Models.ComboBoxItem> SimOptions { get; set; } = new();
+        private string _fakeProxyData;
         private SimCarrier _selectedCountry;
         public SimCarrier SelectedCountry
         {
@@ -179,6 +180,18 @@ namespace ToolChange.ViewModels
                 }
             }
         }
+        public string FakeProxyData
+        {
+            get => _fakeProxyData;
+            set
+            {
+                if (_fakeProxyData != value)
+                {
+                    _fakeProxyData = value;
+                    OnPropertyChanged(nameof(FakeProxyData));
+                }
+            }
+        }
         private static readonly List<string> AvailableBrands = new List<string>
 {
     "samsung",
@@ -212,7 +225,6 @@ namespace ToolChange.ViewModels
             OsValue = AvailableOs[index];
         }
         public ObservableCollection<string> DeviceTypes { get; } = new ObservableCollection<string>
-
 {
     "Random",
     "Samsung",
@@ -306,6 +318,73 @@ namespace ToolChange.ViewModels
                 {
                     value = "Google";
                 }
+
+                if (value == "Samsung" || value == "Random")
+                {
+                    var newList = new[] { "Random", "Android 7", "Android 8", "Android 9", "Android 10", "Android 11", "Android 12", "Android 13" };
+
+                    DeviceTypesOs.Clear();
+                    foreach (var item in newList)
+                    {
+                        DeviceTypesOs.Add(item);
+                    }
+
+                }
+                if (value == "Xiaomi")
+                {
+                    var newList = new[] { "Random", "Android 8", "Android 9", "Android 10", "Android 11" , "Android 12" };
+
+                    DeviceTypesOs.Clear();
+                    foreach (var item in newList)
+                    {
+                        DeviceTypesOs.Add(item);
+                    }
+
+                }
+                if (value == "Oppo")
+                {
+                    var newList = new[] { "Random", "Android 8", "Android 9", "Android 10", "Android 11", "Android 12" };
+
+                    DeviceTypesOs.Clear();
+                    foreach (var item in newList)
+                    {
+                        DeviceTypesOs.Add(item);
+                    }
+
+                }
+                if (value == "Vivo")
+                {
+                    var newList = new[] { "Random", "Android 10", "Android 11", "Android 12" };
+
+                    DeviceTypesOs.Clear();
+                    foreach (var item in newList)
+                    {
+                        DeviceTypesOs.Add(item);
+                    }
+
+                }
+                if (value == "Realme")
+                {
+                    var newList = new[] { "Random", "Android 10", "Android 11", "Android 12" };
+
+                    DeviceTypesOs.Clear();
+                    foreach (var item in newList)
+                    {
+                        DeviceTypesOs.Add(item);
+                    }
+
+                }
+                if (value == "Google")
+                {
+                    var newList = new[] { "Random", "Android 11", "Android 12" };
+
+                    DeviceTypesOs.Clear();
+                    foreach (var item in newList)
+                    {
+                        DeviceTypesOs.Add(item);
+                    }
+
+                }
                 _brand = value;
                 OnPropertyChanged(nameof(Brand));
             }
@@ -333,7 +412,7 @@ namespace ToolChange.ViewModels
             get => _os;
             set
             {
-                if (value == "7")
+                if (value == "7" || value == "6.0.1" || value == "7.1.2")
                 {
                     value = "Android 7";
                 }
@@ -341,7 +420,7 @@ namespace ToolChange.ViewModels
                 {
                     value = "Android 7.1.0";
                 }
-                if (value == "8")
+                if (value == "8" || value == "8.0.0")
                 {
                     value = "Android 8";
                 }
@@ -464,8 +543,10 @@ namespace ToolChange.ViewModels
         public ICommand ScreenshotCommand { get; private set; }
         public ICommand FakeLocationCommand { get; private set; }
         public ICommand DetailsDeviceIdCommand { get; private set; }
+        public ICommand ViewDevicesCommand { get; private set; }
         public ICommand FakeProxyDeviceIdCommand { get; private set; }
         public ICommand OpenUrlCommand { get; private set; }
+        public ICommand FakeProxyAllCommand { get; private set; }
 
         private readonly string jsonFilePath = Path.Combine("Resources", "Devices", "devices.json");
 
@@ -491,6 +572,7 @@ namespace ToolChange.ViewModels
             CopyDeviceIdCommand = new RelayCommand<Models.DeviceModel>(CopyDeviceId);
             // DetailsDeviceIdCommand = new RelayCommand<Models.DeviceModel>(DetailsDevices);
             DetailsDeviceIdCommand = new RelayCommand<Models.DeviceModel>(async (device) => await DetailsDevices(device));
+            ViewDevicesCommand = new RelayCommand<Models.DeviceModel>(async (device) => await ViewDevicesIC(device));
 
             FakeProxyDeviceIdCommand = new RelayCommand<Models.DeviceModel>(FakeProxyDeviceId);
             RandomDeviceCommand = new RelayCommand(async () => await RandomDevice());
@@ -502,6 +584,7 @@ namespace ToolChange.ViewModels
             ScreenshotCommand = new RelayCommand(async () => await Screenshot());
             FakeLocationCommand = new RelayCommand(async () => await FakeLocation());
             OpenUrlCommand = new RelayCommand(async () => await OpenUrl());
+            FakeProxyAllCommand = new RelayCommand(async () => await FakeProxyAll());
             IsCheckBoxDevice = new RelayCommand<Models.DeviceModel>(CheckBoxDevice);
         }
         private void ResetDeviceJson()
@@ -701,6 +784,38 @@ namespace ToolChange.ViewModels
                 System.Windows.Clipboard.SetText(device.DeviceId);
             }
         }
+        private async Task ViewDevicesIC(Models.DeviceModel device)
+        {
+            if (device == null || string.IsNullOrWhiteSpace(device.DeviceId))
+                return;
+
+            var scrcpyPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Resources", "scrcpy.exe");
+
+            if (!File.Exists(scrcpyPath))
+            {
+                System.Windows.MessageBox.Show("Không tìm thấy scrcpy.exe");
+                return;
+            }
+
+            var startInfo = new ProcessStartInfo
+            {
+                FileName = scrcpyPath,
+                Arguments = $"-s {device.DeviceId}",
+                UseShellExecute = false,
+                CreateNoWindow = true
+            };
+
+
+            try
+            {
+                Process.Start(startInfo);
+            }
+            catch (Exception ex)
+            {
+                System.Windows.MessageBox.Show($"Lỗi khi chạy scrcpy: {ex.Message}");
+            }
+        }
+
         private async Task DetailsDevices(Models.DeviceModel device)
         {
             if (device == null) return;
@@ -746,6 +861,7 @@ namespace ToolChange.ViewModels
             vm.Model = modelTask.Result;
             vm.Os = os1Task.Result;
             vm.Country = countryTask.Result;
+            vm.Sim = simTask.Result;
             vm.Serial = serialTask.Result;
             vm.Code = codeTask.Result;
             vm.Phone = phoneTask.Result;
@@ -941,8 +1057,7 @@ namespace ToolChange.ViewModels
                 }
                 if (Os == "Random")
                 {
-                    // brand random
-                    RandomizeOs();
+                    OsValue = "24";
                 }
                 else
                 {
@@ -952,53 +1067,45 @@ namespace ToolChange.ViewModels
                     }
                     else if (Os == "Android 7")
                     {
-                        OsValue = "30";
-                        // OsValueMax = "25";
+                        OsValue = "25";
                     }
                     else if (Os == "Android 8")
                     {
                         OsValue = "26";
-                        // OsValueMax = "27";
                     }
                     else if (Os == "Android 9")
                     {
                         OsValue = "28";
-                        //   OsValueMax = "28";
                     }
                     else if (Os == "Android 10")
                     {
                         OsValue = "29";
-                        //  OsValueMax = "29";
                     }
                     else if (Os == "Android 11")
                     {
                         OsValue = "30";
-                        //   OsValueMax = "30";
                     }
                     else if (Os == "Android 12")
                     {
-                        //  System.Windows.MessageBox.Show("Hiện tại chưa random android 12");
                         OsValue = "31";
-                        // OsValueMax = "31";
                     }
                     else if (Os == "Android 13")
                     {
-                        // System.Windows.MessageBox.Show("Hiện tại chưa random android 13");
                         OsValue = "32";
-                        // OsValueMax = "32";
                     }
                     else
                     {
                         OsValue = "29";
                     }
                 }
+
                 if (BrandValue == "Google")
                 {
                     OsValue = "30";
                 }
                 if (BrandValue == "realme" || BrandValue == "vivo")
                 {
-                    if (OsValue == "29" || OsValue == "30")
+                    if ((OsValue == "29" || OsValue == "30") || (Os == "Random" || OsValue == "24"))
                     {
 
                     }
@@ -1009,7 +1116,7 @@ namespace ToolChange.ViewModels
                 }
                 if (BrandValue == "OPPO" || BrandValue == "Xiaomi")
                 {
-                    if (OsValue == "29" || OsValue == "30" || OsValue == "28" || OsValue == "27")
+                    if ((OsValue == "29" || OsValue == "30" || OsValue == "28" || OsValue == "27") || (Os == "Random" || OsValue == "24"))
                     {
 
                     }
@@ -1019,7 +1126,7 @@ namespace ToolChange.ViewModels
                     }
                 }
                 await Task.Delay(1000);
-                tempDevice = await miChangerGraphQLClient.GetRandomDeviceV3(brand: BrandValue, sdkMin: int.Parse(OsValue), sdkMax: int.Parse(OsValue));
+                tempDevice = await miChangerGraphQLClient.GetRandomDeviceV3(brand: BrandValue, sdkMin: int.Parse(OsValue), sdkMax: Os == "Random" ? 32 : int.Parse(OsValue));
                 if (tempDevice.Model == null)
                 {
                     throw new Exception(DevicesLang.logDeviceRandomEx);
@@ -1101,10 +1208,11 @@ namespace ToolChange.ViewModels
                         BrandValue = "Xiaomi";
                     }
                 }
+
                 if (Os == "Random")
                 {
                     // brand random
-                    RandomizeOs();
+                    OsValue = "24";
                 }
                 else
                 {
@@ -1114,53 +1222,45 @@ namespace ToolChange.ViewModels
                     }
                     else if (Os == "Android 7")
                     {
-                        OsValue = "30";
-                        // OsValueMax = "25";
+                        OsValue = "25";
                     }
                     else if (Os == "Android 8")
                     {
                         OsValue = "26";
-                        // OsValueMax = "27";
                     }
                     else if (Os == "Android 9")
                     {
                         OsValue = "28";
-                        //   OsValueMax = "28";
                     }
                     else if (Os == "Android 10")
                     {
                         OsValue = "29";
-                        //  OsValueMax = "29";
                     }
                     else if (Os == "Android 11")
                     {
                         OsValue = "30";
-                        //   OsValueMax = "30";
                     }
                     else if (Os == "Android 12")
                     {
-                        //  System.Windows.MessageBox.Show("Hiện tại chưa random android 12");
                         OsValue = "31";
-                        // OsValueMax = "31";
                     }
                     else if (Os == "Android 13")
                     {
-                        // System.Windows.MessageBox.Show("Hiện tại chưa random android 13");
                         OsValue = "32";
-                        // OsValueMax = "32";
                     }
                     else
                     {
                         OsValue = "29";
                     }
                 }
-                if (BrandValue == "Google")
+
+                if (BrandValue == "Google" && (Os == "Random" || OsValue == "24"))
                 {
                     OsValue = "30";
                 }
-                if (BrandValue == "realme" || BrandValue == "vivo")
+                if ((BrandValue == "realme" || BrandValue == "vivo") && (Os == "Random" || OsValue == "24"))
                 {
-                    if (OsValue == "29" || OsValue == "30")
+                    if ((OsValue == "29" || OsValue == "30"))
                     {
 
                     }
@@ -1169,9 +1269,9 @@ namespace ToolChange.ViewModels
                         return;
                     }
                 }
-                if (BrandValue == "OPPO" || BrandValue == "Xiaomi")
+                if ((BrandValue == "OPPO" || BrandValue == "Xiaomi") && (Os == "Random" || OsValue == "24"))
                 {
-                    if (OsValue == "29" || OsValue == "30" || OsValue == "28" || OsValue == "27")
+                    if ((OsValue == "29" || OsValue == "30" || OsValue == "28" || OsValue == "27"))
                     {
 
                     }
@@ -1181,7 +1281,7 @@ namespace ToolChange.ViewModels
                     }
                 }
 
-                tempDeviceAll = await miChangerGraphQLClient.GetRandomDeviceV3(brand: BrandValue, sdkMin: int.Parse(OsValue), sdkMax: int.Parse(OsValue));
+                tempDeviceAll = await miChangerGraphQLClient.GetRandomDeviceV3(brand: BrandValue, sdkMin: int.Parse(OsValue), sdkMax: Os == "Random" ? 32 : int.Parse(OsValue));
                 if (tempDeviceAll.Model == null)
                 {
                     throw new Exception(DevicesLang.logDeviceRandomEx);
@@ -1201,7 +1301,7 @@ namespace ToolChange.ViewModels
                 tempDeviceAll.SimOperatorCountry = currentSelectedCountry.CountryIso;
                 tempDeviceAll.SimOperatorName = currentSelectedCarrier.Name.Substring(0, currentSelectedCarrier.Name.LastIndexOf("-")).Replace("&", "^&");
                 tempDeviceAll.AndroidId = RandomService.getRandomStringHex16Digit();
-                tempDeviceAll.WifiMacAddress = RandomService.generateWifiMacAddress();
+                tempDeviceAll.WifiMacAddress = Mac;
                 tempDeviceAll.BlueToothMacAddress = RandomService.generateMacAddress();
 
                 IsButtonChangeDevice = true;
@@ -1588,6 +1688,7 @@ namespace ToolChange.ViewModels
                 await Task.Delay(1000);
                 DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "9%", "Start change device ...");
                 saveResult = Services.Util.SaveDeviceInfo(this, Devices, checkChange == 0 ? tempDeviceAll : deviceTemp, device.DeviceId, AppDomain.CurrentDomain.BaseDirectory, IsCheckedSim);
+          
                 //    UpdateDeviceStatus(device.DeviceId, "75%", "Change device ....");
                 DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "75%", "Change device check");
                 if (saveResult)
@@ -1972,6 +2073,114 @@ namespace ToolChange.ViewModels
 
             }
         }
+        private async Task FakeProxyAll()
+        {
+            try
+            {
+                var selectedDevices = Devices.Where(device => device.IsChecked).ToList();
+                int selectedCount = selectedDevices.Count;
+
+                if (selectedCount == 0)
+                {
+                    System.Windows.MessageBox.Show(DevicesLang.logSelectDeviceChange, Lang.LogInfomation, MessageBoxButton.OK, MessageBoxImage.Information);
+                    return;
+                }
+                
+                var tasks = new List<Task>();
+                foreach (var device in selectedDevices)
+                {
+                    if (device.Status == "Offline")
+                    {
+                        continue;
+                    }
+
+                    if (_processingDeviceIds.Contains(device.DeviceId))
+                        continue;
+
+                    if (string.IsNullOrEmpty(FakeProxyData))
+                    {
+                        DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "0%", "error proxy");
+                        return;
+                    }
+
+                    _processingDeviceIds.Add(device.DeviceId);
+
+                    tasks.Add(ProcessFakeProxyAllAsync(device));
+
+                }
+                await Task.WhenAll(tasks);
+            }
+            catch (Exception ex)
+            {
+                System.Windows.MessageBox.Show($"Error in ChangeDevice: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+            finally
+            {
+
+            }
+        }
+        private async Task ProcessFakeProxyAllAsync(Models.DeviceModel device)
+        {
+            if (!string.IsNullOrEmpty(FakeProxyData))
+            {
+                // ok
+                try
+                {
+                    DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "5%", DevicesLang.logTitleProxy);
+                    var peelProxy = FakeProxyData.Split(':');
+                    var currentTask = TaskScheduler.FromCurrentSynchronizationContext();
+                    await Task.Run(() =>
+                    {
+                        var isFakeTimeZone = FakeTimeZone(FakeProxyData, device.DeviceId);
+                        if (isFakeTimeZone)
+                        {
+                            DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "10%", DevicesLang.logTitleProxy);
+                            Thread.Sleep(10000);
+                            string ip = peelProxy[0];
+                            int port = int.Parse(peelProxy[1]);
+                            string user = (peelProxy.Length >= 3) ? peelProxy[2] : "";
+                            string password = (peelProxy.Length >= 4) ? peelProxy[3] : "";
+                            ADBService.enableWifi(false, device.DeviceId);
+                            ADBService.rootAndRemount(device.DeviceId);
+                            ADBService.putSetting("http_proxy", ":0", device.DeviceId);
+                            RedSocksService.stop(device.DeviceId);
+                            if (ADBService.checkFileOnDevice("/data/local/tmp/redsocks.conf", device.DeviceId))
+                            {
+                                DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "40%", Lang.LogError);
+                                RedSocksService.stop(device.DeviceId);
+                            }
+
+                            RedSocksService.setUpRedSocksOnDevice("/data/local/tmp", device.DeviceId);
+                            DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "50%", DevicesLang.logTitleProxy);
+                            RedSocksService.start(ip, port, "/data/local/tmp", device.DeviceId, user, password);
+                            ADBService.openWifiSettings(device.DeviceId);
+                            while (!ADBService.isWifiConnectedV2(device.DeviceId) && !ADBService.isWifiConnected(device.DeviceId))
+                            {
+                                ADBService.openWifiSettings(device.DeviceId);
+                                Thread.Sleep(3000);
+                            }
+                            Thread.Sleep(5000);
+                            ADBService.OpenBrowserWithUrl("https://browserleaks.com/ip", device.DeviceId);
+                            DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "99%", DevicesLang.logCheckProxy);
+                        }
+                        else
+                        {
+                            return;
+                        }
+                        _processingDeviceIds.Remove(device.DeviceId);
+                    }).ContinueWith(task =>
+                    {
+                        DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "100%", DevicesLang.logTitleProxySuccess);
+                    }, currentTask);
+                    _processingDeviceIds.Remove(device.DeviceId);
+                }
+                catch (Exception ex)
+                {
+                    _processingDeviceIds.Remove(device.DeviceId);
+                    System.Windows.MessageBox.Show(ex.Message, Lang.LogError, MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+        }
         private async Task ProcessFakeLocationAsync(Models.DeviceModel device, string x, string y)
         {
             DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "0%", $"Start fake location for location {x} - {y}");
@@ -2077,7 +2286,7 @@ namespace ToolChange.ViewModels
         }
         private string GetDeviceMACAddress(string deviceID)
         {
-            string result = ADBService.ExecuteADBCommandDetail(deviceID, "shell cat /sys/class/net/wlan0/address");
+            string result = ADBService.ExecuteADBCommandDetail(deviceID, "shell settings get global mi_mac_address");
             return result.Trim();
         }
         private bool FakeTimeZone(string proxy, string deviceId)
