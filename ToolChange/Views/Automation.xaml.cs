@@ -24,11 +24,27 @@ namespace ToolChange.Views
     {
         private int currentNumber = 0;
         private const int MAX_VALUE = 99;
-        private const int MIN_VALUE = 0; 
+        private const int MIN_VALUE = 0;
         public Automation()
         {
             InitializeComponent();
             DataContext = ViewModelLocator.AutomationVM;
+            this.Unloaded += AutomationPage_Unloaded;
+            this.IsVisibleChanged += AutomationPage_IsVisibleChanged;
+        }
+        private void AutomationPage_Unloaded(object sender, RoutedEventArgs e)
+        {
+            AutomationViewModel.StopLoop();
+        }
+        private void AutomationPage_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
+        {
+            if (!Equals(e.OldValue, true) && Equals(e.NewValue, true))
+            {
+                DeviceViewModel.StopLoop(); 
+                Task.Delay(2000);
+                ViewModelLocator.AutomationVM.AutomationListVM.AsyncTask(); 
+            }
+
         }
         private void BtnIncrease_Click(object sender, RoutedEventArgs e)
         {

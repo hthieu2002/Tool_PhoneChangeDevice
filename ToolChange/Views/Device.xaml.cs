@@ -16,12 +16,26 @@ namespace ToolChange.Views
     /// </summary>
     public partial class Device : Page
     {
-     //   public MainViewModel mainMV { get; set; }
+        //   public MainViewModel mainMV { get; set; }
         public Device()
         {
             InitializeComponent();
             //  mainMV = new MainViewModel();
             DataContext = ViewModelLocator.DeviceVM;
+            this.Unloaded += DevicePage_Unloaded;
+            this.IsVisibleChanged += DevicePage_IsVisibleChanged;
+        }
+        private void DevicePage_Unloaded(object sender, RoutedEventArgs e)
+        {
+            AutomationViewModel.StopLoop();
+        }
+        private void DevicePage_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
+        {
+
+            AutomationViewModel.StopLoop();
+            Task.Delay(2000);
+            ViewModelLocator.DeviceVM.DeviceListVM.AsyncTask();
+
         }
         private void DeviceDataGrid_ContextMenuOpening(object sender, ContextMenuEventArgs e)
         {
@@ -32,7 +46,7 @@ namespace ToolChange.Views
             }
             else
             {
-                e.Handled = true; 
+                e.Handled = true;
             }
         }
         private void TextBox_LostFocus(object sender, RoutedEventArgs e)
@@ -43,7 +57,7 @@ namespace ToolChange.Views
                 string id = device.DeviceId;
                 device.Name = newName;
 
-                ViewModelLocator.DeviceVM.DeviceListVM.SaveDevices();
+                _ = ViewModelLocator.DeviceVM.DeviceListVM.SaveDevices();
             }
         }
 

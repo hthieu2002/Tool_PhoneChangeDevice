@@ -13,7 +13,7 @@ namespace WindowsFormsApp.Script.RoslynScript
 {
     public static class RoslynScriptAutomation
     {
-        public static void Run(string commandsFile, string deviceID)
+        public static void Run(string commandsFile, string deviceID, CancellationToken token)
         {
             var commandLines = File.ReadAllLines(commandsFile)
                                    .Where(l => !string.IsNullOrWhiteSpace(l))

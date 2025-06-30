@@ -26,6 +26,7 @@ namespace ToolChange.ViewModels
         public AutomationViewModel AutomationListVM { get; set; }
         public ObservableCollection<Models.DeviceModel> Devices { get; private set; } = new ObservableCollection<Models.DeviceModel>();
         private CancellationTokenSource _cancellationTokenSource;
+        private static CancellationTokenSource? _cts;
 
         private readonly string jsonFilePath = Path.Combine("Resources", "Devices", "devices.json");
         private readonly string scriptDirectory = Path.Combine("Resources", "Script");
@@ -160,23 +161,56 @@ namespace ToolChange.ViewModels
         public ICommand RunScriptCommand { get; private set; }
         public AutomationViewModel()
         {
-            LoadDevices();
-            DispatcherTimer timer = new DispatcherTimer
-            {
-                Interval = TimeSpan.FromSeconds(2)
-            };
-            timer.Tick += async (s, e) =>
-            {
-                await UpdateDevicesStatus();
-            };
-            timer.Start();
+            _ = LoadDevices();
+          //  AsyncTask();
+            //DispatcherTimer timer = new DispatcherTimer
+            //{
+            //    Interval = TimeSpan.FromSeconds(2)
+            //};
+            //timer.Tick += async (s, e) =>
+            //{
+            //    await UpdateDevicesStatus();
+            //};
+            //timer.Start();
             LoadDevicesCommand = new RelayCommand(async () => await LoadDevicesAsync());
             ScreenShotDevicesCommand = new RelayCommand(async () => await Screenshot());
             RunScriptCommand = new RelayCommand(async () => await RunScript());
             LoadFileCommand = new RelayCommand(async () => await LoadFileScriptFunc());
-
+           
             IsCheckBoxDevice = new RelayCommand<Models.DeviceModel>(CheckBoxDevice);
         }
+        public void AsyncTask()
+        {
+            if (_cts != null) return;
+            _cts = new CancellationTokenSource();
+            var tk = _cts.Token;
+
+            Task.Run(async () =>
+            {
+                while (!tk.IsCancellationRequested)
+                {
+                    if (await DeviceSync.Mutex.WaitAsync(0, tk))
+                    {
+                        try
+                        {
+                            await UpdateDevicesStatus();
+                        }
+                        finally
+                        {
+                            DeviceSync.Mutex.Release();
+                        }
+                    }
+
+                    await Task.Delay(1000, tk);
+                }
+            }, tk);
+        }
+        public static void StopLoop()
+        {
+            _cts?.Cancel();
+            _cts = null;
+        }
+
         private async Task LoadDevicesAsync()
         {
             try
@@ -344,7 +378,7 @@ namespace ToolChange.ViewModels
             CancellationToken token = _cancellationTokenSource.Token;
             try
             {
-                if (IsDisableRunFile)
+                if (!IsDisableRunFile)
                 {
                     int count = 0;
                     await Task.Run(() =>
@@ -357,7 +391,7 @@ namespace ToolChange.ViewModels
                                 UpdateDeviceStatus(device.DeviceId, "1", $"{AutomationLang.logUntimateRunSctiptInfo} {count}");
                             });
                            
-                            RoslynScriptAutomation.Run($"./Resources/script/{SelectedFileScript}", device.DeviceId);
+                            RoslynScriptAutomation.Run($"./Resources/script/{SelectedFileScript}", device.DeviceId, token);
                         }
                     });
                     System.Windows.Application.Current.Dispatcher.Invoke(() =>
@@ -380,7 +414,7 @@ namespace ToolChange.ViewModels
                                 UpdateDeviceStatus(device.DeviceId, "1", $"{AutomationLang.logRunSctiptInfo} {i + 1}");
                             });
 
-                            RoslynScriptAutomation.Run($"./Resources/script/{SelectedFileScript}", device.DeviceId);
+                            RoslynScriptAutomation.Run($"./Resources/script/{SelectedFileScript}", device.DeviceId, token);
                         }
                     });
                     System.Windows.Application.Current.Dispatcher.Invoke(() =>
@@ -455,7 +489,7 @@ namespace ToolChange.ViewModels
                 Console.WriteLine(ex.ToString());
             }
         }
-        private void LoadDevices()
+        private async Task LoadDevices()
         {
             try
             {

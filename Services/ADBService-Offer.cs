@@ -338,8 +338,8 @@ namespace Services
         {
             runCMDRoot("shell \"iptables -t nat -F\"", deviceId);
             runCMDRoot("shell \"iptables -t mangle -F\"", deviceId);
-            runCMDRoot("shell \"iptables -F\"", deviceId);
-            runCMDRoot("shell \"iptables -X\"", deviceId);
+            runCMDRoot("shell \"iptables -t nat -F REDSOCKS || true\"", deviceId);
+            runCMDRoot("shell \"iptables -t nat -X REDSOCKS || true\"", deviceId);
             runCMDRoot("shell \"iptables -t nat -X REDSOCKS\"", deviceId);
             runCMDRoot("shell \"iptables -t mangle -X REDSOCKS\"", deviceId);
             runCMDRoot("shell \"killall redsocks\"", deviceId);
@@ -472,7 +472,7 @@ namespace Services
                 Thread.Sleep(3000);
                 isRedsocksStarted = resocksStartedResponse.Contains("Address already in use");
                 ADBService.enableWifi(true, deviceId);
-
+                ADBService.openWifiSettings(deviceId);
                 /*runCMD("shell \"iptables -D INPUT -j DROP\"", deviceId);
                 runCMD("shell \"iptables -D FORWARD -j DROP\"", deviceId);
                 runCMD("shell \"iptables -D OUTPUT -j DROP\"", deviceId);*/

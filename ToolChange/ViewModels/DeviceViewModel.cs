@@ -16,6 +16,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -34,7 +35,7 @@ namespace ToolChange.ViewModels
     {
         public LocalizationViewModel LanguageVM { get; set; }
         public DeviceViewModel DeviceListVM { get; set; }
-
+        private static CancellationTokenSource? _ctsDV;
         private MiChangerGraphQLClient miChangerGraphQLClient;
         private POCO.Models.DeviceModel tempDeviceAll;
         private readonly HashSet<string> _processingDeviceIds = new();
@@ -553,19 +554,10 @@ namespace ToolChange.ViewModels
         public event PropertyChangedEventHandler PropertyChanged;
         public DeviceViewModel()
         {
-            ResetDeviceJson();
-            LoadDevices();
+            _ = ResetDeviceJson();
+            _ = LoadDevices();
             LoadData();
-            DispatcherTimer timer = new DispatcherTimer
-            {
-                Interval = TimeSpan.FromSeconds(1)
-            };
-            timer.Tick += async (s, e) =>
-            {
-                await AddNewDevicesFromAdb();
-                await UpdateDevicesStatus();
-            };
-            timer.Start();
+         //   AsyncTask();
             Brand = DeviceTypes.First();
 
             DeleteDeviceCommand = new RelayCommand<object>(DeleteDevice, CanDeleteDevice);
@@ -585,27 +577,70 @@ namespace ToolChange.ViewModels
             FakeLocationCommand = new RelayCommand(async () => await FakeLocation());
             OpenUrlCommand = new RelayCommand(async () => await OpenUrl());
             FakeProxyAllCommand = new RelayCommand(async () => await FakeProxyAll());
-            IsCheckBoxDevice = new RelayCommand<Models.DeviceModel>(CheckBoxDevice);
+            IsCheckBoxDevice = new RelayCommand<Models.DeviceModel>(async (device) =>await CheckBoxDevice(device));
         }
-        private void ResetDeviceJson()
+      
+        public void AsyncTask()
         {
-            var path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, ".\\Resources\\Devices\\devices.json");
-            if (!File.Exists(path)) return;
+            if (_ctsDV != null) return;
+            _ctsDV = new CancellationTokenSource();
+            var tk = _ctsDV.Token;
 
-            var json = File.ReadAllText(path);
-            var list = JsonConvert.DeserializeObject<List<Models.DeviceModel>>(json);
-            if (list == null) return;
 
-            foreach (var d in list)
+            Task.Run(async () =>
             {
-                d.Percentage = "0%";
-                d.Progress = "...";
-            }
+                while (!tk.IsCancellationRequested)
+                {
+                    // Thử vào vùng độc quyền
+                    if (await DeviceSync.Mutex.WaitAsync(0, tk))
+                    {
+                        try
+                        {
+                            await AddNewDevicesFromAdb();
+                            await UpdateDevicesStatus();
+                        }
+                        finally
+                        {
+                            DeviceSync.Mutex.Release();
+                        }
+                    }
 
-            File.WriteAllText(path, JsonConvert.SerializeObject(list, Formatting.Indented));
+                    await Task.Delay(1000, tk);
+                }
+            }, tk);
+        }
+        public static void StopLoop()
+        {
+            _ctsDV?.Cancel();
+            _ctsDV = null;
+        }
+        private async Task ResetDeviceJson()
+        {
+            try
+            {
+                var path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, ".\\Resources\\Devices\\devices.json");
+                if (!File.Exists(path)) return;
+
+                var json = File.ReadAllText(path);
+                var list = JsonConvert.DeserializeObject<List<Models.DeviceModel>>(json);
+                if (list == null) return;
+
+                foreach (var d in list)
+                {
+                    d.Percentage = "0%";
+                    d.Progress = "...";
+                }
+
+                File.WriteAllText(path, JsonConvert.SerializeObject(list, Formatting.Indented));
+            }
+            catch (Exception ex)
+            {
+                System.Windows.MessageBox.Show($"Error loading devices: {ex.Message}");
+                await Task.Delay(100);
+            }
         }
 
-        private void LoadDevices()
+        private async Task LoadDevices()
         {
             try
             {
@@ -660,7 +695,7 @@ namespace ToolChange.ViewModels
 
                 if (adbDevices.Any(d => !existingDeviceIds.Contains(d.DeviceId)))
                 {
-                    SaveDevices();
+                    await SaveDevices();
                     // AddLog("Added new devices successfully.");
                 }
             }
@@ -695,6 +730,7 @@ namespace ToolChange.ViewModels
                         else if (device.Status != "Offline" || device.Active != "NO")
                         {
                             DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "0%", "Device offline");
+                            _processingDeviceIds.Remove(device.DeviceId);
                             device.Status = "Offline";
                             device.Active = "NO";
                         }
@@ -752,7 +788,7 @@ namespace ToolChange.ViewModels
             }
             return devices;
         }
-        public void SaveDevices()
+        public async Task SaveDevices()
         {
             try
             {
@@ -772,8 +808,8 @@ namespace ToolChange.ViewModels
                 if (deviceToRemove != null)
                 {
                     Devices.Remove(deviceToRemove);
-                    SaveDevices();
-                    LoadDevices();
+                    _ = SaveDevices();
+                    _ = LoadDevices();
                 }
             }
         }
@@ -1482,17 +1518,27 @@ namespace ToolChange.ViewModels
                         _processingDeviceIds.Add(device.DeviceId);
                         if (messageBoxPushFile == MessageBoxResult.Yes && selectedFilePath != null)
                         {
+                            DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "0%", "In progress push file keybox.xml to phone");
+                            await Task.Delay(1000);
                             ADBService.ExecuteAdbCommand(
                                 $"push {selectedFilePath} /data/local/tmp/",
                                 device.DeviceId
                             );
+                           
+                            DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "0%", "Push file keybox.xml to phone success");
+                            await Task.Delay(1000);
                         }
                         if (messageBoxPushFileJson == MessageBoxResult.Yes && selectedFilePathJson != null)
                         {
+                            DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "0%", "In progress push file pif.json to phone");
+                            await Task.Delay(1000);
                             ADBService.ExecuteAdbCommand(
                                 $"push {selectedFilePathJson} /data/local/tmp/",
                                 device.DeviceId
                             );
+                            
+                            DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "0%", "Push file pif.json to phone success");
+                            await Task.Delay(1000);
                         }
 
                         tasks.Add(ProcessChangeDeviceAsync(device));
@@ -2129,7 +2175,7 @@ namespace ToolChange.ViewModels
                     DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "5%", DevicesLang.logTitleProxy);
                     var peelProxy = FakeProxyData.Split(':');
                     var currentTask = TaskScheduler.FromCurrentSynchronizationContext();
-                    await Task.Run(() =>
+                    await Task.Run(async () =>
                     {
                         var isFakeTimeZone = FakeTimeZone(FakeProxyData, device.DeviceId);
                         if (isFakeTimeZone)
@@ -2153,6 +2199,8 @@ namespace ToolChange.ViewModels
                             RedSocksService.setUpRedSocksOnDevice("/data/local/tmp", device.DeviceId);
                             DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "50%", DevicesLang.logTitleProxy);
                             RedSocksService.start(ip, port, "/data/local/tmp", device.DeviceId, user, password);
+                            DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "60%", "In progress connect wifi..");
+                            await Task.Delay(2000);
                             ADBService.openWifiSettings(device.DeviceId);
                             while (!ADBService.isWifiConnectedV2(device.DeviceId) && !ADBService.isWifiConnected(device.DeviceId))
                             {
@@ -2162,15 +2210,18 @@ namespace ToolChange.ViewModels
                             Thread.Sleep(5000);
                             ADBService.OpenBrowserWithUrl("https://browserleaks.com/ip", device.DeviceId);
                             DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "99%", DevicesLang.logCheckProxy);
+                            await Task.Delay(2000);
+                            DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "100%", DevicesLang.logTitleProxySuccess);
                         }
                         else
                         {
+                            _processingDeviceIds.Remove(device.DeviceId);
+                            DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "0%","Error ! Again fake proxy");
                             return;
                         }
                         _processingDeviceIds.Remove(device.DeviceId);
                     }).ContinueWith(task =>
                     {
-                        DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "100%", DevicesLang.logTitleProxySuccess);
                     }, currentTask);
                     _processingDeviceIds.Remove(device.DeviceId);
                 }
@@ -2205,7 +2256,7 @@ namespace ToolChange.ViewModels
             else { UpdateDeviceStatus(device.DeviceId, "0%", "Url null"); }
 
         }
-        private void CheckBoxDevice(Models.DeviceModel device)
+        private async Task CheckBoxDevice(Models.DeviceModel device)
         {
             if (device != null)
             {
@@ -2218,7 +2269,7 @@ namespace ToolChange.ViewModels
                     device.IsChecked = false;
                 }
             }
-            SaveDevices();
+           await SaveDevices();
         }
         public void UpdateDeviceStatus(string deviceId, string newPercentage, string newProgress)
         {

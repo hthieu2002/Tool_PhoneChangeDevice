@@ -118,7 +118,7 @@ namespace WindowsFormsApp.Script.RoslynScript
 
                 }
 
-                //throw new Exception("Biên dịch thất bại.");
+                throw new Exception("Biên dịch thất bại.");
                 return null;
               //  MessageBox.Show("");
             }
