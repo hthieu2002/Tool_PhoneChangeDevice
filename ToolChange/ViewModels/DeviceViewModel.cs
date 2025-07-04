@@ -333,7 +333,7 @@ namespace ToolChange.ViewModels
                 }
                 if (value == "Xiaomi")
                 {
-                    var newList = new[] { "Random", "Android 8", "Android 9", "Android 10", "Android 11" , "Android 12" };
+                    var newList = new[] { "Random", "Android 8", "Android 9", "Android 10", "Android 11", "Android 12" };
 
                     DeviceTypesOs.Clear();
                     foreach (var item in newList)
@@ -557,7 +557,7 @@ namespace ToolChange.ViewModels
             _ = ResetDeviceJson();
             _ = LoadDevices();
             LoadData();
-         //   AsyncTask();
+            //   AsyncTask();
             Brand = DeviceTypes.First();
 
             DeleteDeviceCommand = new RelayCommand<object>(DeleteDevice, CanDeleteDevice);
@@ -577,9 +577,9 @@ namespace ToolChange.ViewModels
             FakeLocationCommand = new RelayCommand(async () => await FakeLocation());
             OpenUrlCommand = new RelayCommand(async () => await OpenUrl());
             FakeProxyAllCommand = new RelayCommand(async () => await FakeProxyAll());
-            IsCheckBoxDevice = new RelayCommand<Models.DeviceModel>(async (device) =>await CheckBoxDevice(device));
+            IsCheckBoxDevice = new RelayCommand<Models.DeviceModel>(async (device) => await CheckBoxDevice(device));
         }
-      
+
         public void AsyncTask()
         {
             if (_ctsDV != null) return;
@@ -605,7 +605,7 @@ namespace ToolChange.ViewModels
                         }
                     }
 
-                    await Task.Delay(1000, tk);
+                    await Task.Delay(500, tk);
                 }
             }, tk);
         }
@@ -679,8 +679,9 @@ namespace ToolChange.ViewModels
                 var adbDevices = await GetDevicesFromAdbAsync();
                 var existingDeviceIds = Devices.Select(d => d.DeviceId).ToHashSet();
                 int maxIndex = Devices.Any() ? Devices.Max(d => d.Index) : 0;
-
-                System.Windows.Application.Current.Dispatcher.Invoke(() =>
+                if (System.Windows.Application.Current != null && System.Windows.Application.Current.Dispatcher != null)
+                {
+                    System.Windows.Application.Current.Dispatcher.Invoke(() =>
                 {
                     foreach (var adbDevice in adbDevices)
                     {
@@ -692,6 +693,7 @@ namespace ToolChange.ViewModels
                         }
                     }
                 });
+                }
 
                 if (adbDevices.Any(d => !existingDeviceIds.Contains(d.DeviceId)))
                 {
@@ -710,32 +712,34 @@ namespace ToolChange.ViewModels
             {
                 var adbDevices = await GetDevicesFromAdbAsync();
                 var adbDeviceDict = adbDevices.ToDictionary(d => d.DeviceId, d => d);
-
-                System.Windows.Application.Current.Dispatcher.Invoke(() =>
+                if (System.Windows.Application.Current != null && System.Windows.Application.Current.Dispatcher != null)
                 {
-                    foreach (var device in Devices)
+                    System.Windows.Application.Current.Dispatcher.Invoke(() =>
                     {
-                        if (adbDeviceDict.TryGetValue(device.DeviceId, out var adbDevice))
+                        foreach (var device in Devices)
                         {
-                            string newStatus = adbDevice.Status;
-                            string newActive = ADBService.CheckDeviceActive(device.DeviceId);
-
-                            if (device.Status != newStatus || device.Active != newActive)
+                            if (adbDeviceDict.TryGetValue(device.DeviceId, out var adbDevice))
                             {
-                                DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "0%", "...");
-                                device.Status = newStatus;
-                                device.Active = newActive;
+                                string newStatus = adbDevice.Status;
+                                string newActive = ADBService.CheckDeviceActive(device.DeviceId);
+
+                                if (device.Status != newStatus || device.Active != newActive)
+                                {
+                                    DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "0%", "...");
+                                    device.Status = newStatus;
+                                    device.Active = newActive;
+                                }
+                            }
+                            else if (device.Status != "Offline" || device.Active != "NO")
+                            {
+                                DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "0%", "Device offline");
+                                _processingDeviceIds.Remove(device.DeviceId);
+                                device.Status = "Offline";
+                                device.Active = "NO";
                             }
                         }
-                        else if (device.Status != "Offline" || device.Active != "NO")
-                        {
-                            DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "0%", "Device offline");
-                            _processingDeviceIds.Remove(device.DeviceId);
-                            device.Status = "Offline";
-                            device.Active = "NO";
-                        }
-                    }
-                });
+                    });
+                }
             }
             catch (Exception ex)
             {
@@ -1375,11 +1379,11 @@ namespace ToolChange.ViewModels
             try
             {
 
-                tempDeviceAll = await miChangerGraphQLClient.GetRandomDeviceV3(sdkMin: 30);
-                if (tempDeviceAll.Model == null)
-                {
-                    throw new Exception(DevicesLang.logDeviceRandomEx);
-                }
+                //tempDeviceAll = await miChangerGraphQLClient.GetRandomDeviceV3(sdkMin: 30);
+                //if (tempDeviceAll.Model == null)
+                //{
+                //    throw new Exception(DevicesLang.logDeviceRandomEx);
+                //}
                 tempDeviceAll.IMSI = RandomService.generateIMSI(mcc, mnc);
                 tempDeviceAll.ICCID = RandomService.generateICCID(currentSelectedCountry.CountryCode, mnc);
                 tempDeviceAll.SimPhoneNumber = string.Format("+{0}{1}", currentSelectedCountry.CountryCode, RandomService.generatePhoneNumber());
@@ -1392,8 +1396,8 @@ namespace ToolChange.ViewModels
 
                 tempDeviceAll.SimOperatorCountry = currentSelectedCountry.CountryIso;
                 tempDeviceAll.SimOperatorName = currentSelectedCarrier.Name.Substring(0, currentSelectedCarrier.Name.LastIndexOf("-")).Replace("&", "^&");
-                tempDeviceAll.WifiMacAddress = RandomService.generateWifiMacAddress();
-                tempDeviceAll.BlueToothMacAddress = RandomService.generateMacAddress();
+               // tempDeviceAll.WifiMacAddress = RandomService.generateWifiMacAddress();
+               // tempDeviceAll.BlueToothMacAddress = RandomService.generateMacAddress();
 
             }
             catch (Exception ex)
@@ -1524,7 +1528,7 @@ namespace ToolChange.ViewModels
                                 $"push {selectedFilePath} /data/local/tmp/",
                                 device.DeviceId
                             );
-                           
+
                             DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "0%", "Push file keybox.xml to phone success");
                             await Task.Delay(1000);
                         }
@@ -1536,7 +1540,7 @@ namespace ToolChange.ViewModels
                                 $"push {selectedFilePathJson} /data/local/tmp/",
                                 device.DeviceId
                             );
-                            
+
                             DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "0%", "Push file pif.json to phone success");
                             await Task.Delay(1000);
                         }
@@ -1553,7 +1557,7 @@ namespace ToolChange.ViewModels
             }
             finally
             {
-               // _processingDeviceIds.Clear();
+                // _processingDeviceIds.Clear();
             }
         }
         private async Task AutoChangeFull()
@@ -1578,7 +1582,7 @@ namespace ToolChange.ViewModels
                     var messageBoxPushFileJson = MessageBoxResult.No;
                     if (IsCheckedKeyBox == true)
                     {
-                        messageBoxPushFile = System.Windows.MessageBox.Show(DevicesLang.logChangeDeviceKeyBox,Lang.LogInfomation, MessageBoxButton.YesNo, MessageBoxImage.Warning);
+                        messageBoxPushFile = System.Windows.MessageBox.Show(DevicesLang.logChangeDeviceKeyBox, Lang.LogInfomation, MessageBoxButton.YesNo, MessageBoxImage.Warning);
                     }
 
                     if (messageBoxPushFile == MessageBoxResult.Yes)
@@ -1659,7 +1663,7 @@ namespace ToolChange.ViewModels
                         if (device.Status == "Offline")
                             continue;
                         if (_processingDeviceIds.Contains(device.DeviceId))
-                        { 
+                        {
                             continue;
                         }
                         _processingDeviceIds.Add(device.DeviceId);
@@ -1726,15 +1730,15 @@ namespace ToolChange.ViewModels
 
                 });
                 DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "7%", "Enable Wifi");
-              
+
                 ADBService.enableWifi(false, device.DeviceId);
                 await Task.Delay(2000);
-              //  UpdateDeviceStatus(device.DeviceId, "15%", "Change device ....");
+                //  UpdateDeviceStatus(device.DeviceId, "15%", "Change device ....");
                 Console.WriteLine(IsCheckedSim);
                 await Task.Delay(1000);
                 DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "9%", "Start change device ...");
                 saveResult = Services.Util.SaveDeviceInfo(this, Devices, checkChange == 0 ? tempDeviceAll : deviceTemp, device.DeviceId, AppDomain.CurrentDomain.BaseDirectory, IsCheckedSim);
-          
+
                 //    UpdateDeviceStatus(device.DeviceId, "75%", "Change device ....");
                 DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "75%", "Change device check");
                 if (saveResult)
@@ -1781,7 +1785,7 @@ namespace ToolChange.ViewModels
                     DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "0%", "Change device error!");
                     _processingDeviceIds.Remove(device.DeviceId);
                     System.Windows.MessageBox.Show(DevicesLang.logErrorExChangeDevice
-                                            , DevicesLang.logErrorExTitleChangeDevice +" " +device.DeviceId
+                                            , DevicesLang.logErrorExTitleChangeDevice + " " + device.DeviceId
                                             , MessageBoxButton.OK
                                             , MessageBoxImage.Error);
                 }
@@ -1827,7 +1831,7 @@ namespace ToolChange.ViewModels
             }
             finally
             {
-               // _processingDeviceIds.Clear();
+                // _processingDeviceIds.Clear();
             }
         }
         private async Task AutoChangeSim()
@@ -1880,7 +1884,8 @@ namespace ToolChange.ViewModels
             {
                 DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "0%", "Random sim all");
                 deviceTemp = await RandomDevicePrivate();
-                while (deviceTemp == null) {
+                while (deviceTemp == null)
+                {
                     DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "0%", "Random sim again.. ");
                     deviceTemp = await RandomDevicePrivate();
                     await Task.Delay(2000);
@@ -1893,7 +1898,7 @@ namespace ToolChange.ViewModels
             }
             var uiThreadScheduler = TaskScheduler.FromCurrentSynchronizationContext();
             var saveResult = true;
-           
+
             await Task.Run(async () =>
             {
                 DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "5%", "Enable wifi ");
@@ -1905,13 +1910,13 @@ namespace ToolChange.ViewModels
                 if (saveResult)
                 {
                     DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "76%", "Change sim success ");
-                   
+
                     DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "80%", "Wipe");
                     var packagesWipeAfterChanger = loadWipeListConfig();
                     wipePackagesChanger(packagesWipeAfterChanger, device.DeviceId);
 
-                 //   ADBService.cleanGMSPackagesAndAccounts(device.DeviceId);
-                  
+                    //   ADBService.cleanGMSPackagesAndAccounts(device.DeviceId);
+
                     if (device.DeviceId.Length >= 12)
                     {
                         DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "99%", "Reboot!");
@@ -2082,7 +2087,7 @@ namespace ToolChange.ViewModels
                 var vm = new InputViewModel();
                 var dialog = new InputView
                 {
-                    Title =DevicesLang.TitleUrl,
+                    Title = DevicesLang.TitleUrl,
                     Height = 150,
                     Width = 300,
                     ResizeMode = ResizeMode.NoResize,
@@ -2131,7 +2136,7 @@ namespace ToolChange.ViewModels
                     System.Windows.MessageBox.Show(DevicesLang.logSelectDeviceChange, Lang.LogInfomation, MessageBoxButton.OK, MessageBoxImage.Information);
                     return;
                 }
-                
+
                 var tasks = new List<Task>();
                 foreach (var device in selectedDevices)
                 {
@@ -2216,7 +2221,7 @@ namespace ToolChange.ViewModels
                         else
                         {
                             _processingDeviceIds.Remove(device.DeviceId);
-                            DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "0%","Error ! Again fake proxy");
+                            DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "0%", "Error ! Again fake proxy");
                             return;
                         }
                         _processingDeviceIds.Remove(device.DeviceId);
@@ -2269,7 +2274,7 @@ namespace ToolChange.ViewModels
                     device.IsChecked = false;
                 }
             }
-           await SaveDevices();
+            await SaveDevices();
         }
         public void UpdateDeviceStatus(string deviceId, string newPercentage, string newProgress)
         {

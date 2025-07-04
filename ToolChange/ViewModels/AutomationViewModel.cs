@@ -201,7 +201,7 @@ namespace ToolChange.ViewModels
                         }
                     }
 
-                    await Task.Delay(1000, tk);
+                    await Task.Delay(500, tk);
                 }
             }, tk);
         }

@@ -1,5 +1,6 @@
 ﻿using Services;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -9,14 +10,18 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Threading.Channels;
 using System.Threading.Tasks;
+using System.Threading.Tasks.Dataflow;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
+using System.Windows.Threading;
 using ToolChange.Language;
 using ToolChange.Models;
 using ToolChange.Services;
 using ToolChange.Views;
+using Xamarin.Forms;
 
 namespace ToolChange.ViewModels
 {
@@ -69,6 +74,9 @@ namespace ToolChange.ViewModels
         private ObservableCollection<string> _selectedDeviceIds = new();
         private readonly Dictionary<string, int> _deviceIdOrder = new();
 
+        private readonly ConcurrentQueue<BitmapImage> _frames = new();
+        private const int MaxQueue = 50; // tránh tràn RAM
+
         public ObservableCollection<string> SelectedDeviceIds
         {
             get => _selectedDeviceIds;
@@ -78,7 +86,7 @@ namespace ToolChange.ViewModels
                 OnPropertyChanged(nameof(SelectedDeviceIds));
             }
         }
-   
+
         private DeviceInfo _countDevice;
         public DeviceInfo CountDevice
         {
@@ -144,7 +152,7 @@ namespace ToolChange.ViewModels
         public ICommand RefreshCommand => new RelayCommandView(Refresh);
         public ICommand PushFileCommand => new RelayCommandView(PushFileToDevices);
         public ICommand InstallApkCommand => new RelayCommandView(InstallApkToDevices);
-       
+
         private void ToggleDeviceSelection(ViewDeviceModel device)
         {
             if (device == null) return;
@@ -166,7 +174,34 @@ namespace ToolChange.ViewModels
         }
         private async Task DeviceClick(Models.ViewDeviceModel model)
         {
-            System.Windows.MessageBox.Show(model.DeviceId);
+            if (model == null || string.IsNullOrWhiteSpace(model.DeviceId))
+                return;
+
+            var scrcpyPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Resources", "scrcpy.exe");
+
+            if (!File.Exists(scrcpyPath))
+            {
+                System.Windows.MessageBox.Show("Không tìm thấy scrcpy.exe");
+                return;
+            }
+
+            var startInfo = new ProcessStartInfo
+            {
+                FileName = scrcpyPath,
+                Arguments = $"-s {model.DeviceId}",
+                UseShellExecute = false,
+                CreateNoWindow = true
+            };
+
+
+            try
+            {
+                Process.Start(startInfo);
+            }
+            catch (Exception ex)
+            {
+                System.Windows.MessageBox.Show($"Lỗi khi chạy scrcpy: {ex.Message}");
+            }
         }
         private async void PushFileToDevices()
         {
@@ -228,7 +263,7 @@ namespace ToolChange.ViewModels
         {
             SelectedDeviceIds.Clear();
             ViewedDevices.Clear();
-            
+
         }
         public async void ViewSelectedDevices()
         {
@@ -250,12 +285,12 @@ namespace ToolChange.ViewModels
             var pendingDevices = SelectedDeviceIds
                 .Where(id => !ViewedDevices.Contains(id))
                 .ToList();
-            System.Windows.MessageBox.Show(ViewDeviceLang.InfoViewDevice,Lang.LogInfomation, MessageBoxButton.OK, MessageBoxImage.Information);
+            //   System.Windows.MessageBox.Show(ViewDeviceLang.InfoViewDevice,Lang.LogInfomation, MessageBoxButton.OK, MessageBoxImage.Information);
             while (pendingDevices.Any())
             {
                 foreach (var deviceId in pendingDevices.ToList())
                 {
-                   
+
                     var hwnd = FindWindow(null, deviceId);
                     if (hwnd == IntPtr.Zero)
                     {
@@ -266,7 +301,7 @@ namespace ToolChange.ViewModels
                         var arguments = $"-s {deviceId} " +
                                         $"--window-title=\"{deviceId}\" " +
                                         $"--max-size={resolution} " +
-                                        $"--video-bit-rate={bitrate} "+
+                                        $"--video-bit-rate={bitrate} " +
                                         $"{turnOffFlag}";
 
                         var psi = new ProcessStartInfo(scrcpyPath, arguments)
@@ -317,7 +352,7 @@ namespace ToolChange.ViewModels
             foreach (var id in closedDevices)
             {
                 ViewedDevices.Remove(id);
-                
+
             }
         }
 
@@ -347,46 +382,47 @@ namespace ToolChange.ViewModels
                 while (!_cancellationTokenSource.IsCancellationRequested)
                 {
                     var deviceList = ADBService.GetConnectedDevices();
-
-                    System.Windows.Application.Current.Dispatcher.Invoke(() =>
+                    if (System.Windows.Application.Current != null && System.Windows.Application.Current.Dispatcher != null)
                     {
-                        lock (_lock)
+                        System.Windows.Application.Current.Dispatcher.Invoke(() =>
                         {
-                            foreach (var dev in deviceList)
+                            lock (_lock)
                             {
-                                if (!Devices.Any(d => d.DeviceId == dev))
+                                foreach (var dev in deviceList)
                                 {
-                                    // Gán thứ tự cố định cho DeviceId nếu chưa có
-                                    if (!_deviceIdOrder.ContainsKey(dev))
-                                        _deviceIdOrder[dev] = _deviceIdOrder.Count;
-
-                                    var model = new ViewDeviceModel
+                                    if (!Devices.Any(d => d.DeviceId == dev))
                                     {
-                                        DeviceId = dev,
-                                        Index = _deviceIdOrder[dev],
-                                        IsSelected = false
-                                    };
-                                    Devices.Add(model);
-                                    StartScreencap(model);
+                                        // Gán thứ tự cố định cho DeviceId nếu chưa có
+                                        if (!_deviceIdOrder.ContainsKey(dev))
+                                            _deviceIdOrder[dev] = _deviceIdOrder.Count;
+
+                                        var model = new ViewDeviceModel
+                                        {
+                                            DeviceId = dev,
+                                            Index = _deviceIdOrder[dev],
+                                            IsSelected = false
+                                        };
+                                        Devices.Add(model);
+                                        StartScreencap(model);
+                                    }
                                 }
+
+                                // Gỡ thiết bị không còn kết nối
+                                var toRemove = Devices.Where(d => !deviceList.Contains(d.DeviceId)).ToList();
+                                foreach (var d in toRemove)
+                                {
+                                    StopScreencap(d);
+                                    Devices.Remove(d);
+                                }
+
+                                // Cập nhật số lượng
+                                CountDevice = new DeviceInfo($"{StaticLang.DeviceCount} {Devices.Count}", Devices.LastOrDefault()?.DeviceId ?? "");
+
+                                // Cập nhật lại Index theo đúng thứ tự
+                                RefreshDeviceIndexes();
                             }
-
-                            // Gỡ thiết bị không còn kết nối
-                            var toRemove = Devices.Where(d => !deviceList.Contains(d.DeviceId)).ToList();
-                            foreach (var d in toRemove)
-                            {
-                                StopScreencap(d);
-                                Devices.Remove(d);
-                            }
-
-                            // Cập nhật số lượng
-                            CountDevice = new DeviceInfo($"{StaticLang.DeviceCount} {Devices.Count}", Devices.LastOrDefault()?.DeviceId ?? "");
-
-                            // Cập nhật lại Index theo đúng thứ tự
-                            RefreshDeviceIndexes();
-                        }
-                    });
-
+                        });
+                    }
                     await Task.Delay(2000);
                 }
             });
@@ -424,6 +460,87 @@ namespace ToolChange.ViewModels
 
         private readonly Dictionary<string, CancellationTokenSource> _streamTokens = new();
 
+        public async Task<BitmapImage> CaptureScreenAsync(string deviceId, CancellationToken ct)
+        {
+             
+            var psi = new ProcessStartInfo
+            {
+                FileName = "./Resources/adb.exe",
+                Arguments = $"-s {deviceId} exec-out screencap -p ",
+                RedirectStandardOutput = true,
+                UseShellExecute = false,
+                CreateNoWindow = true
+            };
+            using var proc = Process.Start(psi);
+            using var ms = new MemoryStream();
+            await proc.StandardOutput.BaseStream.CopyToAsync(ms, ct);
+            ms.Position = 0;
+
+            var img = new BitmapImage();
+            img.BeginInit();
+            img.StreamSource = ms;
+            img.CacheOption = BitmapCacheOption.OnLoad;
+            img.EndInit();
+            img.Freeze();
+            return img;
+        }
+
+        //private void StartScreencap(ViewDeviceModel device)
+        //{
+        //    var cts = new CancellationTokenSource();
+        //    _streamTokens[device.DeviceId] = cts;
+
+        //    Task.Run(async () =>
+        //    {
+        //        var tasks = new List<Task<BitmapImage>>();
+        //        while (!cts.IsCancellationRequested)
+        //        {
+        //            try
+        //            {
+        //                tasks.Add(CaptureScreenAsync(device.DeviceId, cts.Token));
+        //                if (tasks.Count >= 7) // Giới hạn 15 khung hình cùng lúc
+        //                {
+        //                    var completedTask = await Task.WhenAny(tasks);
+        //                    tasks.Remove(completedTask);
+        //                    var img = await completedTask;
+
+        //                    if (System.Windows.Application.Current != null && System.Windows.Application.Current.Dispatcher != null)
+        //                    {
+        //                        System.Windows.Application.Current.Dispatcher.Invoke(() =>
+        //                        {
+        //                            if (device != null && img != null && img.PixelHeight > 0)
+        //                            {
+        //                                device.Screenshot = img;
+        //                                device.IsActive = true;
+        //                            }
+        //                        });
+        //                    }
+
+        //                }
+        //                await Task.Delay(1); // Giảm độ trễ giữa các lần chụp
+        //            }
+        //            catch
+        //            {
+        //                if (System.Windows.Application.Current != null && System.Windows.Application.Current.Dispatcher != null)
+        //                {
+        //                    System.Windows.Application.Current.Dispatcher.Invoke(() =>
+        //                    {
+        //                        device.IsActive = false;
+        //                    });
+        //                }
+        //                await Task.Delay(10);
+        //            }
+        //        }
+        //        // Đảm bảo tất cả task hoàn thành khi dừng
+        //        foreach (var task in tasks)
+        //        {
+        //            await Task.Delay(10);
+        //        }
+        //    }, cts.Token);
+        //}
+
+
+        // ổn nhất giảm lag nhưng độ trễ cao
         private void StartScreencap(ViewDeviceModel device)
         {
             var cts = new CancellationTokenSource();
@@ -478,14 +595,20 @@ namespace ToolChange.ViewModels
             });
         }
 
-        private void StopScreencap(ViewDeviceModel device)
+        public void StopScreencap(ViewDeviceModel device)
         {
-            if (_streamTokens.TryGetValue(device.DeviceId, out var cts))
+            if (!_streamTokens.TryGetValue(device.DeviceId, out var cts)) return;
+
+            _streamTokens.Remove(device.DeviceId);
+
+            _ = Task.Run(() =>
             {
-                cts.Cancel();
-                _streamTokens.Remove(device.DeviceId);
-            }
+                try { cts.Cancel(); }       
+                catch { /* nuốt mọi ngoại lệ từ callbacks */ }
+                finally { cts.Dispose(); }
+            });
         }
+
 
         public event PropertyChangedEventHandler PropertyChanged;
         protected void OnPropertyChanged([CallerMemberName] string name = null) =>

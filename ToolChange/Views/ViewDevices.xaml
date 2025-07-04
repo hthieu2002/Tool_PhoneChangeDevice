@@ -16,7 +16,7 @@
             <ColumnDefinition Width="Auto" />
             <ColumnDefinition Width="2*" />
         </Grid.ColumnDefinitions>
-        <!--
+       
         <ScrollViewer HorizontalScrollBarVisibility="Disabled"
                       VerticalScrollBarVisibility="Auto">
             <ItemsControl ItemsSource="{Binding Devices}">
@@ -43,8 +43,8 @@
                                     Height="400">
                                 <Grid>
                                     <Image Source="{Binding Screenshot}"
-                                           Stretch="Fill"
-                                           Margin="1"
+                                           Stretch="Uniform"
+                                          
                                            Width="200"
                                            Height="400">
                                         <Image.Clip>
@@ -76,9 +76,8 @@
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
         </ScrollViewer>
--->
-        <Grid x:Name="HostGrid"
-              Background="Transparent" />
+
+      
         <Rectangle Grid.Column="1"
                    Width="1"
                    Fill="Gray"

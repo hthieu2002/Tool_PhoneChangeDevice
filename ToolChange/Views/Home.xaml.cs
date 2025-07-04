@@ -149,6 +149,8 @@ namespace ToolChange.Views
 
         private void MainWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
+            DeviceViewModel.StopLoop();
+            AutomationViewModel.StopLoop();
             CloseAllScrcpyWindows();
             System.Windows.Application.Current.Shutdown();
         }

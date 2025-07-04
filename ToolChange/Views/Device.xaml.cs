@@ -31,11 +31,9 @@ namespace ToolChange.Views
         }
         private void DevicePage_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
         {
-
             AutomationViewModel.StopLoop();
             Task.Delay(2000);
             ViewModelLocator.DeviceVM.DeviceListVM.AsyncTask();
-
         }
         private void DeviceDataGrid_ContextMenuOpening(object sender, ContextMenuEventArgs e)
         {

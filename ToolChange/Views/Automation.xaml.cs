@@ -44,7 +44,6 @@ namespace ToolChange.Views
                 Task.Delay(2000);
                 ViewModelLocator.AutomationVM.AutomationListVM.AsyncTask(); 
             }
-
         }
         private void BtnIncrease_Click(object sender, RoutedEventArgs e)
         {

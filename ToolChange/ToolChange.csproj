@@ -141,6 +141,10 @@
 
   <ItemGroup>
     <PackageReference Include="FFmpeg.AutoGen" Version="7.1.1" />
+    <PackageReference Include="LibVLCSharp" Version="3.9.3" />
+    <PackageReference Include="LibVLCSharp.Forms" Version="3.9.3" />
+    <PackageReference Include="LibVLCSharp.WinForms" Version="3.9.3" />
+    <PackageReference Include="LibVLCSharp.WPF" Version="3.9.3" />
     <PackageReference Include="MaterialDesignInXamlToolkitAddOns" Version="0.0.63" />
     <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="4.14.0">
       <PrivateAssets>all</PrivateAssets>
@@ -153,6 +157,7 @@
     <PackageReference Include="Microsoft.Xaml.Behaviors.Wpf" Version="1.1.135" />
     <PackageReference Include="System.Drawing.Common" Version="9.0.6" />
     <PackageReference Include="Tesseract" Version="5.2.0" />
+    <PackageReference Include="VideoLAN.LibVLC.Windows" Version="3.0.21" />
   </ItemGroup>
 
   <ItemGroup>

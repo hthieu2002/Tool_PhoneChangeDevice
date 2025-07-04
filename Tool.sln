@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "POCO", "POCO\POCO.csproj", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Services", "Services\Services.csproj", "{A6B1C566-14B1-4B54-830B-A2534FE42A8A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ToolChangeTests", "ToolChangeTests\ToolChangeTests.csproj", "{8BB50CE9-87B1-45A7-8B18-17ED50D47045}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,10 @@ Global
 		{A6B1C566-14B1-4B54-830B-A2534FE42A8A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A6B1C566-14B1-4B54-830B-A2534FE42A8A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A6B1C566-14B1-4B54-830B-A2534FE42A8A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8BB50CE9-87B1-45A7-8B18-17ED50D47045}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8BB50CE9-87B1-45A7-8B18-17ED50D47045}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8BB50CE9-87B1-45A7-8B18-17ED50D47045}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8BB50CE9-87B1-45A7-8B18-17ED50D47045}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
