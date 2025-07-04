@@ -1378,7 +1378,6 @@ namespace ToolChange.ViewModels
 
             try
             {
-
                 //tempDeviceAll = await miChangerGraphQLClient.GetRandomDeviceV3(sdkMin: 30);
                 //if (tempDeviceAll.Model == null)
                 //{
