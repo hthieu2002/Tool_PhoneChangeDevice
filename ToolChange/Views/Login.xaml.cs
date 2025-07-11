@@ -38,10 +38,11 @@ namespace ToolChange.Views
             if ((username == "admin@gmail.com" && password == "1234") || (username == "user@gmail.com" && password == "1234"))
             {
                 lblError.Visibility = Visibility.Collapsed;
-                _viewModel.User = username;
+              //  _viewModel.User = username;
                 Home home = new Home();
                 home.Show();
-                this.Hide();
+                this.Close();
+                //this.Hide();
             }
             else
             {

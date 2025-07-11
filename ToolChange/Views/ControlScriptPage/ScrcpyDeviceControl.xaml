@@ -1,0 +1,35 @@
+﻿<UserControl x:Class="ToolChange.Views.ControlScriptPage.ScrcpyDeviceControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:windowsForms="clr-namespace:System.Windows.Forms.Integration;assembly=WindowsFormsIntegration"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:ToolChange.Views.ControlScriptPage"
+             mc:Ignorable="d" 
+             d:DesignHeight="400" d:DesignWidth="200">
+    <Grid Background="Gray">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="20" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <!-- scrcpy host -->
+
+        <StackPanel MouseLeftButtonUp="DeviceInfoClicked"
+                    Cursor="Hand">
+            <TextBlock Text="{Binding Index, StringFormat='DEVICE - {0}'}"
+                       FontWeight="Bold"
+                       FontSize="11"
+                       Foreground="#FFE6E6E6"
+                       VerticalAlignment="Center"
+                       HorizontalAlignment="Center" />
+        </StackPanel>
+
+        <Border Cursor="Hand" Grid.Row="1">
+            <windowsForms:WindowsFormsHost x:Name="ScrcpyHost"
+                                           HorizontalAlignment="Stretch"
+                                           VerticalAlignment="Stretch"
+                                           Cursor="Hand" />
+        </Border>
+
+    </Grid>
+</UserControl>

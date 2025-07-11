@@ -32,12 +32,13 @@ namespace WindowsFormsApp.Script.RoslynScript
                     SyntaxFactory.UsingDirective(SyntaxFactory.ParseName("WindowsFormsApp")),
                     SyntaxFactory.UsingDirective(SyntaxFactory.ParseName("System.Threading.Tasks")),
                     SyntaxFactory.UsingDirective(SyntaxFactory.ParseName("System.Linq")),
-                    SyntaxFactory.UsingDirective(SyntaxFactory.ParseName("System.IO")),
-                    SyntaxFactory.UsingDirective(SyntaxFactory.ParseName("Tesseract"))
+                    SyntaxFactory.UsingDirective(SyntaxFactory.ParseName("System.IO"))
+                 //   SyntaxFactory.UsingDirective(SyntaxFactory.ParseName("Tesseract"))
                 )
                 .NormalizeWhitespace();
 
-            Console.WriteLine(compilationUnit.ToFullString());
+            System.Diagnostics.Debug.WriteLine(compilationUnit.ToFullString());
+          //  MessageBox.Show(compilationUnit.ToFullString());
             var assembly = CompilerRunner.CompileAndLoadAssembly(compilationUnit, deviceID);
             if (assembly == null)
             {

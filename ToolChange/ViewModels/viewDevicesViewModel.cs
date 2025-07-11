@@ -1,4 +1,6 @@
-﻿using Services;
+﻿using OpenCvSharp;
+using OpenCvSharp.Internal;
+using Services;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -7,6 +9,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Reactive.Concurrency;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -66,6 +69,7 @@ namespace ToolChange.ViewModels
         private delegate bool EnumWindowsProc(IntPtr hWnd, IntPtr lParam);
 
         public LocalizationViewModel LanguageVM { get; set; } // language
+
         public ObservableCollection<ViewDeviceModel> Devices { get; set; } = new();
         private readonly HashSet<string> ViewedDevices = new();
 
@@ -76,6 +80,17 @@ namespace ToolChange.ViewModels
 
         private readonly ConcurrentQueue<BitmapImage> _frames = new();
         private const int MaxQueue = 50; // tránh tràn RAM
+
+        public ObservableCollection<ScrcpyDeviceModel> ViewDevices { get; set; } = new();
+        private HashSet<string> _currentDeviceIds = new();
+        private int deviceIndexCounter = 0;
+
+        private Dictionary<string, int> _deviceIdToIndexMap = new();
+        private Dictionary<int, ScrcpyDeviceModel> _indexToDeviceMap = new();
+        private int _nextIndex = 1;
+
+        public ObservableCollection<ScrcpyDeviceModel> DeviceSlots { get; set; } = new();
+        public ICommand SelectDeviceCommand1 { get; }
 
         public ObservableCollection<string> SelectedDeviceIds
         {
@@ -138,21 +153,41 @@ namespace ToolChange.ViewModels
                 OnPropertyChanged(nameof(IsBoxChecked));
             }
         }
-
+        public ICommand ToggleDeviceCommand { get; }
         public ICommand DeviceClickCommand { get; set; }
         public viewDevicesViewModel()
         {
+            ToggleDeviceCommand = new RelayCommand<ScrcpyDeviceModel>(ToggleSelectDevice);
             SelectedDeviceIds = new ObservableCollection<string>();
             SelectedDeviceCount = SelectedDeviceIds.Count;
             DeviceClickCommand = new RelayCommand<Models.ViewDeviceModel>(async (device) => await DeviceClick(device));
         }
+        private void ToggleSelectDevice(ScrcpyDeviceModel model)
+        {
+            if (model.IsSelected)
+            {
+                model.IsSelected = false;
+                if (model.DeviceId != null && SelectedDeviceIds.Contains(model.DeviceId))
+                    SelectedDeviceIds.Remove(model.DeviceId);
+            }
+            else
+            {
+                model.IsSelected = true;
+                if (model.DeviceId != null && !SelectedDeviceIds.Contains(model.DeviceId))
+                    SelectedDeviceIds.Add(model.DeviceId);
+            }
+
+            SelectedDeviceCount = SelectedDeviceIds.Count;
+            Debug.WriteLine($"[Toggle] Selected devices: {SelectedDeviceIds.Count} → {string.Join(", ", SelectedDeviceIds)}");
+            OnPropertyChanged(nameof(DeviceSlots));
+        }
+
 
         public ICommand SelectDeviceCommand => new RelayCommand<ViewDeviceModel>(ToggleDeviceSelection);
         public ICommand ViewCommand => new RelayCommandView(ViewSelectedDevices);
         public ICommand RefreshCommand => new RelayCommandView(Refresh);
         public ICommand PushFileCommand => new RelayCommandView(PushFileToDevices);
         public ICommand InstallApkCommand => new RelayCommandView(InstallApkToDevices);
-
         private void ToggleDeviceSelection(ViewDeviceModel device)
         {
             if (device == null) return;
@@ -258,7 +293,6 @@ namespace ToolChange.ViewModels
                 System.Windows.MessageBox.Show(ViewDeviceLang.logInstallAPKSuccess, ViewDeviceLang.InfoSuccess, MessageBoxButton.OK, MessageBoxImage.Information);
             }
         }
-
         public void Refresh()
         {
             SelectedDeviceIds.Clear();
@@ -355,7 +389,6 @@ namespace ToolChange.ViewModels
 
             }
         }
-
         public void CloseScrcpyWindows()
         {
             EnumWindows((hWnd, lParam) =>
@@ -446,9 +479,6 @@ namespace ToolChange.ViewModels
             foreach (var d in sorted)
                 Devices.Add(d);
         }
-
-
-
         public void StopMonitoring()
         {
             _cancellationTokenSource?.Cancel();
@@ -462,7 +492,7 @@ namespace ToolChange.ViewModels
 
         public async Task<BitmapImage> CaptureScreenAsync(string deviceId, CancellationToken ct)
         {
-             
+
             var psi = new ProcessStartInfo
             {
                 FileName = "./Resources/adb.exe",
@@ -485,62 +515,12 @@ namespace ToolChange.ViewModels
             return img;
         }
 
-        //private void StartScreencap(ViewDeviceModel device)
-        //{
-        //    var cts = new CancellationTokenSource();
-        //    _streamTokens[device.DeviceId] = cts;
-
-        //    Task.Run(async () =>
-        //    {
-        //        var tasks = new List<Task<BitmapImage>>();
-        //        while (!cts.IsCancellationRequested)
-        //        {
-        //            try
-        //            {
-        //                tasks.Add(CaptureScreenAsync(device.DeviceId, cts.Token));
-        //                if (tasks.Count >= 7) // Giới hạn 15 khung hình cùng lúc
-        //                {
-        //                    var completedTask = await Task.WhenAny(tasks);
-        //                    tasks.Remove(completedTask);
-        //                    var img = await completedTask;
-
-        //                    if (System.Windows.Application.Current != null && System.Windows.Application.Current.Dispatcher != null)
-        //                    {
-        //                        System.Windows.Application.Current.Dispatcher.Invoke(() =>
-        //                        {
-        //                            if (device != null && img != null && img.PixelHeight > 0)
-        //                            {
-        //                                device.Screenshot = img;
-        //                                device.IsActive = true;
-        //                            }
-        //                        });
-        //                    }
-
-        //                }
-        //                await Task.Delay(1); // Giảm độ trễ giữa các lần chụp
-        //            }
-        //            catch
-        //            {
-        //                if (System.Windows.Application.Current != null && System.Windows.Application.Current.Dispatcher != null)
-        //                {
-        //                    System.Windows.Application.Current.Dispatcher.Invoke(() =>
-        //                    {
-        //                        device.IsActive = false;
-        //                    });
-        //                }
-        //                await Task.Delay(10);
-        //            }
-        //        }
-        //        // Đảm bảo tất cả task hoàn thành khi dừng
-        //        foreach (var task in tasks)
-        //        {
-        //            await Task.Delay(10);
-        //        }
-        //    }, cts.Token);
-        //}
-
-
-        // ổn nhất giảm lag nhưng độ trễ cao
+        public void TestOpenCV()
+        {
+            var mat = new Mat(480, 640, MatType.CV_8UC3, Scalar.Red);
+            Cv2.ImWrite("test.jpg", mat);
+            Console.WriteLine("Saved test.jpg");
+        }
         private void StartScreencap(ViewDeviceModel device)
         {
             var cts = new CancellationTokenSource();
@@ -550,51 +530,56 @@ namespace ToolChange.ViewModels
             {
                 while (!cts.IsCancellationRequested)
                 {
+
                     try
                     {
-                        var psi = new ProcessStartInfo("./Resources/adb.exe", $"-s {device.DeviceId} exec-out screencap -p")
+                        var stopwatch = Stopwatch.StartNew();
+                        var psi = new ProcessStartInfo("adb", $"-s {device.DeviceId} exec-out screencap -p")
                         {
                             RedirectStandardOutput = true,
                             UseShellExecute = false,
                             CreateNoWindow = true
                         };
+
                         using var proc = Process.Start(psi);
+
+
+                        if (proc == null)
+                        {
+                            await Task.Delay(200);
+                            continue;
+                        }
+
                         using var ms = new MemoryStream();
-                        await proc.StandardOutput.BaseStream.CopyToAsync(ms);
+                        await proc.StandardOutput.BaseStream.CopyToAsync(ms, cts.Token);
                         ms.Position = 0;
 
                         var img = new BitmapImage();
                         img.BeginInit();
-                        img.StreamSource = ms;
                         img.CacheOption = BitmapCacheOption.OnLoad;
+                        img.StreamSource = ms;
                         img.EndInit();
                         img.Freeze();
 
-                        System.Windows.Application.Current.Dispatcher.Invoke(() =>
+                        await System.Windows.Application.Current.Dispatcher.InvokeAsync(() =>
                         {
-                            if (device != null && img != null && img.PixelHeight > 0)
-                            {
-                                device.Screenshot = img;
-                                device.IsActive = true;
-                            }
+                            device.Screenshot = img;
+                            device.IsActive = true;
                         });
-                    }
-                    catch
-                    {
-                        if (System.Windows.Application.Current != null)
-                        {
-                            System.Windows.Application.Current.Dispatcher.Invoke(() =>
-                            {
-                                device.IsActive = false;
-                            });
-                        }
 
+                        stopwatch.Stop();
+                        //     Debug.WriteLine($"✅ {device.DeviceId} capture done in {stopwatch.ElapsedMilliseconds} ms");
+
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.WriteLine($"❌ Error: {ex.Message}");
+                        await System.Windows.Application.Current.Dispatcher.InvokeAsync(() => device.IsActive = false);
                         await Task.Delay(500);
                     }
                 }
-            });
+            }, cts.Token);
         }
-
         public void StopScreencap(ViewDeviceModel device)
         {
             if (!_streamTokens.TryGetValue(device.DeviceId, out var cts)) return;
@@ -603,10 +588,300 @@ namespace ToolChange.ViewModels
 
             _ = Task.Run(() =>
             {
-                try { cts.Cancel(); }       
+                try { cts.Cancel(); }
                 catch { /* nuốt mọi ngoại lệ từ callbacks */ }
                 finally { cts.Dispose(); }
             });
+        }
+
+        //view
+        public void startViewDevice()
+        {
+            _ = MonitorDevicesAsync();
+        }
+
+        public void stopViewDevice()
+        {
+            Task.Run(async () =>
+            {
+                foreach (var proc in Process.GetProcessesByName("scrcpy"))
+                {
+                    try
+                    {
+                        proc.Kill();
+                        Debug.WriteLine($"[Monitor] Killed existing scrcpy process (PID: {proc.Id})");
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.WriteLine($"[Monitor] Failed to kill scrcpy (PID: {proc.Id}): {ex.Message}");
+                    }
+                    Task.Delay(1000).Wait(); // Đợi 1 giây trước khi tiếp tục
+                }
+            });    
+        }
+
+        private async Task MonitorDevicesAsync()
+        {
+            Debug.WriteLine("[Monitor] Start monitoring devices...");
+            foreach (var proc in Process.GetProcessesByName("scrcpy"))
+            {
+                try
+                {
+                    proc.Kill();
+                    Debug.WriteLine($"[Monitor] Killed existing scrcpy process (PID: {proc.Id})");
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"[Monitor] Failed to kill scrcpy (PID: {proc.Id}): {ex.Message}");
+                }
+                await Task.Delay(1000);
+            }
+            while (true)
+            {
+                var connected = await GetConnectedDeviceIdsAsync();
+                Debug.WriteLine($"[Monitor] Devices connected: {string.Join(", ", connected)}");
+
+                var added = connected.Except(_currentDeviceIds).ToList();
+                var removed = _currentDeviceIds.Except(connected).ToList();
+
+                // Xử lý thêm thiết bị
+                foreach (var id in added)
+                {
+                    
+                    Debug.WriteLine($"[Monitor] New device detected: {id}");
+
+                    int index;
+
+                    if (_deviceIdToIndexMap.ContainsKey(id))
+                    {
+                        index = _deviceIdToIndexMap[id]; // Đã từng kết nối → dùng lại index cũ
+                    }
+                    else
+                    {
+                        index = _nextIndex++;            // Device mới hoàn toàn → gán index mới
+                        _deviceIdToIndexMap[id] = index;
+                    }
+
+                    var vm = new ScrcpyDeviceModel
+                    {
+                        DeviceId = id,
+                        Index = index,
+                        Panel = new System.Windows.Forms.Panel
+                        {
+                            Dock = System.Windows.Forms.DockStyle.Fill,
+                            BackColor = System.Drawing.Color.Black
+                        }
+                    };
+
+                    _indexToDeviceMap[index] = vm;
+                    RefreshDeviceSlotsFromMap();
+                    if (!ViewDevices.Any(d => d.Index == index))
+                    {
+                        await System.Windows.Application.Current.Dispatcher.InvokeAsync(() =>
+                        {
+                            ViewDevices.Add(vm);
+                        });
+                    }
+
+                    await MonitorScrcpyAttachAsync(vm);
+                }
+
+                // Xử lý ngắt thiết bị
+                foreach (var id in removed)
+                {
+                    Debug.WriteLine($"[Monitor] Device removed: {id}");
+
+                    ScrcpyDeviceModel? vm = null;
+                    int? indexToRemove = null;
+
+                    await System.Windows.Application.Current.Dispatcher.InvokeAsync(() =>
+                    {
+                        vm = ViewDevices.FirstOrDefault(d => d.DeviceId == id);
+                        if (vm != null)
+                        {
+                            indexToRemove = vm.Index;
+                            ViewDevices.Remove(vm);
+                        }
+                    });
+
+                    if (indexToRemove != null)
+                        _indexToDeviceMap.Remove(indexToRemove.Value);
+
+                    if (vm != null)
+                    {
+                        try
+                        {
+                            vm.ScrcpyProcess?.Kill();
+                            Debug.WriteLine($"[Monitor] Killed scrcpy process for {id}");
+                        }
+                        catch (Exception ex)
+                        {
+                            Debug.WriteLine($"[Monitor] Error killing process for {id}: {ex.Message}");
+                        }
+                    }
+                }
+
+                _currentDeviceIds = connected.ToHashSet();
+                await Task.Delay(1000);
+            }
+        }
+        private void RefreshDeviceSlotsFromMap()
+        {
+            DeviceSlots.Clear();
+            foreach (var kv in _indexToDeviceMap.OrderBy(kv => kv.Key)) // đảm bảo thứ tự tăng dần
+            {
+                DeviceSlots.Add(kv.Value);
+            }
+        }
+
+        private async Task<List<string>> GetConnectedDeviceIdsAsync()
+        {
+            var result = new List<string>();
+            var psi = new ProcessStartInfo("./Resources/adb.exe", "devices")
+            {
+                RedirectStandardOutput = true,
+                UseShellExecute = false,
+                CreateNoWindow = true
+            };
+
+            using var process = Process.Start(psi);
+            using var reader = process.StandardOutput;
+
+            string? line;
+            while ((line = await reader.ReadLineAsync()) != null)
+            {
+                if (line.EndsWith("\tdevice"))
+                {
+                    var id = line.Split('\t')[0];
+                    result.Add(id);
+                }
+            }
+
+            return result;
+        }
+
+        private async Task MonitorScrcpyAttachAsync(ScrcpyDeviceModel vm)
+        {
+            Debug.WriteLine($"[scrcpy] Starting monitor for device: {vm.DeviceId} (Index: {vm.Index})");
+
+            int retry = 0;
+            const int maxRetry = 5;
+            const int delay = 2000;
+
+            while (retry < maxRetry)
+            {
+                if (vm.AttachStatus == ScrcpyAttachStatus.Attaching || vm.AttachStatus == ScrcpyAttachStatus.Attached)
+                {
+                    Debug.WriteLine($"[scrcpy] Already attaching/attached device: {vm.DeviceId}, skipping duplicate attach.");
+                    return;
+                }
+                vm.AttachStatus = ScrcpyAttachStatus.Attaching;
+
+
+                if (vm.ScrcpyProcess != null && !vm.ScrcpyProcess.HasExited)
+                {
+                    try
+                    {
+                        vm.ScrcpyProcess.Kill();
+                        Debug.WriteLine($"[scrcpy] Killed existing scrcpy process for {vm.DeviceId}");
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.WriteLine($"[scrcpy] Failed to kill scrcpy: {ex.Message}");
+                    }
+
+                    await Task.Delay(1000);
+                }
+
+                if (NativeMethods.FindWindow(null, vm.WindowTitle) != IntPtr.Zero)
+                {
+                    Debug.WriteLine($"[scrcpy] scrcpy window for {vm.DeviceId} already exists. Skipping start.");
+                    return;
+                }
+
+                string scrcpyPath = @"./Resources/scrcpy.exe";
+                string args = $"-s {vm.DeviceId} --window-title={vm.WindowTitle} --max-size {Math.Min(1080, 2220)} --max-fps 15 " +
+                              "--window-borderless --window-x 3000 --window-y 3000 --no-control --no-audio --window-width 200 --window-height 400";
+
+                Debug.WriteLine($"[scrcpy] Starting process with args: {args}");
+
+                var psi = new ProcessStartInfo(scrcpyPath, args)
+                {
+                    UseShellExecute = false,
+                    CreateNoWindow = true
+                };
+
+                try
+                {
+                    vm.ScrcpyProcess = Process.Start(psi);
+                    Debug.WriteLine($"[scrcpy] Process started for {vm.DeviceId}");
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"[scrcpy] Failed to start scrcpy: {ex.Message}");
+                }
+
+                for (int i = 0; i < 10; i++)
+                {
+                    await Task.Delay(1000);
+
+                    vm.ScrcpyHwnd = NativeMethods.FindWindow(null, vm.WindowTitle);
+                    if (vm.ScrcpyHwnd != IntPtr.Zero)
+                    {
+                        Debug.WriteLine($"[scrcpy] Found HWND for {vm.DeviceId}: {vm.ScrcpyHwnd}");
+
+                        var panelHandle = vm.Panel?.Handle ?? IntPtr.Zero;
+
+                        if (panelHandle != IntPtr.Zero)
+                        {
+                            NativeMethods.SetWindowLong(vm.ScrcpyHwnd, -16, 0x40000000 | 0x10000000);
+                            NativeMethods.SetParent(vm.ScrcpyHwnd, panelHandle);
+                            NativeMethods.SetWindowPos(vm.ScrcpyHwnd, IntPtr.Zero, 0, 0, 200, 400, 0x0040);
+
+                            vm.Panel.Resize += (_, __) =>
+                            {
+                                NativeMethods.SetWindowPos(vm.ScrcpyHwnd, IntPtr.Zero, 0, 0,
+                                    vm.Panel.Width, vm.Panel.Height, 0x0040);
+                            };
+
+                            Debug.WriteLine($"[scrcpy] Successfully attached scrcpy to panel for {vm.DeviceId}");
+                            vm.AttachStatus = ScrcpyAttachStatus.Attached;
+
+                            _ = MonitorScrcpyProcessHealthAsync(vm); // Start watchdog
+                            return;
+                        }
+                        else
+                        {
+                            Debug.WriteLine($"[scrcpy] Panel handle is zero for {vm.DeviceId}");
+                        }
+                    }
+                    else
+                    {
+                        Debug.WriteLine($"[scrcpy] HWND not found (attempt {i + 1}/10) for {vm.DeviceId}");
+                    }
+                }
+
+                retry++;
+                Debug.WriteLine($"[scrcpy] Retry {retry}/{maxRetry} for {vm.DeviceId}");
+                await Task.Delay(delay);
+            }
+
+            Debug.WriteLine($"[scrcpy] Failed to attach scrcpy for {vm.DeviceId} after {maxRetry} retries.");
+        }
+
+        private async Task MonitorScrcpyProcessHealthAsync(ScrcpyDeviceModel vm)
+        {
+            while (true)
+            {
+                await Task.Delay(3000);
+
+                if (vm.ScrcpyProcess == null || vm.ScrcpyProcess.HasExited || vm.ScrcpyHwnd == IntPtr.Zero)
+                {
+                    Debug.WriteLine($"[watchdog] scrcpy crashed or not attached for {vm.DeviceId}. Restarting...");
+                    _ = MonitorScrcpyAttachAsync(vm);
+                    return;
+                }
+            }
         }
 
 
@@ -614,5 +889,29 @@ namespace ToolChange.ViewModels
         protected void OnPropertyChanged([CallerMemberName] string name = null) =>
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
     }
+    public static class NativeMethods
+    {
+        [DllImport("user32.dll")]
+        public static extern uint GetWindowThreadProcessId(IntPtr hWnd, out uint lpdwProcessId);
+        [DllImport("user32.dll")]
+        public static extern IntPtr FindWindow(string? lpClassName, string? lpWindowName);
+
+        [DllImport("user32.dll")]
+        public static extern IntPtr SetParent(IntPtr hWndChild, IntPtr hWndNewParent);
+
+        [DllImport("user32.dll", SetLastError = true)]
+        public static extern int SetWindowLong(IntPtr hWnd, int nIndex, int dwNewLong);
+
+        [DllImport("user32.dll", SetLastError = true)]
+        public static extern bool SetWindowPos(IntPtr hWnd, IntPtr hWndInsertAfter,
+            int X, int Y, int cx, int cy, uint uFlags);
+    }
+    public enum ScrcpyAttachStatus
+    {
+        None,
+        Attaching,
+        Attached
+    }
+
 }
 

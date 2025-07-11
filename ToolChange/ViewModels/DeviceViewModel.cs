@@ -1383,6 +1383,14 @@ namespace ToolChange.ViewModels
                 //{
                 //    throw new Exception(DevicesLang.logDeviceRandomEx);
                 //}
+                if (tempDeviceAll == null)
+                {
+                    tempDeviceAll = new POCO.Models.DeviceModel
+                    {
+                        
+                    };
+                }
+
                 tempDeviceAll.IMSI = RandomService.generateIMSI(mcc, mnc);
                 tempDeviceAll.ICCID = RandomService.generateICCID(currentSelectedCountry.CountryCode, mnc);
                 tempDeviceAll.SimPhoneNumber = string.Format("+{0}{1}", currentSelectedCountry.CountryCode, RandomService.generatePhoneNumber());

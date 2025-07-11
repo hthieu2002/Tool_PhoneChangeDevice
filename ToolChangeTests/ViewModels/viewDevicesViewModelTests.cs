@@ -19,5 +19,12 @@ namespace ToolChange.ViewModels.Tests
             var img = viewDevicesViewModel.CaptureScreenAsync("93JAY0BKPF", token);
             Console.WriteLine(img.Result);
         }
+
+        [TestMethod()]
+        public void TestOpenCV()
+        {
+            viewDevicesViewModel viewDevicesViewModel = new viewDevicesViewModel();
+            viewDevicesViewModel.TestOpenCV();
+        }
     }
 }

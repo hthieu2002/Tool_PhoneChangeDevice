@@ -3,10 +3,11 @@
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-      xmlns:local="clr-namespace:ToolChange.Views"
+      xmlns:local="clr-namespace:ToolChange.Views.ControlScriptPage"
       mc:Ignorable="d"
       d:DesignHeight="450"
       d:DesignWidth="800"
+      KeepAlive="True"
       Loaded="Page_Loaded"
       Unloaded="Page_Unloaded">
 
@@ -16,10 +17,9 @@
             <ColumnDefinition Width="Auto" />
             <ColumnDefinition Width="2*" />
         </Grid.ColumnDefinitions>
-       
-        <ScrollViewer HorizontalScrollBarVisibility="Disabled"
-                      VerticalScrollBarVisibility="Auto">
-            <ItemsControl ItemsSource="{Binding Devices}">
+
+        <ScrollViewer Grid.Column="0">
+            <ItemsControl ItemsSource="{Binding ViewDevices}">
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
                         <WrapPanel Orientation="Horizontal" />
@@ -27,57 +27,17 @@
                 </ItemsControl.ItemsPanel>
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
-                        <Button  Command="{Binding DataContext.DeviceClickCommand,
-                           RelativeSource={RelativeSource AncestorType=ItemsControl}}"
-                                CommandParameter="{Binding}"
-                                Background="Transparent"
-                                BorderThickness="0"
-                                Padding="0"
-                                Width="200"
-                                Height="400"
-                                Margin="5">
-                            <Border BorderThickness="1"
-                                    BorderBrush="Gray"
-                                    CornerRadius="10"
-                                    Width="200"
-                                    Height="400">
-                                <Grid>
-                                    <Image Source="{Binding Screenshot}"
-                                           Stretch="Uniform"
-                                          
-                                           Width="200"
-                                           Height="400">
-                                        <Image.Clip>
-                                            <RectangleGeometry Rect="0,0,200,400"
-                                                               RadiusX="10"
-                                                               RadiusY="10" />
-                                        </Image.Clip>
-                                    </Image>
-
-                                    <StackPanel VerticalAlignment="Top"
-                                                HorizontalAlignment="Center"
-                                                Background="Transparent"
-                                                Margin="0,10,0,0"
-                                                Orientation="Vertical">
-                                        <TextBlock Text="{Binding DisplayName}"
-                                                   Foreground="White"
-                                                   FontWeight="Bold"
-                                                   FontSize="14"
-                                                   TextWrapping="Wrap" />
-                                        <TextBlock Text="{Binding DeviceId}"
-                                                   Foreground="White"
-                                                   FontSize="10"
-                                                   TextWrapping="Wrap" />
-                                    </StackPanel>
-                                </Grid>
-                            </Border>
-                        </Button>
+                        <Grid  Width="200"
+                               Height="400"
+                               Margin="10,0,0,0"> 
+                        <local:ScrcpyDeviceControl Cursor="Hand" />
+                           
+                        </Grid>
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
         </ScrollViewer>
 
-      
         <Rectangle Grid.Column="1"
                    Width="1"
                    Fill="Gray"
@@ -200,7 +160,7 @@
                                 Foreground="Black"
                                 Margin="2"
                                 FontSize="11" />
-                        
+
                         <Button Content="Push File"
                                 Background="#B0E0E6"
                                 Foreground="Black"
@@ -224,37 +184,48 @@
                             Background="#B0B0B0"
                             BorderBrush="#A0A0A0"
                             BorderThickness="1">
-                        <ItemsControl ItemsSource="{Binding Devices}">
-                            <ItemsControl.ItemsPanel>
-                                <ItemsPanelTemplate>
-                                    <WrapPanel />
-                                </ItemsPanelTemplate>
-                            </ItemsControl.ItemsPanel>
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate>
-                                    <Button Content="{Binding DisplayName}"
-                                            Margin="5"
-                                            Padding="8,4"
-                                            Command="{Binding DataContext.SelectDeviceCommand, RelativeSource={RelativeSource AncestorType=Page}}"
-                                            CommandParameter="{Binding}">
-                                        <Button.Style>
-                                            <Style TargetType="Button">
-                                                <Setter Property="Background"
-                                                        Value="White" />
-                                                <Style.Triggers>
-                                                    <DataTrigger Binding="{Binding IsSelected}"
-                                                                 Value="True">
-                                                        <Setter Property="Background"
-                                                                Value="LightGreen" />
-                                                    </DataTrigger>
-                                                </Style.Triggers>
-                                            </Style>
-                                        </Button.Style>
-                                    </Button>
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
+                        <ScrollViewer VerticalScrollBarVisibility="Auto"
+                                      HorizontalScrollBarVisibility="Disabled"
+                                      >
+                            <!-- hoặc bất kỳ chiều cao phù hợp -->
+                            <ItemsControl ItemsSource="{Binding DeviceSlots}">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <WrapPanel />
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Button Content="{Binding DisplayName}"
+                                                Margin="5"
+                                                Padding="8,4"
+                                                Command="{Binding DataContext.ToggleDeviceCommand, RelativeSource={RelativeSource AncestorType=Page}}"
+                                                CommandParameter="{Binding}">
+                                            <Button.Style>
+                                                <Style TargetType="Button">
+                                                    <Setter Property="Background"
+                                                            Value="White" />
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding IsSelected}"
+                                                                     Value="True">
+                                                            <Setter Property="Background"
+                                                                    Value="LightGreen" />
+                                                        </DataTrigger>
+                                                        <DataTrigger Binding="{Binding DeviceId}"
+                                                                     Value="{x:Null}">
+                                                            <Setter Property="Background"
+                                                                    Value="Gray" />
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Button.Style>
+                                        </Button>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </ScrollViewer>
                     </Border>
+
                 </Grid>
 
             </Grid>
