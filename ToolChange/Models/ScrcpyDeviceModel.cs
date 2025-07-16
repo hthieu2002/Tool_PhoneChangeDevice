@@ -29,7 +29,19 @@ namespace ToolChange.Models
                 }
             }
         }
-
+        private string _ip;
+        public string Ip
+        {
+            get => _ip;
+            set
+            {
+                if (_ip != value)
+                {
+                    _ip = value;
+                    OnPropertyChanged(nameof(Ip));
+                }
+            }
+        }
         public string DeviceId { get; set; }
         public int Index { get; set; }
         public string WindowTitle => $"{DeviceId}_{Index}";

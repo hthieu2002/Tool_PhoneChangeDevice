@@ -70,5 +70,33 @@ namespace ToolChange.Properties {
                 this["password"] = value;
             }
         }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("ap-southeast-1_Cha6gy7Ui")]
+        public string poolId {
+            get {
+                return ((string)(this["poolId"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("4h21ba0at8flinn9iq351if381")]
+        public string clientId {
+            get {
+                return ((string)(this["clientId"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("https://nievrqo2rbdtfhmhzc2bg2epka.appsync-api.ap-southeast-1.amazonaws.com/graph" +
+            "ql")]
+        public string endpoint {
+            get {
+                return ((string)(this["endpoint"]));
+            }
+        }
     }
 }

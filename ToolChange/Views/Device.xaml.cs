@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.CodeAnalysis.VisualBasic.Syntax;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,6 +9,7 @@ using System.Windows.Controls;
 using ToolChange.Models;
 using ToolChange.Services;
 using ToolChange.ViewModels;
+using ComboBox = System.Windows.Controls.ComboBox;
 
 namespace ToolChange.Views
 {
@@ -28,6 +30,48 @@ namespace ToolChange.Views
         private void DevicePage_Unloaded(object sender, RoutedEventArgs e)
         {
             AutomationViewModel.StopLoop();
+        }
+        private void BrandComboBox_DropDownClosed(object sender, EventArgs e)
+        {
+            var combo = sender as ComboBox;
+            var selected = combo?.SelectedItem?.ToString();
+            var vm = DataContext as DeviceViewModel;
+            if (selected == "Random")
+            {
+                if (vm != null)
+                {
+                    vm.DeviceListVM.BrandRandom = true;
+                }
+            }
+            else
+            {
+                if (vm != null)
+                {
+                    vm.DeviceListVM.BrandRandom = false;
+                }
+            }
+            
+        }
+        private void OsComboBox_DropDownClosed(object sender, EventArgs e)
+        {
+            var combo = sender as ComboBox;
+            var selected = combo?.SelectedItem?.ToString();
+            var vm = DataContext as DeviceViewModel;
+            if (selected == "Random")
+            {
+                if (vm != null)
+                {
+                    vm.DeviceListVM.OsRandom = true;
+                }
+            }
+            else
+            {
+                if (vm != null)
+                {
+                    vm.DeviceListVM.OsRandom = false;
+                }
+            }
+
         }
         private void DevicePage_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
         {

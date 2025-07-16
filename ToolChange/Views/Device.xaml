@@ -114,9 +114,7 @@
                             <DataTemplate>
                                 <TextBlock Text="{Binding Name}"
                                            Padding="0"
-                                         
-                                           VerticalAlignment="Center" 
-                                           />
+                                           VerticalAlignment="Center" />
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>
 
@@ -241,10 +239,11 @@
                                 <ComboBox Grid.Column="1"
                                           ItemsSource="{Binding DeviceListVM.DeviceTypes}"
                                           SelectedItem="{Binding DeviceListVM.Brand, Mode=TwoWay}"
+                                          DropDownClosed="BrandComboBox_DropDownClosed"
                                           Height="30"
-                                          VerticalAlignment="Center"
-                                          HorizontalAlignment="Stretch"
-                                          Background="Transparent" />
+                                          HorizontalAlignment="Right"
+                                          Background="Transparent"
+                                          Width="130" />
                             </Grid>
                             <Grid Width="200"
                                   Height="35"
@@ -297,6 +296,7 @@
                                           Height="30"
                                           ItemsSource="{Binding DeviceListVM.DeviceTypesOs}"
                                           SelectedItem="{Binding DeviceListVM.Os, Mode=TwoWay}"
+                                          DropDownClosed="OsComboBox_DropDownClosed"
                                           VerticalAlignment="Center"
                                           HorizontalAlignment="Stretch"
                                           Background="Transparent" />
@@ -491,8 +491,8 @@
                                        VerticalAlignment="Center"
                                        FontWeight="Bold" />
                                 <CheckBox IsChecked="{Binding DeviceListVM.IsCheckedSim, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                          HorizontalAlignment="Left" 
-                                          Grid.Column="1"/>
+                                          HorizontalAlignment="Left"
+                                          Grid.Column="1" />
                             </Grid>
                             <Grid Width="200"
                                   Height="35"

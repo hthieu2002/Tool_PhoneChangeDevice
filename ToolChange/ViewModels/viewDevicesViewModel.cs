@@ -7,12 +7,14 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Diagnostics.Metrics;
 using System.IO;
 using System.Linq;
 using System.Reactive.Concurrency;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Channels;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
@@ -45,6 +47,8 @@ namespace ToolChange.ViewModels
             public int Bottom;
         }
         [DllImport("user32.dll")]
+        static extern int SetWindowLong(IntPtr hWnd, int nIndex, int dwNewLong);
+        [DllImport("user32.dll")]
         static extern bool MoveWindow(IntPtr hWnd, int X, int Y, int nWidth, int nHeight, bool bRepaint);
 
         [DllImport("user32.dll")]
@@ -60,6 +64,8 @@ namespace ToolChange.ViewModels
         [DllImport("user32.dll")]
         private static extern int GetWindowText(IntPtr hWnd, StringBuilder lpString, int nMaxCount);
 
+        [DllImport("user32.dll")]
+        static extern int GetWindowLong(IntPtr hWnd, int nIndex);
 
         [DllImport("user32.dll")]
         private static extern bool PostMessage(IntPtr hWnd, uint Msg, IntPtr wParam, IntPtr lParam);
@@ -88,10 +94,15 @@ namespace ToolChange.ViewModels
         private Dictionary<string, int> _deviceIdToIndexMap = new();
         private Dictionary<int, ScrcpyDeviceModel> _indexToDeviceMap = new();
         private int _nextIndex = 1;
-
+        public static CancellationTokenSource tokenSource { get; set; }
         public ObservableCollection<ScrcpyDeviceModel> DeviceSlots { get; set; } = new();
         public ICommand SelectDeviceCommand1 { get; }
 
+
+        const int GWL_STYLE = -16;
+        const int WS_SYSMENU = 0x00080000;
+        const int WS_MINIMIZEBOX = 0x00020000;
+        const int WS_MAXIMIZEBOX = 0x00010000;
         public ObservableCollection<string> SelectedDeviceIds
         {
             get => _selectedDeviceIds;
@@ -101,6 +112,9 @@ namespace ToolChange.ViewModels
                 OnPropertyChanged(nameof(SelectedDeviceIds));
             }
         }
+        public double ItemWidth { get; }
+        public double ItemHeight { get; }
+
 
         private DeviceInfo _countDevice;
         public DeviceInfo CountDevice
@@ -161,7 +175,19 @@ namespace ToolChange.ViewModels
             SelectedDeviceIds = new ObservableCollection<string>();
             SelectedDeviceCount = SelectedDeviceIds.Count;
             DeviceClickCommand = new RelayCommand<Models.ViewDeviceModel>(async (device) => await DeviceClick(device));
+
+            if (!IsWindows11)
+            {
+                ItemWidth = 160;
+                ItemHeight = 350;
+            }
+            else
+            {
+                ItemWidth = 200;
+                ItemHeight = 400;
+            }
         }
+
         private void ToggleSelectDevice(ScrcpyDeviceModel model)
         {
             if (model.IsSelected)
@@ -336,6 +362,7 @@ namespace ToolChange.ViewModels
                                         $"--window-title=\"{deviceId}\" " +
                                         $"--max-size={resolution} " +
                                         $"--video-bit-rate={bitrate} " +
+                                        $"--window-x 3000 --window-y 3000 " +
                                         $"{turnOffFlag}";
 
                         var psi = new ProcessStartInfo(scrcpyPath, arguments)
@@ -367,6 +394,11 @@ namespace ToolChange.ViewModels
                     {
                         MoveWindow(hwnd, currentX, startY, windowWidth, windowHeight, true);
                         currentX += windowWidth + spacing;
+
+                        int style = GetWindowLong(hwnd, GWL_STYLE);
+                        style &= ~WS_MINIMIZEBOX;
+                        style &= ~WS_MAXIMIZEBOX;
+                        SetWindowLong(hwnd, GWL_STYLE, style);
 
                         ViewedDevices.Add(deviceId);
                         pendingDevices.Remove(deviceId);
@@ -602,6 +634,7 @@ namespace ToolChange.ViewModels
 
         public void stopViewDevice()
         {
+            tokenSource?.Cancel();
             Task.Run(async () =>
             {
                 foreach (var proc in Process.GetProcessesByName("scrcpy"))
@@ -617,9 +650,9 @@ namespace ToolChange.ViewModels
                     }
                     Task.Delay(1000).Wait(); // Đợi 1 giây trước khi tiếp tục
                 }
-            });    
+            });
         }
-
+        CancellationTokenSource ipMonitorToken = new CancellationTokenSource();
         private async Task MonitorDevicesAsync()
         {
             Debug.WriteLine("[Monitor] Start monitoring devices...");
@@ -636,7 +669,9 @@ namespace ToolChange.ViewModels
                 }
                 await Task.Delay(1000);
             }
-            while (true)
+            tokenSource = new CancellationTokenSource();
+           
+            while (!tokenSource.IsCancellationRequested)
             {
                 var connected = await GetConnectedDeviceIdsAsync();
                 Debug.WriteLine($"[Monitor] Devices connected: {string.Join(", ", connected)}");
@@ -647,7 +682,7 @@ namespace ToolChange.ViewModels
                 // Xử lý thêm thiết bị
                 foreach (var id in added)
                 {
-                    
+
                     Debug.WriteLine($"[Monitor] New device detected: {id}");
 
                     int index;
@@ -674,6 +709,7 @@ namespace ToolChange.ViewModels
                     };
 
                     _indexToDeviceMap[index] = vm;
+                    _ = Task.Run(() => StartMonitoringPublicIP(vm, tokenSource)) ;
                     RefreshDeviceSlotsFromMap();
                     if (!ViewDevices.Any(d => d.Index == index))
                     {
@@ -759,7 +795,42 @@ namespace ToolChange.ViewModels
 
             return result;
         }
+        public static bool IsWindows11
+        {
+            get
+            {
+                var productName = Microsoft.Win32.Registry.GetValue(
+                    @"HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion",
+                    "ProductName", "")?.ToString();
 
+                return productName != null && productName.Contains("Windows 11");
+            }
+        }
+        public static async Task StartMonitoringPublicIP(ScrcpyDeviceModel device, CancellationTokenSource token)
+        {
+            while (!token.IsCancellationRequested)
+            {
+                try
+                {
+                    string command = $"adb -s {device.DeviceId} shell curl -s https://ipinfo.io/json";
+                    string output = ADBService.ExecuteAdbCommandString(command);
+
+                    var ipMatch = Regex.Match(output, @"""ip"":\s*""([^""]+)""");
+                    var countryMatch = Regex.Match(output, @"""country"":\s*""([^""]+)""");
+
+                    string ip = ipMatch.Success ? ipMatch.Groups[1].Value : "0.0.0.0";
+                    string country = countryMatch.Success ? countryMatch.Groups[1].Value : "Unknown";
+                    device.Ip = $"{country} : {ip}";
+
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"[LỖI] Không thể lấy IP/quốc gia từ thiết bị {device.DeviceId}: {ex.Message}");
+                    device.Ip = $"Unknown : 0.0.0.0";
+                }
+                await Task.Delay(2000); // Kiểm tra mỗi 10 giây
+            }
+        }
         private async Task MonitorScrcpyAttachAsync(ScrcpyDeviceModel vm)
         {
             Debug.WriteLine($"[scrcpy] Starting monitor for device: {vm.DeviceId} (Index: {vm.Index})");

@@ -6,6 +6,7 @@ using POCO.Models;
 using System;
 using System.Reflection;
 using System.Threading.Tasks;
+using System.Windows;
 
 namespace AuthenticationService
 {
@@ -42,8 +43,9 @@ namespace AuthenticationService
                 //Console.WriteLine(response.SessionID);
                 return response.AuthenticationResult.IdToken;
             }
-            catch
+            catch (Exception ex)
             {
+              
                 return string.Empty;
             }
         }

@@ -14,5 +14,14 @@
     <Setting Name="password" Type="System.String" Scope="User">
       <Value Profile="(Default)">1234</Value>
     </Setting>
+    <Setting Name="poolId" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">ap-southeast-1_Cha6gy7Ui</Value>
+    </Setting>
+    <Setting Name="clientId" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">4h21ba0at8flinn9iq351if381</Value>
+    </Setting>
+    <Setting Name="endpoint" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">https://nievrqo2rbdtfhmhzc2bg2epka.appsync-api.ap-southeast-1.amazonaws.com/graphql</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

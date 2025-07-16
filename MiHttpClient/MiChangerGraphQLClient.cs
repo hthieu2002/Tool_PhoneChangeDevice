@@ -207,7 +207,27 @@ namespace MiHttpClient
             model.BuildFlavor = string.Concat(model.Product, "-user");
             if (string.IsNullOrEmpty(model.BuildDisplayId))
                 model.BuildDisplayId = string.Format("{0}.{1}", model.BuildId, model.BuildIncremental);
-            model.BuildDate = DateTimeOffset.FromUnixTimeMilliseconds(long.Parse(model.BuildDateUtc + "000")).ToString("ddd MMM dd HH:mm:ss 'UTC' yyyy");
+            //model.BuildDate = DateTimeOffset.FromUnixTimeMilliseconds(long.Parse(model.BuildDateUtc + "000")).ToString("ddd MMM dd HH:mm:ss 'UTC' yyyy");
+            try
+            {
+                if (long.TryParse(model.BuildDateUtc, out long utcSeconds))
+                {
+                    long utcMilliseconds = utcSeconds * 1000;
+                    utcMilliseconds = Math.Clamp(utcMilliseconds, -62135596800000, 253402300799999);
+
+                    model.BuildDate = DateTimeOffset.FromUnixTimeMilliseconds(utcMilliseconds)
+                        .ToString("ddd MMM dd HH:mm:ss 'UTC' yyyy");
+                }
+                else
+                {
+                    model.BuildDate = "Unknown";
+                }
+            }
+            catch
+            {
+                model.BuildDate = "Unknown";
+            }
+
             model.BuildDescription = string.Format("{0} {1} {2} {3} release-keys"
                                 , model.Product
                                 , model.Release

@@ -31,15 +31,20 @@ namespace ToolChange.ViewModels
         {
             try
             {
-                var appSettings = ConfigurationManager.AppSettings;
-                string result = appSettings[key] ?? string.Empty;
-                return result;
+                var property = typeof(Properties.Settings).GetProperty(key);
+                if (property != null)
+                {
+                    var value = property.GetValue(Properties.Settings.Default)?.ToString();
+                    return value ?? string.Empty;
+                }
+                return string.Empty;
             }
-            catch (ConfigurationErrorsException)
+            catch (Exception ex)
             {
-                Console.WriteLine("Error reading app settings");
+                Console.WriteLine("Error reading app settings: " + ex.Message);
                 return string.Empty;
             }
         }
+
     }
 }

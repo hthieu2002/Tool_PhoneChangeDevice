@@ -290,6 +290,8 @@ namespace ToolChange.ViewModels
                 OnPropertyChanged(nameof(OsValueMax));
             }
         }
+        public bool BrandRandom = true;
+        public bool OsRandom = true;
         public string Brand
         {
             get => _brand;
@@ -319,72 +321,84 @@ namespace ToolChange.ViewModels
                 {
                     value = "Google";
                 }
-
-                if (value == "Samsung" || value == "Random")
+                if (BrandRandom)
                 {
                     var newList = new[] { "Random", "Android 7", "Android 8", "Android 9", "Android 10", "Android 11", "Android 12", "Android 13" };
-
                     DeviceTypesOs.Clear();
                     foreach (var item in newList)
                     {
                         DeviceTypesOs.Add(item);
                     }
-
+                    Os = DeviceTypesOs.First();
                 }
-                if (value == "Xiaomi")
+                else
                 {
-                    var newList = new[] { "Random", "Android 8", "Android 9", "Android 10", "Android 11", "Android 12" };
-
-                    DeviceTypesOs.Clear();
-                    foreach (var item in newList)
+                    if (value == "Samsung" || value == "Random")
                     {
-                        DeviceTypesOs.Add(item);
+                        var newList = new[] { "Random", "Android 7", "Android 8", "Android 9", "Android 10", "Android 11", "Android 12", "Android 13" };
+
+                        DeviceTypesOs.Clear();
+                        foreach (var item in newList)
+                        {
+                            DeviceTypesOs.Add(item);
+                        }
+                        Os = DeviceTypesOs.First();
                     }
-
-                }
-                if (value == "Oppo")
-                {
-                    var newList = new[] { "Random", "Android 8", "Android 9", "Android 10", "Android 11", "Android 12" };
-
-                    DeviceTypesOs.Clear();
-                    foreach (var item in newList)
+                    if (value == "Xiaomi")
                     {
-                        DeviceTypesOs.Add(item);
+                        var newList = new[] { "Random", "Android 8", "Android 9", "Android 10", "Android 11", "Android 12" };
+
+                        DeviceTypesOs.Clear();
+                        foreach (var item in newList)
+                        {
+                            DeviceTypesOs.Add(item);
+                        }
+                        Os = DeviceTypesOs.First();
                     }
-
-                }
-                if (value == "Vivo")
-                {
-                    var newList = new[] { "Random", "Android 10", "Android 11", "Android 12" };
-
-                    DeviceTypesOs.Clear();
-                    foreach (var item in newList)
+                    if (value == "Oppo")
                     {
-                        DeviceTypesOs.Add(item);
+                        var newList = new[] { "Random", "Android 8", "Android 9", "Android 10", "Android 11", "Android 12" };
+
+                        DeviceTypesOs.Clear();
+                        foreach (var item in newList)
+                        {
+                            DeviceTypesOs.Add(item);
+                        }
+                        Os = DeviceTypesOs.First();
                     }
-
-                }
-                if (value == "Realme")
-                {
-                    var newList = new[] { "Random", "Android 10", "Android 11", "Android 12" };
-
-                    DeviceTypesOs.Clear();
-                    foreach (var item in newList)
+                    if (value == "Vivo")
                     {
-                        DeviceTypesOs.Add(item);
+                        var newList = new[] { "Random", "Android 10", "Android 11", "Android 12" };
+
+                        DeviceTypesOs.Clear();
+                        foreach (var item in newList)
+                        {
+                            DeviceTypesOs.Add(item);
+                        }
+                        Os = DeviceTypesOs.First();
                     }
-
-                }
-                if (value == "Google")
-                {
-                    var newList = new[] { "Random", "Android 11", "Android 12" };
-
-                    DeviceTypesOs.Clear();
-                    foreach (var item in newList)
+                    if (value == "Realme")
                     {
-                        DeviceTypesOs.Add(item);
-                    }
+                        var newList = new[] { "Random", "Android 10", "Android 11", "Android 12" };
 
+                        DeviceTypesOs.Clear();
+                        foreach (var item in newList)
+                        {
+                            DeviceTypesOs.Add(item);
+                        }
+                        Os = DeviceTypesOs.First();
+                    }
+                    if (value == "Google")
+                    {
+                        var newList = new[] { "Random", "Android 11", "Android 12" };
+
+                        DeviceTypesOs.Clear();
+                        foreach (var item in newList)
+                        {
+                            DeviceTypesOs.Add(item);
+                        }
+                        Os = DeviceTypesOs.First();
+                    }
                 }
                 _brand = value;
                 OnPropertyChanged(nameof(Brand));
@@ -413,6 +427,10 @@ namespace ToolChange.ViewModels
             get => _os;
             set
             {
+                if (value == "Random")
+                {
+                    value = "Random";
+                }
                 if (value == "7" || value == "6.0.1" || value == "7.1.2")
                 {
                     value = "Android 7";
@@ -450,10 +468,12 @@ namespace ToolChange.ViewModels
                     value = "Android 13";
 
                 }
+
                 _os = value;
                 OnPropertyChanged(nameof(Os));
             }
         }
+
         public string Serial
         {
             get => _serial;
@@ -559,6 +579,7 @@ namespace ToolChange.ViewModels
             LoadData();
             //   AsyncTask();
             Brand = DeviceTypes.First();
+            Os = DeviceTypesOs.First();
 
             DeleteDeviceCommand = new RelayCommand<object>(DeleteDevice, CanDeleteDevice);
             CopyDeviceIdCommand = new RelayCommand<Models.DeviceModel>(CopyDeviceId);
@@ -1047,7 +1068,7 @@ namespace ToolChange.ViewModels
             POCO.Models.DeviceModel tempDevice = null;
             if (miChangerGraphQLClient == null)
             {
-                CreateService();
+                await CreateService();
             }
 
             var currentSelectedCarrier = SelectedSim;
@@ -1063,110 +1084,131 @@ namespace ToolChange.ViewModels
 
             try
             {
-                if (Brand == "Random")
+                if (BrandRandom)
                 {
-                    // brand random
                     RandomizeBrand();
                 }
                 else
                 {
-                    if (Brand == "Samsung")
+                    if (Brand == "Random")
                     {
-                        BrandValue = "samsung";
-                    }
-                    else if (Brand == "Oppo")
-                    {
-                        BrandValue = "OPPO";
-                    }
-                    else if (Brand == "Vivo")
-                    {
-                        BrandValue = "vivo";
-                    }
-                    else if (Brand == "Realme")
-                    {
-                        BrandValue = "realme";
-                    }
-                    else if (Brand == "Google")
-                    {
-                        BrandValue = "Google";
+                        // brand random
+                        RandomizeBrand();
                     }
                     else
                     {
-                        BrandValue = "Xiaomi";
+                        if (Brand == "Samsung")
+                        {
+                            BrandValue = "samsung";
+                        }
+                        else if (Brand == "Oppo")
+                        {
+                            BrandValue = "OPPO";
+                        }
+                        else if (Brand == "Vivo")
+                        {
+                            BrandValue = "vivo";
+                        }
+                        else if (Brand == "Realme")
+                        {
+                            BrandValue = "realme";
+                        }
+                        else if (Brand == "Google")
+                        {
+                            BrandValue = "Google";
+                        }
+                        else
+                        {
+                            BrandValue = "Xiaomi";
+                        }
                     }
                 }
-                if (Os == "Random")
+                if (OsRandom)
                 {
                     OsValue = "24";
                 }
                 else
                 {
-                    if (Os == "Android 8.1.0")
+                    if (Os == "Random")
                     {
-                        OsValue = "27";
+                        // brand random
+                        OsValue = "24";
                     }
-                    else if (Os == "Android 7")
+                    else
                     {
-                        OsValue = "25";
+                        if (Os == "")
+                        {
+                            Os = "Random";
+                        }
+                        if (Os == "Android 8.1.0")
+                        {
+                            OsValue = "27";
+                        }
+                        else if (Os == "Android 7")
+                        {
+                            OsValue = "25";
+                        }
+                        else if (Os == "Android 8")
+                        {
+                            OsValue = "26";
+                        }
+                        else if (Os == "Android 9")
+                        {
+                            OsValue = "28";
+                        }
+                        else if (Os == "Android 10")
+                        {
+                            OsValue = "29";
+                        }
+                        else if (Os == "Android 11")
+                        {
+                            OsValue = "30";
+                        }
+                        else if (Os == "Android 12")
+                        {
+                            OsValue = "31";
+                        }
+                        else if (Os == "Android 13")
+                        {
+                            OsValue = "32";
+                        }
+                        else
+                        {
+                            OsValue = "29";
+                        }
                     }
-                    else if (Os == "Android 8")
-                    {
-                        OsValue = "26";
-                    }
-                    else if (Os == "Android 9")
-                    {
-                        OsValue = "28";
-                    }
-                    else if (Os == "Android 10")
-                    {
-                        OsValue = "29";
-                    }
-                    else if (Os == "Android 11")
+
+                    if (BrandValue == "Google" && (Os == "Random" || OsValue == "24"))
                     {
                         OsValue = "30";
                     }
-                    else if (Os == "Android 12")
+                    if ((BrandValue == "realme" || BrandValue == "vivo") && (Os == "Random" || OsValue == "24"))
                     {
-                        OsValue = "31";
+                        if ((OsValue == "29" || OsValue == "30"))
+                        {
+
+                        }
+                        else
+                        {
+                            OsValue = "29";
+                        }
                     }
-                    else if (Os == "Android 13")
+                    if ((BrandValue == "OPPO" || BrandValue == "Xiaomi") && (Os == "Random" || OsValue == "24"))
                     {
-                        OsValue = "32";
-                    }
-                    else
-                    {
-                        OsValue = "29";
+                        if ((OsValue == "29" || OsValue == "30" || OsValue == "28" || OsValue == "27"))
+                        {
+
+                        }
+                        else
+                        {
+                            OsValue = "29";
+                        }
+
                     }
                 }
 
-                if (BrandValue == "Google")
-                {
-                    OsValue = "30";
-                }
-                if (BrandValue == "realme" || BrandValue == "vivo")
-                {
-                    if ((OsValue == "29" || OsValue == "30") || (Os == "Random" || OsValue == "24"))
-                    {
-
-                    }
-                    else
-                    {
-                        OsValue = "29";
-                    }
-                }
-                if (BrandValue == "OPPO" || BrandValue == "Xiaomi")
-                {
-                    if ((OsValue == "29" || OsValue == "30" || OsValue == "28" || OsValue == "27") || (Os == "Random" || OsValue == "24"))
-                    {
-
-                    }
-                    else
-                    {
-                        OsValue = "29";
-                    }
-                }
                 await Task.Delay(1000);
-                tempDevice = await miChangerGraphQLClient.GetRandomDeviceV3(brand: BrandValue, sdkMin: int.Parse(OsValue), sdkMax: Os == "Random" ? 32 : int.Parse(OsValue));
+                tempDevice = await miChangerGraphQLClient.GetRandomDeviceV3(brand: BrandValue, sdkMin: int.Parse(OsValue), sdkMax: (Os == "Random" || OsRandom) ? 32 : int.Parse(OsValue));
                 if (tempDevice.Model == null)
                 {
                     throw new Exception(DevicesLang.logDeviceRandomEx);
@@ -1197,135 +1239,94 @@ namespace ToolChange.ViewModels
         private async Task RandomDevice()
         {
             IsRandomButtonEnabled = false;
-
             if (miChangerGraphQLClient == null)
             {
-                CreateService();
+                await CreateService();
             }
+
             var currentSelectedCarrier = SelectedSim;
             var currentSelectedCountry = SelectedCountry;
             var mcc = SelectedCountry?.Attribute?.Mcc;
             var mnc = SelectedSim?.Value;
 
-            Console.WriteLine("Country Code = {0}. MCC = {1} while carrier name = {2} MNC = {3}"
-                , currentSelectedCountry.CountryName
-                , mcc
-                , currentSelectedCarrier.Name
-                , mnc);
-
             try
             {
-
-                if (Brand == "Random")
+                if (BrandRandom || Brand == "Random")
                 {
-                    // brand random
                     RandomizeBrand();
                 }
                 else
                 {
-                    if (Brand == "Samsung")
+                    switch (Brand)
                     {
-                        BrandValue = "samsung";
-                    }
-                    else if (Brand == "Oppo")
-                    {
-                        BrandValue = "OPPO";
-                    }
-                    else if (Brand == "Vivo")
-                    {
-                        BrandValue = "vivo";
-                    }
-                    else if (Brand == "Realme")
-                    {
-                        BrandValue = "realme";
-                    }
-                    else if (Brand == "Google")
-                    {
-                        BrandValue = "Google";
-                    }
-                    else
-                    {
-                        BrandValue = "Xiaomi";
+                        case "Samsung":
+                            BrandValue = "samsung"; break;
+                        case "Oppo":
+                            BrandValue = "OPPO"; break;
+                        case "Vivo":
+                            BrandValue = "vivo"; break;
+                        case "Realme":
+                            BrandValue = "realme"; break;
+                        case "Google":
+                            BrandValue = "Google"; break;
+                        default:
+                            BrandValue = "Xiaomi"; break;
                     }
                 }
 
-                if (Os == "Random")
+                if (OsRandom || Os == "Random" || string.IsNullOrEmpty(Os))
                 {
-                    // brand random
                     OsValue = "24";
                 }
                 else
                 {
-                    if (Os == "Android 8.1.0")
+                    switch (Os)
                     {
-                        OsValue = "27";
-                    }
-                    else if (Os == "Android 7")
-                    {
-                        OsValue = "25";
-                    }
-                    else if (Os == "Android 8")
-                    {
-                        OsValue = "26";
-                    }
-                    else if (Os == "Android 9")
-                    {
-                        OsValue = "28";
-                    }
-                    else if (Os == "Android 10")
-                    {
-                        OsValue = "29";
-                    }
-                    else if (Os == "Android 11")
-                    {
-                        OsValue = "30";
-                    }
-                    else if (Os == "Android 12")
-                    {
-                        OsValue = "31";
-                    }
-                    else if (Os == "Android 13")
-                    {
-                        OsValue = "32";
-                    }
-                    else
-                    {
-                        OsValue = "29";
+                        case "Android 8.1.0": OsValue = "27"; break;
+                        case "Android 7": OsValue = "25"; break;
+                        case "Android 8": OsValue = "26"; break;
+                        case "Android 9": OsValue = "28"; break;
+                        case "Android 10": OsValue = "29"; break;
+                        case "Android 11": OsValue = "30"; break;
+                        case "Android 12": OsValue = "31"; break;
+                        case "Android 13": OsValue = "32"; break;
+                        default: OsValue = "29"; break;
                     }
                 }
 
-                if (BrandValue == "Google" && (Os == "Random" || OsValue == "24"))
+                // ✅ Điều kiện đặc biệt cho 1 số hãng
+                if (BrandValue == "Google" && OsValue == "24")
                 {
                     OsValue = "30";
                 }
-                if ((BrandValue == "realme" || BrandValue == "vivo") && (Os == "Random" || OsValue == "24"))
+                if ((BrandValue == "realme" || BrandValue == "vivo") && OsValue == "24")
                 {
-                    if ((OsValue == "29" || OsValue == "30"))
-                    {
-
-                    }
-                    else
-                    {
-                        return;
-                    }
+                    OsValue = "29";
                 }
-                if ((BrandValue == "OPPO" || BrandValue == "Xiaomi") && (Os == "Random" || OsValue == "24"))
+                if ((BrandValue == "OPPO" || BrandValue == "Xiaomi") && OsValue == "24")
                 {
-                    if ((OsValue == "29" || OsValue == "30" || OsValue == "28" || OsValue == "27"))
-                    {
-
-                    }
-                    else
-                    {
-                        return;
-                    }
+                    OsValue = "29";
                 }
 
-                tempDeviceAll = await miChangerGraphQLClient.GetRandomDeviceV3(brand: BrandValue, sdkMin: int.Parse(OsValue), sdkMax: Os == "Random" ? 32 : int.Parse(OsValue));
+                // ✅ Kiểm tra an toàn
+                if (!int.TryParse(OsValue, out int sdkParsed))
+                {
+                    sdkParsed = 29;
+                }
+
+                int sdkMax = (Os == "Random" || OsRandom) ? 32 : sdkParsed;
+
+                tempDeviceAll = await miChangerGraphQLClient.GetRandomDeviceV3(
+                    brand: BrandValue,
+                    sdkMin: sdkParsed,
+                    sdkMax: sdkMax);
+
                 if (tempDeviceAll.Model == null)
                 {
-                    throw new Exception(DevicesLang.logDeviceRandomEx);
+                    throw new Exception("Không tìm thấy thiết bị phù hợp.");
                 }
+
+                // ✅ Gán giá trị thiết bị
                 Brand = tempDeviceAll.Manufacturer;
                 Name = tempDeviceAll.Board;
                 Model = tempDeviceAll.Model;
@@ -1339,18 +1340,17 @@ namespace ToolChange.ViewModels
                 Mac = RandomService.generateMacAddress();
 
                 tempDeviceAll.SimOperatorCountry = currentSelectedCountry.CountryIso;
-                tempDeviceAll.SimOperatorName = currentSelectedCarrier.Name.Substring(0, currentSelectedCarrier.Name.LastIndexOf("-")).Replace("&", "^&");
+                tempDeviceAll.SimOperatorName = currentSelectedCarrier.Name.Split('-')[0].Replace("&", "^&");
                 tempDeviceAll.AndroidId = RandomService.getRandomStringHex16Digit();
                 tempDeviceAll.WifiMacAddress = Mac;
                 tempDeviceAll.BlueToothMacAddress = RandomService.generateMacAddress();
 
                 IsButtonChangeDevice = true;
                 IsButtonChangeFull = true;
-
             }
             catch (Exception ex)
             {
-                //ignored
+                System.Windows.MessageBox.Show($"Lỗi khi random device:\n{ex.Message}", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
                 Console.WriteLine(ex);
             }
             finally
@@ -1358,12 +1358,216 @@ namespace ToolChange.ViewModels
                 IsRandomButtonEnabled = true;
             }
         }
+
+        //private async Task RandomDevice()
+        //{
+
+        //    IsRandomButtonEnabled = false;
+        //    System.Windows.MessageBox.Show($"Check log");
+        //    if (miChangerGraphQLClient == null)
+        //    {
+        //        await CreateService();
+        //    }
+        //    var currentSelectedCarrier = SelectedSim;
+        //    var currentSelectedCountry = SelectedCountry;
+        //    var mcc = SelectedCountry?.Attribute?.Mcc;
+        //    var mnc = SelectedSim?.Value;
+
+        //    Console.WriteLine("Country Code = {0}. MCC = {1} while carrier name = {2} MNC = {3}"
+        //        , currentSelectedCountry.CountryName
+        //        , mcc
+        //        , currentSelectedCarrier.Name
+        //        , mnc);
+
+        //    try
+        //    {
+        //        System.Windows.MessageBox.Show($"Đã vào try");
+        //        if (BrandRandom)
+        //        {
+        //            RandomizeBrand();
+        //        }
+        //        else
+        //        {
+        //            if (Brand == "Random")
+        //            {
+        //                // brand random
+        //                RandomizeBrand();
+        //            }
+        //            else
+        //            {
+        //                if (Brand == "Samsung")
+        //                {
+        //                    BrandValue = "samsung";
+        //                }
+        //                else if (Brand == "Oppo")
+        //                {
+        //                    BrandValue = "OPPO";
+        //                }
+        //                else if (Brand == "Vivo")
+        //                {
+        //                    BrandValue = "vivo";
+        //                }
+        //                else if (Brand == "Realme")
+        //                {
+        //                    BrandValue = "realme";
+        //                }
+        //                else if (Brand == "Google")
+        //                {
+        //                    BrandValue = "Google";
+        //                }
+        //                else
+        //                {
+        //                    BrandValue = "Xiaomi";
+        //                }
+        //            }
+        //        }
+        //        if (OsRandom)
+        //        {
+        //            OsValue = "24";
+        //        }
+        //        else
+        //        {
+        //            if (Os == "Random")
+        //            {
+        //                // brand random
+        //                OsValue = "24";
+        //            }
+        //            else
+        //            {
+        //                if (Os == "")
+        //                {
+        //                    Os = "Random";
+        //                }
+        //                if (Os == "Android 8.1.0")
+        //                {
+        //                    OsValue = "27";
+        //                }
+        //                else if (Os == "Android 7")
+        //                {
+        //                    OsValue = "25";
+        //                }
+        //                else if (Os == "Android 8")
+        //                {
+        //                    OsValue = "26";
+        //                }
+        //                else if (Os == "Android 9")
+        //                {
+        //                    OsValue = "28";
+        //                }
+        //                else if (Os == "Android 10")
+        //                {
+        //                    OsValue = "29";
+        //                }
+        //                else if (Os == "Android 11")
+        //                {
+        //                    OsValue = "30";
+        //                }
+        //                else if (Os == "Android 12")
+        //                {
+        //                    OsValue = "31";
+        //                }
+        //                else if (Os == "Android 13")
+        //                {
+        //                    OsValue = "32";
+        //                }
+        //                else
+        //                {
+        //                    OsValue = "29";
+        //                }
+        //            }
+
+        //            if (BrandValue == "Google" && (Os == "Random" || OsValue == "24"))
+        //            {
+        //                OsValue = "30";
+        //            }
+        //            if ((BrandValue == "realme" || BrandValue == "vivo") && (Os == "Random" || OsValue == "24"))
+        //            {
+        //                if ((OsValue == "29" || OsValue == "30"))
+        //                {
+
+        //                }
+        //                else
+        //                {
+        //                    if (Os == "" || Os == "Random")
+        //                    {
+        //                        OsValue = "29";
+        //                    }
+        //                    else
+        //                    {
+        //                        return;
+        //                    }
+        //                }
+        //            }
+        //            if ((BrandValue == "OPPO" || BrandValue == "Xiaomi") && (Os == "Random" || OsValue == "24"))
+        //            {
+        //                if ((OsValue == "29" || OsValue == "30" || OsValue == "28" || OsValue == "27"))
+        //                {
+
+        //                }
+        //                else
+        //                {
+        //                    if (Os == "" || Os == "Random")
+        //                    {
+        //                        OsValue = "29";
+        //                    }
+        //                    else
+        //                    {
+        //                        return;
+        //                    }
+        //                }
+
+        //            }
+        //        }
+
+
+
+        //        tempDeviceAll = await miChangerGraphQLClient.GetRandomDeviceV3(brand: BrandValue, sdkMin: int.Parse(OsValue), sdkMax: (Os == "Random" || OsRandom) ? 32 : int.Parse(OsValue));
+        //        System.Windows.MessageBox.Show($"OK data");
+        //        if (tempDeviceAll.Model == null)
+        //        {
+        //            System.Windows.MessageBox.Show($"log model null");
+        //            throw new Exception(DevicesLang.logDeviceRandomEx);
+        //        }
+        //        Brand = tempDeviceAll.Manufacturer;
+        //        Name = tempDeviceAll.Board;
+        //        Model = tempDeviceAll.Model;
+        //        Os = tempDeviceAll.Release;
+        //        Serial = tempDeviceAll.SerialNo = RandomService.getRandomStringHex16Digit().Substring(0, RandomService.randomInRange(8, 13));
+        //        Code = tempDeviceAll.SimOperatorNumeric = string.Concat(mcc, mnc);
+        //        Phone = tempDeviceAll.SimPhoneNumber = string.Format("+{0}{1}", currentSelectedCountry.CountryCode, RandomService.generatePhoneNumber());
+        //        Imei = tempDeviceAll.Imei;
+        //        Imsi = tempDeviceAll.IMSI = RandomService.generateIMSI(mcc, mnc);
+        //        Iccid = tempDeviceAll.ICCID = RandomService.generateICCID(currentSelectedCountry.CountryCode, mnc);
+        //        Mac = RandomService.generateMacAddress();
+
+        //        tempDeviceAll.SimOperatorCountry = currentSelectedCountry.CountryIso;
+        //        tempDeviceAll.SimOperatorName = currentSelectedCarrier.Name.Substring(0, currentSelectedCarrier.Name.LastIndexOf("-")).Replace("&", "^&");
+        //        tempDeviceAll.AndroidId = RandomService.getRandomStringHex16Digit();
+        //        tempDeviceAll.WifiMacAddress = Mac;
+        //        tempDeviceAll.BlueToothMacAddress = RandomService.generateMacAddress();
+
+        //        IsButtonChangeDevice = true;
+        //        IsButtonChangeFull = true;
+
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        //ignored
+        //        System.Windows.MessageBox.Show($"log lỗi {ex}");
+        //        Console.WriteLine(ex);
+        //    }
+        //    finally
+        //    {
+        //        System.Windows.MessageBox.Show($"log finally");
+        //        IsRandomButtonEnabled = true;
+        //    }
+        //}
         private async Task RandomSim()
         {
             IsRandomButtonSimEnabled = false;
             if (miChangerGraphQLClient == null)
             {
-                CreateService();
+                await CreateService();
             }
             var currentSelectedCarrier = SelectedSim;
             var currentSelectedCountry = SelectedCountry;
@@ -1387,7 +1591,7 @@ namespace ToolChange.ViewModels
                 {
                     tempDeviceAll = new POCO.Models.DeviceModel
                     {
-                        
+
                     };
                 }
 
@@ -1403,8 +1607,8 @@ namespace ToolChange.ViewModels
 
                 tempDeviceAll.SimOperatorCountry = currentSelectedCountry.CountryIso;
                 tempDeviceAll.SimOperatorName = currentSelectedCarrier.Name.Substring(0, currentSelectedCarrier.Name.LastIndexOf("-")).Replace("&", "^&");
-               // tempDeviceAll.WifiMacAddress = RandomService.generateWifiMacAddress();
-               // tempDeviceAll.BlueToothMacAddress = RandomService.generateMacAddress();
+                // tempDeviceAll.WifiMacAddress = RandomService.generateWifiMacAddress();
+                // tempDeviceAll.BlueToothMacAddress = RandomService.generateMacAddress();
 
             }
             catch (Exception ex)
@@ -2328,19 +2532,22 @@ namespace ToolChange.ViewModels
             ADBService.pullOrPushFile(FileTransferAction.PUSH, pathXml, "/data/system/", deviceId);
             File.Delete(pathXml);
         }
-        private void CreateService()
+        private async Task CreateService()
         {
-            var poolId = AppConfigService.ReadSetting("poolId");
-            var clientId = AppConfigService.ReadSetting("clientId");
-            var cognito = new CognitoService("ap-southeast-1_Cha6gy7Ui", "4h21ba0at8flinn9iq351if381");
-            var username = AppConfigService.ReadSetting("email");
-            var password = AppConfigService.ReadSetting("password");
-            var endpoint = "https://nievrqo2rbdtfhmhzc2bg2epka.appsync-api.ap-southeast-1.amazonaws.com/graphql";//AppConfigService.ReadSetting("endpoint");
-            var refreshToken = cognito.getIdToken("mistplay@yopmail.com", "12345678");
-            if (!string.IsNullOrEmpty(refreshToken))
+            await Task.Run(() =>
             {
-                miChangerGraphQLClient = new MiChangerGraphQLClient(endpoint, ApiAuthenticationType.TOKEN, refreshToken);
-            }
+                var poolId = AppConfigService.ReadSetting("poolId");
+                var clientId = AppConfigService.ReadSetting("clientId");
+                var cognito = new CognitoService(poolId, clientId);
+                var username = AppConfigService.ReadSetting("user");
+                var password = AppConfigService.ReadSetting("password");
+                var endpoint = AppConfigService.ReadSetting("endpoint"); ;//AppConfigService.ReadSetting("endpoint");
+                var refreshToken = cognito.getIdToken(username, password);
+                if (!string.IsNullOrEmpty(refreshToken))
+                {
+                    miChangerGraphQLClient = new MiChangerGraphQLClient(endpoint, ApiAuthenticationType.TOKEN, refreshToken);
+                }
+            });
         }
         private string GetDeviceInfoFromADB(string deviceID, string property)
         {

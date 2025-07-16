@@ -9,7 +9,7 @@
              d:DesignHeight="400" d:DesignWidth="200">
     <Grid Background="Gray">
         <Grid.RowDefinitions>
-            <RowDefinition Height="20" />
+            <RowDefinition Height="30" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
         <!-- scrcpy host -->
@@ -17,6 +17,12 @@
         <StackPanel MouseLeftButtonUp="DeviceInfoClicked"
                     Cursor="Hand">
             <TextBlock Text="{Binding Index, StringFormat='DEVICE - {0}'}"
+                       FontWeight="Bold"
+                       FontSize="11"
+                       Foreground="#FFE6E6E6"
+                       VerticalAlignment="Top"
+                       HorizontalAlignment="Center" />
+            <TextBlock Text="{Binding Ip, StringFormat='IP : {0}'}"
                        FontWeight="Bold"
                        FontSize="11"
                        Foreground="#FFE6E6E6"

@@ -116,7 +116,6 @@ namespace ToolChange.Views
             BtnDocument.Style = (Style)FindResource("MaterialDesignFlatDarkButton");
 
             HomeFrame.Content = new ViewDevices();
-
         }
 
         private void BtnSetting_Click(object sender, RoutedEventArgs e)
