@@ -1,14 +1,318 @@
 ﻿<Page x:Class="ToolChange.Views.Document"
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      xmlns:wv2="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
       xmlns:local="clr-namespace:ToolChange.Views"
-      mc:Ignorable="d" 
-      d:DesignHeight="450" d:DesignWidth="800"
+      mc:Ignorable="d"
+      d:DesignHeight="450"
+      d:DesignWidth="800"
       Title="Document">
 
-    <Grid>
-        
+    <Grid Background="#FFE9EBEB">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="30" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <Border x:Name="WebViewContainer"
+                Background="#F9FBFD"
+                Visibility="Collapsed"
+                Grid.Row="1"
+                HorizontalAlignment="Stretch"
+                VerticalAlignment="Stretch"
+                Panel.ZIndex="999">
+            <Grid>
+                <!-- Nút đóng -->
+                <Button Content="❌"
+                        FontSize="14"
+                        FontWeight="Bold"
+                        Foreground="Red"
+                        Background="Transparent"
+                        BorderBrush="Transparent"
+                        Cursor="Hand"
+                        HorizontalAlignment="Right"
+                        VerticalAlignment="Top"
+                        Margin="10,10,40,10"
+                        Padding="5"
+                        Click="CloseWebView_Click" />
+
+
+                <!-- WebView2 hiển thị tài liệu -->
+                <wv2:WebView2 x:Name="WebViewDocs"
+                              Margin="0,50,0,0"
+                              Source="https://example.com" />
+            </Grid>
+        </Border>
+        <Label Content="Hướng dẫn sự dụng tool"
+               FontSize="16"
+               FontFamily="Segoe UI"
+               FontWeight="Bold">
+        </Label>
+        <Grid Grid.Row="1"
+              Margin="5">
+            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                <StackPanel Margin="0">
+                    <StackPanel Margin="10">
+                        <!-- Tiêu đề -->
+                        <TextBlock Text="🤖 Chức năng thiết bị"
+                                   FontWeight="Bold"
+                                   FontSize="14"
+                                   Foreground="#007ACC"
+                                   Cursor="Hand"
+                                   MouseLeftButtonDown="TogglePanel_Click" />
+
+                        <!-- Panel nội dung có animation -->
+                        <Border x:Name="AnimatedPanel"
+                                Height="0"
+                                Background="#FFDAE5E8"
+                                ClipToBounds="True"
+                                Margin="0,5,0,0">
+                            <StackPanel>
+                                <TextBlock Margin="10,5">
+                            <Run Text="• Các chức năng chính"
+                                    FontWeight="Bold"
+                                    FontSize="13" />
+                            <LineBreak />
+                            <Run Text="        Random device"
+                                    FontSize="11" />
+                            <LineBreak />
+                            <Run Text="        Change device"
+                                    FontSize="11" />
+                            <LineBreak />
+                            <Run Text="        Change sim"
+                                    FontSize="11" />
+                            <LineBreak />
+                            <Run Text="        Fake proxy"
+                                    FontSize="11" />
+                            <LineBreak />
+                            <Run Text="        Fake location"
+                                    FontSize="11" />
+                                </TextBlock>
+                                <TextBlock Margin="10,5"
+                                           TextWrapping="Wrap">
+                            <Run Text="Chức năng random device: "
+                                    FontSize="12" />
+                            <Run Text="Chức năng"
+                                    FontSize="10" />
+                                 <Run Text=" Random Device "
+                                      FontWeight="Bold"
+                                      FontSize="10" />
+                                 <Run Text="cho phép bạn lấy ngẫu nhiên các thông tin nhận dạng thiết bị Android, giúp giả lập một thiết bị hoàn toàn mới. Đây là một tính năng quan trọng trong các tình huống cần thay đổi danh tính thiết bị để kiểm thử hoặc tránh bị nhận dạng trùng lặp"
+                                      FontSize="10" />
+                                </TextBlock>
+                                <TextBlock Margin="10,5"
+                                           TextWrapping="Wrap">
+                                    <Run Text="Chức năng change device: "
+                                         FontSize="12" />
+                                    <Run Text="Chức năng"
+                                         FontSize="10" />
+                                <Run Text=" Change Device"
+                                     FontSize="10"
+                                     FontWeight="Bold" />
+                                <Run Text=" cho phép bạn thay đổi thông tin thiết bị Android theo một cấu hình cụ thể mà đã random từ trước hoặc chọn từ trước."
+                                     FontSize="10" />
+                                </TextBlock>
+                                <TextBlock Margin="10,5"
+                                           TextWrapping="Wrap">
+                                <Run Text="Chức năng change sim: "
+                                     FontSize="12" />
+                                <Run Text="Chức năng "
+                                     FontSize="10" />
+                                <Run Text="Change Sim "
+                                     FontWeight="Bold"
+                                     FontSize="10" />
+                                <Run Text=" cho phép bạn thay đổi thông tin sim theo một cấu hình cụ thể mà đã random từ trước hoặc chọn từ trước."
+                                     FontSize="10" />
+
+                                </TextBlock>
+                                <TextBlock Margin="10,5"
+                                           TextWrapping="Wrap">
+                                <Run Text="Chức năng fake proxy:"
+                                     FontSize="12" />
+                                <Run Text=" Chức năng"
+                                     FontSize="10" />
+                                <Run Text=" Fake proxy"
+                                     FontSize="10"
+                                     FontWeight="Bold" />
+                                <Run Text=" cho phép bạn fake ip mặc định proxy đưa vào "
+                                     FontSize="10" />
+                                <Run Text="ip:port:username:password "
+                                     FontWeight="Bold"
+                                     FontSize="11" />
+                                <Run Text="không có username và password vui lòng điền "
+                                     FontSize="10" />
+                                <Run Text="ip:port::"
+                                     FontWeight="Bold"
+                                     FontSize="11" />
+                                </TextBlock>
+                                <TextBlock Margin="10,5"
+                                           TextWrapping="Wrap">
+                                <Run Text="Chức năng fake location:"
+                                     FontSize="12" />
+                                <Run Text="Chức năng "
+                                     FontSize="10" />
+                                <Run Text="Fake location"
+                                     FontSize="10"
+                                     FontWeight="Bold" />
+                                <Run Text=" cho phép bạn giả lập vị trí cho trước"
+                                     FontSize="10" />
+
+                                </TextBlock>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                    <!---->
+                    <StackPanel Margin="10,5">
+                        <TextBlock Text="⚙️ Chức năng tự động hóa"
+                                   FontWeight="Bold"
+                                   FontSize="14"
+                                   Foreground="#007ACC"
+                                   Cursor="Hand"
+                                   MouseLeftButtonDown="TogglePanelDocument1_Click" />
+
+                        <!-- Panel nội dung có animation -->
+                        <Border x:Name="AnimatedPanel1"
+                                Height="0"
+                                Background="#FFDAE5E8"
+                                ClipToBounds="True"
+                                Margin="0,5,0,0">
+                            <StackPanel Orientation="Vertical">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Grid Grid.Column="0"
+                                          Margin="0"
+                                          >
+                                        <StackPanel Orientation="Vertical">
+                                            <TextBlock Margin="10,5"
+                                                       TextWrapping="Wrap"
+                                                       Text="• Giao diện chính"
+                                                       FontSize="14"
+                                                       FontWeight="Bold" />
+                                            <TextBlock Margin="20,5,0,0"
+                                                       TextWrapping="Wrap"
+                                                       Text="Các chức năng chính"
+                                                       FontSize="12"
+                                                       />
+                                            <TextBlock Margin="40,2,0,0"
+                                                       TextWrapping="Wrap"
+                                                       Text="Load file script (load file)"
+                                                       FontSize="10" />
+                                            <TextBlock Margin="40,2,0,0"
+                                                       TextWrapping="Wrap"
+                                                       Text="Chạy script (run script)"
+                                                       FontSize="10" />
+                                            <TextBlock Margin="40,2,0,0"
+                                                       TextWrapping="Wrap"
+                                                       Text="Cấu hình script (code script)"
+                                                       FontSize="10" />
+                                            <TextBlock Margin="40,2,0,0"
+                                                       TextWrapping="Wrap"
+                                                       Text="Load device"
+                                                       FontSize="10" />
+                                            <TextBlock Margin="40,2,0,0"
+                                                       TextWrapping="Wrap"
+                                                       Text="Backup"
+                                                       FontSize="10" />
+                                            <TextBlock Margin="40,2,0,0"
+                                                       TextWrapping="Wrap"
+                                                       Text="Screenshot"
+                                                       FontSize="10" />
+                                            <TextBlock Margin="40,2,0,0"
+                                                       TextWrapping="Wrap"
+                                                       Text="Restore"
+                                                       FontSize="10" />
+                                            <TextBlock Margin="20,2,0,0"
+                                                       TextWrapping="Wrap"
+                                                       Text="Mô tả các chức năng"
+                                                       FontSize="12" />
+                                            <TextBlock Margin="30,5,0,0"
+                                                       TextWrapping="Wrap">
+                                                <Run Text="Chức năng "
+                                                     FontSize="10"/>
+                                                <Run Text="Load file script"
+                                                     FontSize="10"
+                                                     FontWeight="Bold"
+                                                     />
+                                                <Run Text=" lấy file cấu hình script đã được thiết lập trước, " 
+                                                     FontSize="10"/>
+                                                <Run Text="được lưu cố định tại đường dẫn " 
+                                                     FontSize="10"/>
+                                                <Run Text="./Resources/Script/" FontSize="11" FontWeight="Bold"/>
+                                            </TextBlock>
+                                            <TextBlock Margin="30,5,0,0"
+                                                       TextWrapping="Wrap">
+                                                <Run Text="Chức năng "
+                                                     FontSize="10"/>
+                                                <Run Text="Chạy script "
+                                                     FontWeight="Bold"
+                                                     FontSize="10" />
+                                                <Run Text="lựa chọn số lượng lần chạy hoặc chọn chạy vĩnh viễn khi đó script được chọn sẽ được chạy auto trên các thiết bị, trong lúc script đang chạy bạn dừng, srcipt sẽ vẫn chạy đến khi hết hoàn thiện 1 lần của script." FontSize="10"/>
+                                            </TextBlock>
+                                            <TextBlock Margin="30,5,0,0"
+                                                       TextWrapping="Wrap">
+                                                <Run Text="Chức năng "
+                                                     FontSize="10"/>
+                                                <Run Text="Load device "
+                                                     FontWeight="Bold"
+                                                     FontSize="10" />
+                                                <Run Text="để hiện thị danh sách các thiết bị đang kết nối hoặc những thiết bị bị xóa khỏi danh sách."
+                                                     FontSize="10"/>
+                                            </TextBlock>
+                                            <TextBlock Margin="30,5,0,0" TextWrapping="Wrap">
+                                                <Run Text="Chức năng " FontSize="10"/>
+                                                <Run Text="Backup " FontSize="10" FontWeight="Bold"/>
+                                                <Run Text="đang phát triển... " FontSize="10"/>
+                                            </TextBlock>
+                                            <TextBlock Margin="30,5,0,0" TextWrapping="Wrap">
+                                                <Run FontSize="10" Text="Chức năng "/>
+                                                <Run FontSize="10" Text="Screenshot " FontWeight="Bold"/>
+                                                <Run FontSize="10" Text="chụp ảnh màn hình thiết bị, khi ở trạng thái chọn nhiều thiết bị nó có khả năng chụp cùng lúc. "/>
+                                            </TextBlock>
+                                            <TextBlock Margin="30,5,0,0" TextWrapping="Wrap">
+                                                <Run FontSize="10" Text="Chức năng "/>
+                                                <Run FontSize="10" Text="Restore " FontWeight="Bold"/>
+                                                <Run FontSize="10" Text="đang phát triển ... "/>
+                                            </TextBlock>
+                                            <TextBlock Margin="30,10,0,0" TextWrapping="Wrap">
+                                                <Run FontSize="10" Text="Chức năng "/>
+                                                <Run FontSize="10" Text="Cấu hình script (code script)" FontWeight="Bold"/>
+                                                <Run FontSize="10" Text=" giao diện khi sự dụng chức năng này ở hình 2, sự dụng các chức năng ở giao diện code script để tạo file script auto "/>
+                                                <Hyperlink 
+                                                           Click="Hyperlink_Click">
+                                                Chi tiết xem tại đây
+                                                </Hyperlink>
+                                            </TextBlock>
+                                           
+                                        </StackPanel>
+                                    </Grid>
+                                    <StackPanel Orientation="Vertical"
+                                                HorizontalAlignment="Right"
+                                                VerticalAlignment="Center"
+                                                Grid.Column="1">
+                                    <Image Source="/Resources/Icons/automationview.jpg"
+                                           Width="480"
+                                           Height="300"
+                                           Stretch="Uniform"
+                                           Margin="5" 
+                                           />
+                                     <Image Source="/Resources/Icons/scriptAutomationview.jpg"
+                                               x:Name="AutoSwitchImage"
+                                               Width="480"
+                                               Height="300"
+                                               Stretch="Uniform"
+                                               Margin="5,20,5,5" />
+                                    </StackPanel>
+                                </Grid>
+                            
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </StackPanel>
+            </ScrollViewer>
+        </Grid>
     </Grid>
 </Page>

@@ -20,7 +20,11 @@
     <None Remove="Resources\checkPython.py" />
     <None Remove="Resources\curl" />
     <None Remove="Resources\icon.png" />
+    <None Remove="Resources\Icons\automationview.jpg" />
     <None Remove="Resources\Icons\en.png" />
+    <None Remove="Resources\Icons\scriptAutomationview.jpg" />
+    <None Remove="Resources\Icons\scriptAutomationview1.jpg" />
+    <None Remove="Resources\Icons\scriptAutomationview2.jpg" />
     <None Remove="Resources\Icons\vn.png" />
     <None Remove="Resources\init.lineage16.rc" />
     <None Remove="Resources\init.lineage18.rc" />
@@ -74,11 +78,23 @@
     <EmbeddedResource Include="Resources\icon.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </EmbeddedResource>
+    <Resource Include="Resources\Icons\automationview.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
     <EmbeddedResource Include="Resources\tessdata\eng.traineddata">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </EmbeddedResource>
     <Resource Include="Resources\Icons\en.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Resources\Icons\scriptAutomationview.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Resources\Icons\scriptAutomationview1.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Resources\Icons\scriptAutomationview2.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Resource>
     <Resource Include="Resources\Icons\vn.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
@@ -154,6 +170,7 @@
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Scripting" Version="4.14.0" />
     <PackageReference Include="Microsoft.CodeAnalysis.Scripting.Common" Version="4.14.0" />
     <PackageReference Include="Microsoft.CodeAnalysis.VisualBasic" Version="4.14.0" />
+    <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.3351.48" />
     <PackageReference Include="Microsoft.Xaml.Behaviors.Wpf" Version="1.1.135" />
     <PackageReference Include="NETStandard.Library" Version="2.0.3" />
     <PackageReference Include="OpenCvSharp4" Version="4.11.0.20250507" />
