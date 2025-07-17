@@ -1,5 +1,7 @@
-﻿using AuthenticationService;
+﻿using Amazon.Extensions.CognitoAuthentication;
+using AuthenticationService;
 using Dynamitey.Internal.Optimization;
+using Microsoft.VisualBasic.ApplicationServices;
 using Microsoft.Win32;
 using MiHttpClient;
 using Newtonsoft.Json;
@@ -13,6 +15,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Data;
 using System.Diagnostics;
+using System.IdentityModel.Tokens.Jwt;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
@@ -41,6 +44,7 @@ namespace ToolChange.ViewModels
         private readonly HashSet<string> _processingDeviceIds = new();
         private string selectedFilePath;
         private string selectedFilePathJson;
+        private string refreshToken;
         public ObservableCollection<SimCarrier> Countries { get; set; } = new();
         public ObservableCollection<POCO.Models.ComboBoxItem> SimOptions { get; set; } = new();
         private string _fakeProxyData;
@@ -1066,7 +1070,13 @@ namespace ToolChange.ViewModels
         public async Task<POCO.Models.DeviceModel> RandomDevicePrivate()
         {
             POCO.Models.DeviceModel tempDevice = null;
+
             if (miChangerGraphQLClient == null)
+            {
+                await CreateService();
+            }
+
+            if (IsTokenExpired(refreshToken))
             {
                 await CreateService();
             }
@@ -1243,7 +1253,10 @@ namespace ToolChange.ViewModels
             {
                 await CreateService();
             }
-
+            if (IsTokenExpired(refreshToken))
+            {
+                await CreateService();
+            }
             var currentSelectedCarrier = SelectedSim;
             var currentSelectedCountry = SelectedCountry;
             var mcc = SelectedCountry?.Attribute?.Mcc;
@@ -1359,213 +1372,14 @@ namespace ToolChange.ViewModels
             }
         }
 
-        //private async Task RandomDevice()
-        //{
-
-        //    IsRandomButtonEnabled = false;
-        //    System.Windows.MessageBox.Show($"Check log");
-        //    if (miChangerGraphQLClient == null)
-        //    {
-        //        await CreateService();
-        //    }
-        //    var currentSelectedCarrier = SelectedSim;
-        //    var currentSelectedCountry = SelectedCountry;
-        //    var mcc = SelectedCountry?.Attribute?.Mcc;
-        //    var mnc = SelectedSim?.Value;
-
-        //    Console.WriteLine("Country Code = {0}. MCC = {1} while carrier name = {2} MNC = {3}"
-        //        , currentSelectedCountry.CountryName
-        //        , mcc
-        //        , currentSelectedCarrier.Name
-        //        , mnc);
-
-        //    try
-        //    {
-        //        System.Windows.MessageBox.Show($"Đã vào try");
-        //        if (BrandRandom)
-        //        {
-        //            RandomizeBrand();
-        //        }
-        //        else
-        //        {
-        //            if (Brand == "Random")
-        //            {
-        //                // brand random
-        //                RandomizeBrand();
-        //            }
-        //            else
-        //            {
-        //                if (Brand == "Samsung")
-        //                {
-        //                    BrandValue = "samsung";
-        //                }
-        //                else if (Brand == "Oppo")
-        //                {
-        //                    BrandValue = "OPPO";
-        //                }
-        //                else if (Brand == "Vivo")
-        //                {
-        //                    BrandValue = "vivo";
-        //                }
-        //                else if (Brand == "Realme")
-        //                {
-        //                    BrandValue = "realme";
-        //                }
-        //                else if (Brand == "Google")
-        //                {
-        //                    BrandValue = "Google";
-        //                }
-        //                else
-        //                {
-        //                    BrandValue = "Xiaomi";
-        //                }
-        //            }
-        //        }
-        //        if (OsRandom)
-        //        {
-        //            OsValue = "24";
-        //        }
-        //        else
-        //        {
-        //            if (Os == "Random")
-        //            {
-        //                // brand random
-        //                OsValue = "24";
-        //            }
-        //            else
-        //            {
-        //                if (Os == "")
-        //                {
-        //                    Os = "Random";
-        //                }
-        //                if (Os == "Android 8.1.0")
-        //                {
-        //                    OsValue = "27";
-        //                }
-        //                else if (Os == "Android 7")
-        //                {
-        //                    OsValue = "25";
-        //                }
-        //                else if (Os == "Android 8")
-        //                {
-        //                    OsValue = "26";
-        //                }
-        //                else if (Os == "Android 9")
-        //                {
-        //                    OsValue = "28";
-        //                }
-        //                else if (Os == "Android 10")
-        //                {
-        //                    OsValue = "29";
-        //                }
-        //                else if (Os == "Android 11")
-        //                {
-        //                    OsValue = "30";
-        //                }
-        //                else if (Os == "Android 12")
-        //                {
-        //                    OsValue = "31";
-        //                }
-        //                else if (Os == "Android 13")
-        //                {
-        //                    OsValue = "32";
-        //                }
-        //                else
-        //                {
-        //                    OsValue = "29";
-        //                }
-        //            }
-
-        //            if (BrandValue == "Google" && (Os == "Random" || OsValue == "24"))
-        //            {
-        //                OsValue = "30";
-        //            }
-        //            if ((BrandValue == "realme" || BrandValue == "vivo") && (Os == "Random" || OsValue == "24"))
-        //            {
-        //                if ((OsValue == "29" || OsValue == "30"))
-        //                {
-
-        //                }
-        //                else
-        //                {
-        //                    if (Os == "" || Os == "Random")
-        //                    {
-        //                        OsValue = "29";
-        //                    }
-        //                    else
-        //                    {
-        //                        return;
-        //                    }
-        //                }
-        //            }
-        //            if ((BrandValue == "OPPO" || BrandValue == "Xiaomi") && (Os == "Random" || OsValue == "24"))
-        //            {
-        //                if ((OsValue == "29" || OsValue == "30" || OsValue == "28" || OsValue == "27"))
-        //                {
-
-        //                }
-        //                else
-        //                {
-        //                    if (Os == "" || Os == "Random")
-        //                    {
-        //                        OsValue = "29";
-        //                    }
-        //                    else
-        //                    {
-        //                        return;
-        //                    }
-        //                }
-
-        //            }
-        //        }
-
-
-
-        //        tempDeviceAll = await miChangerGraphQLClient.GetRandomDeviceV3(brand: BrandValue, sdkMin: int.Parse(OsValue), sdkMax: (Os == "Random" || OsRandom) ? 32 : int.Parse(OsValue));
-        //        System.Windows.MessageBox.Show($"OK data");
-        //        if (tempDeviceAll.Model == null)
-        //        {
-        //            System.Windows.MessageBox.Show($"log model null");
-        //            throw new Exception(DevicesLang.logDeviceRandomEx);
-        //        }
-        //        Brand = tempDeviceAll.Manufacturer;
-        //        Name = tempDeviceAll.Board;
-        //        Model = tempDeviceAll.Model;
-        //        Os = tempDeviceAll.Release;
-        //        Serial = tempDeviceAll.SerialNo = RandomService.getRandomStringHex16Digit().Substring(0, RandomService.randomInRange(8, 13));
-        //        Code = tempDeviceAll.SimOperatorNumeric = string.Concat(mcc, mnc);
-        //        Phone = tempDeviceAll.SimPhoneNumber = string.Format("+{0}{1}", currentSelectedCountry.CountryCode, RandomService.generatePhoneNumber());
-        //        Imei = tempDeviceAll.Imei;
-        //        Imsi = tempDeviceAll.IMSI = RandomService.generateIMSI(mcc, mnc);
-        //        Iccid = tempDeviceAll.ICCID = RandomService.generateICCID(currentSelectedCountry.CountryCode, mnc);
-        //        Mac = RandomService.generateMacAddress();
-
-        //        tempDeviceAll.SimOperatorCountry = currentSelectedCountry.CountryIso;
-        //        tempDeviceAll.SimOperatorName = currentSelectedCarrier.Name.Substring(0, currentSelectedCarrier.Name.LastIndexOf("-")).Replace("&", "^&");
-        //        tempDeviceAll.AndroidId = RandomService.getRandomStringHex16Digit();
-        //        tempDeviceAll.WifiMacAddress = Mac;
-        //        tempDeviceAll.BlueToothMacAddress = RandomService.generateMacAddress();
-
-        //        IsButtonChangeDevice = true;
-        //        IsButtonChangeFull = true;
-
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        //ignored
-        //        System.Windows.MessageBox.Show($"log lỗi {ex}");
-        //        Console.WriteLine(ex);
-        //    }
-        //    finally
-        //    {
-        //        System.Windows.MessageBox.Show($"log finally");
-        //        IsRandomButtonEnabled = true;
-        //    }
-        //}
         private async Task RandomSim()
         {
             IsRandomButtonSimEnabled = false;
             if (miChangerGraphQLClient == null)
+            {
+                await CreateService();
+            }
+            if (IsTokenExpired(refreshToken))
             {
                 await CreateService();
             }
@@ -2541,14 +2355,29 @@ namespace ToolChange.ViewModels
                 var cognito = new CognitoService(poolId, clientId);
                 var username = AppConfigService.ReadSetting("user");
                 var password = AppConfigService.ReadSetting("password");
-                var endpoint = AppConfigService.ReadSetting("endpoint"); ;//AppConfigService.ReadSetting("endpoint");
-                var refreshToken = cognito.getIdToken(username, password);
+                var endpoint = AppConfigService.ReadSetting("endpoint"); 
+                refreshToken = cognito.getIdToken(username, password);
+
                 if (!string.IsNullOrEmpty(refreshToken))
                 {
                     miChangerGraphQLClient = new MiChangerGraphQLClient(endpoint, ApiAuthenticationType.TOKEN, refreshToken);
-                }
+                };
             });
         }
+        private bool IsTokenExpired(string token)
+        {
+            var jwt = new JwtSecurityTokenHandler().ReadJwtToken(token);
+            var exp = jwt.Payload.Exp;
+
+            if (exp.HasValue)
+            {
+                var expTime = DateTimeOffset.FromUnixTimeSeconds(exp.Value);
+                return DateTimeOffset.UtcNow > expTime; // còn thời gian token
+            }
+
+            return true; // hết hạn token
+        }
+
         private string GetDeviceInfoFromADB(string deviceID, string property)
         {
             string result = ADBService.ExecuteADBCommandDetail(deviceID, $"shell {property}");

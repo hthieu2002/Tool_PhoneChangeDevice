@@ -29,30 +29,14 @@ namespace ToolChange.Views.ControlScriptPage
         }
         private void DeviceInfoClicked(object sender, MouseButtonEventArgs e)
         {
-            //if (DataContext is ScrcpyDeviceModel vm && !string.IsNullOrEmpty(vm.DeviceId))
-            //{
-            //    Debug.WriteLine($"[OpenScrcpy] Opening new scrcpy for device: {vm.DeviceId}");
+            if (DataContext is ScrcpyDeviceModel vm && !string.IsNullOrEmpty(vm.DeviceId))
+            {
+                Debug.WriteLine($"[OpenScrcpy] Opening new scrcpy for device: {vm.DeviceId}");
 
-            //    var scrcpyPath = @"./Resources/scrcpy.exe";
-            //    var args = $"-s {vm.DeviceId}";
-
-            //    try
-            //    {
-            //        var psi = new ProcessStartInfo(scrcpyPath, args)
-            //        {
-            //            UseShellExecute = false,
-            //            CreateNoWindow = true
-            //        };
-
-            //        Process.Start(psi);
-            //    }
-            //    catch (Exception ex)
-            //    {
-            //        System.Windows.MessageBox.Show($"Không thể mở scrcpy cho thiết bị {vm.DeviceId}:\n{ex.Message}", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
-            //    }
-            //}
-            ShowDevice device = new ShowDevice();
-            device.ShowDialog();
+                ShowDevice device = new ShowDevice(vm.DeviceId, vm.Index);
+                device.ShowDialog();
+            }
+           
         }
 
         private void ScrcpyDeviceControl_Loaded(object sender, RoutedEventArgs e)

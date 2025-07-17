@@ -812,20 +812,21 @@ namespace ToolChange.ViewModels
             {
                 try
                 {
-                    string command = $"adb -s {device.DeviceId} shell curl -s https://ipinfo.io/json";
+                    Debug.WriteLine($"[Connect] Đang lấy ip và quốc gia ip");
+                    string command = $"adb -s {device.DeviceId} shell curl -s http://ip-api.com/json";
                     string output = ADBService.ExecuteAdbCommandString(command);
 
-                    var ipMatch = Regex.Match(output, @"""ip"":\s*""([^""]+)""");
-                    var countryMatch = Regex.Match(output, @"""country"":\s*""([^""]+)""");
+                    var ipMatch = Regex.Match(output, @"""query"":\s*""([^""]+)""");
+                    var countryMatch = Regex.Match(output, @"""countryCode"":\s*""([^""]+)""");
 
                     string ip = ipMatch.Success ? ipMatch.Groups[1].Value : "0.0.0.0";
                     string country = countryMatch.Success ? countryMatch.Groups[1].Value : "Unknown";
                     device.Ip = $"{country} : {ip}";
-
+                    Debug.WriteLine($"[Success] ip {ip} quốc gia {country}");
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"[LỖI] Không thể lấy IP/quốc gia từ thiết bị {device.DeviceId}: {ex.Message}");
+                    Debug.WriteLine($"[LỖI] Không thể lấy IP/quốc gia từ thiết bị {device.DeviceId}: {ex.Message}");
                     device.Ip = $"Unknown : 0.0.0.0";
                 }
                 await Task.Delay(2000); // Kiểm tra mỗi 10 giây

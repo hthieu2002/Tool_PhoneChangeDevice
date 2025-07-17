@@ -4,6 +4,7 @@ using Amazon.Extensions.CognitoAuthentication;
 using Amazon.Runtime;
 using POCO.Models;
 using System;
+using System.IdentityModel.Tokens.Jwt;
 using System.Reflection;
 using System.Threading.Tasks;
 using System.Windows;
@@ -41,6 +42,7 @@ namespace AuthenticationService
                 //Console.WriteLine(response.AuthenticationResult.IdToken);
                 //Console.WriteLine("SessionID");
                 //Console.WriteLine(response.SessionID);
+             
                 return response.AuthenticationResult.IdToken;
             }
             catch (Exception ex)
