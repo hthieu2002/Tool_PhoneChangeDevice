@@ -132,6 +132,7 @@ namespace ToolChange.Views.ControlScriptPage
         }
         private async void LoadButton_Click(object sender, RoutedEventArgs e)
         {
+            log_load_view.Content = "Đang load view";
             var button = sender as System.Windows.Controls.Button; // Ép kiểu sender
             if (button != null)
                 button.IsEnabled = false; // Vô hiệu hóa nút
@@ -172,7 +173,7 @@ namespace ToolChange.Views.ControlScriptPage
             _panel = new System.Windows.Forms.Panel
             {
                 Dock = DockStyle.Fill,
-                BackColor = System.Drawing.Color.Black
+                BackColor = System.Drawing.Color.Transparent
             };
             ScrcpyHostView.Child = _panel;
 
@@ -232,6 +233,7 @@ namespace ToolChange.Views.ControlScriptPage
                 logDevice.Content = "Error";
                 Debug.WriteLine("❌ Không tìm thấy cửa sổ scrcpy sau khi khởi động.", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
             }
+            log_load_view.Content = "";
         }
         private void ResizeChild()
         {

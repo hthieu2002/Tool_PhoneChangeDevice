@@ -11,7 +11,7 @@
         Background="Transparent">
 
     <Border CornerRadius="0,0,0,0"
-            Background="Transparent"
+            Background="#FFD8E1E8"
             BorderBrush="Gray"
             BorderThickness="1"
             MouseLeftButtonDown="Border_MouseLeftButtonDown">
@@ -84,13 +84,23 @@
                     </StackPanel>
 
                 </Grid>
-                <Border Cursor="Hand"
-                        Grid.Row="1">
+              
+                    <Grid
+                          Grid.Row="1">
+                    <Label Content="Đang load view"
+                           HorizontalAlignment="Center"
+                           VerticalAlignment="Center"
+                           FontSize="15"
+                           FontWeight="Bold"
+                           Background="Transparent"
+                           Foreground="#FF2069AB" 
+                           x:Name="log_load_view"/>
                     <windowsForms:WindowsFormsHost x:Name="ScrcpyHostView"
                                                    HorizontalAlignment="Stretch"
                                                    VerticalAlignment="Stretch"
                                                    Cursor="Hand" />
-                </Border>
+                    </Grid>
+                
             </Grid>
 
             <!-- Menu Panel Column -->
@@ -166,7 +176,7 @@
                                            Foreground="#007ACC" />
                             </StackPanel>
                         </Button>
-
+<!--
                         <Button Click="FakeProxy_Click"
                                 Margin="0,5"
                                 Padding="5"
@@ -183,7 +193,7 @@
                                            Foreground="#007ACC" />
                             </StackPanel>
                         </Button>
-
+-->
                         <Button Click="Wifi_Click"
                                 Margin="0,5"
                                 Padding="5"

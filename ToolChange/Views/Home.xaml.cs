@@ -128,6 +128,39 @@ namespace ToolChange.Views
 
             Setiing setting= new Setiing();
             setting.ShowDialog();
+
+
+            if (HomeFrame.Content is Device)
+            {
+                BtnDevice.Style = (Style)FindResource("MaterialDesignRaisedLightButton");
+                BtnAutomation.Style = (Style)FindResource("MaterialDesignFlatDarkButton");
+                BtnScreen.Style = (Style)FindResource("MaterialDesignFlatDarkButton");
+                BtnSetting.Style = (Style)FindResource("MaterialDesignFlatDarkButton");
+                BtnDocument.Style = (Style)FindResource("MaterialDesignFlatDarkButton");
+            }
+            else if (HomeFrame.Content is Automation automationView)
+            {
+                BtnAutomation.Style = (Style)FindResource("MaterialDesignRaisedLightButton");
+                BtnDevice.Style = (Style)FindResource("MaterialDesignFlatDarkButton");
+                BtnScreen.Style = (Style)FindResource("MaterialDesignFlatDarkButton");
+                BtnSetting.Style = (Style)FindResource("MaterialDesignFlatDarkButton");
+                BtnDocument.Style = (Style)FindResource("MaterialDesignFlatDarkButton");
+            }
+            else if (HomeFrame.Content is Document documentView)
+            {
+                BtnDocument.Style = (Style)FindResource("MaterialDesignRaisedLightButton");
+                BtnAutomation.Style = (Style)FindResource("MaterialDesignFlatDarkButton");
+                BtnDevice.Style = (Style)FindResource("MaterialDesignFlatDarkButton");
+                BtnSetting.Style = (Style)FindResource("MaterialDesignFlatDarkButton");
+                BtnScreen.Style = (Style)FindResource("MaterialDesignFlatDarkButton");
+            }else if(HomeFrame.Content is ViewDevices viewDevices)
+            {
+                BtnScreen.Style = (Style)FindResource("MaterialDesignRaisedLightButton");
+                BtnAutomation.Style = (Style)FindResource("MaterialDesignFlatDarkButton");
+                BtnDevice.Style = (Style)FindResource("MaterialDesignFlatDarkButton");
+                BtnSetting.Style = (Style)FindResource("MaterialDesignFlatDarkButton");
+                BtnDocument.Style = (Style)FindResource("MaterialDesignFlatDarkButton");
+            }
         }
 
         private void BtnDocument_Click(object sender, RoutedEventArgs e)
