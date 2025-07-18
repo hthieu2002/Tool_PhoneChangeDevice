@@ -25,6 +25,7 @@
     <None Remove="Resources\Icons\scriptAutomationview.jpg" />
     <None Remove="Resources\Icons\scriptAutomationview1.jpg" />
     <None Remove="Resources\Icons\scriptAutomationview2.jpg" />
+    <None Remove="Resources\Icons\viewdevice.jpg" />
     <None Remove="Resources\Icons\vn.png" />
     <None Remove="Resources\init.lineage16.rc" />
     <None Remove="Resources\init.lineage18.rc" />
@@ -94,6 +95,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Resource>
     <Resource Include="Resources\Icons\scriptAutomationview2.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Resources\Icons\viewdevice.jpg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Resource>
     <Resource Include="Resources\Icons\vn.png">

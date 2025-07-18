@@ -311,6 +311,77 @@
                             </StackPanel>
                         </Border>
                     </StackPanel>
+                    <!---->
+                    <StackPanel Margin="10,5">
+                        <TextBlock Text="📱 Chức năng xem màn hình"
+                                   FontWeight="Bold"
+                                   FontSize="14"
+                                   Foreground="#007ACC"
+                                   Cursor="Hand"
+                                   MouseLeftButtonDown="TogglePanelDocument2_Click" />
+
+                        <!-- Panel nội dung có animation -->
+                        <Border x:Name="AnimatedPanel2"
+                                Height="0"
+                                Background="#FFDAE5E8"
+                                ClipToBounds="True"
+                                Margin="0,5,0,0">
+                            <StackPanel Orientation="Vertical">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Grid Grid.Column="0"
+                                          Margin="0">
+                                        <StackPanel Orientation="Vertical">
+                                            <TextBlock Margin="10,5"
+                                                       TextWrapping="Wrap"
+                                                       Text="• Giao diện chính"
+                                                       FontSize="14"
+                                                       FontWeight="Bold" />
+                                            <TextBlock Margin="10,5"
+                                                       TextWrapping="Wrap"
+                                                       Text="• Mô tả: là chức năng hiện thị các thiết bị kết nối, tự động view thiết bị có thể quan sát đa thiết bị một lúc tại giao diện này. Thiết bị khi được view sẽ được gán 1 số thứ tự dù thiết bị có mất kết nối và kết nối lại sau đó thiết bị vẫn giữ stt đó. Khung view sẽ hiện thị ip và country của ip"
+                                                       FontSize="13" />
+                                            <TextBlock Margin="40,5"
+                                                       TextWrapping="Wrap"
+                                                       Text="Các chức năng cơ bản"
+                                                       FontSize="12" />
+                                            <TextBlock Margin="50,5"
+                                                       TextWrapping="Wrap"
+                                                       Text="View: chọn số lượng thiết bị để view( view này bạn có thể điều khiển được phone chứ k phải là chỉ xem như ở mặc định)"
+                                                       FontSize="10" />
+                                            <TextBlock Margin="50,5"
+                                                       TextWrapping="Wrap"
+                                                       Text="Push file : gửi file đến phone"
+                                                       FontSize="10" />
+                                            <TextBlock Margin="50,5"
+                                                       TextWrapping="Wrap"
+                                                       Text="Install apk: Cài apk cho phone"
+                                                       FontSize="10" />
+                                            <TextBlock Margin="50,5"
+                                                       TextWrapping="Wrap"
+                                                       Text="Click vào Device - STT ở khung view mặc định bản sẽ mở chế độ điều khiển đơn thiết bị."
+                                                       FontSize="10"
+                                                       FontWeight="Bold"/> 
+                                        </StackPanel>
+                                    </Grid>
+
+                                    <StackPanel Orientation="Vertical"
+                                                HorizontalAlignment="Right"
+                                                VerticalAlignment="Center"
+                                                Grid.Column="1">
+                                        <Image Source="/Resources/Icons/viewdevice.jpg"
+                                               Width="480"
+                                               Height="300"
+                                               Stretch="Uniform"
+                                               Margin="5" />
+                                    </StackPanel>
+                                </Grid>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
                 </StackPanel>
             </ScrollViewer>
         </Grid>

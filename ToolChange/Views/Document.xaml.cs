@@ -101,8 +101,7 @@ namespace ToolChange.Views
         }
         private async void Hyperlink_Click(object sender, RoutedEventArgs e)
         {
-            string url = "https://docs.google.com/document/d/1sgamBW-LwmB8X8ZpoKk4Nlsx3Mn_c3NzERdpYJyCo9c/preview";
-
+            string url = "https://docs.google.com/document/d/1fmuHbrPjCyIGiVeuv_q7bNrzSxefpeKTqjtbxucEEmc/preview";
             WebViewContainer.Visibility = Visibility.Visible;
             await WebViewDocs.EnsureCoreWebView2Async();
             WebViewDocs.CoreWebView2.Navigate(url);
@@ -132,6 +131,11 @@ namespace ToolChange.Views
             {
                 StartImageRotationBackground(); // nếu panel đang đóng và sắp mở → chạy
             }
+        }
+        private void TogglePanelDocument2_Click(object sender, MouseButtonEventArgs e)
+        {
+            ToggleAnimatedPanel(AnimatedPanel2, ref _isExpanded1, 350);
+           
         }
     }
 }
