@@ -22,6 +22,10 @@
     <None Remove="Resources\icon.png" />
     <None Remove="Resources\Icons\automationview.jpg" />
     <None Remove="Resources\Icons\en.png" />
+    <None Remove="Resources\Icons\ENscriptAutomationview.jpg" />
+    <None Remove="Resources\Icons\ENscriptAutomationview1.jpg" />
+    <None Remove="Resources\Icons\ENscriptAutomationview2.jpg" />
+    <None Remove="Resources\Icons\ENviewdevice.jpg" />
     <None Remove="Resources\Icons\scriptAutomationview.jpg" />
     <None Remove="Resources\Icons\scriptAutomationview1.jpg" />
     <None Remove="Resources\Icons\scriptAutomationview2.jpg" />
@@ -87,6 +91,18 @@
     </EmbeddedResource>
     <Resource Include="Resources\Icons\en.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Resources\Icons\ENscriptAutomationview.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Resources\Icons\ENscriptAutomationview1.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Resources\Icons\ENscriptAutomationview2.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Resources\Icons\ENviewdevice.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Resource>
     <Resource Include="Resources\Icons\scriptAutomationview.jpg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
@@ -15,6 +16,8 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Windows.Threading;
+using ToolChange.Services;
+using ToolChange.ViewModels;
 
 namespace ToolChange.Views
 {
@@ -23,24 +26,32 @@ namespace ToolChange.Views
     /// </summary>
     public partial class Document : Page
     {
-        private readonly string[] _imagePaths = new[]
-{
-    "/Resources/Icons/scriptAutomationview.jpg",
-    "/Resources/Icons/scriptAutomationview1.jpg",
-    "/Resources/Icons/scriptAutomationview2.jpg"
-};
+       
 
         private CancellationTokenSource _imageLoopCts;
         private int _imageIndex = 0;
-
+        private string[] _imagePaths;
+        private LocalizationViewModel _localizationViewModel;
         public Document()
         {
             InitializeComponent();
             this.Unloaded += Document_Unloaded;
-        }
+            _localizationViewModel = ViewModelLocator.Localization;
+            DataContext = _localizationViewModel;
 
+            _imagePaths = new[]
+   {
+        _localizationViewModel.DocumentImageAutomationView1,
+        _localizationViewModel.DocumentImageAutomationView2,
+        _localizationViewModel.DocumentImageAutomationView3
+    };
+            Load_On();
+            _localizationViewModel.PropertyChanged += OnLocalizationPropertyChanged;
+        }
+       
         private bool _isExpanded = false;
         private bool _isExpanded1 = false;
+        private bool _isExpanded2 = false;
         private void ToggleAnimatedPanel(Border panel, ref bool isExpanded, double expandedHeight = 260)
         {
             double from = isExpanded ? expandedHeight : 0;
@@ -57,6 +68,33 @@ namespace ToolChange.Views
             panel.BeginAnimation(HeightProperty, animation);
             isExpanded = !isExpanded;
         }
+        private async void Load_On()
+        {
+            string url;
+            if (Properties.Settings.Default.lang == "vi")
+            {
+                url = "https://docs.google.com/document/d/1fmuHbrPjCyIGiVeuv_q7bNrzSxefpeKTqjtbxucEEmc/preview";
+            }
+            else
+            {
+                url = "https://docs.google.com/document/d/1wdSArEG95Oy3CUoT_OvV7772v2CkC6pchOLwZGvHgsk/preview";
+            }
+            await WebViewDocs.EnsureCoreWebView2Async();
+            WebViewDocs.CoreWebView2.Navigate(url);
+        }
+        private async void OnLocalizationPropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(_localizationViewModel.WebViewUrl))
+            {
+                var url = _localizationViewModel.WebViewUrl;
+
+                if (!string.IsNullOrEmpty(url))
+                {
+                    await WebViewDocs.EnsureCoreWebView2Async();
+                    WebViewDocs.CoreWebView2.Navigate(url);
+                }
+            }
+        }
         public void StartImageRotationBackground()
         {
             _imageLoopCts = new CancellationTokenSource();
@@ -66,6 +104,10 @@ namespace ToolChange.Views
             {
                 while (!token.IsCancellationRequested)
                 {
+                    _imagePaths[0] = _localizationViewModel.DocumentImageAutomationView1;
+                    _imagePaths[1] = _localizationViewModel.DocumentImageAutomationView2;
+                    _imagePaths[2] = _localizationViewModel.DocumentImageAutomationView3;
+
                     await System.Windows.Application.Current.Dispatcher.InvokeAsync(async () =>
                     {
                         // Fade out
@@ -101,10 +143,10 @@ namespace ToolChange.Views
         }
         private async void Hyperlink_Click(object sender, RoutedEventArgs e)
         {
-            string url = "https://docs.google.com/document/d/1fmuHbrPjCyIGiVeuv_q7bNrzSxefpeKTqjtbxucEEmc/preview";
+           // string url = "https://docs.google.com/document/d/1fmuHbrPjCyIGiVeuv_q7bNrzSxefpeKTqjtbxucEEmc/preview";
             WebViewContainer.Visibility = Visibility.Visible;
-            await WebViewDocs.EnsureCoreWebView2Async();
-            WebViewDocs.CoreWebView2.Navigate(url);
+          //  await WebViewDocs.EnsureCoreWebView2Async();
+           // WebViewDocs.CoreWebView2.Navigate(url);
         }
         private void CloseWebView_Click(object sender, RoutedEventArgs e)
         {
@@ -134,7 +176,7 @@ namespace ToolChange.Views
         }
         private void TogglePanelDocument2_Click(object sender, MouseButtonEventArgs e)
         {
-            ToggleAnimatedPanel(AnimatedPanel2, ref _isExpanded1, 350);
+            ToggleAnimatedPanel(AnimatedPanel2, ref _isExpanded2, 350);
            
         }
     }

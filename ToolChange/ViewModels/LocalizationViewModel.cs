@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Org.BouncyCastle.Bcpg.OpenPgp;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -77,6 +78,65 @@ namespace ToolChange.ViewModels
         private string _labelNumberDevice;
         private string _setting;
         private string _document;
+        //document 
+        private string _documentFunction;
+        private string _documentTitle;
+        private string _documentTitleFunctionDevice;
+        private string _documentTitleFunctionAutomation;
+        private string _documentTitleFunctionScreen;
+        private string _documentFunctionMainDevice;
+        private string _documentFunctionRandomDevice;
+        private string _documentFunctionChangeDevice;
+        private string _documentFunctionChangeSim;
+        private string _documentFunctionFakeProxy;
+        private string _documentFunctionFakeLocation;
+        private string _documentFunctionTitleRandomDevice;
+        private string _documentContentFunctionRandomDevice;
+        private string _documentFunctionTitleChangeDevice;
+        private string _documentContentFunctionChangeDevice;
+        private string _documentContentFunctionChangeSim;
+        private string _documentFunctionTitleChangeSim;
+        private string _documentFunctionTitleFakeProxy;
+        private string _documentContentFunctionFakeProxy1;
+        private string _documentContentFunctionFakeProxy2;
+        private string _documentFunctionTitleFakeLocation;
+        private string _documentContentFunctionFakeLocation;
+        // DocumentTitleFunctionAutomation
+        private string _documentAutomationTitleUIMain;
+        private string _documentAutomationTitleFunctionMain;
+        private string _documentAutomationTitleFunctionLoadFile;
+        private string _documentAutomationTitleFunctionRunScript;
+        private string _documentAutomationTitleFunctionCodeScript;
+        private string _documentAutomationTitleFunctionLoadDevice;
+        private string _documentAutomationTitleFunctionBackup;
+        private string _documentAutomationTitleFunctionScreenshot;
+        private string _documentAutomationTitleFunctionRestore;
+        private string _documentAutomationTitleFunctionDescription;
+        private string _documentAutomationTitleFunctionLoadFileContent;
+        private string _documentAutomationTitleFunctionRunScriptContent;
+        private string _documentAutomationTitleFunctionLoadDeviceContent;
+        private string _documentAutomationTitleFunctionBackupContent;
+        private string _documentAutomationTitleFunctionScreenshotContent;
+        private string _documentAutomationTitleFunctionRestoreContent;
+        private string _documentAutomationTitleFunctionCodeScriptContent;
+        private string _documentAutomationDetailHere;
+        //DocumentTitleFunctionScreen
+        private string _documentScreenTitleUIMain;
+        private string _documentScreenTitleFunctionMain;
+        private string _documentScreenContent;
+        private string _documentScreenContentFunctionView;
+        private string _documentScreenContentFunctionPushFile;
+        private string _documentScreenContentFunctionInstallAPK;
+        private string _documentScreenContentFunctionClickView;
+        // document image 
+        private string _documentImageAutomationView;
+        private string _documentImageAutomationView1;
+        private string _documentImageAutomationView2;
+        private string _documentImageAutomationView3;
+
+        private string _documentImageViewDevice;
+        private string _webViewUrl;
+       
 
         public string Device
         {
@@ -935,7 +995,689 @@ namespace ToolChange.ViewModels
                 }
             }
         }
+        // document
+        public string DocumentFunction
+        {
+            get => _documentFunction;
+            private set
+            {
+                if (_documentFunction != value)
+                {
+                    _documentFunction = value;
+                    OnPropertyChanged(nameof(DocumentFunction));
+                }
+            }
+        }
 
+        public string DocumentTitle
+        {
+            get => _documentTitle;
+            private set
+            {
+                if (_documentTitle != value)
+                {
+                    _documentTitle = value;
+                    OnPropertyChanged(nameof(DocumentTitle));
+                }
+            }
+        }
+
+        public string DocumentTitleFunctionDevice
+        {
+            get => _documentTitleFunctionDevice;
+            private set
+            {
+                if (_documentTitleFunctionDevice != value)
+                {
+                    _documentTitleFunctionDevice = value;
+                    OnPropertyChanged(nameof(DocumentTitleFunctionDevice));
+                }
+            }
+        }
+
+        public string DocumentTitleFunctionAutomation
+        {
+            get => _documentTitleFunctionAutomation;
+            private set
+            {
+                if (_documentTitleFunctionAutomation != value)
+                {
+                    _documentTitleFunctionAutomation = value;
+                    OnPropertyChanged(nameof(DocumentTitleFunctionAutomation));
+                }
+            }
+        }
+
+        public string DocumentTitleFunctionScreen
+        {
+            get => _documentTitleFunctionScreen;
+            private set
+            {
+                if (_documentTitleFunctionScreen != value)
+                {
+                    _documentTitleFunctionScreen = value;
+                    OnPropertyChanged(nameof(DocumentTitleFunctionScreen));
+                }
+            }
+        }
+
+        public string DocumentFunctionMainDevice
+        {
+            get => _documentFunctionMainDevice;
+            private set
+            {
+                if (_documentFunctionMainDevice != value)
+                {
+                    _documentFunctionMainDevice = value;
+                    OnPropertyChanged(nameof(DocumentFunctionMainDevice));
+                }
+            }
+        }
+
+        public string DocumentFunctionRandomDevice
+        {
+            get => _documentFunctionRandomDevice;
+            private set
+            {
+                if (_documentFunctionRandomDevice != value)
+                {
+                    _documentFunctionRandomDevice = value;
+                    OnPropertyChanged(nameof(DocumentFunctionRandomDevice));
+                }
+            }
+        }
+
+        public string DocumentFunctionChangeDevice
+        {
+            get => _documentFunctionChangeDevice;
+            private set
+            {
+                if (_documentFunctionChangeDevice != value)
+                {
+                    _documentFunctionChangeDevice = value;
+                    OnPropertyChanged(nameof(DocumentFunctionChangeDevice));
+                }
+            }
+        }
+
+        public string DocumentFunctionChangeSim
+        {
+            get => _documentFunctionChangeSim;
+            private set
+            {
+                if (_documentFunctionChangeSim != value)
+                {
+                    _documentFunctionChangeSim = value;
+                    OnPropertyChanged(nameof(DocumentFunctionChangeSim));
+                }
+            }
+        }
+        public string DocumentFunctionTitleChangeSim
+        {
+            get => _documentFunctionTitleChangeSim;
+            private set
+            {
+                if (_documentFunctionTitleChangeSim != value)
+                {
+                    _documentFunctionTitleChangeSim = value;
+                    OnPropertyChanged(nameof(DocumentFunctionTitleChangeSim));
+                }
+            }
+        }
+        public string DocumentContentFunctionChangeSim
+        {
+            get => _documentContentFunctionChangeSim;
+            private set
+            {
+                if (_documentContentFunctionChangeSim != value)
+                {
+                    _documentContentFunctionChangeSim = value;
+                    OnPropertyChanged(nameof(DocumentContentFunctionChangeSim));
+                }
+            }
+        }
+        public string DocumentFunctionFakeProxy
+        {
+            get => _documentFunctionFakeProxy;
+            private set
+            {
+                if (_documentFunctionFakeProxy != value)
+                {
+                    _documentFunctionFakeProxy = value;
+                    OnPropertyChanged(nameof(DocumentFunctionFakeProxy));
+                }
+            }
+        }
+
+        public string DocumentFunctionFakeLocation
+        {
+            get => _documentFunctionFakeLocation;
+            private set
+            {
+                if (_documentFunctionFakeLocation != value)
+                {
+                    _documentFunctionFakeLocation = value;
+                    OnPropertyChanged(nameof(DocumentFunctionFakeLocation));
+                }
+            }
+        }
+
+        public string DocumentFunctionTitleRandomDevice
+        {
+            get => _documentFunctionTitleRandomDevice;
+            private set
+            {
+                if (_documentFunctionTitleRandomDevice != value)
+                {
+                    _documentFunctionTitleRandomDevice = value;
+                    OnPropertyChanged(nameof(DocumentFunctionTitleRandomDevice));
+                }
+            }
+        }
+
+        public string DocumentContentFunctionRandomDevice
+        {
+            get => _documentContentFunctionRandomDevice;
+            private set
+            {
+                if (_documentContentFunctionRandomDevice != value)
+                {
+                    _documentContentFunctionRandomDevice = value;
+                    OnPropertyChanged(nameof(DocumentContentFunctionRandomDevice));
+                }
+            }
+        }
+
+        public string DocumentFunctionTitleChangeDevice
+        {
+            get => _documentFunctionTitleChangeDevice;
+            private set
+            {
+                if (_documentFunctionTitleChangeDevice != value)
+                {
+                    _documentFunctionTitleChangeDevice = value;
+                    OnPropertyChanged(nameof(DocumentFunctionTitleChangeDevice));
+                }
+            }
+        }
+
+        public string DocumentContentFunctionChangeDevice
+        {
+            get => _documentContentFunctionChangeDevice;
+            private set
+            {
+                if (_documentContentFunctionChangeDevice != value)
+                {
+                    _documentContentFunctionChangeDevice = value;
+                    OnPropertyChanged(nameof(DocumentContentFunctionChangeDevice));
+                }
+            }
+        }
+
+        public string DocumentFunctionTitleFakeProxy
+        {
+            get => _documentFunctionTitleFakeProxy;
+            private set
+            {
+                if (_documentFunctionTitleFakeProxy != value)
+                {
+                    _documentFunctionTitleFakeProxy = value;
+                    OnPropertyChanged(nameof(DocumentFunctionTitleFakeProxy));
+                }
+            }
+        }
+
+        public string DocumentContentFunctionFakeProxy1
+        {
+            get => _documentContentFunctionFakeProxy1;
+            private set
+            {
+                if (_documentContentFunctionFakeProxy1 != value)
+                {
+                    _documentContentFunctionFakeProxy1 = value;
+                    OnPropertyChanged(nameof(DocumentContentFunctionFakeProxy1));
+                }
+            }
+        }
+
+        public string DocumentContentFunctionFakeProxy2
+        {
+            get => _documentContentFunctionFakeProxy2;
+            private set
+            {
+                if (_documentContentFunctionFakeProxy2 != value)
+                {
+                    _documentContentFunctionFakeProxy2 = value;
+                    OnPropertyChanged(nameof(DocumentContentFunctionFakeProxy2));
+                }
+            }
+        }
+
+        public string DocumentFunctionTitleFakeLocation
+        {
+            get => _documentFunctionTitleFakeLocation;
+            private set
+            {
+                if (_documentFunctionTitleFakeLocation != value)
+                {
+                    _documentFunctionTitleFakeLocation = value;
+                    OnPropertyChanged(nameof(DocumentFunctionTitleFakeLocation));
+                }
+            }
+        }
+
+        public string DocumentContentFunctionFakeLocation
+        {
+            get => _documentContentFunctionFakeLocation;
+            private set
+            {
+                if (_documentContentFunctionFakeLocation != value)
+                {
+                    _documentContentFunctionFakeLocation = value;
+                    OnPropertyChanged(nameof(DocumentContentFunctionFakeLocation));
+                }
+            }
+        }
+        //
+        public string DocumentAutomationTitleUIMain
+        {
+            get => _documentAutomationTitleUIMain;
+            private set
+            {
+                if (_documentAutomationTitleUIMain != value)
+                {
+                    _documentAutomationTitleUIMain = value;
+                    OnPropertyChanged(nameof(DocumentAutomationTitleUIMain));
+                }
+            }
+        }
+
+        public string DocumentAutomationTitleFunctionMain
+        {
+            get => _documentAutomationTitleFunctionMain;
+            private set
+            {
+                if (_documentAutomationTitleFunctionMain != value)
+                {
+                    _documentAutomationTitleFunctionMain = value;
+                    OnPropertyChanged(nameof(DocumentAutomationTitleFunctionMain));
+                }
+            }
+        }
+
+        public string DocumentAutomationTitleFunctionLoadFile
+        {
+            get => _documentAutomationTitleFunctionLoadFile;
+            private set
+            {
+                if (_documentAutomationTitleFunctionLoadFile != value)
+                {
+                    _documentAutomationTitleFunctionLoadFile = value;
+                    OnPropertyChanged(nameof(DocumentAutomationTitleFunctionLoadFile));
+                }
+            }
+        }
+
+        public string DocumentAutomationTitleFunctionRunScript
+        {
+            get => _documentAutomationTitleFunctionRunScript;
+            private set
+            {
+                if (_documentAutomationTitleFunctionRunScript != value)
+                {
+                    _documentAutomationTitleFunctionRunScript = value;
+                    OnPropertyChanged(nameof(DocumentAutomationTitleFunctionRunScript));
+                }
+            }
+        }
+
+        public string DocumentAutomationTitleFunctionCodeScript
+        {
+            get => _documentAutomationTitleFunctionCodeScript;
+            private set
+            {
+                if (_documentAutomationTitleFunctionCodeScript != value)
+                {
+                    _documentAutomationTitleFunctionCodeScript = value;
+                    OnPropertyChanged(nameof(DocumentAutomationTitleFunctionCodeScript));
+                }
+            }
+        }
+
+        public string DocumentAutomationTitleFunctionLoadDevice
+        {
+            get => _documentAutomationTitleFunctionLoadDevice;
+            private set
+            {
+                if (_documentAutomationTitleFunctionLoadDevice != value)
+                {
+                    _documentAutomationTitleFunctionLoadDevice = value;
+                    OnPropertyChanged(nameof(DocumentAutomationTitleFunctionLoadDevice));
+                }
+            }
+        }
+
+        public string DocumentAutomationTitleFunctionBackup
+        {
+            get => _documentAutomationTitleFunctionBackup;
+            private set
+            {
+                if (_documentAutomationTitleFunctionBackup != value)
+                {
+                    _documentAutomationTitleFunctionBackup = value;
+                    OnPropertyChanged(nameof(DocumentAutomationTitleFunctionBackup));
+                }
+            }
+        }
+
+        public string DocumentAutomationTitleFunctionScreenshot
+        {
+            get => _documentAutomationTitleFunctionScreenshot;
+            private set
+            {
+                if (_documentAutomationTitleFunctionScreenshot != value)
+                {
+                    _documentAutomationTitleFunctionScreenshot = value;
+                    OnPropertyChanged(nameof(DocumentAutomationTitleFunctionScreenshot));
+                }
+            }
+        }
+
+        public string DocumentAutomationTitleFunctionRestore
+        {
+            get => _documentAutomationTitleFunctionRestore;
+            private set
+            {
+                if (_documentAutomationTitleFunctionRestore != value)
+                {
+                    _documentAutomationTitleFunctionRestore = value;
+                    OnPropertyChanged(nameof(DocumentAutomationTitleFunctionRestore));
+                }
+            }
+        }
+
+        public string DocumentAutomationTitleFunctionDescription
+        {
+            get => _documentAutomationTitleFunctionDescription;
+            private set
+            {
+                if (_documentAutomationTitleFunctionDescription != value)
+                {
+                    _documentAutomationTitleFunctionDescription = value;
+                    OnPropertyChanged(nameof(DocumentAutomationTitleFunctionDescription));
+                }
+            }
+        }
+
+        public string DocumentAutomationTitleFunctionLoadFileContent
+        {
+            get => _documentAutomationTitleFunctionLoadFileContent;
+            private set
+            {
+                if (_documentAutomationTitleFunctionLoadFileContent != value)
+                {
+                    _documentAutomationTitleFunctionLoadFileContent = value;
+                    OnPropertyChanged(nameof(DocumentAutomationTitleFunctionLoadFileContent));
+                }
+            }
+        }
+
+        public string DocumentAutomationTitleFunctionRunScriptContent
+        {
+            get => _documentAutomationTitleFunctionRunScriptContent;
+            private set
+            {
+                if (_documentAutomationTitleFunctionRunScriptContent != value)
+                {
+                    _documentAutomationTitleFunctionRunScriptContent = value;
+                    OnPropertyChanged(nameof(DocumentAutomationTitleFunctionRunScriptContent));
+                }
+            }
+        }
+
+        public string DocumentAutomationTitleFunctionLoadDeviceContent
+        {
+            get => _documentAutomationTitleFunctionLoadDeviceContent;
+            private set
+            {
+                if (_documentAutomationTitleFunctionLoadDeviceContent != value)
+                {
+                    _documentAutomationTitleFunctionLoadDeviceContent = value;
+                    OnPropertyChanged(nameof(DocumentAutomationTitleFunctionLoadDeviceContent));
+                }
+            }
+        }
+
+        public string DocumentAutomationTitleFunctionBackupContent
+        {
+            get => _documentAutomationTitleFunctionBackupContent;
+            private set
+            {
+                if (_documentAutomationTitleFunctionBackupContent != value)
+                {
+                    _documentAutomationTitleFunctionBackupContent = value;
+                    OnPropertyChanged(nameof(DocumentAutomationTitleFunctionBackupContent));
+                }
+            }
+        }
+
+        public string DocumentAutomationTitleFunctionScreenshotContent
+        {
+            get => _documentAutomationTitleFunctionScreenshotContent;
+            private set
+            {
+                if (_documentAutomationTitleFunctionScreenshotContent != value)
+                {
+                    _documentAutomationTitleFunctionScreenshotContent = value;
+                    OnPropertyChanged(nameof(DocumentAutomationTitleFunctionScreenshotContent));
+                }
+            }
+        }
+
+        public string DocumentAutomationTitleFunctionRestoreContent
+        {
+            get => _documentAutomationTitleFunctionRestoreContent;
+            private set
+            {
+                if (_documentAutomationTitleFunctionRestoreContent != value)
+                {
+                    _documentAutomationTitleFunctionRestoreContent = value;
+                    OnPropertyChanged(nameof(DocumentAutomationTitleFunctionRestoreContent));
+                }
+            }
+        }
+
+        public string DocumentAutomationTitleFunctionCodeScriptContent
+        {
+            get => _documentAutomationTitleFunctionCodeScriptContent;
+            private set
+            {
+                if (_documentAutomationTitleFunctionCodeScriptContent != value)
+                {
+                    _documentAutomationTitleFunctionCodeScriptContent = value;
+                    OnPropertyChanged(nameof(DocumentAutomationTitleFunctionCodeScriptContent));
+                }
+            }
+        }
+
+        public string DocumentAutomationDetailHere
+        {
+            get => _documentAutomationDetailHere;
+            private set
+            {
+                if (_documentAutomationDetailHere != value)
+                {
+                    _documentAutomationDetailHere = value;
+                    OnPropertyChanged(nameof(DocumentAutomationDetailHere));
+                }
+            }
+        }
+        public string DocumentScreenTitleUIMain
+        {
+            get => _documentScreenTitleUIMain;
+            private set
+            {
+                if (_documentScreenTitleUIMain != value)
+                {
+                    _documentScreenTitleUIMain = value;
+                    OnPropertyChanged(nameof(DocumentScreenTitleUIMain));
+                }
+            }
+        }
+
+        public string DocumentScreenTitleFunctionMain
+        {
+            get => _documentScreenTitleFunctionMain;
+            private set
+            {
+                if (_documentScreenTitleFunctionMain != value)
+                {
+                    _documentScreenTitleFunctionMain = value;
+                    OnPropertyChanged(nameof(DocumentScreenTitleFunctionMain));
+                }
+            }
+        }
+
+        public string DocumentScreenContent
+        {
+            get => _documentScreenContent;
+            private set
+            {
+                if (_documentScreenContent != value)
+                {
+                    _documentScreenContent = value;
+                    OnPropertyChanged(nameof(DocumentScreenContent));
+                }
+            }
+        }
+
+        public string DocumentScreenContentFunctionView
+        {
+            get => _documentScreenContentFunctionView;
+            private set
+            {
+                if (_documentScreenContentFunctionView != value)
+                {
+                    _documentScreenContentFunctionView = value;
+                    OnPropertyChanged(nameof(DocumentScreenContentFunctionView));
+                }
+            }
+        }
+
+        public string DocumentScreenContentFunctionPushFile
+        {
+            get => _documentScreenContentFunctionPushFile;
+            private set
+            {
+                if (_documentScreenContentFunctionPushFile != value)
+                {
+                    _documentScreenContentFunctionPushFile = value;
+                    OnPropertyChanged(nameof(DocumentScreenContentFunctionPushFile));
+                }
+            }
+        }
+
+        public string DocumentScreenContentFunctionInstallAPK
+        {
+            get => _documentScreenContentFunctionInstallAPK;
+            private set
+            {
+                if (_documentScreenContentFunctionInstallAPK != value)
+                {
+                    _documentScreenContentFunctionInstallAPK = value;
+                    OnPropertyChanged(nameof(DocumentScreenContentFunctionInstallAPK));
+                }
+            }
+        }
+
+        public string DocumentScreenContentFunctionClickView
+        {
+            get => _documentScreenContentFunctionClickView;
+            private set
+            {
+                if (_documentScreenContentFunctionClickView != value)
+                {
+                    _documentScreenContentFunctionClickView = value;
+                    OnPropertyChanged(nameof(DocumentScreenContentFunctionClickView));
+                }
+            }
+        }
+        public string DocumentImageAutomationView
+        {
+            get => _documentImageAutomationView;
+            private set
+            {
+                if (_documentImageAutomationView != value)
+                {
+                    _documentImageAutomationView = value;
+                    OnPropertyChanged(nameof(DocumentImageAutomationView));
+                }
+            }
+        }
+
+        public string DocumentImageAutomationView1
+        {
+            get => _documentImageAutomationView1;
+            private set
+            {
+                if (_documentImageAutomationView1 != value)
+                {
+                    _documentImageAutomationView1 = value;
+                    OnPropertyChanged(nameof(DocumentImageAutomationView1));
+                }
+            }
+        }
+
+        public string DocumentImageAutomationView2
+        {
+            get => _documentImageAutomationView2;
+            private set
+            {
+                if (_documentImageAutomationView2 != value)
+                {
+                    _documentImageAutomationView2 = value;
+                    OnPropertyChanged(nameof(DocumentImageAutomationView2));
+                }
+            }
+        }
+
+        public string DocumentImageAutomationView3
+        {
+            get => _documentImageAutomationView3;
+            private set
+            {
+                if (_documentImageAutomationView3 != value)
+                {
+                    _documentImageAutomationView3 = value;
+                    OnPropertyChanged(nameof(DocumentImageAutomationView3));
+                }
+            }
+        }
+
+        public string DocumentImageViewDevice
+        {
+            get => _documentImageViewDevice;
+            private set
+            {
+                if (_documentImageViewDevice != value)
+                {
+                    _documentImageViewDevice = value;
+                    OnPropertyChanged(nameof(DocumentImageViewDevice));
+                }
+            }
+        }
+        public string WebViewUrl
+        {
+            get => _webViewUrl;
+            set
+            {
+                if (_webViewUrl != value)
+                {
+                    _webViewUrl = value;
+                    OnPropertyChanged(nameof(WebViewUrl));
+                }
+            }
+        }
         public LocalizationViewModel()
         {
             Refresh(); // Khởi tạo backing field trong constructor
@@ -1050,6 +1792,65 @@ namespace ToolChange.ViewModels
             ToolChange.Language.AutomationLang.logRunSctiptInfo = LocalizationService.Get("logRunSctiptInfo");
             ToolChange.Language.AutomationLang.logUntimateRunSctiptInfoSuccess = LocalizationService.Get("logUntimateRunSctiptInfoSuccess");
             ToolChange.Language.AutomationLang.logRunSctiptInfoSuccess = LocalizationService.Get("logRunSctiptInfoSuccess");
+
+            //document
+            DocumentFunction = LocalizationService.Get("DocumentFunction");
+            DocumentTitle = LocalizationService.Get("DocumentTitle");
+            DocumentTitleFunctionDevice = LocalizationService.Get("DocumentTitleFunctionDevice");
+            DocumentTitleFunctionAutomation = LocalizationService.Get("DocumentTitleFunctionAutomation");
+            DocumentTitleFunctionScreen = LocalizationService.Get("DocumentTitleFunctionScreen");
+            DocumentFunctionMainDevice = LocalizationService.Get("DocumentFunctionMainDevice");
+            DocumentFunctionRandomDevice = LocalizationService.Get("DocumentFunctionRandomDevice");
+            DocumentFunctionChangeDevice = LocalizationService.Get("DocumentFunctionChangeDevice");
+            DocumentFunctionChangeSim = LocalizationService.Get("DocumentFunctionChangeSim");
+            DocumentFunctionFakeProxy = LocalizationService.Get("DocumentFunctionFakeProxy");
+            DocumentFunctionFakeLocation = LocalizationService.Get("DocumentFunctionFakeLocation");
+            DocumentFunctionTitleRandomDevice = LocalizationService.Get("DocumentFunctionTitleRandomDevice");
+            DocumentContentFunctionRandomDevice = LocalizationService.Get("DocumentContentFunctionRandomDevice");
+            DocumentFunctionTitleChangeDevice = LocalizationService.Get("DocumentFunctionTitleChangeDevice");
+            DocumentContentFunctionChangeDevice = LocalizationService.Get("DocumentContentFunctionChangeDevice");
+            DocumentContentFunctionChangeSim = LocalizationService.Get("DocumentContentFunctionChangeSim");
+            DocumentFunctionTitleChangeSim = LocalizationService.Get("DocumentFunctionTitleChangeSim");
+            DocumentFunctionTitleFakeProxy = LocalizationService.Get("DocumentFunctionTitleFakeProxy");
+            DocumentContentFunctionFakeProxy1 = LocalizationService.Get("DocumentContentFunctionFakeProxy1");
+            DocumentContentFunctionFakeProxy2 = LocalizationService.Get("DocumentContentFunctionFakeProxy2");
+            DocumentFunctionTitleFakeLocation = LocalizationService.Get("DocumentFunctionTitleFakeLocation");
+            DocumentContentFunctionFakeLocation = LocalizationService.Get("DocumentContentFunctionFakeLocation");
+            //
+            DocumentAutomationTitleUIMain = LocalizationService.Get("DocumentAutomationTitleUIMain");
+            DocumentAutomationTitleFunctionMain = LocalizationService.Get("DocumentAutomationTitleFunctionMain");
+            DocumentAutomationTitleFunctionLoadFile = LocalizationService.Get("DocumentAutomationTitleFunctionLoadFile");
+            DocumentAutomationTitleFunctionRunScript = LocalizationService.Get("DocumentAutomationTitleFunctionRunScript");
+            DocumentAutomationTitleFunctionCodeScript = LocalizationService.Get("DocumentAutomationTitleFunctionCodeScript");
+            DocumentAutomationTitleFunctionLoadDevice = LocalizationService.Get("DocumentAutomationTitleFunctionLoadDevice");
+            DocumentAutomationTitleFunctionBackup = LocalizationService.Get("DocumentAutomationTitleFunctionBackup");
+            DocumentAutomationTitleFunctionScreenshot = LocalizationService.Get("DocumentAutomationTitleFunctionScreenshot");
+            DocumentAutomationTitleFunctionRestore = LocalizationService.Get("DocumentAutomationTitleFunctionRestore");
+            DocumentAutomationTitleFunctionDescription = LocalizationService.Get("DocumentAutomationTitleFunctionDescription");
+            DocumentAutomationTitleFunctionLoadFileContent = LocalizationService.Get("DocumentAutomationTitleFunctionLoadFileContent");
+            DocumentAutomationTitleFunctionRunScriptContent = LocalizationService.Get("DocumentAutomationTitleFunctionRunScriptContent");
+            DocumentAutomationTitleFunctionLoadDeviceContent = LocalizationService.Get("DocumentAutomationTitleFunctionLoadDeviceContent");
+            DocumentAutomationTitleFunctionBackupContent = LocalizationService.Get("DocumentAutomationTitleFunctionBackupContent");
+            DocumentAutomationTitleFunctionScreenshotContent = LocalizationService.Get("DocumentAutomationTitleFunctionScreenshotContent");
+            DocumentAutomationTitleFunctionRestoreContent = LocalizationService.Get("DocumentAutomationTitleFunctionRestoreContent");
+            DocumentAutomationTitleFunctionCodeScriptContent = LocalizationService.Get("DocumentAutomationTitleFunctionCodeScriptContent");
+            DocumentAutomationDetailHere = LocalizationService.Get("DocumentAutomationDetailHere");
+            //
+            DocumentScreenTitleUIMain = LocalizationService.Get("DocumentScreenTitleUIMain");
+            DocumentScreenTitleFunctionMain = LocalizationService.Get("DocumentScreenTitleFunctionMain");
+            DocumentScreenContent = LocalizationService.Get("DocumentScreenContent");
+            DocumentScreenContentFunctionView = LocalizationService.Get("DocumentScreenContentFunctionView");
+            DocumentScreenContentFunctionPushFile = LocalizationService.Get("DocumentScreenContentFunctionPushFile");
+            DocumentScreenContentFunctionInstallAPK = LocalizationService.Get("DocumentScreenContentFunctionInstallAPK");
+            DocumentScreenContentFunctionClickView = LocalizationService.Get("DocumentScreenContentFunctionClickView");
+            // document image
+
+            DocumentImageAutomationView = LocalizationService.Get("DocumentImageAutomationView");
+            DocumentImageAutomationView1 = LocalizationService.Get("DocumentImageAutomationView1");
+            DocumentImageAutomationView2 = LocalizationService.Get("DocumentImageAutomationView2");
+            DocumentImageAutomationView3 = LocalizationService.Get("DocumentImageAutomationView3");
+            DocumentImageViewDevice = LocalizationService.Get("DocumentImageViewDevice");
+            WebViewUrl = LocalizationService.Get("WebViewUrl");
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

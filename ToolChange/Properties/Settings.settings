@@ -9,10 +9,10 @@
       <Value Profile="(Default)">light</Value>
     </Setting>
     <Setting Name="user" Type="System.String" Scope="User">
-      <Value Profile="(Default)">admin@gmail.com</Value>
+      <Value Profile="(Default)" />
     </Setting>
     <Setting Name="password" Type="System.String" Scope="User">
-      <Value Profile="(Default)">1234</Value>
+      <Value Profile="(Default)" />
     </Setting>
     <Setting Name="poolId" Type="System.String" Scope="Application">
       <Value Profile="(Default)">ap-southeast-1_Cha6gy7Ui</Value>
@@ -25,6 +25,9 @@
     </Setting>
     <Setting Name="token" Type="System.String" Scope="User">
       <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="Version" Type="System.String" Scope="User">
+      <Value Profile="(Default)">1.0.0.0</Value>
     </Setting>
   </Settings>
 </SettingsFile>

@@ -44,7 +44,7 @@
                               Source="https://example.com" />
             </Grid>
         </Border>
-        <Label Content="Hướng dẫn sự dụng tool"
+        <Label Content="{Binding DocumentTitle}"
                FontSize="16"
                FontFamily="Segoe UI"
                FontWeight="Bold">
@@ -55,7 +55,7 @@
                 <StackPanel Margin="0">
                     <StackPanel Margin="10">
                         <!-- Tiêu đề -->
-                        <TextBlock Text="🤖 Chức năng thiết bị"
+                        <TextBlock Text="{Binding DocumentTitleFunctionDevice , Mode=OneWay}"
                                    FontWeight="Bold"
                                    FontSize="14"
                                    Foreground="#007ACC"
@@ -70,77 +70,82 @@
                                 Margin="0,5,0,0">
                             <StackPanel>
                                 <TextBlock Margin="10,5">
-                            <Run Text="• Các chức năng chính"
+                            <Run Text="{Binding DocumentFunctionMainDevice , Mode=OneWay}"
                                     FontWeight="Bold"
                                     FontSize="13" />
                             <LineBreak />
-                            <Run Text="        Random device"
+                            <Run Text="        " />
+                            <Run Text="{Binding DocumentFunctionRandomDevice, Mode=OneWay}"
                                     FontSize="11" />
                             <LineBreak />
-                            <Run Text="        Change device"
+                            <Run Text="        " />
+                            <Run Text="{Binding DocumentFunctionChangeDevice, Mode=OneWay}"
                                     FontSize="11" />
                             <LineBreak />
-                            <Run Text="        Change sim"
+                                    <Run Text="        " />
+                            <Run Text="{Binding DocumentFunctionChangeSim, Mode=OneWay}"
                                     FontSize="11" />
                             <LineBreak />
-                            <Run Text="        Fake proxy"
+                                    <Run Text="        " />
+                            <Run Text="{Binding DocumentFunctionFakeProxy, Mode=OneWay}"
                                     FontSize="11" />
                             <LineBreak />
-                            <Run Text="        Fake location"
+                                    <Run Text="        " />
+                            <Run Text="{Binding DocumentFunctionFakeLocation, Mode=OneWay}"
                                     FontSize="11" />
                                 </TextBlock>
                                 <TextBlock Margin="10,5"
                                            TextWrapping="Wrap">
-                            <Run Text="Chức năng random device: "
+                            <Run Text="{Binding DocumentFunctionTitleRandomDevice, Mode=OneWay}"
                                     FontSize="12" />
-                            <Run Text="Chức năng"
+                            <Run Text="{Binding DocumentFunction, Mode=OneWay}"
                                     FontSize="10" />
-                                 <Run Text=" Random Device "
+                                 <Run Text="{Binding DocumentFunctionRandomDevice, Mode=OneWay}"
                                       FontWeight="Bold"
                                       FontSize="10" />
-                                 <Run Text="cho phép bạn lấy ngẫu nhiên các thông tin nhận dạng thiết bị Android, giúp giả lập một thiết bị hoàn toàn mới. Đây là một tính năng quan trọng trong các tình huống cần thay đổi danh tính thiết bị để kiểm thử hoặc tránh bị nhận dạng trùng lặp"
+                                 <Run Text="{Binding DocumentContentFunctionRandomDevice, Mode=OneWay}"
                                       FontSize="10" />
                                 </TextBlock>
                                 <TextBlock Margin="10,5"
                                            TextWrapping="Wrap">
-                                    <Run Text="Chức năng change device: "
+                                    <Run Text="{Binding DocumentFunctionTitleChangeDevice, Mode=OneWay}"
                                          FontSize="12" />
-                                    <Run Text="Chức năng"
+                                    <Run Text="{Binding DocumentFunction, Mode=OneWay}"
                                          FontSize="10" />
-                                <Run Text=" Change Device"
+                                <Run Text="{Binding DocumentFunctionChangeDevice, Mode=OneWay}"
                                      FontSize="10"
                                      FontWeight="Bold" />
-                                <Run Text=" cho phép bạn thay đổi thông tin thiết bị Android theo một cấu hình cụ thể mà đã random từ trước hoặc chọn từ trước."
+                                <Run Text="{Binding DocumentContentFunctionChangeDevice, Mode=OneWay}"
                                      FontSize="10" />
                                 </TextBlock>
                                 <TextBlock Margin="10,5"
                                            TextWrapping="Wrap">
-                                <Run Text="Chức năng change sim: "
+                                <Run Text="{Binding DocumentFunctionTitleChangeSim, Mode=OneWay}"
                                      FontSize="12" />
-                                <Run Text="Chức năng "
+                                <Run Text="{Binding DocumentFunction, Mode=OneWay}"
                                      FontSize="10" />
-                                <Run Text="Change Sim "
+                                <Run Text="{Binding DocumentFunctionChangeSim, Mode=OneWay}"
                                      FontWeight="Bold"
                                      FontSize="10" />
-                                <Run Text=" cho phép bạn thay đổi thông tin sim theo một cấu hình cụ thể mà đã random từ trước hoặc chọn từ trước."
+                                <Run Text="{Binding DocumentContentFunctionChangeSim,Mode=OneWay}"
                                      FontSize="10" />
 
                                 </TextBlock>
                                 <TextBlock Margin="10,5"
                                            TextWrapping="Wrap">
-                                <Run Text="Chức năng fake proxy:"
+                                <Run Text="{Binding DocumentFunctionTitleFakeProxy, Mode=OneWay}"
                                      FontSize="12" />
-                                <Run Text=" Chức năng"
+                                <Run Text="{Binding DocumentFunction, Mode=OneWay}"
                                      FontSize="10" />
-                                <Run Text=" Fake proxy"
+                                <Run Text="{Binding DocumentFunctionFakeProxy, Mode=OneWay}"
                                      FontSize="10"
                                      FontWeight="Bold" />
-                                <Run Text=" cho phép bạn fake ip mặc định proxy đưa vào "
+                                <Run Text="{Binding DocumentContentFunctionFakeProxy1, Mode=OneWay}"
                                      FontSize="10" />
                                 <Run Text="ip:port:username:password "
                                      FontWeight="Bold"
                                      FontSize="11" />
-                                <Run Text="không có username và password vui lòng điền "
+                                <Run Text="{Binding DocumentContentFunctionFakeProxy2, Mode=OneWay}"
                                      FontSize="10" />
                                 <Run Text="ip:port::"
                                      FontWeight="Bold"
@@ -148,14 +153,14 @@
                                 </TextBlock>
                                 <TextBlock Margin="10,5"
                                            TextWrapping="Wrap">
-                                <Run Text="Chức năng fake location:"
+                                <Run Text="{Binding DocumentFunctionTitleFakeLocation,Mode=OneWay}"
                                      FontSize="12" />
-                                <Run Text="Chức năng "
+                                <Run Text="{Binding DocumentFunction, Mode=OneWay}"
                                      FontSize="10" />
-                                <Run Text="Fake location"
+                                <Run Text="{Binding DocumentFunctionFakeLocation, Mode=OneWay}"
                                      FontSize="10"
                                      FontWeight="Bold" />
-                                <Run Text=" cho phép bạn giả lập vị trí cho trước"
+                                <Run Text="{Binding DocumentContentFunctionFakeLocation, Mode=OneWay}"
                                      FontSize="10" />
 
                                 </TextBlock>
@@ -164,7 +169,7 @@
                     </StackPanel>
                     <!---->
                     <StackPanel Margin="10,5">
-                        <TextBlock Text="⚙️ Chức năng tự động hóa"
+                        <TextBlock Text="{Binding DocumentTitleFunctionAutomation, Mode=OneWay}"
                                    FontWeight="Bold"
                                    FontSize="14"
                                    Foreground="#007ACC"
@@ -189,101 +194,109 @@
                                         <StackPanel Orientation="Vertical">
                                             <TextBlock Margin="10,5"
                                                        TextWrapping="Wrap"
-                                                       Text="• Giao diện chính"
+                                                       Text="{Binding DocumentAutomationTitleUIMain, Mode=OneWay}"
                                                        FontSize="14"
                                                        FontWeight="Bold" />
                                             <TextBlock Margin="20,5,0,0"
                                                        TextWrapping="Wrap"
-                                                       Text="Các chức năng chính"
+                                                       Text="{Binding DocumentAutomationTitleFunctionMain, Mode=OneWay}"
                                                        FontSize="12"
                                                        />
                                             <TextBlock Margin="40,2,0,0"
                                                        TextWrapping="Wrap"
-                                                       Text="Load file script (load file)"
+                                                       Text="{Binding DocumentAutomationTitleFunctionLoadFile,Mode=OneWay}"
                                                        FontSize="10" />
                                             <TextBlock Margin="40,2,0,0"
                                                        TextWrapping="Wrap"
-                                                       Text="Chạy script (run script)"
+                                                       Text="{Binding DocumentAutomationTitleFunctionRunScript, Mode=OneWay}"
                                                        FontSize="10" />
                                             <TextBlock Margin="40,2,0,0"
                                                        TextWrapping="Wrap"
-                                                       Text="Cấu hình script (code script)"
+                                                       Text="{Binding DocumentAutomationTitleFunctionCodeScript, Mode=OneWay}"
                                                        FontSize="10" />
                                             <TextBlock Margin="40,2,0,0"
                                                        TextWrapping="Wrap"
-                                                       Text="Load device"
+                                                       Text="{Binding DocumentAutomationTitleFunctionLoadDevice, Mode=OneWay}"
                                                        FontSize="10" />
                                             <TextBlock Margin="40,2,0,0"
                                                        TextWrapping="Wrap"
-                                                       Text="Backup"
+                                                       Text="{Binding DocumentAutomationTitleFunctionBackup, Mode=OneWay}"
                                                        FontSize="10" />
                                             <TextBlock Margin="40,2,0,0"
                                                        TextWrapping="Wrap"
-                                                       Text="Screenshot"
+                                                       Text="{Binding DocumentAutomationTitleFunctionScreenshot, Mode=OneWay}"
                                                        FontSize="10" />
                                             <TextBlock Margin="40,2,0,0"
                                                        TextWrapping="Wrap"
-                                                       Text="Restore"
+                                                       Text="{Binding DocumentAutomationTitleFunctionRestore, Mode=OneWay}"
                                                        FontSize="10" />
                                             <TextBlock Margin="20,2,0,0"
                                                        TextWrapping="Wrap"
-                                                       Text="Mô tả các chức năng"
+                                                       Text="{Binding DocumentAutomationTitleFunctionDescription, Mode=OneWay}"
                                                        FontSize="12" />
                                             <TextBlock Margin="30,5,0,0"
                                                        TextWrapping="Wrap">
-                                                <Run Text="Chức năng "
+                                                <Run Text="{Binding DocumentFunction, Mode=OneWay}"
                                                      FontSize="10"/>
-                                                <Run Text="Load file script"
+                                                <Run Text="{Binding DocumentAutomationTitleFunctionLoadFile, Mode=OneWay}"
                                                      FontSize="10"
                                                      FontWeight="Bold"
                                                      />
-                                                <Run Text=" lấy file cấu hình script đã được thiết lập trước, " 
+                                                <Run Text="{Binding DocumentAutomationTitleFunctionLoadFileContent, Mode=OneWay}" 
                                                      FontSize="10"/>
-                                                <Run Text="được lưu cố định tại đường dẫn " 
-                                                     FontSize="10"/>
+                                               
                                                 <Run Text="./Resources/Script/" FontSize="11" FontWeight="Bold"/>
                                             </TextBlock>
                                             <TextBlock Margin="30,5,0,0"
                                                        TextWrapping="Wrap">
-                                                <Run Text="Chức năng "
+                                                <Run Text="{Binding DocumentFunction, Mode=OneWay}"
                                                      FontSize="10"/>
-                                                <Run Text="Chạy script "
+                                                <Run Text="{Binding DocumentAutomationTitleFunctionRunScript, Mode=OneWay}"
                                                      FontWeight="Bold"
                                                      FontSize="10" />
-                                                <Run Text="lựa chọn số lượng lần chạy hoặc chọn chạy vĩnh viễn khi đó script được chọn sẽ được chạy auto trên các thiết bị, trong lúc script đang chạy bạn dừng, srcipt sẽ vẫn chạy đến khi hết hoàn thiện 1 lần của script." FontSize="10"/>
+                                                <Run Text="{Binding DocumentAutomationTitleFunctionRunScriptContent, Mode=OneWay}" FontSize="10"/>
                                             </TextBlock>
                                             <TextBlock Margin="30,5,0,0"
                                                        TextWrapping="Wrap">
-                                                <Run Text="Chức năng "
+                                                <Run Text="{Binding DocumentFunction, Mode=OneWay}"
                                                      FontSize="10"/>
-                                                <Run Text="Load device "
+                                                <Run Text="{Binding DocumentAutomationTitleFunctionLoadDevice, Mode=OneWay}"
                                                      FontWeight="Bold"
                                                      FontSize="10" />
-                                                <Run Text="để hiện thị danh sách các thiết bị đang kết nối hoặc những thiết bị bị xóa khỏi danh sách."
+                                                <Run Text="{Binding DocumentAutomationTitleFunctionLoadDeviceContent, Mode=OneWay}"
                                                      FontSize="10"/>
                                             </TextBlock>
                                             <TextBlock Margin="30,5,0,0" TextWrapping="Wrap">
-                                                <Run Text="Chức năng " FontSize="10"/>
-                                                <Run Text="Backup " FontSize="10" FontWeight="Bold"/>
-                                                <Run Text="đang phát triển... " FontSize="10"/>
+                                                <Run Text="{Binding DocumentFunction, Mode=OneWay}" FontSize="10"/>
+                                                <Run Text="{Binding DocumentAutomationTitleFunctionBackup, Mode=OneWay}" FontSize="10" FontWeight="Bold"/>
+                                                <Run Text="{Binding DocumentAutomationTitleFunctionBackupContent, Mode=OneWay}" FontSize="10"/>
                                             </TextBlock>
                                             <TextBlock Margin="30,5,0,0" TextWrapping="Wrap">
-                                                <Run FontSize="10" Text="Chức năng "/>
-                                                <Run FontSize="10" Text="Screenshot " FontWeight="Bold"/>
-                                                <Run FontSize="10" Text="chụp ảnh màn hình thiết bị, khi ở trạng thái chọn nhiều thiết bị nó có khả năng chụp cùng lúc. "/>
+                                                <Run FontSize="10"
+                                                     Text="{Binding DocumentFunction, Mode=OneWay}"/>
+                                                <Run FontSize="10"
+                                                     Text="{Binding DocumentAutomationTitleFunctionScreenshot, Mode=OneWay}" FontWeight="Bold"/>
+                                                <Run FontSize="10"
+                                                     Text="{Binding DocumentAutomationTitleFunctionScreenshotContent,Mode=OneWay}"/>
                                             </TextBlock>
                                             <TextBlock Margin="30,5,0,0" TextWrapping="Wrap">
-                                                <Run FontSize="10" Text="Chức năng "/>
-                                                <Run FontSize="10" Text="Restore " FontWeight="Bold"/>
-                                                <Run FontSize="10" Text="đang phát triển ... "/>
+                                                <Run FontSize="10"
+                                                     Text="{Binding DocumentFunction, Mode=OneWay}"/>
+                                                <Run FontSize="10"
+                                                     Text="{Binding DocumentAutomationTitleFunctionRestore, Mode=OneWay}" FontWeight="Bold"/>
+                                                <Run FontSize="10"
+                                                     Text="{Binding DocumentAutomationTitleFunctionRestoreContent, Mode=OneWay}"/>
                                             </TextBlock>
                                             <TextBlock Margin="30,10,0,0" TextWrapping="Wrap">
-                                                <Run FontSize="10" Text="Chức năng "/>
-                                                <Run FontSize="10" Text="Cấu hình script (code script)" FontWeight="Bold"/>
-                                                <Run FontSize="10" Text=" giao diện khi sự dụng chức năng này ở hình 2, sự dụng các chức năng ở giao diện code script để tạo file script auto "/>
+                                                <Run FontSize="10"
+                                                     Text="{Binding DocumentFunction, Mode=OneWay}"/>
+                                                <Run FontSize="10"
+                                                     Text="{Binding DocumentAutomationTitleFunctionCodeScript, Mode=OneWay}" FontWeight="Bold"/>
+                                                <Run FontSize="10"
+                                                     Text="{Binding DocumentAutomationTitleFunctionCodeScriptContent, Mode=OneWay}"/>
                                                 <Hyperlink 
                                                            Click="Hyperlink_Click">
-                                                Chi tiết xem tại đây
+                                                <Run Text="{Binding DocumentAutomationDetailHere, Mode=OneWay}" />
                                                 </Hyperlink>
                                             </TextBlock>
                                            
@@ -293,7 +306,7 @@
                                                 HorizontalAlignment="Right"
                                                 VerticalAlignment="Center"
                                                 Grid.Column="1">
-                                    <Image Source="/Resources/Icons/automationview.jpg"
+                                        <Image Source="{Binding DocumentImageAutomationView, Mode=OneWay}"
                                            Width="480"
                                            Height="300"
                                            Stretch="Uniform"
@@ -313,7 +326,7 @@
                     </StackPanel>
                     <!---->
                     <StackPanel Margin="10,5">
-                        <TextBlock Text="📱 Chức năng xem màn hình"
+                        <TextBlock Text="{Binding DocumentTitleFunctionScreen, Mode=OneWay}"
                                    FontWeight="Bold"
                                    FontSize="14"
                                    Foreground="#007ACC"
@@ -337,32 +350,32 @@
                                         <StackPanel Orientation="Vertical">
                                             <TextBlock Margin="10,5"
                                                        TextWrapping="Wrap"
-                                                       Text="• Giao diện chính"
+                                                       Text="{Binding DocumentScreenTitleUIMain, Mode=OneWay}"
                                                        FontSize="14"
                                                        FontWeight="Bold" />
                                             <TextBlock Margin="10,5"
                                                        TextWrapping="Wrap"
-                                                       Text="• Mô tả: là chức năng hiện thị các thiết bị kết nối, tự động view thiết bị có thể quan sát đa thiết bị một lúc tại giao diện này. Thiết bị khi được view sẽ được gán 1 số thứ tự dù thiết bị có mất kết nối và kết nối lại sau đó thiết bị vẫn giữ stt đó. Khung view sẽ hiện thị ip và country của ip"
+                                                       Text="{Binding DocumentScreenContent, Mode=OneWay}"
                                                        FontSize="13" />
                                             <TextBlock Margin="40,5"
                                                        TextWrapping="Wrap"
-                                                       Text="Các chức năng cơ bản"
+                                                       Text="{Binding DocumentScreenTitleFunctionMain, Mode=OneWay}"
                                                        FontSize="12" />
                                             <TextBlock Margin="50,5"
                                                        TextWrapping="Wrap"
-                                                       Text="View: chọn số lượng thiết bị để view( view này bạn có thể điều khiển được phone chứ k phải là chỉ xem như ở mặc định)"
+                                                       Text="{Binding DocumentScreenContentFunctionView, Mode=OneWay}"
                                                        FontSize="10" />
                                             <TextBlock Margin="50,5"
                                                        TextWrapping="Wrap"
-                                                       Text="Push file : gửi file đến phone"
+                                                       Text="{Binding DocumentScreenContentFunctionPushFile, Mode=OneWay}"
                                                        FontSize="10" />
                                             <TextBlock Margin="50,5"
                                                        TextWrapping="Wrap"
-                                                       Text="Install apk: Cài apk cho phone"
+                                                       Text="{Binding DocumentScreenContentFunctionInstallAPK, Mode=OneWay}"
                                                        FontSize="10" />
                                             <TextBlock Margin="50,5"
                                                        TextWrapping="Wrap"
-                                                       Text="Click vào Device - STT ở khung view mặc định bản sẽ mở chế độ điều khiển đơn thiết bị."
+                                                       Text="{Binding DocumentScreenContentFunctionClickView, Mode=OneWay}"
                                                        FontSize="10"
                                                        FontWeight="Bold"/> 
                                         </StackPanel>
@@ -372,7 +385,7 @@
                                                 HorizontalAlignment="Right"
                                                 VerticalAlignment="Center"
                                                 Grid.Column="1">
-                                        <Image Source="/Resources/Icons/viewdevice.jpg"
+                                        <Image Source="{Binding DocumentImageViewDevice, Mode=OneWay}"
                                                Width="480"
                                                Height="300"
                                                Stretch="Uniform"

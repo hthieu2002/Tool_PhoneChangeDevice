@@ -39,7 +39,15 @@ namespace ToolChange.Views
 
         private void BtnLogin_Click(object sender, RoutedEventArgs e)
         {
-            login();
+            btnLogin.IsEnabled = false; // Vô hiệu hóa nút
+            try
+            {
+                login(); // Gọi hàm login async
+            }
+            finally
+            {
+                btnLogin.IsEnabled = true; // Bật lại dù login thành công hay lỗi
+            }
         }
        
         private async void login()
