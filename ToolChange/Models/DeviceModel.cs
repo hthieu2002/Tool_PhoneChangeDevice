@@ -119,6 +119,7 @@ namespace ToolChange.Models
                 }
             }
         }
+        public string DisplayLabel => $"{DeviceId} - {Name}";
 
         public event PropertyChangedEventHandler PropertyChanged;
         protected void OnPropertyChanged(string propertyName) =>

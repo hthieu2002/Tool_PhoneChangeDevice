@@ -31,6 +31,7 @@ using ToolChange.Services;
 using ToolChange.ViewModels.Constants;
 using ToolChange.Views;
 using ToolChange.Views.ControlScriptPage;
+using Xamarin.Forms;
 
 namespace ToolChange.ViewModels
 {
@@ -570,6 +571,7 @@ namespace ToolChange.ViewModels
         public ICommand DetailsDeviceIdCommand { get; private set; }
         public ICommand ViewDevicesCommand { get; private set; }
         public ICommand FakeProxyDeviceIdCommand { get; private set; }
+        public ICommand FakeProxyDeviceIdHttpCommand { get; private set; }
         public ICommand OpenUrlCommand { get; private set; }
         public ICommand FakeProxyAllCommand { get; private set; }
 
@@ -592,6 +594,7 @@ namespace ToolChange.ViewModels
             ViewDevicesCommand = new RelayCommand<Models.DeviceModel>(async (device) => await ViewDevicesIC(device));
 
             FakeProxyDeviceIdCommand = new RelayCommand<Models.DeviceModel>(FakeProxyDeviceId);
+            FakeProxyDeviceIdHttpCommand = new RelayCommand<Models.DeviceModel>(FakeProxyDeviceIdHttp);
             RandomDeviceCommand = new RelayCommand(async () => await RandomDevice());
             RandomSimCommand = new RelayCommand(async () => await RandomSim());
             ChangeDeviceCommand = new RelayCommand(async () => await ChangeDevice());
@@ -941,88 +944,189 @@ namespace ToolChange.ViewModels
 
         private void FakeProxyDeviceId(Models.DeviceModel device)
         {
-            DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "0%", DevicesLang.logTitleProxy);
-            string proxy = "";
-            var vm = new InputViewModel();
-            DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "1%", DevicesLang.logTitleProxy);
-            var dialog = new InputView
+            string proxyHost = "";
+            string proxyPort = "";
+            string proxyUsername = string.Empty;
+            string proxyPassword = string.Empty;
+
+            const string typeproxy = "socks5";
+
+            var model = new FakeProxyIDViewModel();
+            var log = new FakeProxyID(device.DeviceId, device.Name, "socks5")
             {
-                Title = DevicesLang.GetTitieProxy(device.Name, device.DeviceId),
-                Height = 150,
-                Width = 300,
-                ResizeMode = ResizeMode.NoResize,
+                Title = "Fake proxy socks5",
                 WindowStartupLocation = WindowStartupLocation.CenterScreen,
-                DataContext = vm,
+                DataContext = model,
             };
-
-            vm.CloseAction = result =>
+            model.CloseAction = result =>
             {
-                dialog.DialogResult = result;
-                dialog.Close();
+                log.DialogResult = result;
+                log.Close();
             };
-
-            if (dialog.ShowDialog() == true)
+            if (log.ShowDialog() == true)
             {
-                proxy = vm.InputText;
+                proxyHost = model.ProxyHost;
+                proxyPort = model.ProxyPort;
+                proxyUsername = model.ProxyUsername;
+                proxyPassword = model.ProxyPassword;
             }
 
-            if (!string.IsNullOrEmpty(proxy))
+            if (string.IsNullOrEmpty(proxyHost) || string.IsNullOrEmpty(proxyPort))
             {
-                // ok
-                try
+                DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "---%", "ERROR");
+                return;
+            }
+            try
+            {
+                DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "5%", DevicesLang.logTitleProxy);
+                string proxy = $"{proxyHost}:{proxyPort}:{proxyUsername}:{proxyPassword}";
+
+                var currentTask = TaskScheduler.FromCurrentSynchronizationContext();
+                Task.Run(() =>
                 {
-                    DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "5%", DevicesLang.logTitleProxy);
-                    var peelProxy = proxy.Split(':');
-                    var currentTask = TaskScheduler.FromCurrentSynchronizationContext();
-                    Task.Run(() =>
+                    var isFakeTimeZone = FakeTimeZone(proxy, device.DeviceId);
+                    if (isFakeTimeZone)
                     {
-                        var isFakeTimeZone = FakeTimeZone(proxy, device.DeviceId);
-                        if (isFakeTimeZone)
+                        DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "10%", DevicesLang.logTitleProxy);
+                        Thread.Sleep(10000);
+                        string ip = proxyHost;
+                        int port = int.Parse(proxyPort);
+                        string user = proxyUsername;
+                        string password = proxyPassword;
+
+                        ADBService.enableWifi(false, device.DeviceId);
+                        ADBService.rootAndRemount(device.DeviceId);
+                        ADBService.putSetting("http_proxy", ":0", device.DeviceId);
+                        RedSocksService.stop(device.DeviceId);
+                        if (ADBService.checkFileOnDevice("/data/local/tmp/redsocks.conf", device.DeviceId))
                         {
-                            DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "10%", DevicesLang.logTitleProxy);
-                            Thread.Sleep(10000);
-                            string ip = peelProxy[0];
-                            int port = int.Parse(peelProxy[1]);
-                            string user = (peelProxy.Length >= 3) ? peelProxy[2] : "";
-                            string password = (peelProxy.Length >= 4) ? peelProxy[3] : "";
-                            ADBService.enableWifi(false, device.DeviceId);
-                            ADBService.rootAndRemount(device.DeviceId);
-                            ADBService.putSetting("http_proxy", ":0", device.DeviceId);
+                            DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "40%", Lang.LogError);
                             RedSocksService.stop(device.DeviceId);
-                            if (ADBService.checkFileOnDevice("/data/local/tmp/redsocks.conf", device.DeviceId))
-                            {
-                                DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "40%", Lang.LogError);
-                                RedSocksService.stop(device.DeviceId);
-                            }
-
-                            RedSocksService.setUpRedSocksOnDevice("/data/local/tmp", device.DeviceId);
-                            DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "50%", DevicesLang.logTitleProxy);
-                            RedSocksService.start(ip, port, "/data/local/tmp", device.DeviceId, user, password);
-                            ADBService.openWifiSettings(device.DeviceId);
-                            while (!ADBService.isWifiConnectedV2(device.DeviceId) && !ADBService.isWifiConnected(device.DeviceId))
-                            {
-                                ADBService.openWifiSettings(device.DeviceId);
-                                Thread.Sleep(3000);
-                            }
-                            Thread.Sleep(5000);
-                            ADBService.OpenBrowserWithUrl("https://browserleaks.com/ip", device.DeviceId);
-                            DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "99%", DevicesLang.logCheckProxy);
                         }
-                        else
+
+                        RedSocksService.setUpRedSocksOnDevice("/data/local/tmp", device.DeviceId);
+                        DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "50%", DevicesLang.logTitleProxy);
+                        RedSocksService.start(ip, port, "/data/local/tmp", device.DeviceId, user, password, "socks5");
+                        ADBService.openWifiSettings(device.DeviceId);
+                        while (!ADBService.isWifiConnectedV2(device.DeviceId) && !ADBService.isWifiConnected(device.DeviceId))
                         {
-                            return;
+                            ADBService.openWifiSettings(device.DeviceId);
+                            Thread.Sleep(3000);
                         }
-                    }).ContinueWith(task =>
+                        Thread.Sleep(5000);
+                        ADBService.OpenBrowserWithUrl("https://browserleaks.com/ip", device.DeviceId);
+                        DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "99%", DevicesLang.logCheckProxy);
+                    }
+                    else
                     {
-                        DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "100%", DevicesLang.logTitleProxySuccess);
-                    }, currentTask);
-
-                }
-                catch (Exception ex)
+                        return;
+                    }
+                }).ContinueWith(task =>
                 {
-                    System.Windows.MessageBox.Show(ex.Message, Lang.LogError, MessageBoxButton.OK, MessageBoxImage.Error);
-                }
+                    DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "100%", DevicesLang.logTitleProxySuccess);
+                }, currentTask);
+
             }
+            catch (Exception ex)
+            {
+                System.Windows.MessageBox.Show(ex.Message, Lang.LogError, MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+
+
+
+        }
+        private void FakeProxyDeviceIdHttp(Models.DeviceModel device)
+        {
+            string proxyHost = "";
+            string proxyPort = "";
+            string proxyUsername = string.Empty;
+            string proxyPassword = string.Empty;
+
+            const string typeproxy = "http-connect";
+
+            var model = new FakeProxyIDViewModel();
+            var log = new FakeProxyID(device.DeviceId, device.Name, "http")
+            {
+                Title = "Fake proxy http",
+                WindowStartupLocation = WindowStartupLocation.CenterScreen,
+                DataContext = model,
+            };
+            model.CloseAction = result =>
+            {
+                log.DialogResult = result;
+                log.Close();
+            };
+            if (log.ShowDialog() == true)
+            {
+                proxyHost = model.ProxyHost;
+                proxyPort = model.ProxyPort;
+                proxyUsername = model.ProxyUsername;
+                proxyPassword = model.ProxyPassword;
+            }
+
+            if (string.IsNullOrEmpty(proxyHost) || string.IsNullOrEmpty(proxyPort))
+            {
+                DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "---%", "ERROR");
+                return;
+            }
+            try
+            {
+                DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "5%", DevicesLang.logTitleProxy);
+                string proxy = $"{proxyHost}:{proxyPort}:{proxyUsername}:{proxyPassword}";
+
+                var currentTask = TaskScheduler.FromCurrentSynchronizationContext();
+                Task.Run(() =>
+                {
+                    var isFakeTimeZone = FakeTimeZoneHttp(proxy, device.DeviceId);
+                    if (isFakeTimeZone)
+                    {
+                        DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "10%", DevicesLang.logTitleProxy);
+                        Thread.Sleep(10000);
+                        string ip = proxyHost;
+                        int port = int.Parse(proxyPort);
+                        string user = proxyUsername;
+                        string password = proxyPassword;
+
+                        ADBService.enableWifi(false, device.DeviceId);
+                        ADBService.rootAndRemount(device.DeviceId);
+                        ADBService.putSetting("http_proxy", ":0", device.DeviceId);
+                        RedSocksService.stop(device.DeviceId);
+                        if (ADBService.checkFileOnDevice("/data/local/tmp/redsocks.conf", device.DeviceId))
+                        {
+                            DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "40%", Lang.LogError);
+                            RedSocksService.stop(device.DeviceId);
+                        }
+
+                        RedSocksService.setUpRedSocksOnDevice("/data/local/tmp", device.DeviceId);
+                        DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "50%", DevicesLang.logTitleProxy);
+                        RedSocksService.start(ip, port, "/data/local/tmp", device.DeviceId, user, password, typeproxy);
+                        ADBService.openWifiSettings(device.DeviceId);
+                        while (!ADBService.isWifiConnectedV2(device.DeviceId) && !ADBService.isWifiConnected(device.DeviceId))
+                        {
+                            ADBService.openWifiSettings(device.DeviceId);
+                            Thread.Sleep(3000);
+                        }
+                        Thread.Sleep(5000);
+                        ADBService.OpenBrowserWithUrl("https://browserleaks.com/ip", device.DeviceId);
+                        DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "99%", DevicesLang.logCheckProxy);
+                    }
+                    else
+                    {
+                        return;
+                    }
+                }).ContinueWith(task =>
+                {
+                    DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "100%", DevicesLang.logTitleProxySuccess);
+                }, currentTask);
+
+            }
+            catch (Exception ex)
+            {
+                System.Windows.MessageBox.Show(ex.Message, Lang.LogError, MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+
+
+
         }
         private bool CanDeleteDevice(object parameter)
         {
@@ -2110,7 +2214,7 @@ namespace ToolChange.ViewModels
                 }
 
                 var vm = new InputViewModel();
-                var dialog = new InputView
+                var dialog = new Views.ControlScriptPage.InputView
                 {
                     Title = DevicesLang.TitleUrl,
                     Height = 150,
@@ -2153,6 +2257,14 @@ namespace ToolChange.ViewModels
         {
             try
             {
+                string proxyHost = "";
+                string proxyPort = "";
+                string proxyUsername = "";
+                string proxyPassword = "";
+                bool deviceCheck = false;
+                string typeProxy = "";
+                ObservableCollection<Models.DeviceModel> devices = new ObservableCollection<Models.DeviceModel>();
+
                 var selectedDevices = Devices.Where(device => device.IsChecked).ToList();
                 int selectedCount = selectedDevices.Count;
 
@@ -2162,8 +2274,34 @@ namespace ToolChange.ViewModels
                     return;
                 }
 
+                const string typeproxy = "http-connect";
+
+                var model = new FakeProxyViewModel(selectedDevices);
+                var log = new FakeProxy(selectedDevices)
+                {
+                    Title = "Fake proxy",
+                    WindowStartupLocation = WindowStartupLocation.CenterScreen,
+                    DataContext = model,
+                };
+                model.CloseAction = result =>
+                {
+                    log.DialogResult = result;
+                    log.Close();
+                };
+                if (log.ShowDialog() == true)
+                {
+                    proxyHost = model.ProxyHost;
+                    proxyPort = model.ProxyPort;
+                    proxyUsername = model.ProxyUsername;
+                    proxyPassword = model.ProxyPassword;
+                    deviceCheck = model.DeviceALL;
+                    typeProxy = model.TypeProxy;
+                    devices = model.SelectedDevices;
+                }
+
                 var tasks = new List<Task>();
-                foreach (var device in selectedDevices)
+               
+                foreach (var device in (deviceCheck ? selectedDevices.Cast<Models.DeviceModel>(): devices))
                 {
                     if (device.Status == "Offline")
                     {
@@ -2173,7 +2311,7 @@ namespace ToolChange.ViewModels
                     if (_processingDeviceIds.Contains(device.DeviceId))
                         continue;
 
-                    if (string.IsNullOrEmpty(FakeProxyData))
+                    if (string.IsNullOrEmpty(proxyHost) || string.IsNullOrEmpty(proxyPort))
                     {
                         DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "0%", "error proxy");
                         return;
@@ -2181,7 +2319,7 @@ namespace ToolChange.ViewModels
 
                     _processingDeviceIds.Add(device.DeviceId);
 
-                    tasks.Add(ProcessFakeProxyAllAsync(device));
+                    tasks.Add(ProcessFakeProxyAllAsync(device, proxyHost, proxyPort, proxyUsername, proxyPassword, typeProxy));
 
                 }
                 await Task.WhenAll(tasks);
@@ -2195,27 +2333,43 @@ namespace ToolChange.ViewModels
 
             }
         }
-        private async Task ProcessFakeProxyAllAsync(Models.DeviceModel device)
+        private async Task ProcessFakeProxyAllAsync(Models.DeviceModel device, string proxyHost, string proxyPort, string proxyUsername, string proxyPassword, string typeProxy)
         {
-            if (!string.IsNullOrEmpty(FakeProxyData))
+            if (!string.IsNullOrEmpty(proxyHost) && !string.IsNullOrEmpty(proxyPort))
             {
                 // ok
                 try
                 {
                     DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "5%", DevicesLang.logTitleProxy);
-                    var peelProxy = FakeProxyData.Split(':');
+                    // var peelProxy = FakeProxyData.Split(':');
+                    string proxy = $"{proxyHost}:{proxyPort}:{proxyUsername}:{proxyPassword}";
+                    proxy = proxy.Replace("\n", "")
+                                 .Replace("\r", "")
+                                 .Replace("\t", "");
+
                     var currentTask = TaskScheduler.FromCurrentSynchronizationContext();
                     await Task.Run(async () =>
                     {
-                        var isFakeTimeZone = FakeTimeZone(FakeProxyData, device.DeviceId);
+                        bool isFakeTimeZone;
+                        string PROXYTYPE = "";
+                        if (typeProxy == "HTTP")
+                        {
+                            isFakeTimeZone = FakeTimeZoneHttp(proxy, device.DeviceId);
+                            PROXYTYPE = "http-connect";
+                        }
+                        else
+                        {
+                            isFakeTimeZone = FakeTimeZone(proxy, device.DeviceId);
+                            PROXYTYPE = "socks5";
+                        }
                         if (isFakeTimeZone)
                         {
                             DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "10%", DevicesLang.logTitleProxy);
                             Thread.Sleep(10000);
-                            string ip = peelProxy[0];
-                            int port = int.Parse(peelProxy[1]);
-                            string user = (peelProxy.Length >= 3) ? peelProxy[2] : "";
-                            string password = (peelProxy.Length >= 4) ? peelProxy[3] : "";
+                            string ip = proxyHost;
+                            int port = int.Parse(proxyPort);
+                            string user = proxyUsername;
+                            string password = proxyPassword;
                             ADBService.enableWifi(false, device.DeviceId);
                             ADBService.rootAndRemount(device.DeviceId);
                             ADBService.putSetting("http_proxy", ":0", device.DeviceId);
@@ -2228,7 +2382,7 @@ namespace ToolChange.ViewModels
 
                             RedSocksService.setUpRedSocksOnDevice("/data/local/tmp", device.DeviceId);
                             DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "50%", DevicesLang.logTitleProxy);
-                            RedSocksService.start(ip, port, "/data/local/tmp", device.DeviceId, user, password);
+                            RedSocksService.start(ip, port, "/data/local/tmp", device.DeviceId, user, password, PROXYTYPE);
                             DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "60%", "In progress connect wifi..");
                             await Task.Delay(2000);
                             ADBService.openWifiSettings(device.DeviceId);
@@ -2355,13 +2509,14 @@ namespace ToolChange.ViewModels
                 var cognito = new CognitoService(poolId, clientId);
                 var username = AppConfigService.ReadSetting("user");
                 var password = AppConfigService.ReadSetting("password");
-                var endpoint = AppConfigService.ReadSetting("endpoint"); 
+                var endpoint = AppConfigService.ReadSetting("endpoint");
                 refreshToken = cognito.getIdToken(username, password);
 
                 if (!string.IsNullOrEmpty(refreshToken))
                 {
                     miChangerGraphQLClient = new MiChangerGraphQLClient(endpoint, ApiAuthenticationType.TOKEN, refreshToken);
-                };
+                }
+                ;
             });
         }
         private bool IsTokenExpired(string token)
@@ -2388,6 +2543,53 @@ namespace ToolChange.ViewModels
             string result = ADBService.ExecuteADBCommandDetail(deviceID, "shell settings get global mi_mac_address");
             return result.Trim();
         }
+        private bool FakeTimeZoneHttp(string proxy, string deviceId)
+        {
+            try
+            {
+                ADBService.enableWifi(false, deviceId);
+                var url = "http://ip-api.com/json";
+                var proxyParts = proxy.Split(':');
+                ADBService.rootAndRemount(deviceId);
+
+                string commandline;
+                string str;
+
+                if (proxyParts.Length == 4)
+                {
+                    // HTTP proxy có username/password
+                    commandline = $"curl --proxy http://{proxyParts[2]}:{proxyParts[3]}@{proxyParts[0]}:{proxyParts[1]} \"{url}\"";
+                }
+                else if (proxyParts.Length == 2)
+                {
+                    // HTTP proxy không cần username/password
+                    commandline = $"curl --proxy http://{proxyParts[0]}:{proxyParts[1]} \"{url}\"";
+                }
+                else
+                {
+                    // Proxy format không hợp lệ
+                    return false;
+                }
+
+                str = CmdProcess.ExecuteCommand(string.Format("/C {0}", commandline));
+
+                if (!string.IsNullOrEmpty(str))
+                {
+                    JObject jsonObject = JObject.Parse(str);
+                    ADBService.FakeTimezone(jsonObject["timezone"]?.ToString(), deviceId);
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+
         private bool FakeTimeZone(string proxy, string deviceId)
         {
             try

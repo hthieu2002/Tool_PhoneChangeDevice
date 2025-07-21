@@ -67,5 +67,54 @@
             </StackPanel>
         </Grid>
         <!---->
+        <!--
+        <Grid HorizontalAlignment="Center"
+              Margin="0,15,0,0"
+              Grid.Row="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="400" />
+            </Grid.ColumnDefinitions>
+            <Label Content="Chọn theme"
+                   Grid.Column="0"
+                   Margin="10,0,10,0" />
+            <StackPanel Orientation="Horizontal"
+                        Margin="10,0,10,0"
+                        Grid.Column="1">
+                <ComboBox ItemsSource="{Binding Languages}"
+                          Width="350"
+                          materialDesign:HintAssist.Hint="Chọn theme"
+                          SelectedItem="{Binding SelectedLanguage, Mode=TwoWay}">
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate>
+                            <StackPanel Orientation="Horizontal">
+                                <Image Width="16"
+                                       Height="16"
+                                       Margin="0,0,5,0"
+                                       VerticalAlignment="Center">
+                                    <Image.Style>
+                                        <Style TargetType="Image">
+                                            <Setter Property="Source"
+                                                    Value="/Resources/Icons/en.png" />
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding Value}"
+                                                             Value="vi">
+                                                    <Setter Property="Source"
+                                                            Value="/Resources/Icons/vn.png" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Image.Style>
+                                </Image>
+                                <TextBlock Text="{Binding DisplayName}"
+                                           VerticalAlignment="Center" />
+                            </StackPanel>
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                </ComboBox>
+
+            </StackPanel>
+        </Grid>
+        -->
     </Grid>
 </Window>

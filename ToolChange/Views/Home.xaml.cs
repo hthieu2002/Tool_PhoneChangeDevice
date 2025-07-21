@@ -1,6 +1,8 @@
-﻿using System;
+﻿using MaterialDesignThemes.Wpf;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -16,6 +18,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using ToolChange.ViewModels;
+using ToolChange.Views.ControlScriptPage;
 
 namespace ToolChange.Views
 {
@@ -178,13 +181,25 @@ namespace ToolChange.Views
             }
             HomeFrame.Content = viewCache[viewKey];
         }
-
-        private void MainWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        private void ClosingEventHandler(object sender, DialogClosingEventArgs eventArgs)
         {
-            DeviceViewModel.StopLoop();
-            AutomationViewModel.StopLoop();
-            CloseAllScrcpyWindows();
-            System.Windows.Application.Current.Shutdown();
+            Debug.WriteLine($"Dialog is closing. Result: {eventArgs.Parameter}");
+        }
+
+        private async void MainWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            e.Cancel = true; // Chặn tắt app tạm thời
+
+            var result = await DialogHost.Show(new ConfirmDialog(), "RootDialog", ClosingEventHandler);
+
+            if (result?.ToString().ToLower() == "true")
+            {
+                DeviceViewModel.StopLoop();
+                AutomationViewModel.StopLoop();
+                CloseAllScrcpyWindows();
+                System.Windows.Application.Current.Shutdown();
+                
+            }
         }
     }
 }

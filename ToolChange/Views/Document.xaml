@@ -45,7 +45,7 @@
             </Grid>
         </Border>
         <Label Content="{Binding DocumentTitle}"
-               FontSize="16"
+               FontSize="18"
                FontFamily="Segoe UI"
                FontWeight="Bold">
         </Label>
@@ -57,7 +57,7 @@
                         <!-- Tiêu đề -->
                         <TextBlock Text="{Binding DocumentTitleFunctionDevice , Mode=OneWay}"
                                    FontWeight="Bold"
-                                   FontSize="15"
+                                   FontSize="17"
                                    Foreground="#007ACC"
                                    Cursor="Hand"
                                    MouseLeftButtonDown="TogglePanel_Click" />
@@ -72,96 +72,96 @@
                                 <TextBlock Margin="10,5">
                             <Run Text="{Binding DocumentFunctionMainDevice , Mode=OneWay}"
                                     FontWeight="Bold"
-                                    FontSize="14" />
+                                    FontSize="15" />
                             <LineBreak />
                             <Run Text="        " />
                             <Run Text="{Binding DocumentFunctionRandomDevice, Mode=OneWay}"
-                                    FontSize="13" />
+                                    FontSize="14" />
                             <LineBreak />
                             <Run Text="        " />
                             <Run Text="{Binding DocumentFunctionChangeDevice, Mode=OneWay}"
-                                    FontSize="13" />
+                                    FontSize="14" />
                             <LineBreak />
                                     <Run Text="        " />
                             <Run Text="{Binding DocumentFunctionChangeSim, Mode=OneWay}"
-                                    FontSize="13" />
+                                    FontSize="14" />
                             <LineBreak />
                                     <Run Text="        " />
                             <Run Text="{Binding DocumentFunctionFakeProxy, Mode=OneWay}"
-                                    FontSize="13" />
+                                    FontSize="14" />
                             <LineBreak />
                                     <Run Text="        " />
                             <Run Text="{Binding DocumentFunctionFakeLocation, Mode=OneWay}"
-                                    FontSize="13" />
+                                    FontSize="14" />
                                 </TextBlock>
                                 <TextBlock Margin="10,5"
                                            TextWrapping="Wrap">
                             <Run Text="{Binding DocumentFunctionTitleRandomDevice, Mode=OneWay}"
-                                    FontSize="13" />
+                                    FontSize="14" />
                             <Run Text="{Binding DocumentFunction, Mode=OneWay}"
-                                    FontSize="12" />
+                                    FontSize="14" />
                                  <Run Text="{Binding DocumentFunctionRandomDevice, Mode=OneWay}"
                                       FontWeight="Bold"
-                                      FontSize="12" />
+                                      FontSize="14" />
                                  <Run Text="{Binding DocumentContentFunctionRandomDevice, Mode=OneWay}"
-                                      FontSize="12" />
+                                      FontSize="14" />
                                 </TextBlock>
                                 <TextBlock Margin="10,5"
                                            TextWrapping="Wrap">
                                     <Run Text="{Binding DocumentFunctionTitleChangeDevice, Mode=OneWay}"
-                                         FontSize="13" />
+                                         FontSize="14" />
                                     <Run Text="{Binding DocumentFunction, Mode=OneWay}"
-                                         FontSize="12" />
+                                         FontSize="14" />
                                 <Run Text="{Binding DocumentFunctionChangeDevice, Mode=OneWay}"
-                                     FontSize="12"
+                                     FontSize="14"
                                      FontWeight="Bold" />
                                 <Run Text="{Binding DocumentContentFunctionChangeDevice, Mode=OneWay}"
-                                     FontSize="12" />
+                                     FontSize="14" />
                                 </TextBlock>
                                 <TextBlock Margin="10,5"
                                            TextWrapping="Wrap">
                                 <Run Text="{Binding DocumentFunctionTitleChangeSim, Mode=OneWay}"
-                                     FontSize="13" />
+                                     FontSize="14" />
                                 <Run Text="{Binding DocumentFunction, Mode=OneWay}"
-                                     FontSize="12" />
+                                     FontSize="14" />
                                 <Run Text="{Binding DocumentFunctionChangeSim, Mode=OneWay}"
                                      FontWeight="Bold"
-                                     FontSize="12" />
+                                     FontSize="14" />
                                 <Run Text="{Binding DocumentContentFunctionChangeSim,Mode=OneWay}"
-                                     FontSize="12" />
+                                     FontSize="14" />
 
                                 </TextBlock>
                                 <TextBlock Margin="10,5"
                                            TextWrapping="Wrap">
                                 <Run Text="{Binding DocumentFunctionTitleFakeProxy, Mode=OneWay}"
-                                     FontSize="13" />
+                                     FontSize="14" />
                                 <Run Text="{Binding DocumentFunction, Mode=OneWay}"
-                                     FontSize="12" />
+                                     FontSize="14" />
                                 <Run Text="{Binding DocumentFunctionFakeProxy, Mode=OneWay}"
-                                     FontSize="12"
+                                     FontSize="14"
                                      FontWeight="Bold" />
                                 <Run Text="{Binding DocumentContentFunctionFakeProxy1, Mode=OneWay}"
-                                     FontSize="12" />
+                                     FontSize="14" />
                                 <Run Text="ip:port:username:password "
                                      FontWeight="Bold"
-                                     FontSize="13" />
+                                     FontSize="14" />
                                 <Run Text="{Binding DocumentContentFunctionFakeProxy2, Mode=OneWay}"
-                                     FontSize="12" />
+                                     FontSize="14" />
                                 <Run Text="ip:port::"
                                      FontWeight="Bold"
-                                     FontSize="13" />
+                                     FontSize="14" />
                                 </TextBlock>
                                 <TextBlock Margin="10,5"
                                            TextWrapping="Wrap">
                                 <Run Text="{Binding DocumentFunctionTitleFakeLocation,Mode=OneWay}"
-                                     FontSize="13" />
+                                     FontSize="14" />
                                 <Run Text="{Binding DocumentFunction, Mode=OneWay}"
-                                     FontSize="12" />
+                                     FontSize="14" />
                                 <Run Text="{Binding DocumentFunctionFakeLocation, Mode=OneWay}"
-                                     FontSize="12"
+                                     FontSize="14"
                                      FontWeight="Bold" />
                                 <Run Text="{Binding DocumentContentFunctionFakeLocation, Mode=OneWay}"
-                                     FontSize="12" />
+                                     FontSize="14" />
 
                                 </TextBlock>
                             </StackPanel>
@@ -171,7 +171,7 @@
                     <StackPanel Margin="10,5">
                         <TextBlock Text="{Binding DocumentTitleFunctionAutomation, Mode=OneWay}"
                                    FontWeight="Bold"
-                                   FontSize="15"
+                                   FontSize="17"
                                    Foreground="#007ACC"
                                    Cursor="Hand"
                                    MouseLeftButtonDown="TogglePanelDocument1_Click" />
@@ -195,105 +195,105 @@
                                             <TextBlock Margin="10,5"
                                                        TextWrapping="Wrap"
                                                        Text="{Binding DocumentAutomationTitleUIMain, Mode=OneWay}"
-                                                       FontSize="14"
+                                                       FontSize="15"
                                                        FontWeight="Bold" />
                                             <TextBlock Margin="20,5,0,0"
                                                        TextWrapping="Wrap"
                                                        Text="{Binding DocumentAutomationTitleFunctionMain, Mode=OneWay}"
-                                                       FontSize="13"
+                                                       FontSize="14"
                                                        />
                                             <TextBlock Margin="40,2,0,0"
                                                        TextWrapping="Wrap"
                                                        Text="{Binding DocumentAutomationTitleFunctionLoadFile,Mode=OneWay}"
-                                                       FontSize="12" />
+                                                       FontSize="14" />
                                             <TextBlock Margin="40,2,0,0"
                                                        TextWrapping="Wrap"
                                                        Text="{Binding DocumentAutomationTitleFunctionRunScript, Mode=OneWay}"
-                                                       FontSize="12" />
+                                                       FontSize="14" />
                                             <TextBlock Margin="40,2,0,0"
                                                        TextWrapping="Wrap"
                                                        Text="{Binding DocumentAutomationTitleFunctionCodeScript, Mode=OneWay}"
-                                                       FontSize="12" />
+                                                       FontSize="14" />
                                             <TextBlock Margin="40,2,0,0"
                                                        TextWrapping="Wrap"
                                                        Text="{Binding DocumentAutomationTitleFunctionLoadDevice, Mode=OneWay}"
-                                                       FontSize="12" />
+                                                       FontSize="14" />
                                             <TextBlock Margin="40,2,0,0"
                                                        TextWrapping="Wrap"
                                                        Text="{Binding DocumentAutomationTitleFunctionBackup, Mode=OneWay}"
-                                                       FontSize="12" />
+                                                       FontSize="14" />
                                             <TextBlock Margin="40,2,0,0"
                                                        TextWrapping="Wrap"
                                                        Text="{Binding DocumentAutomationTitleFunctionScreenshot, Mode=OneWay}"
-                                                       FontSize="12" />
+                                                       FontSize="14" />
                                             <TextBlock Margin="40,2,0,0"
                                                        TextWrapping="Wrap"
                                                        Text="{Binding DocumentAutomationTitleFunctionRestore, Mode=OneWay}"
-                                                       FontSize="12" />
+                                                       FontSize="14" />
                                             <TextBlock Margin="20,2,0,0"
                                                        TextWrapping="Wrap"
                                                        Text="{Binding DocumentAutomationTitleFunctionDescription, Mode=OneWay}"
-                                                       FontSize="13" />
+                                                       FontSize="14" />
                                             <TextBlock Margin="30,5,0,0"
                                                        TextWrapping="Wrap">
                                                 <Run Text="{Binding DocumentFunction, Mode=OneWay}"
-                                                     FontSize="12"/>
+                                                     FontSize="14"/>
                                                 <Run Text="{Binding DocumentAutomationTitleFunctionLoadFile, Mode=OneWay}"
-                                                     FontSize="12"
+                                                     FontSize="14"
                                                      FontWeight="Bold"
                                                      />
                                                 <Run Text="{Binding DocumentAutomationTitleFunctionLoadFileContent, Mode=OneWay}" 
-                                                     FontSize="12"/>
+                                                     FontSize="14"/>
                                                
                                                 <Run Text="./Resources/Script/" FontSize="13" FontWeight="Bold"/>
                                             </TextBlock>
                                             <TextBlock Margin="30,5,0,0"
                                                        TextWrapping="Wrap">
                                                 <Run Text="{Binding DocumentFunction, Mode=OneWay}"
-                                                     FontSize="12"/>
+                                                     FontSize="14"/>
                                                 <Run Text="{Binding DocumentAutomationTitleFunctionRunScript, Mode=OneWay}"
                                                      FontWeight="Bold"
-                                                     FontSize="12" />
-                                                <Run Text="{Binding DocumentAutomationTitleFunctionRunScriptContent, Mode=OneWay}" FontSize="10"/>
+                                                     FontSize="14" />
+                                                <Run Text="{Binding DocumentAutomationTitleFunctionRunScriptContent, Mode=OneWay}" FontSize="14"/>
                                             </TextBlock>
                                             <TextBlock Margin="30,5,0,0"
                                                        TextWrapping="Wrap">
                                                 <Run Text="{Binding DocumentFunction, Mode=OneWay}"
-                                                     FontSize="12"/>
+                                                     FontSize="14"/>
                                                 <Run Text="{Binding DocumentAutomationTitleFunctionLoadDevice, Mode=OneWay}"
                                                      FontWeight="Bold"
-                                                     FontSize="12" />
+                                                     FontSize="14" />
                                                 <Run Text="{Binding DocumentAutomationTitleFunctionLoadDeviceContent, Mode=OneWay}"
-                                                     FontSize="12"/>
+                                                     FontSize="14"/>
                                             </TextBlock>
                                             <TextBlock Margin="30,5,0,0" TextWrapping="Wrap">
-                                                <Run Text="{Binding DocumentFunction, Mode=OneWay}" FontSize="12"/>
-                                                <Run Text="{Binding DocumentAutomationTitleFunctionBackup, Mode=OneWay}" FontSize="12" FontWeight="Bold"/>
+                                                <Run Text="{Binding DocumentFunction, Mode=OneWay}" FontSize="14"/>
+                                                <Run Text="{Binding DocumentAutomationTitleFunctionBackup, Mode=OneWay}" FontSize="14" FontWeight="Bold"/>
                                                 <Run Text="{Binding DocumentAutomationTitleFunctionBackupContent, Mode=OneWay}"
-                                                     FontSize="12"/>
+                                                     FontSize="14"/>
                                             </TextBlock>
                                             <TextBlock Margin="30,5,0,0" TextWrapping="Wrap">
-                                                <Run FontSize="12"
+                                                <Run FontSize="14"
                                                      Text="{Binding DocumentFunction, Mode=OneWay}"/>
-                                                <Run FontSize="12"
+                                                <Run FontSize="14"
                                                      Text="{Binding DocumentAutomationTitleFunctionScreenshot, Mode=OneWay}" FontWeight="Bold"/>
-                                                <Run FontSize="12"
+                                                <Run FontSize="14"
                                                      Text="{Binding DocumentAutomationTitleFunctionScreenshotContent,Mode=OneWay}"/>
                                             </TextBlock>
                                             <TextBlock Margin="30,5,0,0" TextWrapping="Wrap">
-                                                <Run FontSize="12"
+                                                <Run FontSize="14"
                                                      Text="{Binding DocumentFunction, Mode=OneWay}"/>
-                                                <Run FontSize="12"
+                                                <Run FontSize="14"
                                                      Text="{Binding DocumentAutomationTitleFunctionRestore, Mode=OneWay}" FontWeight="Bold"/>
-                                                <Run FontSize="12"
+                                                <Run FontSize="14"
                                                      Text="{Binding DocumentAutomationTitleFunctionRestoreContent, Mode=OneWay}"/>
                                             </TextBlock>
                                             <TextBlock Margin="30,10,0,0" TextWrapping="Wrap">
-                                                <Run FontSize="12"
+                                                <Run FontSize="14"
                                                      Text="{Binding DocumentFunction, Mode=OneWay}"/>
-                                                <Run FontSize="12"
+                                                <Run FontSize="14"
                                                      Text="{Binding DocumentAutomationTitleFunctionCodeScript, Mode=OneWay}" FontWeight="Bold"/>
-                                                <Run FontSize="12"
+                                                <Run FontSize="14"
                                                      Text="{Binding DocumentAutomationTitleFunctionCodeScriptContent, Mode=OneWay}"/>
                                                 <Hyperlink 
                                                            Click="Hyperlink_Click">
@@ -329,7 +329,7 @@
                     <StackPanel Margin="10,5">
                         <TextBlock Text="{Binding DocumentTitleFunctionScreen, Mode=OneWay}"
                                    FontWeight="Bold"
-                                   FontSize="15"
+                                   FontSize="17"
                                    Foreground="#007ACC"
                                    Cursor="Hand"
                                    MouseLeftButtonDown="TogglePanelDocument2_Click" />
@@ -352,7 +352,7 @@
                                             <TextBlock Margin="10,5"
                                                        TextWrapping="Wrap"
                                                        Text="{Binding DocumentScreenTitleUIMain, Mode=OneWay}"
-                                                       FontSize="15"
+                                                       FontSize="16"
                                                        FontWeight="Bold" />
                                             <TextBlock Margin="10,5"
                                                        TextWrapping="Wrap"
@@ -361,23 +361,23 @@
                                             <TextBlock Margin="40,5"
                                                        TextWrapping="Wrap"
                                                        Text="{Binding DocumentScreenTitleFunctionMain, Mode=OneWay}"
-                                                       FontSize="12" />
+                                                       FontSize="14" />
                                             <TextBlock Margin="50,5"
                                                        TextWrapping="Wrap"
                                                        Text="{Binding DocumentScreenContentFunctionView, Mode=OneWay}"
-                                                       FontSize="12" />
+                                                       FontSize="14" />
                                             <TextBlock Margin="50,5"
                                                        TextWrapping="Wrap"
                                                        Text="{Binding DocumentScreenContentFunctionPushFile, Mode=OneWay}"
-                                                       FontSize="12" />
+                                                       FontSize="14" />
                                             <TextBlock Margin="50,5"
                                                        TextWrapping="Wrap"
                                                        Text="{Binding DocumentScreenContentFunctionInstallAPK, Mode=OneWay}"
-                                                       FontSize="12" />
+                                                       FontSize="14" />
                                             <TextBlock Margin="50,5"
                                                        TextWrapping="Wrap"
                                                        Text="{Binding DocumentScreenContentFunctionClickView, Mode=OneWay}"
-                                                       FontSize="12"
+                                                       FontSize="14"
                                                        FontWeight="Bold"/> 
                                         </StackPanel>
                                     </Grid>

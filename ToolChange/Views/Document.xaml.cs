@@ -160,7 +160,7 @@ namespace ToolChange.Views
         }
         private void TogglePanel_Click(object sender, MouseButtonEventArgs e)
         {
-            ToggleAnimatedPanel(AnimatedPanel, ref _isExpanded, 300);
+            ToggleAnimatedPanel(AnimatedPanel, ref _isExpanded, 350);
         }
         private void TogglePanelDocument1_Click(object sender, MouseButtonEventArgs e)
         {

@@ -81,6 +81,9 @@
                                   Command="{Binding DeviceListVM.ViewDevicesCommand}"
                                   CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=ContextMenu}, Path=PlacementTarget.SelectedItem}" />
                         <MenuItem Header="{Binding LanguageVM.ControlDeviceMenuDropBox4}"
+                                  Command="{Binding DeviceListVM.FakeProxyDeviceIdHttpCommand}"
+                                  CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=ContextMenu}, Path=PlacementTarget.SelectedItem}" />
+                        <MenuItem Header="{Binding LanguageVM.ControlDeviceMenuDropBox4_1}"
                                   Command="{Binding DeviceListVM.FakeProxyDeviceIdCommand}"
                                   CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=ContextMenu}, Path=PlacementTarget.SelectedItem}" />
                         <MenuItem Header="{Binding LanguageVM.ControlDeviceMenuDropBox5}"
@@ -599,26 +602,12 @@
                                     Padding="0"
                                     Command="{Binding DeviceListVM.FakeLocationCommand}"
                                     CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=ContextMenu}, Path=PlacementTarget.SelectedItem}" />
-                            <Grid  Width="240"
-                                   Margin="5,5,0,0">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*" />
-                                    <ColumnDefinition Width="*" />
-                                </Grid.ColumnDefinitions>
-                                <TextBox Grid.Column="0"
-                                         Text="{Binding DeviceListVM.FakeProxyData}"
-                                         Padding="5,0,0,5"
-                                         Style="{StaticResource MaterialDesignTextBoxBase}"
-                                         VerticalAlignment="Center"
-                                         HorizontalAlignment="Stretch" />
-                                <Button Content="Fake proxy"
-                                        Command="{Binding DeviceListVM.FakeProxyAllCommand}"
-                                        CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=ContextMenu}, Path=PlacementTarget.SelectedItem}"
-                                        Width="120"
-                                        Margin="5,5,0,0"
-                                        Padding="0"
-                                        Grid.Column="1" />
-                            </Grid>
+                            <Button Content="Fake proxy"
+                                    Command="{Binding DeviceListVM.FakeProxyAllCommand}"
+                                    CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=ContextMenu}, Path=PlacementTarget.SelectedItem}"
+                                    Width="120"
+                                    Margin="5,5,0,0"
+                                    Padding="0" />
 
                         </WrapPanel>
                     </ScrollViewer>
