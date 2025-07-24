@@ -556,6 +556,23 @@ namespace ToolChange.ViewModels
                 }
             }
         }
+
+        private bool _clearData = Properties.Settings.Default.ClearData;
+        public bool IsClearData
+        {
+            get => _clearData;
+            set
+            {
+                if (_clearData != value)
+                {
+                    _clearData = value;
+                    Properties.Settings.Default.ClearData = value;
+                    Properties.Settings.Default.Save();
+
+                    OnPropertyChanged(nameof(IsClearData));
+                }
+            }
+        }
         public ObservableCollection<Models.DeviceModel> Devices { get; private set; } = new ObservableCollection<Models.DeviceModel>();
         public ICommand DeleteDeviceCommand { get; private set; }
         public ICommand CopyDeviceIdCommand { get; private set; }
@@ -1008,10 +1025,16 @@ namespace ToolChange.ViewModels
                         DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "50%", DevicesLang.logTitleProxy);
                         RedSocksService.start(ip, port, "/data/local/tmp", device.DeviceId, user, password, "socks5");
                         ADBService.openWifiSettings(device.DeviceId);
-                        while (!ADBService.isWifiConnectedV2(device.DeviceId) && !ADBService.isWifiConnected(device.DeviceId))
+                        int step = 0;
+                        while ((!ADBService.isWifiConnectedV2(device.DeviceId) && !ADBService.isWifiConnected(device.DeviceId)) || step == 40)
                         {
                             ADBService.openWifiSettings(device.DeviceId);
                             Thread.Sleep(3000);
+                        }
+                        if (step >= 39)
+                        {
+                            DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "99%", "Fake proxy success, check error - wifi error");
+                            return;
                         }
                         Thread.Sleep(5000);
                         ADBService.OpenBrowserWithUrl("https://browserleaks.com/ip", device.DeviceId);
@@ -1101,10 +1124,17 @@ namespace ToolChange.ViewModels
                         DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "50%", DevicesLang.logTitleProxy);
                         RedSocksService.start(ip, port, "/data/local/tmp", device.DeviceId, user, password, typeproxy);
                         ADBService.openWifiSettings(device.DeviceId);
-                        while (!ADBService.isWifiConnectedV2(device.DeviceId) && !ADBService.isWifiConnected(device.DeviceId))
+                        int step = 0;
+                        while ((!ADBService.isWifiConnectedV2(device.DeviceId) && !ADBService.isWifiConnected(device.DeviceId)) || step == 40)
                         {
                             ADBService.openWifiSettings(device.DeviceId);
                             Thread.Sleep(3000);
+                            step++;
+                        }
+                        if (step >= 39)
+                        {
+                            DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "99%", "Fake proxy success, check error - wifi error");
+                            return;
                         }
                         Thread.Sleep(5000);
                         ADBService.OpenBrowserWithUrl("https://browserleaks.com/ip", device.DeviceId);
@@ -1647,7 +1677,18 @@ namespace ToolChange.ViewModels
                         {
                             continue;
                         }
-
+                        if (Properties.Settings.Default.ClearData)
+                        {
+                            // true clear data
+                            DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "0%", "Wipe data ON");
+                            DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "0%", "Delete app");
+                            ADBService.UninstallAllUserApps(device.DeviceId);
+                            Task.Delay(1000).Wait();
+                            DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "0%", "Delete account");
+                            ADBService.RemoveAccountsDb(device.DeviceId);
+                            Task.Delay(1000).Wait();
+                        }
+                        DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "0%", "Wipe data OFF");
                         _processingDeviceIds.Add(device.DeviceId);
                         if (messageBoxPushFile == MessageBoxResult.Yes && selectedFilePath != null)
                         {
@@ -1795,6 +1836,17 @@ namespace ToolChange.ViewModels
                         {
                             continue;
                         }
+                        if (Properties.Settings.Default.ClearData)
+                        {
+                            // true clear data
+                            DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "0%", "Wipe data ON");
+                            DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "0%", "Delete app");
+                            ADBService.UninstallAllUserApps(device.DeviceId);
+                            Task.Delay(1000).Wait();
+                            DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "0%", "Delete account");
+                            ADBService.RemoveAccountsDb(device.DeviceId);
+                            Task.Delay(1000).Wait();
+                        }
                         _processingDeviceIds.Add(device.DeviceId);
                         if (messageBoxPushFile == MessageBoxResult.Yes && selectedFilePath != null)
                         {
@@ -1873,36 +1925,19 @@ namespace ToolChange.ViewModels
                 if (saveResult)
                 {
                     DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "75%", "Change device Success");
-                    await System.Windows.Application.Current.Dispatcher.InvokeAsync(() =>
-                    {
 
-                    });
-                    //       UpdateDeviceStatus(device.DeviceId, "85%", "Change device ....");
+
                     DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "85%", "Wipe device");
                     var packagesWipeAfterChanger = loadWipeListConfig();
                     wipePackagesChanger(packagesWipeAfterChanger, device.DeviceId);
-
                     ADBService.cleanGMSPackagesAndAccounts(device.DeviceId);
-                    await System.Windows.Application.Current.Dispatcher.InvokeAsync(() =>
-                    {
 
-                    });
-                    if (device.DeviceId.Length >= 12)
-                    {
-                        DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "95%", "Reboot!");
-                        _processingDeviceIds.Remove(device.DeviceId);
-                        ADBService.restartDevice(device.DeviceId);
-                        await Task.Delay(10000);
-                    }
-                    else
-                    {
-                        DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "95%", "Reboot!");
-                        _processingDeviceIds.Remove(device.DeviceId);
-                        ADBService.restartDevice(device.DeviceId);
-                        await Task.Delay(10000);
-                        // FakeDevicePixelAction(device, checkBoxFakeSimInfo.Checked);
-                    }
-                    //      UpdateDeviceStatus(device.DeviceId, "100%", "Change device success");
+
+                    DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "95%", "Reboot!");
+                    _processingDeviceIds.Remove(device.DeviceId);
+                    ADBService.restartDevice(device.DeviceId);
+                    await Task.Delay(10000);
+
                     DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "100%", "OK");
                     await Task.Delay(2000);
                     DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "0%", "...");
@@ -2044,23 +2079,13 @@ namespace ToolChange.ViewModels
                     var packagesWipeAfterChanger = loadWipeListConfig();
                     wipePackagesChanger(packagesWipeAfterChanger, device.DeviceId);
 
-                    //   ADBService.cleanGMSPackagesAndAccounts(device.DeviceId);
+                    ADBService.cleanGMSPackagesAndAccounts(device.DeviceId);
 
-                    if (device.DeviceId.Length >= 12)
-                    {
-                        DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "99%", "Reboot!");
-                        _processingDeviceIds.Remove(device.DeviceId);
-                        ADBService.restartDevice(device.DeviceId);
-                        Thread.Sleep(10000);
-                    }
-                    else
-                    {
-                        DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "99%", "Reboot!");
-                        _processingDeviceIds.Remove(device.DeviceId);
-                        ADBService.restartDevice(device.DeviceId);
-                        Thread.Sleep(10000);
-                        // FakeDevicePixelAction(device, checkBoxFakeSimInfo.Checked);
-                    }
+                    DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "99%", "Reboot!");
+                    _processingDeviceIds.Remove(device.DeviceId);
+                    ADBService.restartDevice(device.DeviceId);
+                    Thread.Sleep(10000);
+
                     DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "100%", "Succcess !");
                     await Task.Delay(1000);
                     DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "0%", "...");
@@ -2300,8 +2325,8 @@ namespace ToolChange.ViewModels
                 }
 
                 var tasks = new List<Task>();
-               
-                foreach (var device in (deviceCheck ? selectedDevices.Cast<Models.DeviceModel>(): devices))
+
+                foreach (var device in (deviceCheck ? selectedDevices.Cast<Models.DeviceModel>() : devices))
                 {
                     if (device.Status == "Offline")
                     {
@@ -2386,10 +2411,17 @@ namespace ToolChange.ViewModels
                             DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "60%", "In progress connect wifi..");
                             await Task.Delay(2000);
                             ADBService.openWifiSettings(device.DeviceId);
-                            while (!ADBService.isWifiConnectedV2(device.DeviceId) && !ADBService.isWifiConnected(device.DeviceId))
+                            int step = 0;
+                            while ((!ADBService.isWifiConnectedV2(device.DeviceId) && !ADBService.isWifiConnected(device.DeviceId)) || step == 40)
                             {
                                 ADBService.openWifiSettings(device.DeviceId);
                                 Thread.Sleep(3000);
+                            }
+                            if (step >= 39)
+                            {
+                                _processingDeviceIds.Remove(device.DeviceId);
+                                DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "99%", "Fake proxy success, check error - wifi error");
+                                return;
                             }
                             Thread.Sleep(5000);
                             ADBService.OpenBrowserWithUrl("https://browserleaks.com/ip", device.DeviceId);

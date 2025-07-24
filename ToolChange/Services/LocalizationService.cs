@@ -10,7 +10,6 @@ namespace ToolChange.Services
     public static class LocalizationService
     {
         private static string _currentLanguage = Properties.Settings.Default.lang;
-        private static string _currentTheme = Properties.Settings.Default.theme;
 
         // Dictionary<language, Dictionary<key, value>>
         private static readonly Dictionary<string, Dictionary<string, string>> _translations = new()
@@ -74,8 +73,8 @@ namespace ToolChange.Services
                 { "ControlSwipeCloseApp", "Vuốt đóng app" },
                 { "ControlLoadApp", "Tải ứng dụng" },
                 { "ControlDeviceMenuDropBox1", "📋 Sao chép ID" },
-                { "ControlDeviceMenuDropBox2", "🖥️ Chi tiết device" },
-                { "ControlDeviceMenuDropBox3", "👀 Xem màn hình" },
+                { "ControlDeviceMenuDropBox2", "ℹ️ Chi tiết device" },
+                { "ControlDeviceMenuDropBox3", "📱 Xem màn hình" },
                 { "ControlDeviceMenuDropBox4", "🌐 Fake proxy HTTP" },
                 { "ControlDeviceMenuDropBox4_1", "🌐 Fake proxy Socks 5" },
                 { "ControlDeviceMenuDropBox5", "🗑️ Xóa" },
@@ -231,8 +230,8 @@ namespace ToolChange.Services
                 { "ControlSwipeCloseApp", "Swipe to Close App" },
                 { "ControlLoadApp", "Load App" },
                 { "ControlDeviceMenuDropBox1", "📋 Copy ID" },
-                { "ControlDeviceMenuDropBox2", "🖥️ Device Details" },
-                { "ControlDeviceMenuDropBox3", "👀 View Devices" },
+                { "ControlDeviceMenuDropBox2", "ℹ️ Device Details" },
+                { "ControlDeviceMenuDropBox3", "📱 View Devices" },
                 { "ControlDeviceMenuDropBox4", "🌐 Fake Proxy HTTP" },
                 { "ControlDeviceMenuDropBox4_1", "🌐 Fake Proxy Socks 5" },
                 { "ControlDeviceMenuDropBox5", "🗑️ Delete" },

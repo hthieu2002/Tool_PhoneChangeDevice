@@ -51,6 +51,7 @@
     <None Remove="Resources\tessdata\eng.traineddata" />
     <None Remove="Resources\tun2socks" />
     <None Remove="Resources\webview.txt" />
+    <None Remove="..\POCO\Resources\carriers.json" />
   </ItemGroup>
 
   <ItemGroup>

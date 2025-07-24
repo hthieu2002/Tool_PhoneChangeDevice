@@ -46,7 +46,7 @@ namespace ToolChange.Views
             }
             finally
             {
-                btnLogin.IsEnabled = true; // Bật lại dù login thành công hay lỗi
+                btnLogin.IsEnabled = true;
             }
         }
        

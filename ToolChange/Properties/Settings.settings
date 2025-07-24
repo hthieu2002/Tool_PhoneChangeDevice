@@ -5,9 +5,6 @@
     <Setting Name="lang" Type="System.String" Scope="User">
       <Value Profile="(Default)">vi</Value>
     </Setting>
-    <Setting Name="theme" Type="System.String" Scope="User">
-      <Value Profile="(Default)">light</Value>
-    </Setting>
     <Setting Name="user" Type="System.String" Scope="User">
       <Value Profile="(Default)" />
     </Setting>
@@ -28,6 +25,9 @@
     </Setting>
     <Setting Name="Version" Type="System.String" Scope="User">
       <Value Profile="(Default)">1.0.0.0</Value>
+    </Setting>
+    <Setting Name="ClearData" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
     </Setting>
   </Settings>
 </SettingsFile>

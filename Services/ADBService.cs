@@ -2491,6 +2491,49 @@ namespace Services
             using var process = Process.Start(psi);
             process.WaitForExit();
         }
+       
+        public static void RemoveAccountsDb(string device)
+        {
+            RunAdbCommand($"-s {device} shell rm -rf /data/system/users/0/accounts.db");
+        }
+        public static void UninstallAllUserApps(string device)
+        {
+            string packageList = RunAdbCommandEX(device, "shell pm list packages -3");
+            foreach (var line in packageList.Split(new[] { "\r\n", "\n" }, StringSplitOptions.RemoveEmptyEntries))
+            {
+                if (line.StartsWith("package:"))
+                {
+                    string packageName = line.Substring("package:".Length);
+                    Console.WriteLine(packageName);
+                    Task.Delay(1000).Wait(); 
+                    string result = RunAdbCommandEX(device, $"shell pm uninstall --user 0 {packageName}");
+                    Task.Delay(1000).Wait();
+                }
+            }
+
+        }
+        public static string RunAdbCommandEX(string device, string args)
+        {
+            string adbPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Resources", "adb.exe");
+
+            var process = new Process();
+            process.StartInfo.FileName = adbPath;
+            process.StartInfo.Arguments = $"-s {device} {args}";
+            process.StartInfo.RedirectStandardOutput = true;
+            process.StartInfo.RedirectStandardError = true;
+            process.StartInfo.UseShellExecute = false;
+            process.StartInfo.CreateNoWindow = true;
+
+            process.Start();
+            string output = process.StandardOutput.ReadToEnd();
+            string error = process.StandardError.ReadToEnd();
+            process.WaitForExit();
+
+            if (!string.IsNullOrWhiteSpace(error))
+                Console.WriteLine("❌ ADB Error: " + error);
+
+            return output;
+        }
 
     }
 }

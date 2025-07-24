@@ -13,7 +13,6 @@
 
   <ItemGroup>
     <EmbeddedResource Include="Resources\carriers.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>
   </ItemGroup>
 

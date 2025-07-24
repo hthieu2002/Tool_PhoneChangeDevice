@@ -41,7 +41,7 @@ namespace ToolChange.Services
                     var lineageVersion = RandomService.generateLineageOsVersion(tempDevice.Release) + "-" + tempDevice.Code;
                     changedSystemInfo.Add(BuildKey_SYSTEM_S9.TYPE, "user");
                     changedSystemInfo.Add(BuildKey_SYSTEM_S9.USER, RandomService.generateUser());
-                    changedSystemInfo.Add(BuildKey_SYSTEM_S9.BRAND, tempDevice.Manufacturer);
+                    changedSystemInfo.Add(BuildKey_SYSTEM_S9.BRAND, tempDevice.Manufacturer.ToLower());
                     changedSystemInfo.Add(BuildKey_SYSTEM_S9.VENDOR, tempDevice.Manufacturer);
                     changedSystemInfo.Add(BuildKey_SYSTEM_S9.MODEL, tempDevice.Model);
                     changedSystemInfo.Add(BuildKey_SYSTEM_S9.MODEL_LINEAGE, tempDevice.Model);
@@ -379,7 +379,7 @@ namespace ToolChange.Services
                 changedSystemInfo.Add($"ro.{partition.Key}.build.version.release", tempDevice.Release);
                 changedSystemInfo.Add($"ro.{partition.Key}.build.version.release_or_codename", tempDevice.Release);
                 //changedSystemInfo.Add($"ro.{partition.Key}.build.version.sdk", tempDevice.BuildDate);
-                changedSystemInfo.Add($"ro.product.{partition.Key}.brand", tempDevice.Manufacturer);
+                changedSystemInfo.Add($"ro.product.{partition.Key}.brand", tempDevice.Manufacturer.ToLower());
                 changedSystemInfo.Add($"ro.product.{partition.Key}.device", tempDevice.Code);
                 changedSystemInfo.Add($"ro.product.{partition.Key}.manufacturer", tempDevice.Manufacturer);
                 changedSystemInfo.Add($"ro.product.{partition.Key}.model", tempDevice.Model);

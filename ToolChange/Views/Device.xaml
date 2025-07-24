@@ -531,6 +531,7 @@
                                           HorizontalAlignment="Left"
                                           Grid.Column="1" />
                             </Grid>
+                         
                         </UniformGrid>
                     </ScrollViewer>
 
@@ -584,6 +585,46 @@
                                     Padding="0"
                                     Command="{Binding DeviceListVM.AutoChangeSimCommand}"
                                     CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=ContextMenu}, Path=PlacementTarget.SelectedItem}" />
+                            <ToggleButton Width="120"
+                                          Margin="5,5,0,0"
+                                          Padding="0"
+                                          IsChecked="{Binding DeviceListVM.IsClearData, Mode=TwoWay}">
+                                <ToggleButton.Style>
+                                    <Style TargetType="ToggleButton"
+                                           BasedOn="{StaticResource MaterialDesignRaisedSecondaryLightButton}">
+                                        <Setter Property="Content"
+                                                Value="Wipe data OFF" />
+                                        <Setter Property="Background"
+                                                Value="#FFB3B3" />
+                                        <Setter Property="Foreground"
+                                                Value="Black" />
+                                        <Style.Triggers>
+                                            <Trigger Property="IsChecked"
+                                                     Value="True">
+                                                <Setter Property="Content"
+                                                        Value="Wipe data ON" />
+                                                <Setter Property="Background"
+                                                        Value="#FF3B8A3D" />
+                                                <Setter Property="Foreground"
+                                                        Value="White" />
+                                            </Trigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </ToggleButton.Style>
+                            </ToggleButton>
+
+                            <Button Content="Fake proxy"
+                                    Command="{Binding DeviceListVM.FakeProxyAllCommand}"
+                                    CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=ContextMenu}, Path=PlacementTarget.SelectedItem}"
+                                    Width="120"
+                                    Margin="5,5,0,0"
+                                    Padding="0" />
+                            <Button Content="Fake Location"
+                                    Width="120"
+                                    Margin="5,5,0,0"
+                                    Padding="0"
+                                    Command="{Binding DeviceListVM.FakeLocationCommand}"
+                                    CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=ContextMenu}, Path=PlacementTarget.SelectedItem}" />
                             <Button Content="Open URL"
                                     Width="120"
                                     Margin="5,5,0,0"
@@ -596,18 +637,8 @@
                                     Padding="0"
                                     Command="{Binding DeviceListVM.ScreenshotCommand}"
                                     CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=ContextMenu}, Path=PlacementTarget.SelectedItem}" />
-                            <Button Content="Fake Location"
-                                    Width="120"
-                                    Margin="5,5,0,0"
-                                    Padding="0"
-                                    Command="{Binding DeviceListVM.FakeLocationCommand}"
-                                    CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=ContextMenu}, Path=PlacementTarget.SelectedItem}" />
-                            <Button Content="Fake proxy"
-                                    Command="{Binding DeviceListVM.FakeProxyAllCommand}"
-                                    CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=ContextMenu}, Path=PlacementTarget.SelectedItem}"
-                                    Width="120"
-                                    Margin="5,5,0,0"
-                                    Padding="0" />
+                            
+                            
 
                         </WrapPanel>
                     </ScrollViewer>

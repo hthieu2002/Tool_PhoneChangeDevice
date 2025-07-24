@@ -37,18 +37,6 @@ namespace ToolChange.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("light")]
-        public string theme {
-            get {
-                return ((string)(this["theme"]));
-            }
-            set {
-                this["theme"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("")]
         public string user {
             get {
@@ -120,6 +108,18 @@ namespace ToolChange.Properties {
             }
             set {
                 this["Version"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool ClearData {
+            get {
+                return ((bool)(this["ClearData"]));
+            }
+            set {
+                this["ClearData"] = value;
             }
         }
     }
