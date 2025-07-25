@@ -1688,7 +1688,11 @@ namespace ToolChange.ViewModels
                             ADBService.RemoveAccountsDb(device.DeviceId);
                             Task.Delay(1000).Wait();
                         }
-                        DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "0%", "Wipe data OFF");
+                        else
+                        {
+                            DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "0%", "Wipe data OFF");
+                        }
+                            
                         _processingDeviceIds.Add(device.DeviceId);
                         if (messageBoxPushFile == MessageBoxResult.Yes && selectedFilePath != null)
                         {
@@ -2195,12 +2199,16 @@ namespace ToolChange.ViewModels
                     x = vm.X;
                     y = vm.Y;
                 }
-
+                else
+                {
+                    return;
+                }
                 var tasks = new List<Task>();
                 foreach (var device in selectedDevices)
                 {
                     if (device.Status == "Offline")
                     {
+                        DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "0%", $"Device offline");
                         continue;
                     }
 
@@ -2259,11 +2267,21 @@ namespace ToolChange.ViewModels
                 {
                     url = NormalizeUrl(vm.InputText);
                 }
+                else
+                {
+                    return;
+                }
 
 
-                var tasks = new List<Task>();
+                    var tasks = new List<Task>();
                 foreach (var device in selectedDevices)
                 {
+                    if (device.Status == "Offline")
+                    {
+                        DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "0%", $"Device offline");
+                        continue;
+                    }
+
                     tasks.Add(ProcessOpenUrlAsync(device, url));
                 }
                 await Task.WhenAll(tasks);
@@ -2331,6 +2349,11 @@ namespace ToolChange.ViewModels
                     if (device.Status == "Offline")
                     {
                         continue;
+                    }
+                    if (string.IsNullOrEmpty(typeProxy))
+                    {
+                        System.Windows.MessageBox.Show("Type proxy null", "ERROR", MessageBoxButton.OK, MessageBoxImage.Warning);
+                        return;
                     }
 
                     if (_processingDeviceIds.Contains(device.DeviceId))

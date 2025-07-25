@@ -162,16 +162,7 @@ namespace ToolChange.ViewModels
         public AutomationViewModel()
         {
             _ = LoadDevices();
-          //  AsyncTask();
-            //DispatcherTimer timer = new DispatcherTimer
-            //{
-            //    Interval = TimeSpan.FromSeconds(2)
-            //};
-            //timer.Tick += async (s, e) =>
-            //{
-            //    await UpdateDevicesStatus();
-            //};
-            //timer.Start();
+        
             LoadDevicesCommand = new RelayCommand(async () => await LoadDevicesAsync());
             ScreenShotDevicesCommand = new RelayCommand(async () => await Screenshot());
             RunScriptCommand = new RelayCommand(async () => await RunScript());

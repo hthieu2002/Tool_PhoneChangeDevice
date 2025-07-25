@@ -5,6 +5,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Input;
 using ToolChange.Models;
 using ToolChange.Services;
@@ -72,6 +73,11 @@ namespace ToolChange.ViewModels
             set
             {
                 _typeProxy = value;
+                if (string.IsNullOrWhiteSpace(TypeProxy))
+                {
+                    System.Windows.MessageBox.Show("Vui lòng chọn loại Proxy!", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Warning);
+                }
+
                 OnPropertyChanged(nameof(TypeProxy));
             }
         }
@@ -105,6 +111,7 @@ namespace ToolChange.ViewModels
         public ICommand RemoveDeviceCommand { get; }
         public FakeProxyViewModel(IEnumerable<DeviceModel> devices)
         {
+            TypeProxy = ProxyTypes.First();
             AllDevices = new ObservableCollection<DeviceModel>(devices);
             SelectedDevices = new ObservableCollection<DeviceModel>();
             RemoveDeviceCommand = new RelayCommand<DeviceModel>(RemoveDevice);
@@ -112,7 +119,7 @@ namespace ToolChange.ViewModels
             OKCommand = new RelayCommandCD(o => CloseAction?.Invoke(true));
             CancelCommand = new RelayCommandCD(o => CloseAction?.Invoke(false));
         }
-        private void RemoveDevice(DeviceModel device)
+        public void RemoveDevice(DeviceModel device)
         {
             if (SelectedDevices.Contains(device))
                 SelectedDevices.Remove(device);

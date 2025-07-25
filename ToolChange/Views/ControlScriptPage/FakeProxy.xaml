@@ -14,8 +14,10 @@
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*" />
-            <ColumnDefinition Width="3" />
-            <ColumnDefinition Width="180" />
+            <ColumnDefinition Width="3"
+                              x:Name="DeviceColumnRol" />
+            <ColumnDefinition Width="210"
+                              x:Name="DeviceColumn" />
         </Grid.ColumnDefinitions>
         <Grid Margin="15">
             <Grid.RowDefinitions>
@@ -47,14 +49,26 @@
                         <RowDefinition Height="10" />
                         <RowDefinition Height="40" />
                     </Grid.RowDefinitions>
-
-                    <Border BorderBrush="Gray"
-                            BorderThickness="1.5"
-                            CornerRadius="8"
-                            Background="#F5F5F5"
+                    <Border CornerRadius="8"
                             Padding="4"
-                            HorizontalAlignment="Stretch"
-                            VerticalAlignment="Stretch">
+                            Background="#F5F5F5">
+                        <Border.Style>
+                            <Style TargetType="Border">
+                                <Setter Property="BorderBrush"
+                                        Value="Gray" />
+                                <Setter Property="BorderThickness"
+                                        Value="1.5" />
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsKeyboardFocusWithin, RelativeSource={RelativeSource Self}}"
+                                                 Value="True">
+                                        <Setter Property="BorderBrush"
+                                                Value="LimeGreen" />
+                                        <Setter Property="BorderThickness"
+                                                Value="2" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Border.Style>
                         <TextBox materialDesign:HintAssist.Hint="Host"
                                  materialDesign:TextFieldAssist.DecorationVisibility="Hidden"
                                  materialDesign:TextFieldAssist.UnderlineBrush="Transparent"
@@ -66,14 +80,27 @@
                                  VerticalContentAlignment="Center" />
                     </Border>
 
-                    <Border BorderBrush="Gray"
-                            BorderThickness="1.5"
-                            CornerRadius="8"
-                            Background="#F5F5F5"
-                            Padding="4"
+                    <Border CornerRadius="8"
                             Grid.Row="2"
-                            HorizontalAlignment="Stretch"
-                            VerticalAlignment="Stretch">
+                            Padding="4"
+                            Background="#F5F5F5">
+                        <Border.Style>
+                            <Style TargetType="Border">
+                                <Setter Property="BorderBrush"
+                                        Value="Gray" />
+                                <Setter Property="BorderThickness"
+                                        Value="1.5" />
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsKeyboardFocusWithin, RelativeSource={RelativeSource Self}}"
+                                                 Value="True">
+                                        <Setter Property="BorderBrush"
+                                                Value="LimeGreen" />
+                                        <Setter Property="BorderThickness"
+                                                Value="2" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Border.Style>
                         <TextBox materialDesign:HintAssist.Hint="User name"
                                  materialDesign:TextFieldAssist.DecorationVisibility="Hidden"
                                  materialDesign:TextFieldAssist.UnderlineBrush="Transparent"
@@ -94,13 +121,26 @@
                         <RowDefinition Height="40" />
                     </Grid.RowDefinitions>
 
-                    <Border BorderBrush="Gray"
-                            BorderThickness="1.5"
-                            CornerRadius="8"
-                            Background="#F5F5F5"
+                    <Border CornerRadius="8"
                             Padding="4"
-                            HorizontalAlignment="Stretch"
-                            VerticalAlignment="Stretch">
+                            Background="#F5F5F5">
+                        <Border.Style>
+                            <Style TargetType="Border">
+                                <Setter Property="BorderBrush"
+                                        Value="Gray" />
+                                <Setter Property="BorderThickness"
+                                        Value="1.5" />
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsKeyboardFocusWithin, RelativeSource={RelativeSource Self}}"
+                                                 Value="True">
+                                        <Setter Property="BorderBrush"
+                                                Value="LimeGreen" />
+                                        <Setter Property="BorderThickness"
+                                                Value="2" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Border.Style>
                         <TextBox materialDesign:HintAssist.Hint="Port"
                                  materialDesign:TextFieldAssist.DecorationVisibility="Hidden"
                                  materialDesign:TextFieldAssist.UnderlineBrush="Transparent"
@@ -112,14 +152,27 @@
                                  VerticalContentAlignment="Center" />
                     </Border>
 
-                    <Border BorderBrush="Gray"
-                            BorderThickness="1.5"
-                            CornerRadius="8"
-                            Background="#F5F5F5"
-                            Padding="4"
+                    <Border CornerRadius="8"
                             Grid.Row="2"
-                            HorizontalAlignment="Stretch"
-                            VerticalAlignment="Stretch">
+                            Padding="4"
+                            Background="#F5F5F5">
+                        <Border.Style>
+                            <Style TargetType="Border">
+                                <Setter Property="BorderBrush"
+                                        Value="Gray" />
+                                <Setter Property="BorderThickness"
+                                        Value="1.5" />
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsKeyboardFocusWithin, RelativeSource={RelativeSource Self}}"
+                                                 Value="True">
+                                        <Setter Property="BorderBrush"
+                                                Value="LimeGreen" />
+                                        <Setter Property="BorderThickness"
+                                                Value="2" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Border.Style>
                         <TextBox materialDesign:HintAssist.Hint="Password"
                                  materialDesign:TextFieldAssist.DecorationVisibility="Hidden"
                                  materialDesign:TextFieldAssist.UnderlineBrush="Transparent"
@@ -157,41 +210,66 @@
                            Margin="20,5"
                            Grid.Row="2" />
                 </Grid>
-                <Grid Grid.Column="1">
+                <Grid Grid.Column="1" Margin="0,0,30,0">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="40" />
                         <RowDefinition Height="10" />
                         <RowDefinition Height="40" />
                     </Grid.RowDefinitions>
-                    <Border BorderBrush="Gray"
-                            BorderThickness="1.5"
-                            CornerRadius="8"
-                            Margin="0,0,40,0"
-                            Background="#F5F5F5"
+                    <Border CornerRadius="8"
                             Padding="4"
-                            HorizontalAlignment="Stretch"
-                            VerticalAlignment="Stretch">
+                            Background="#F5F5F5">
+                        <Border.Style>
+                            <Style TargetType="Border">
+                                <Setter Property="BorderBrush"
+                                        Value="Gray" />
+                                <Setter Property="BorderThickness"
+                                        Value="1.5" />
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsKeyboardFocusWithin, RelativeSource={RelativeSource Self}}"
+                                                 Value="True">
+                                        <Setter Property="BorderBrush"
+                                                Value="LimeGreen" />
+                                        <Setter Property="BorderThickness"
+                                                Value="2" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Border.Style>
                         <ComboBox materialDesign:HintAssist.Hint="Proxy"
                                   materialDesign:TextFieldAssist.DecorationVisibility="Hidden"
                                   materialDesign:TextFieldAssist.UnderlineBrush="Transparent"
                                   Background="Transparent"
                                   BorderThickness="0"
                                   Padding="10,4,4,4"
+                                  IsEditable="False"
                                   VerticalContentAlignment="Center"
                                   ItemsSource="{Binding ProxyTypes}"
                                   SelectedItem="{Binding TypeProxy, Mode=TwoWay}" />
 
                     </Border>
 
-                    <Border BorderBrush="Gray"
-                            BorderThickness="1.5"
-                            CornerRadius="8"
-                            Margin="0,0,40,0"
-                            Background="#F5F5F5"
+                    <Border CornerRadius="8"
                             Grid.Row="2"
                             Padding="4"
-                            HorizontalAlignment="Stretch"
-                            VerticalAlignment="Stretch">
+                            Background="#F5F5F5">
+                        <Border.Style>
+                            <Style TargetType="Border">
+                                <Setter Property="BorderBrush"
+                                        Value="Gray" />
+                                <Setter Property="BorderThickness"
+                                        Value="1.5" />
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsKeyboardFocusWithin, RelativeSource={RelativeSource Self}}"
+                                                 Value="True">
+                                        <Setter Property="BorderBrush"
+                                                Value="LimeGreen" />
+                                        <Setter Property="BorderThickness"
+                                                Value="2" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Border.Style>
                         <ComboBox x:Name="DeviceComboBox"
                                   materialDesign:HintAssist.Hint="Device"
                                   SelectedItem="{Binding SelectedDevice, Mode=TwoWay}"
@@ -216,7 +294,7 @@
             <CheckBox Content="Fake toàn bộ thiết bị"
                       Grid.Row="4"
                       IsChecked="{Binding DeviceALL, Mode=TwoWay}"
-                      Margin="20,10" />
+                      Margin="30,10" />
             <Button Width="100"
                     Height="35"
                     Grid.Row="5"
@@ -225,8 +303,12 @@
                 <StackPanel Orientation="Horizontal">
                     <materialDesign:PackIcon Kind="InternetProtocol"
                                              Width="20"
-                                             Margin="0,0,8,0" />
-                    <TextBlock Text="Fake" />
+                                             Margin="0,0,8,0" 
+                                             HorizontalAlignment="Left"
+                                             VerticalAlignment="Stretch"/>
+                    <TextBlock Text="Fake"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Stretch"/>
                 </StackPanel>
             </Button>
 
@@ -249,22 +331,52 @@
                    FontSize="14"
                    Margin="0,0,0,10" />
             <ScrollViewer VerticalScrollBarVisibility="Auto" Grid.Row="1">
+
                 <ItemsControl ItemsSource="{Binding SelectedDevices}">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
                             <Border BorderBrush="Gray"
                                     BorderThickness="1"
                                     CornerRadius="5"
-                                    Margin="0,5"
+                                    Margin="0,5,5,5"
                                     Padding="5"
-                                    Background="#F5F5F5">
+                                    Background="#F5F5F5"
+                                    Opacity="0">
+                                <Border.Triggers>
+                                    <EventTrigger RoutedEvent="Border.Loaded">
+                                        <BeginStoryboard>
+                                            <Storyboard>
+                                                <!-- Hiệu ứng mờ dần -->
+                                                <DoubleAnimation Storyboard.TargetProperty="Opacity"
+                                                                 From="0"
+                                                                 To="1"
+                                                                 Duration="0:0:0.3">
+                                                    <DoubleAnimation.EasingFunction>
+                                                        <QuadraticEase EasingMode="EaseInOut" />
+                                                    </DoubleAnimation.EasingFunction>
+                                                </DoubleAnimation>
+
+                                                <!-- Hiệu ứng trượt từ phải sang -->
+                                                <ThicknessAnimation Storyboard.TargetProperty="Margin"
+                                                                    From="20,5,0,5"
+                                                                    To="0,5,5,5"
+                                                                    Duration="0:0:0.3">
+                                                    <ThicknessAnimation.EasingFunction>
+                                                        <QuadraticEase EasingMode="EaseInOut" />
+                                                    </ThicknessAnimation.EasingFunction>
+                                                </ThicknessAnimation>
+                                            </Storyboard>
+                                        </BeginStoryboard>
+                                    </EventTrigger>
+                                </Border.Triggers>
+
                                 <DockPanel>
                                     <TextBlock Text="{Binding DisplayLabel}"
                                                ToolTip="{Binding DisplayLabel}"
                                                VerticalAlignment="Center"
                                                TextTrimming="CharacterEllipsis"
                                                TextWrapping="NoWrap"
-                                               Width="110" />
+                                               Width="120" />
 
                                     <Button Content="❌"
                                             FontSize="11"
@@ -280,6 +392,7 @@
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>
+
             </ScrollViewer>
         </Grid>
     </Grid>

@@ -11,6 +11,35 @@
                 <ResourceDictionary Source="pack://application:,,,/MaterialDesignColors;component/Themes/Recommended/Primary/MaterialDesignColor.Blue.xaml" />
                 <ResourceDictionary Source="pack://application:,,,/MaterialDesignColors;component/Themes/Recommended/Accent/MaterialDesignColor.LightBlue.xaml" />
             </ResourceDictionary.MergedDictionaries>
+
+            <Style x:Key="AnimatedDataGridRowStyle"
+                   TargetType="DataGridRow"
+                   BasedOn="{StaticResource {x:Type DataGridRow}}">
+                <Setter Property="RenderTransform">
+                    <Setter.Value>
+                        <TranslateTransform X="-20" />
+                    </Setter.Value>
+                </Setter>
+                <Setter Property="Opacity"
+                        Value="0" />
+                <Style.Triggers>
+                    <EventTrigger RoutedEvent="Loaded">
+                        <BeginStoryboard>
+                            <Storyboard>
+                                <DoubleAnimation Storyboard.TargetProperty="Opacity"
+                                                 From="0"
+                                                 To="1"
+                                                 Duration="0:0:0.3" />
+                                <DoubleAnimation Storyboard.TargetProperty="RenderTransform.(TranslateTransform.X)"
+                                                 From="-20"
+                                                 To="0"
+                                                 Duration="0:0:0.3" />
+                            </Storyboard>
+                        </BeginStoryboard>
+                    </EventTrigger>
+                </Style.Triggers>
+            </Style>
+
         </ResourceDictionary>
     </Application.Resources>
 
