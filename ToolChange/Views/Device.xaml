@@ -65,6 +65,7 @@
                       AlternatingRowBackground="LightGray"
                       BorderBrush="Gray"
                       BorderThickness="1"
+                      Cursor="{Binding DeviceListVM.DeviceDataGridCurson}"
                       ScrollViewer.VerticalScrollBarVisibility="Auto"
                       ItemsSource="{Binding DeviceListVM.Devices}"
                       ContextMenuOpening="DeviceDataGrid_ContextMenuOpening"
@@ -111,11 +112,13 @@
                         </DataGridTemplateColumn.CellTemplate>
                     </DataGridTemplateColumn>
                     <DataGridTemplateColumn Header="Name"
-                                            Width="100"
+                                            Width="120"
                                             MinWidth="50">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
                                 <TextBlock Text="{Binding Name}"
+                                           ToolTip="{Binding Name, Mode=OneWay, UpdateSourceTrigger=LostFocus}"
+                                           Cursor="IBeam"
                                            Padding="0"
                                            VerticalAlignment="Center" />
                             </DataTemplate>
@@ -128,16 +131,27 @@
                                          VerticalContentAlignment="Center"
                                          Padding="0"
                                          Margin="0"
-                                         FontSize="11" />
+                                         FontSize="11"
+                                          />
                             </DataTemplate>
                         </DataGridTemplateColumn.CellEditingTemplate>
                     </DataGridTemplateColumn>
 
-                    <DataGridTextColumn Header="Device ID"
-                                        Binding="{Binding DeviceId}"
-                                        IsReadOnly="True"
-                                        Width="80"
-                                        MinWidth="120" />
+                    <DataGridTemplateColumn Header="Device ID"
+                                            Width="120"
+                                            MinWidth="100">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding DeviceId}"
+                                           TextTrimming="CharacterEllipsis"
+                                           TextWrapping="NoWrap"
+                                           ToolTip="{Binding DeviceId}"
+                                           Cursor="Hand"
+                                           VerticalAlignment="Center" />
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+
                     <DataGridTextColumn Header="%"
                                         Binding="{Binding Percentage}"
                                         IsReadOnly="True"
@@ -544,19 +558,66 @@
                     <ScrollViewer VerticalScrollBarVisibility="Auto">
                         <WrapPanel>
                             <Button Content="Random Device"
-                                    IsEnabled="{Binding DeviceListVM.IsRandomButtonEnabled}"
                                     Padding="0"
                                     Width="120"
                                     Margin="5,5,0,0"
-                                    Command="{Binding DeviceListVM.RandomDeviceCommand}"
-                                    CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=ContextMenu}, Path=PlacementTarget.SelectedItem}" />
+                                    CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=ContextMenu}, Path=PlacementTarget.SelectedItem}">
+                                <Button.Style>
+                                    <Style TargetType="Button"
+                                           BasedOn="{StaticResource {x:Type Button}}">
+                                        <Setter Property="Command"
+                                                Value="{Binding DeviceListVM.RandomDeviceCommand}" />
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding DeviceListVM.IsRandomButtonEnabled}"
+                                                         Value="False">
+                                                <Setter Property="Foreground"
+                                                        Value="Gray" />
+                                                <Setter Property="Background"
+                                                        Value="#FFE0E0E0" />
+                                                <Setter Property="Cursor"
+                                                        Value="Wait" />
+                                                <Setter Property="BorderBrush"
+                                                        Value="DarkGray" />
+                                                <Setter Property="BorderThickness"
+                                                        Value="1" />
+                                                <Setter Property="Command"
+                                                        Value="{x:Null}" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Button.Style>
+                            </Button>
                             <Button Content="Change Device"
                                     Width="120"
-                                    IsEnabled="{Binding DeviceListVM.IsButtonChangeDevice}"
                                     Margin="5,5,0,0"
                                     Padding="0"
-                                    Command="{Binding DeviceListVM.ChangeDeviceCommand}"
-                                    CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=ContextMenu}, Path=PlacementTarget.SelectedItem}" />
+                                    CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=ContextMenu}, Path=PlacementTarget.SelectedItem}">
+                                <Button.Style>
+                                    <Style TargetType="Button"
+                                           BasedOn="{StaticResource {x:Type Button}}">
+                                        <Setter Property="Command"
+                                                Value="{Binding DeviceListVM.ChangeDeviceCommand}" />
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding DeviceListVM.IsButtonChangeDevice}"
+                                                         Value="False">
+                                                <Setter Property="Foreground"
+                                                        Value="Gray" />
+                                                <Setter Property="Background"
+                                                        Value="#FFE0E0E0" />
+                                                <Setter Property="Cursor"
+                                                        Value="No" />
+                                                <Setter Property="BorderBrush"
+                                                        Value="DarkGray" />
+                                                <Setter Property="BorderThickness"
+                                                        Value="1" />
+                                                <Setter Property="Command"
+                                                        Value="{x:Null}" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Button.Style>
+                            </Button>
+
                             <Button Content="Auto Change Full"
                                     IsEnabled="{Binding DeviceListVM.IsButtonChangeFull}"
                                     Width="120"
@@ -566,18 +627,64 @@
                                     CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=ContextMenu}, Path=PlacementTarget.SelectedItem}" />
                             <Button Content="Random Sim"
                                     Width="120"
-                                    IsEnabled="{Binding DeviceListVM.IsRandomButtonSimEnabled}"
                                     Margin="5,5,0,0"
                                     Padding="0"
-                                    Command="{Binding DeviceListVM.RandomSimCommand}"
-                                    CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=ContextMenu}, Path=PlacementTarget.SelectedItem}" />
+                                    CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=ContextMenu}, Path=PlacementTarget.SelectedItem}">
+                                <Button.Style>
+                                    <Style TargetType="Button"
+                                           BasedOn="{StaticResource {x:Type Button}}">
+                                        <Setter Property="Command"
+                                                Value="{Binding DeviceListVM.RandomSimCommand}" />
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding DeviceListVM.IsRandomButtonSimEnabled}"
+                                                         Value="False">
+                                                <Setter Property="Foreground"
+                                                        Value="Gray" />
+                                                <Setter Property="Background"
+                                                        Value="#FFE0E0E0" />
+                                                <Setter Property="Cursor"
+                                                        Value="Wait" />
+                                                <Setter Property="BorderBrush"
+                                                        Value="DarkGray" />
+                                                <Setter Property="BorderThickness"
+                                                        Value="1" />
+                                                <Setter Property="Command"
+                                                        Value="{x:Null}" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Button.Style>
+                            </Button>
                             <Button Content="Change Sim"
                                     Width="120"
-                                    IsEnabled="{Binding DeviceListVM.IsButtonChangeSim}"
                                     Margin="5,5,0,0"
                                     Padding="0"
-                                    Command="{Binding DeviceListVM.ChangeSimCommand}"
-                                    CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=ContextMenu}, Path=PlacementTarget.SelectedItem}" />
+                                    CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=ContextMenu}, Path=PlacementTarget.SelectedItem}">
+                                <Button.Style>
+                                    <Style TargetType="Button"
+                                           BasedOn="{StaticResource {x:Type Button}}">
+                                        <Setter Property="Command"
+                                                Value="{Binding DeviceListVM.ChangeSimCommand}" />
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding DeviceListVM.IsButtonChangeSim}"
+                                                         Value="False">
+                                                <Setter Property="Foreground"
+                                                        Value="Gray" />
+                                                <Setter Property="Background"
+                                                        Value="#FFE0E0E0" />
+                                                <Setter Property="Cursor"
+                                                        Value="No" />
+                                                <Setter Property="BorderBrush"
+                                                        Value="DarkGray" />
+                                                <Setter Property="BorderThickness"
+                                                        Value="1" />
+                                                <Setter Property="Command"
+                                                        Value="{x:Null}" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Button.Style>
+                            </Button>
                             <Button Content="Auto Change Sim"
                                     Width="120"
                                     IsEnabled="{Binding DeviceListVM.IsButtonChangeSimFull}"

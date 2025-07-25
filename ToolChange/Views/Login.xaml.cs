@@ -23,6 +23,7 @@ namespace ToolChange.Views
     /// </summary>
     public partial class Login : Window
     {
+        private bool isLoggingIn = false;
         private readonly CognitoService cognitoService;
         private DeviceViewModel _viewModel;
         public Login()
@@ -37,20 +38,25 @@ namespace ToolChange.Views
             cognitoService = new CognitoService(poolId, clientId);
         }
 
-        private void BtnLogin_Click(object sender, RoutedEventArgs e)
+        private async void BtnLogin_Click(object sender, RoutedEventArgs e)
         {
-            btnLogin.IsEnabled = false; // Vô hiệu hóa nút
+            if (isLoggingIn)
+                return; 
+
+            isLoggingIn = true;
+            btnLogin.Cursor = System.Windows.Input.Cursors.Wait; // Thay đổi con trỏ chuột thành đợi
             try
             {
-                login(); // Gọi hàm login async
+                await login(); // Gọi hàm login async
             }
             finally
             {
-                btnLogin.IsEnabled = true;
+                isLoggingIn = false;
+                btnLogin.Cursor = System.Windows.Input.Cursors.Hand;
             }
         }
        
-        private async void login()
+        private async Task login()
         {
             try
             {

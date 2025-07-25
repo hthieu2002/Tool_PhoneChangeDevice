@@ -18,6 +18,7 @@ using System.Diagnostics;
 using System.IdentityModel.Tokens.Jwt;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text.Json;
 using System.Threading.Tasks;
 using System.Windows;
@@ -37,6 +38,8 @@ namespace ToolChange.ViewModels
 {
     public class DeviceViewModel : INotifyPropertyChanged
     {
+        [DllImport("user32.dll", SetLastError = true)]
+        static extern IntPtr FindWindow(string lpClassName, string lpWindowName);
         public LocalizationViewModel LanguageVM { get; set; }
         public DeviceViewModel DeviceListVM { get; set; }
         private static CancellationTokenSource? _ctsDV;
@@ -573,6 +576,45 @@ namespace ToolChange.ViewModels
                 }
             }
         }
+        private System.Windows.Input.Cursor _customCursorRandomDevice = System.Windows.Input.Cursors.Hand;
+        public System.Windows.Input.Cursor CustomCursorRandomDevice
+        {
+            get => _customCursorRandomDevice;
+            set
+            {
+                if (_customCursorRandomDevice != value)
+                {
+                    _customCursorRandomDevice = value;
+                    OnPropertyChanged(nameof(CustomCursorRandomDevice));
+                }
+            }
+        }
+        private System.Windows.Input.Cursor _customCursorChangeDevice = System.Windows.Input.Cursors.No;
+        public System.Windows.Input.Cursor CustomCursorChangeDevice
+        {
+            get => _customCursorChangeDevice;
+            set
+            {
+                if (_customCursorChangeDevice != value)
+                {
+                    _customCursorChangeDevice = value;
+                    OnPropertyChanged(nameof(CustomCursorChangeDevice));
+                }
+            }
+        }
+        private System.Windows.Input.Cursor _deviceDataGridCurson = System.Windows.Input.Cursors.Arrow;
+        public System.Windows.Input.Cursor DeviceDataGridCurson
+        {
+            get => _deviceDataGridCurson;
+            set
+            {
+                if (_deviceDataGridCurson != value)
+                {
+                    _deviceDataGridCurson = value;
+                    OnPropertyChanged(nameof(DeviceDataGridCurson));
+                }
+            }
+        }
         public ObservableCollection<Models.DeviceModel> Devices { get; private set; } = new ObservableCollection<Models.DeviceModel>();
         public ICommand DeleteDeviceCommand { get; private set; }
         public ICommand CopyDeviceIdCommand { get; private set; }
@@ -871,6 +913,7 @@ namespace ToolChange.ViewModels
         }
         private async Task ViewDevicesIC(Models.DeviceModel device)
         {
+            DeviceDataGridCurson = System.Windows.Input.Cursors.AppStarting;
             if (device == null || string.IsNullOrWhiteSpace(device.DeviceId))
                 return;
 
@@ -885,7 +928,7 @@ namespace ToolChange.ViewModels
             var startInfo = new ProcessStartInfo
             {
                 FileName = scrcpyPath,
-                Arguments = $"-s {device.DeviceId}",
+                Arguments = $"-s {device.DeviceId} --window-title={device.DeviceId}_ICDeviceView",
                 UseShellExecute = false,
                 CreateNoWindow = true
             };
@@ -893,12 +936,33 @@ namespace ToolChange.ViewModels
 
             try
             {
-                Process.Start(startInfo);
+                var process = Process.Start(startInfo);
+                if (process != null)
+                {
+                    var timeout = DateTime.Now.AddSeconds(5);
+                    string expectedTitle = $"{device.DeviceId}_ICDeviceView";
+                    IntPtr windowHandle = IntPtr.Zero;
+
+                    while (DateTime.Now < timeout)
+                    {
+                        await Task.Delay(100);
+                        windowHandle = FindWindow(null, expectedTitle);
+                        if (windowHandle != IntPtr.Zero)
+                            break;
+                    }
+
+                    if (windowHandle != IntPtr.Zero)
+                    {
+                        // Cửa sổ scrcpy đã hiển thị
+                        DeviceDataGridCurson = System.Windows.Input.Cursors.Arrow;
+                    }
+                }
             }
             catch (Exception ex)
             {
                 System.Windows.MessageBox.Show($"Lỗi khi chạy scrcpy: {ex.Message}");
             }
+            DeviceDataGridCurson = System.Windows.Input.Cursors.Arrow;
         }
 
         private async Task DetailsDevices(Models.DeviceModel device)
@@ -1383,6 +1447,7 @@ namespace ToolChange.ViewModels
         private async Task RandomDevice()
         {
             IsRandomButtonEnabled = false;
+            CustomCursorRandomDevice = System.Windows.Input.Cursors.Wait;
             if (miChangerGraphQLClient == null)
             {
                 await CreateService();
@@ -1494,6 +1559,7 @@ namespace ToolChange.ViewModels
 
                 IsButtonChangeDevice = true;
                 IsButtonChangeFull = true;
+                CustomCursorChangeDevice = System.Windows.Input.Cursors.Hand;
             }
             catch (Exception ex)
             {
@@ -1503,6 +1569,7 @@ namespace ToolChange.ViewModels
             finally
             {
                 IsRandomButtonEnabled = true;
+                CustomCursorRandomDevice = System.Windows.Input.Cursors.Hand;
             }
         }
 
