@@ -721,7 +721,11 @@ namespace ToolChange.ViewModels
 
                     await MonitorScrcpyAttachAsync(vm);
                 }
-
+                if (local.loadDevice)
+                {
+                    await MonitorScrcpyAttachAsync(local.device);
+                    local.loadDevice = false;
+                }
                 // Xử lý ngắt thiết bị
                 foreach (var id in removed)
                 {
@@ -842,6 +846,10 @@ namespace ToolChange.ViewModels
 
             while (retry < maxRetry)
             {
+                if (local.loadDevice)
+                {
+                    vm.AttachStatus = ScrcpyAttachStatus.None;
+                }
                 if (vm.AttachStatus == ScrcpyAttachStatus.Attaching || vm.AttachStatus == ScrcpyAttachStatus.Attached)
                 {
                     Debug.WriteLine($"[scrcpy] Already attaching/attached device: {vm.DeviceId}, skipping duplicate attach.");
@@ -872,8 +880,10 @@ namespace ToolChange.ViewModels
                 }
 
                 string scrcpyPath = @"./Resources/scrcpy.exe";
-                string args = $"-s {vm.DeviceId} --window-title={vm.WindowTitle} --max-size {Math.Min(1080, 2220)} --max-fps 15 " +
-                              "--window-borderless --window-x 3000 --window-y 3000 --no-control --no-audio --window-width 200 --window-height 400";
+                //string args = $"-s {vm.DeviceId} --window-title={vm.WindowTitle} --max-size {Math.Min(1080, 2220)} --max-fps 15 " +
+                //              "--window-borderless --window-x 3000 --window-y 3000 --no-control --no-audio --window-width 200 --window-height 400";
+                string args = $"-s {vm.DeviceId} --window-title={vm.WindowTitle} --max-size 1080 --max-fps 15 " +
+                        "--window-x 3000 --window-y 3000 --no-audio --window-width 200 --window-height 400 --lock-video-orientation=0";
 
                 Debug.WriteLine($"[scrcpy] Starting process with args: {args}");
 
@@ -908,8 +918,8 @@ namespace ToolChange.ViewModels
                         {
                             NativeMethods.SetWindowLong(vm.ScrcpyHwnd, -16, 0x40000000 | 0x10000000);
                             NativeMethods.SetParent(vm.ScrcpyHwnd, panelHandle);
-                            NativeMethods.SetWindowPos(vm.ScrcpyHwnd, IntPtr.Zero, 0, 0, 200, 400, 0x0040);
-
+                            NativeMethods.SetWindowPos(vm.ScrcpyHwnd, IntPtr.Zero, 0, 0, vm.Panel.Width, vm.Panel.Height, 0x0040);
+                         //   SetWindowPos(_scrcpyHwnd, IntPtr.Zero, 0, 0, _panel.Width, _panel.Height, 0x0040); // SWP_SHOWWINDOW
                             vm.Panel.Resize += (_, __) =>
                             {
                                 NativeMethods.SetWindowPos(vm.ScrcpyHwnd, IntPtr.Zero, 0, 0,

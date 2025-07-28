@@ -12,6 +12,7 @@ using Services;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Data;
 using System.Diagnostics;
@@ -615,9 +616,35 @@ namespace ToolChange.ViewModels
                 }
             }
         }
-        public ObservableCollection<Models.DeviceModel> Devices { get; private set; } = new ObservableCollection<Models.DeviceModel>();
+        private bool _isAllChecked = true;
+        private bool _isUpdatingCheckAll = false;
+
+        public bool IsAllChecked
+        {
+            get => _isAllChecked;
+            set
+            {
+                if (_isAllChecked != value)
+                {
+                    _isAllChecked = value;
+                    OnPropertyChanged(nameof(IsAllChecked));
+
+                    _isUpdatingCheckAll = true; // ⚠️ bắt đầu chặn trigger
+                    foreach (var device in Devices)
+                    {
+                        device.IsChecked = value;
+                    }
+                    _ = SaveDevices();
+                    _isUpdatingCheckAll = false; // ✅ cho phép lại
+                }
+            }
+        }
+
+
+        public ObservableCollection<Models.DeviceModel> Devices { get; set; } 
         public ICommand DeleteDeviceCommand { get; private set; }
         public ICommand CopyDeviceIdCommand { get; private set; }
+        public ICommand CopyDeviceIdCommandAll { get; private set; }
         public ICommand RandomDeviceCommand { get; private set; }
         public ICommand RandomSimCommand { get; private set; }
         public ICommand ChangeDeviceCommand { get; private set; }
@@ -639,6 +666,8 @@ namespace ToolChange.ViewModels
         public event PropertyChangedEventHandler PropertyChanged;
         public DeviceViewModel()
         {
+            Devices = new ObservableCollection<Models.DeviceModel>();
+
             _ = ResetDeviceJson();
             _ = LoadDevices();
             LoadData();
@@ -648,6 +677,7 @@ namespace ToolChange.ViewModels
 
             DeleteDeviceCommand = new RelayCommand<object>(DeleteDevice, CanDeleteDevice);
             CopyDeviceIdCommand = new RelayCommand<Models.DeviceModel>(CopyDeviceId);
+            CopyDeviceIdCommandAll = new RelayCommand<Models.DeviceModel>(CopyDeviceIdAll);
             // DetailsDeviceIdCommand = new RelayCommand<Models.DeviceModel>(DetailsDevices);
             DetailsDeviceIdCommand = new RelayCommand<Models.DeviceModel>(async (device) => await DetailsDevices(device));
             ViewDevicesCommand = new RelayCommand<Models.DeviceModel>(async (device) => await ViewDevicesIC(device));
@@ -665,7 +695,38 @@ namespace ToolChange.ViewModels
             OpenUrlCommand = new RelayCommand(async () => await OpenUrl());
             FakeProxyAllCommand = new RelayCommand(async () => await FakeProxyAll());
             IsCheckBoxDevice = new RelayCommand<Models.DeviceModel>(async (device) => await CheckBoxDevice(device));
+            foreach (var device in Devices)
+            {
+                AttachPropertyChanged(device);
+            }
+            Devices.CollectionChanged += (s, e) =>
+            {
+                if (e.NewItems != null)
+                {
+                    foreach (Models.DeviceModel device in e.NewItems)
+                    {
+                        AttachPropertyChanged(device);
+                    }
+                }
+            };
+
         }
+        private void AttachPropertyChanged(Models.DeviceModel device)
+        {
+            device.PropertyChanged += (sender, e) =>
+            {
+                if (e.PropertyName == nameof(Models.DeviceModel.IsChecked))
+                {
+                    if (_isUpdatingCheckAll) return; // ✅ Đang trong quá trình cập nhật từ IsAllChecked → bỏ qua
+
+                    // Cập nhật lại IsAllChecked theo danh sách
+                    _isAllChecked = Devices.All(d => d.IsChecked);
+                    OnPropertyChanged(nameof(IsAllChecked));
+                }
+            };
+        }
+
+
 
         public void AsyncTask()
         {
@@ -751,8 +812,10 @@ namespace ToolChange.ViewModels
                 {
                     device.Index = index++;
                 }
-
+              
                 OnPropertyChanged(nameof(Devices));
+
+              
             }
             catch (Exception ex)
             {
@@ -1759,7 +1822,7 @@ namespace ToolChange.ViewModels
                         {
                             DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "0%", "Wipe data OFF");
                         }
-                            
+
                         _processingDeviceIds.Add(device.DeviceId);
                         if (messageBoxPushFile == MessageBoxResult.Yes && selectedFilePath != null)
                         {
@@ -1801,6 +1864,29 @@ namespace ToolChange.ViewModels
                 // _processingDeviceIds.Clear();
             }
         }
+        private void CopyDeviceIdAll(Models.DeviceModel devices)
+        {
+            var selectedDevices = Devices.Where(device => device.IsChecked).ToList();
+            int selectedCount = selectedDevices.Count;
+
+            if (selectedCount == 0)
+            {
+                System.Windows.MessageBox.Show(DevicesLang.logSelectDeviceChange, Lang.LogInfomation, MessageBoxButton.OK, MessageBoxImage.Information);
+                return;
+            }
+
+            var deviceIds = selectedDevices
+                .Where(d => !string.IsNullOrEmpty(d.DeviceId))
+                .Select(d => d.DeviceId);
+
+            var joinedIds = string.Join("\n", deviceIds);
+
+            if (!string.IsNullOrWhiteSpace(joinedIds))
+            {
+                System.Windows.Clipboard.SetText(joinedIds);
+            }
+        }
+
         private async Task AutoChangeFull()
         {
             try
@@ -2340,7 +2426,7 @@ namespace ToolChange.ViewModels
                 }
 
 
-                    var tasks = new List<Task>();
+                var tasks = new List<Task>();
                 foreach (var device in selectedDevices)
                 {
                     if (device.Status == "Offline")
@@ -2575,6 +2661,7 @@ namespace ToolChange.ViewModels
                     device.IsChecked = false;
                 }
             }
+          
             await SaveDevices();
         }
         public void UpdateDeviceStatus(string deviceId, string newPercentage, string newProgress)

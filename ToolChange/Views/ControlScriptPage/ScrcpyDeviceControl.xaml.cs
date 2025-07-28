@@ -14,6 +14,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using ToolChange.Models;
+using ToolChange.Services;
 
 namespace ToolChange.Views.ControlScriptPage
 {
@@ -45,6 +46,15 @@ namespace ToolChange.Views.ControlScriptPage
             {
                 vm.Panel.Size = new System.Drawing.Size((int)ScrcpyHost.ActualWidth, (int)ScrcpyHost.ActualHeight);
                 ScrcpyHost.Child = vm.Panel;
+            }
+        }
+
+        private void LoadDevice_Click(object sender, RoutedEventArgs e)
+        {
+            if (this.DataContext is ScrcpyDeviceModel model)
+            {
+                local.device = model;
+                local.loadDevice = true;
             }
         }
     }

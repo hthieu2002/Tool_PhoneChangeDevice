@@ -16,6 +16,15 @@
 
         <StackPanel MouseLeftButtonUp="DeviceInfoClicked"
                     Cursor="Hand">
+            <StackPanel.ContextMenu>
+                <ContextMenu >
+                    <MenuItem Header="🔄 Load device"
+                              Margin="0"
+                              Padding="5,0,5,0"
+                              MinHeight="28"
+                              Click="LoadDevice_Click" />
+                </ContextMenu>
+            </StackPanel.ContextMenu>
             <TextBlock Text="{Binding Index, StringFormat='DEVICE - {0}'}"
                        FontWeight="Bold"
                        FontSize="11"

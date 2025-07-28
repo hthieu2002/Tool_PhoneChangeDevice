@@ -26,10 +26,23 @@ namespace ToolChange.Views
             DataContext = ViewModelLocator.DeviceVM;
             this.Unloaded += DevicePage_Unloaded;
             this.IsVisibleChanged += DevicePage_IsVisibleChanged;
+           
         }
+        private void SelectAllCheckBox_Click(object sender, RoutedEventArgs e)
+        {
+            if (DataContext is DeviceViewModel vm)
+            {
+                var checkbox = sender as System.Windows.Controls.CheckBox;
+                if (checkbox?.IsChecked is bool value)
+                {
+                //   vm.DeviceListVM.OnSelectAllCheckboxClicked(value);
+                }
+            }
+        }
+
         private void DevicePage_Unloaded(object sender, RoutedEventArgs e)
         {
-            AutomationViewModel.StopLoop();
+            DeviceViewModel.StopLoop();
         }
         private void BrandComboBox_DropDownClosed(object sender, EventArgs e)
         {

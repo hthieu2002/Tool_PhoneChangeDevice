@@ -153,7 +153,28 @@ namespace ToolChange.ViewModels
                 }
             }
         }
+        private bool _isAllChecked = true;
+        private bool _isUpdatingCheckAll = false;
 
+        public bool IsAllChecked
+        {
+            get => _isAllChecked;
+            set
+            {
+                if (_isAllChecked != value)
+                {
+                    _isAllChecked = value;
+                    OnPropertyChanged(nameof(IsAllChecked));
+
+                  //  _isUpdatingCheckAll = true; // ⚠️ bắt đầu chặn trigger
+                    foreach (var device in Devices)
+                    {
+                        device.IsChecked = value;
+                    }
+                 //   _isUpdatingCheckAll = false; // ✅ cho phép lại
+                }
+            }
+        }
         public ICommand IsCheckBoxDevice { get; private set; }
         public ICommand LoadDevicesCommand { get; private set; }
         public ICommand ScreenShotDevicesCommand { get; private set; }
@@ -169,6 +190,35 @@ namespace ToolChange.ViewModels
             LoadFileCommand = new RelayCommand(async () => await LoadFileScriptFunc());
            
             IsCheckBoxDevice = new RelayCommand<Models.DeviceModel>(CheckBoxDevice);
+
+            foreach (var device in Devices)
+            {
+                AttachPropertyChanged(device);
+            }
+            Devices.CollectionChanged += (s, e) =>
+            {
+                if (e.NewItems != null)
+                {
+                    foreach (Models.DeviceModel device in e.NewItems)
+                    {
+                        AttachPropertyChanged(device);
+                    }
+                }
+            };
+        }
+        private void AttachPropertyChanged(Models.DeviceModel device)
+        {
+            device.PropertyChanged += (sender, e) =>
+            {
+                if (e.PropertyName == nameof(Models.DeviceModel.IsChecked))
+                {
+                    if (_isUpdatingCheckAll) return; // ✅ Đang trong quá trình cập nhật từ IsAllChecked → bỏ qua
+
+                    // Cập nhật lại IsAllChecked theo danh sách
+                    _isAllChecked = Devices.All(d => d.IsChecked);
+                    OnPropertyChanged(nameof(IsAllChecked));
+                }
+            };
         }
         public void AsyncTask()
         {

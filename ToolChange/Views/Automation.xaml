@@ -66,15 +66,21 @@
                                         Width="40"
                                         IsReadOnly="True"
                                         MinWidth="50" />
-                    <DataGridTemplateColumn Header="Box"
-                                            Width="60"
+                    <DataGridTemplateColumn Width="60"
                                             MinWidth="60">
+                        <DataGridTemplateColumn.Header>
+                            <CheckBox x:Name="SelectAllCheckBox"
+                                      IsChecked="{Binding DataContext.AutomationListVM.IsAllChecked, Mode=TwoWay,
+                                  RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                                      HorizontalAlignment="Center"
+                                      VerticalAlignment="Center" />
+                        </DataGridTemplateColumn.Header>
+
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
                                 <CheckBox IsChecked="{Binding IsChecked, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                          Command="{Binding DataContext.AutomationListVM.IsCheckBoxDevice, RelativeSource={RelativeSource AncestorType=DataGrid}}"
-                                          CommandParameter="{Binding}"
-                                          HorizontalAlignment="Center" />
+                                          HorizontalAlignment="Center"
+                                          Margin="-10,0,0,0" />
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>
                     </DataGridTemplateColumn>
