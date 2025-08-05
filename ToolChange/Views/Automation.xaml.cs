@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -36,6 +37,21 @@ namespace ToolChange.Views
         {
             AutomationViewModel.StopLoop();
         }
+        private void backupComboBox_DropDownOpened(object sender, EventArgs e)
+        {
+            string backupFolder = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Resources", "Backup");
+
+            if (Directory.Exists(backupFolder))
+            {
+                var files = Directory.GetFiles(backupFolder, "*.zip"); // lọc file .zip
+                backupComboBox.ItemsSource = files.Select(f => System.IO.Path.GetFileName(f)).ToList();
+            }
+            else
+            {
+                backupComboBox.ItemsSource = new List<string> { "Không có thư mục Backup" };
+            }
+        }
+
         private void AutomationPage_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
         {
             if (!Equals(e.OldValue, true) && Equals(e.NewValue, true))

@@ -17,7 +17,7 @@ namespace ToolChange.Services
     {
         public static bool checkSim;
 
-        public static bool SaveDeviceInfo(DeviceViewModel model, ObservableCollection<ToolChange.Models.DeviceModel> deviceS , POCO.Models.DeviceModel tempDevice, string deviceId, string applicationPath, bool isFakeSim = false)
+        public static bool SaveDeviceInfo(DeviceViewModel model, ObservableCollection<ToolChange.Models.DeviceModel> deviceS , POCO.Models.DeviceModel tempDevice, string deviceId, string applicationPath, bool isFakeSim = false, bool keepBrand = false)
         {
             try
             {
@@ -41,8 +41,11 @@ namespace ToolChange.Services
                     var lineageVersion = RandomService.generateLineageOsVersion(tempDevice.Release) + "-" + tempDevice.Code;
                     changedSystemInfo.Add(BuildKey_SYSTEM_S9.TYPE, "user");
                     changedSystemInfo.Add(BuildKey_SYSTEM_S9.USER, RandomService.generateUser());
-                    changedSystemInfo.Add(BuildKey_SYSTEM_S9.BRAND, tempDevice.Manufacturer.ToLower());
-                    changedSystemInfo.Add(BuildKey_SYSTEM_S9.VENDOR, tempDevice.Manufacturer);
+                    if (!keepBrand)
+                    {
+                        changedSystemInfo.Add(BuildKey_SYSTEM_S9.BRAND, tempDevice.Manufacturer.ToLower());
+                        changedSystemInfo.Add(BuildKey_SYSTEM_S9.VENDOR, tempDevice.Manufacturer);
+                    }
                     changedSystemInfo.Add(BuildKey_SYSTEM_S9.MODEL, tempDevice.Model);
                     changedSystemInfo.Add(BuildKey_SYSTEM_S9.MODEL_LINEAGE, tempDevice.Model);
                     changedSystemInfo.Add(BuildKey_SYSTEM_S9.DEVICE, tempDevice.Code);
@@ -80,9 +83,12 @@ namespace ToolChange.Services
                     changedSystemInfo.Add(BuildKey_SYSTEM_S9.BSSID, RandomService.generateMacAddress());
                     changedSystemInfo.Add(BuildKey_SYSTEM_S9.FINGERPRINT, tempDevice.Fingerprint);
                     //changedSystemInfo.Add(BuildKey_SYSTEM_S9.SECURITY_PATH, tempDevice.SecurityPath);
+                    changedSystemInfo.Add(BuildKey_SYSTEM_S9.ANDROID_SECURITY_PATH, tempDevice.SecurityPath);
+
                     changedSystemInfo.Add(BuildKey_SYSTEM_S9.BUILD_ID, tempDevice.BuildId);
                     //changedSystemInfo.Add(BuildKey_SYSTEM_S9.VERSION_RELEASE, tempDevice.Release);
-
+                    changedSystemInfo.Add(BuildKey_SYSTEM_S9.ANDROID_VERSION_RELEASE, tempDevice.Release);
+                    changedSystemInfo.Add(BuildKey_SYSTEM_S9.ANDROID_SDK, tempDevice.SDK);
                     changedSystemInfo.Add(BuildKey_SYSTEM_S9.FINGERPRINT_SYSTEM, tempDevice.Fingerprint);
                     //changedSystemInfo.Add(BuildKey_SYSTEM_S9.BUILD_PDA, tempBaseband);
                     ToolChange.Models.DeviceUpdater.UpdateProgress(deviceS, deviceId, "45%", "save information ");

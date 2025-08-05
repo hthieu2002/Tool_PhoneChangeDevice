@@ -49,6 +49,7 @@
     <None Remove="Resources\SDL2.dll" />
     <None Remove="Resources\swresample-5.dll" />
     <None Remove="Resources\tessdata\eng.traineddata" />
+    <None Remove="Resources\timezone.xlsx" />
     <None Remove="Resources\tun2socks" />
     <None Remove="Resources\webview.txt" />
     <None Remove="..\POCO\Resources\carriers.json" />
@@ -121,6 +122,9 @@
     <Resource Include="Resources\Icons\vn.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Resource>
+    <EmbeddedResource Include="Resources\timezone.xlsx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
     <EmbeddedResource Include="Resources\init.lineage16.rc">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </EmbeddedResource>
@@ -185,6 +189,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="EPPlus" Version="6.2.4" />
     <PackageReference Include="FFmpeg.AutoGen" Version="7.1.1" />
     <PackageReference Include="LibVLCSharp" Version="3.9.3" />
     <PackageReference Include="LibVLCSharp.Forms" Version="3.9.3" />
@@ -204,6 +209,7 @@
     <PackageReference Include="NETStandard.Library" Version="2.0.3" />
     <PackageReference Include="OpenCvSharp4" Version="4.11.0.20250507" />
     <PackageReference Include="OpenCvSharp4.runtime.win" Version="4.11.0.20250507" />
+    <PackageReference Include="SharpZipLib" Version="1.4.2" />
     <PackageReference Include="System.Drawing.Common" Version="9.0.6" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.12.1" />
     <PackageReference Include="Tesseract" Version="5.2.0" />

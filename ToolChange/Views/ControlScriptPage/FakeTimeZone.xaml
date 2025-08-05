@@ -1,0 +1,269 @@
+﻿<Window x:Class="ToolChange.Views.ControlScriptPage.FakeTimeZone"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        xmlns:local="clr-namespace:ToolChange.Views.ControlScriptPage"
+        mc:Ignorable="d"
+        ResizeMode="NoResize"
+        Title="FakeTimeZone" Height="350" Width="710">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="3"
+                              x:Name="DeviceColumnRol" />
+            <ColumnDefinition Width="200"
+                              x:Name="DeviceColumn" />
+        </Grid.ColumnDefinitions>
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            <Label Content="Fake Time Zone (GMT)"
+                   HorizontalAlignment="Center"
+                   VerticalAlignment="Center"
+                   Height="35"
+                   FontSize="18"
+                   FontWeight="Bold"
+                   Margin="5" />
+
+            <Grid Grid.Row="1">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <Grid Grid.Row="0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+
+                    <!-- ComboBox wrapped in a Border -->
+                    <Border Grid.Column="0"
+                            BorderBrush="Gray"
+                            BorderThickness="1"
+                            CornerRadius="4"
+                            Margin="5">
+                        <ComboBox materialDesign:HintAssist.Hint="GMT"
+                                  materialDesign:TextFieldAssist.DecorationVisibility="Hidden"
+                                  materialDesign:TextFieldAssist.UnderlineBrush="Transparent"
+                                  Background="Transparent"
+                                  BorderThickness="0"
+                                  Padding="10,4,10,4"
+                                  IsEditable="False"
+                                  VerticalContentAlignment="Center"
+                                  ItemsSource="{Binding GmtOffsets}"
+                                  SelectedItem="{Binding SelectedGmtOffset, Mode=TwoWay}" />
+                       
+                    </Border>
+
+                    <!-- Offset Label wrapped in a Border -->
+                    <Border Grid.Column="1"
+                            BorderBrush="Gray"
+                            BorderThickness="1"
+                            CornerRadius="4"
+                            Margin="5">
+                        <ComboBox materialDesign:HintAssist.Hint="Time zone"
+                                  materialDesign:TextFieldAssist.DecorationVisibility="Hidden"
+                                  materialDesign:TextFieldAssist.UnderlineBrush="Transparent"
+                                  ToolTip="{Binding SelectedTimeZone, Mode=OneWay}"
+                                  Background="Transparent"
+                                  BorderThickness="0"
+                                  Padding="10,4,10,4"
+                                  IsEditable="False"
+                                  VerticalContentAlignment="Center"
+                                  ItemsSource="{Binding Timezones}"
+                                  SelectedItem="{Binding SelectedTimeZone, Mode=TwoWay}"
+                                  />
+                       
+                    </Border>
+
+                    <!-- TimeZone Label wrapped in a Border -->
+                    <Border Grid.Column="2"
+                            BorderBrush="Gray"
+                            BorderThickness="1"
+                            CornerRadius="4"
+                            Margin="5">
+                        <Label x:Name="Country"
+                               Content="{Binding CountryLabel}"
+                               ToolTip="{Binding CountryLabel}"
+                               FontWeight="Bold"
+                               VerticalContentAlignment="Center"
+                               HorizontalContentAlignment="Left"
+                               Padding="5" />
+                    </Border>
+                </Grid>
+                <Grid Grid.Row="1">
+                    <Separator Margin="10"
+                               Width="150" />
+
+                </Grid>
+                <Grid Grid.Row="2"
+                      Margin="0,10,0,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <Label Content="Thiết bị"
+                           FontSize="14"
+                           HorizontalAlignment="Center"
+                           VerticalAlignment="Center"
+                           Margin="30,0,10,0" />
+                    <Border CornerRadius="8"
+                            Margin="0,0,40,0"
+                            Padding="4"
+                            Grid.Column="1"
+                            Background="#F5F5F5">
+                        <Border.Style>
+                            <Style TargetType="Border">
+                                <Setter Property="BorderBrush"
+                                        Value="Gray" />
+                                <Setter Property="BorderThickness"
+                                        Value="1.5" />
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsKeyboardFocusWithin, RelativeSource={RelativeSource Self}}"
+                                                 Value="True">
+                                        <Setter Property="BorderBrush"
+                                                Value="LimeGreen" />
+                                        <Setter Property="BorderThickness"
+                                                Value="2" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Border.Style>
+                        <ComboBox materialDesign:HintAssist.Hint="Thiết bị fake time zone GMT"
+                                  materialDesign:TextFieldAssist.DecorationVisibility="Hidden"
+                                  materialDesign:TextFieldAssist.UnderlineBrush="Transparent"
+                                  Background="Transparent"
+                                  BorderThickness="0"
+                                  Padding="10,4,10,4"
+                                  IsEditable="False"
+                                  VerticalContentAlignment="Center"
+                                  SelectedItem="{Binding SelectedDevice, Mode=TwoWay}"
+                                  ItemsSource="{Binding AllDevices}">
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding DisplayLabel}" />
+                                </DataTemplate>
+                            </ComboBox.ItemTemplate>
+                        </ComboBox>
+
+                    </Border>
+
+                </Grid>
+                <CheckBox Content="Fake toàn bộ thiết bị"
+                          Grid.Row="3"
+                          IsChecked="{Binding DeviceALL, Mode=TwoWay}"
+                          Margin="30,10" />
+                <Grid Grid.Row="4"
+                      Margin="0,30,0,0">
+                    <Button Width="150"
+                            Height="35"
+                            Grid.Row="5"
+                            Command="{Binding OKCommand}"
+                            Padding="10,4">
+                        <StackPanel Orientation="Horizontal">
+                            <materialDesign:PackIcon Kind="Timezone"
+                                                     Width="20"
+                                                     Margin="0,0,8,0"
+                                                     HorizontalAlignment="Left"
+                                                     VerticalAlignment="Stretch" />
+                            <TextBlock Text="Fake time zone"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Stretch" />
+                        </StackPanel>
+                    </Button>
+                </Grid>
+            </Grid>
+        </Grid>
+        <Rectangle Width="2"
+                   Grid.Column="1"
+                   Fill="Gray"
+                   VerticalAlignment="Stretch" />
+
+        <Grid Grid.Column="2"
+              Margin="10">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            <Label Content="Danh sách thiết bị"
+                   HorizontalAlignment="Center"
+                   VerticalAlignment="Top"
+                   FontSize="14"
+                   Margin="0,0,0,10" />
+            <ScrollViewer VerticalScrollBarVisibility="Auto"
+                          Grid.Row="1">
+
+                <ItemsControl ItemsSource="{Binding SelectedDevices}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Border BorderBrush="Gray"
+                                    BorderThickness="1"
+                                    CornerRadius="5"
+                                    Margin="0,5,5,5"
+                                    Padding="5"
+                                    Background="#F5F5F5"
+                                    Opacity="0">
+                                <Border.Triggers>
+                                    <EventTrigger RoutedEvent="Border.Loaded">
+                                        <BeginStoryboard>
+                                            <Storyboard>
+                                                <!-- Hiệu ứng mờ dần -->
+                                                <DoubleAnimation Storyboard.TargetProperty="Opacity"
+                                                                 From="0"
+                                                                 To="1"
+                                                                 Duration="0:0:0.3">
+                                                    <DoubleAnimation.EasingFunction>
+                                                        <QuadraticEase EasingMode="EaseInOut" />
+                                                    </DoubleAnimation.EasingFunction>
+                                                </DoubleAnimation>
+
+                                                <!-- Hiệu ứng trượt từ phải sang -->
+                                                <ThicknessAnimation Storyboard.TargetProperty="Margin"
+                                                                    From="20,5,0,5"
+                                                                    To="0,5,5,5"
+                                                                    Duration="0:0:0.3">
+                                                    <ThicknessAnimation.EasingFunction>
+                                                        <QuadraticEase EasingMode="EaseInOut" />
+                                                    </ThicknessAnimation.EasingFunction>
+                                                </ThicknessAnimation>
+                                            </Storyboard>
+                                        </BeginStoryboard>
+                                    </EventTrigger>
+                                </Border.Triggers>
+
+                                <DockPanel>
+                                    <TextBlock Text="{Binding DisplayLabel}"
+                                               ToolTip="{Binding DisplayLabel}"
+                                               VerticalAlignment="Center"
+                                               TextTrimming="CharacterEllipsis"
+                                               TextWrapping="NoWrap"
+                                               Width="110" />
+
+                                    <Button Content="❌"
+                                            FontSize="11"
+                                            Padding="0"
+                                            Width="25"
+                                            Height="25"
+                                            Margin="10,0,0,0"
+                                            HorizontalAlignment="Right"
+                                            Command="{Binding DataContext.RemoveDeviceCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                            CommandParameter="{Binding}" />
+                                </DockPanel>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+
+            </ScrollViewer>
+        </Grid>
+    </Grid>
+   
+</Window>

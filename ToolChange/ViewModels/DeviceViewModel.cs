@@ -654,6 +654,7 @@ namespace ToolChange.ViewModels
         public ICommand AutoChangeSimCommand { get; private set; }
         public ICommand ScreenshotCommand { get; private set; }
         public ICommand FakeLocationCommand { get; private set; }
+        public ICommand FakeTimeZoneCommand { get; private set; }
         public ICommand DetailsDeviceIdCommand { get; private set; }
         public ICommand ViewDevicesCommand { get; private set; }
         public ICommand FakeProxyDeviceIdCommand { get; private set; }
@@ -692,6 +693,7 @@ namespace ToolChange.ViewModels
             AutoChangeSimCommand = new RelayCommand(async () => await AutoChangeSim());
             ScreenshotCommand = new RelayCommand(async () => await Screenshot());
             FakeLocationCommand = new RelayCommand(async () => await FakeLocation());
+            FakeTimeZoneCommand = new RelayCommand(async () => await FakeTimeZone());
             OpenUrlCommand = new RelayCommand(async () => await OpenUrl());
             FakeProxyAllCommand = new RelayCommand(async () => await FakeProxyAll());
             IsCheckBoxDevice = new RelayCommand<Models.DeviceModel>(async (device) => await CheckBoxDevice(device));
@@ -1759,8 +1761,8 @@ namespace ToolChange.ViewModels
                             }
                         }
                     }
-
-                    if (IsCheckedpif == true)
+                    
+                    if (IsCheckedKeyBox == true) 
                     {
                         messageBoxPushFileJson = System.Windows.MessageBox.Show(DevicesLang.logChangeDevicePif, Lang.LogInfomation, MessageBoxButton.YesNo, MessageBoxImage.Warning);
                     }
@@ -2075,7 +2077,7 @@ namespace ToolChange.ViewModels
                 Console.WriteLine(IsCheckedSim);
                 await Task.Delay(1000);
                 DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "9%", "Start change device ...");
-                saveResult = Services.Util.SaveDeviceInfo(this, Devices, checkChange == 0 ? tempDeviceAll : deviceTemp, device.DeviceId, AppDomain.CurrentDomain.BaseDirectory, IsCheckedSim);
+                saveResult = Services.Util.SaveDeviceInfo(this, Devices, checkChange == 0 ? tempDeviceAll : deviceTemp, device.DeviceId, AppDomain.CurrentDomain.BaseDirectory, IsCheckedSim, IsCheckedpif);
 
                 //    UpdateDeviceStatus(device.DeviceId, "75%", "Change device ....");
                 DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "75%", "Change device check");
@@ -2383,6 +2385,87 @@ namespace ToolChange.ViewModels
             {
                 _processingDeviceIds.Clear();
 
+            }
+        }
+        private async Task FakeTimeZone()
+        {
+            try
+            {
+                string time = "";
+                string timezone = "";
+                bool deviceCheck = false;
+                ObservableCollection<Models.DeviceModel> devices = new ObservableCollection<Models.DeviceModel>();
+                var selectedDevices = Devices.Where(device => device.IsChecked).ToList();
+                int selectedCount = selectedDevices.Count;
+
+                if (selectedCount == 0)
+                {
+                    System.Windows.MessageBox.Show(DevicesLang.logSelectDeviceChange, Lang.LogInfomation, MessageBoxButton.OK, MessageBoxImage.Information);
+                    return;
+                }
+                var vm = new FakeTimeZoneViewModel(selectedDevices);
+                var dialog = new Views.ControlScriptPage.FakeTimeZone(selectedDevices)
+                {
+                    Title = "Fake time zone GTM",
+                    WindowStartupLocation = WindowStartupLocation.CenterScreen,
+                    DataContext = vm
+                };
+                vm.CloseAction = result =>
+                {
+                    dialog.DialogResult = result;
+                    dialog.Close();
+                };
+                if (dialog.ShowDialog() == true)
+                {
+                    time = vm.SelectedGmtOffset;
+                    timezone = vm.SelectedTimeZone;
+                    deviceCheck = vm.DeviceALL;
+                    devices = vm.SelectedDevices;
+                }
+                else
+                {
+                    return;
+                }
+
+                var tasks = new List<Task>();
+
+                foreach (var device in (deviceCheck ? selectedDevices.Cast<Models.DeviceModel>() : devices))
+                {
+                    if (device.Status == "Offline")
+                    {
+                        continue;
+                    }
+                    
+                    if (_processingDeviceIds.Contains(device.DeviceId))
+                        continue;
+
+                    if (string.IsNullOrEmpty(timezone) || string.IsNullOrEmpty(timezone))
+                    {
+                        DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "0%", "error time zone");
+                        return;
+                    }
+                    DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "0%", $"Start fake time zone {time}");
+                    _processingDeviceIds.Add(device.DeviceId);
+
+                    tasks.Add(ProcessFakeTimeZoneAllAsync(device, timezone, time));
+                    _processingDeviceIds.Remove(device.DeviceId);
+                }
+                await Task.WhenAll(tasks);
+
+            }
+            catch (Exception e)
+            {
+                Debug.WriteLine(e);
+            }
+        }
+        private async Task ProcessFakeTimeZoneAllAsync(Models.DeviceModel device, string timezone, string time)
+        {
+            if (!string.IsNullOrEmpty(timezone) && !string.IsNullOrEmpty(timezone))
+            {
+                DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "30%", $"Start fake time zone {time}");
+                ADBService.FakeTimezone(timezone, device.DeviceId);
+                DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "100%", $"Fake time zone success {time}");
+                _processingDeviceIds.Remove(device.DeviceId);
             }
         }
         private async Task OpenUrl()

@@ -5,6 +5,8 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
+using System.IO.Compression;
+using System.IO.Packaging;
 using System.Linq;
 using System.Text;
 using System.Text.Json;
@@ -14,9 +16,12 @@ using System.Windows;
 using System.Windows.Input;
 using System.Windows.Threading;
 using ToolChange.Language;
+using ToolChange.Models;
 using ToolChange.Services;
 using ToolChange.Views;
+using ToolChange.Views.ControlScriptPage;
 using WindowsFormsApp.Script.RoslynScript;
+using Xamarin.Forms;
 
 namespace ToolChange.ViewModels
 {
@@ -39,6 +44,9 @@ namespace ToolChange.ViewModels
         private bool _isDisableRunFile = true;
         private int _runscript = 0;
         private string _btnRun = "Run Script";
+
+        private static List<string> packages = new List<string>();
+
         public string User
         {
             get => _user;
@@ -166,29 +174,99 @@ namespace ToolChange.ViewModels
                     _isAllChecked = value;
                     OnPropertyChanged(nameof(IsAllChecked));
 
-                  //  _isUpdatingCheckAll = true; // ⚠️ bắt đầu chặn trigger
+                    //  _isUpdatingCheckAll = true; // ⚠️ bắt đầu chặn trigger
                     foreach (var device in Devices)
                     {
                         device.IsChecked = value;
                     }
-                 //   _isUpdatingCheckAll = false; // ✅ cho phép lại
+                    //   _isUpdatingCheckAll = false; // ✅ cho phép lại
                 }
             }
         }
+        private string _zipUrl = "";
+        public string ZipUrl
+        {
+            get => _zipUrl;
+            set
+            {
+                if (_zipUrl != value)
+                {
+                    _zipUrl = value;
+                    OnPropertyChanged(nameof(ZipUrl));
+
+                }
+            }
+        }
+        private string _zipPassword = "";
+        public string ZipPassword
+        {
+            get => _zipPassword;
+            set
+            {
+                if (_zipPassword != value)
+                {
+                    _zipPassword = value;
+                    OnPropertyChanged(nameof(ZipPassword));
+
+                }
+            }
+        }
+        private bool _isBackupAccount = false;
+        public bool IsBackupAccount
+        {
+            get => _isBackupAccount;
+            set
+            {
+                if (_isBackupAccount != value)
+                {
+                    _isBackupAccount = value;
+
+                    if (_isBackupAccount)
+                    {
+                        AddPackages(new[]
+                        {
+                    "com.android.vending",
+                    "com.google.android.gsf",
+                    "com.google.android.gms"
+                });
+                    }
+                    else
+                    {
+                        RemovePackages(new[]
+                        {
+                    "com.android.vending",
+                    "com.google.android.gsf",
+                    "com.google.android.gms"
+                });
+                    }
+
+                    OnPropertyChanged(nameof(IsBackupAccount));
+                }
+            }
+        }
+
         public ICommand IsCheckBoxDevice { get; private set; }
         public ICommand LoadDevicesCommand { get; private set; }
+        public ICommand BackupDevicesCommand { get; private set; }
+        public ICommand ListAppBackupDeviceCommand { get; private set; }
+        public ICommand FixBackupDeviceCommand { get; private set; }
+        public ICommand RestoreDevicesCommand { get; private set; }
         public ICommand ScreenShotDevicesCommand { get; private set; }
         public ICommand LoadFileCommand { get; private set; }
         public ICommand RunScriptCommand { get; private set; }
         public AutomationViewModel()
         {
             _ = LoadDevices();
-        
+
             LoadDevicesCommand = new RelayCommand(async () => await LoadDevicesAsync());
+            BackupDevicesCommand = new RelayCommand(async () => await BackupDevicesAsync());
+            ListAppBackupDeviceCommand = new RelayCommand(async () => await ListAppBackupDeviceAsync());
+            FixBackupDeviceCommand = new RelayCommand(async () => await FixBackupDeviceAsync());
+            RestoreDevicesCommand = new RelayCommand(async () => await RestoreDevicesAsync());
             ScreenShotDevicesCommand = new RelayCommand(async () => await Screenshot());
             RunScriptCommand = new RelayCommand(async () => await RunScript());
             LoadFileCommand = new RelayCommand(async () => await LoadFileScriptFunc());
-           
+
             IsCheckBoxDevice = new RelayCommand<Models.DeviceModel>(CheckBoxDevice);
 
             foreach (var device in Devices)
@@ -281,6 +359,169 @@ namespace ToolChange.ViewModels
             catch (Exception ex)
             {
                 System.Windows.MessageBox.Show($"Error loading devices: {ex.Message}");
+            }
+        }
+        private async Task FixBackupDeviceAsync()
+        {
+            try
+            {
+                var selectedDevices = Devices.Where(device => device.IsChecked).ToList();
+                int selectedCount = selectedDevices.Count;
+
+                var tasks = new List<Task>();
+
+                foreach (var device in selectedDevices)
+                {
+                    if (device.Status == "Offline")
+                    {
+                        DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "0%", "Devices offline");
+                        continue;
+                    }
+                   
+
+                    if (_processingDeviceIds.Contains(device.DeviceId))
+                        continue;
+
+                   
+
+                    _processingDeviceIds.Add(device.DeviceId);
+
+                    tasks.Add(ProcessFixBackupAllAsync(device.DeviceId));
+
+                }
+                await Task.WhenAll(tasks);
+            }
+            catch (Exception e)
+            {
+
+            }
+        }
+        private async Task ListAppBackupDeviceAsync()
+        {
+            try
+            {
+                ObservableCollection<Models.AppItem> ItemDevice = new ObservableCollection<Models.AppItem>();
+                var selectedDevices = Devices.Where(device => device.IsChecked && device.Status == "Online").ToList();
+                int selectedCount = selectedDevices.Count;
+
+                if (selectedCount == 0)
+                {
+                    System.Windows.MessageBox.Show(DevicesLang.logSelectDeviceChange, Lang.LogInfomation, MessageBoxButton.OK, MessageBoxImage.Information);
+                    return;
+                }
+
+                var model = new AppListViewModel(selectedDevices[0]);
+                var log = new ListAppPackage(selectedDevices[0])
+                {
+                    WindowStartupLocation = WindowStartupLocation.CenterScreen,
+                    DataContext = model,
+                };
+                model.CloseAction = result =>
+                {
+                    log.DialogResult = result;
+                    log.Close();
+                };
+                if (log.ShowDialog() == true)
+                {
+                    ItemDevice = model.ListB;
+
+                    var importantPackages = new List<string>
+{
+    "com.android.vending",
+    "com.google.android.gsf",
+    "com.google.android.gms"
+};
+
+                    var selectedPackages = ItemDevice.Select(app => app.Package).ToList();
+                    bool hasImportant = selectedPackages.Any(pkg => importantPackages.Contains(pkg));
+
+                    if (hasImportant)
+                    {
+                        packages = selectedPackages
+                            .Where(pkg => importantPackages.Contains(pkg))
+                            .ToList();
+                    }
+                    else
+                    {
+                        packages = selectedPackages;
+                    }
+                }
+
+                // OK
+
+                Debug.WriteLine($"Selected packages for backup: {string.Join(", ", packages)}");
+            }
+            catch (Exception e)
+            {
+                Debug.WriteLine(e.Message);
+            }
+        }
+        private async Task BackupDevicesAsync()
+        {
+            try
+            {
+
+                var selectedDevices = Devices.Where(device => device.IsChecked).ToList();
+                int selectedCount = selectedDevices.Count;
+
+                if (selectedCount == 0)
+                {
+                    System.Windows.MessageBox.Show(DevicesLang.logSelectDeviceChange, Lang.LogInfomation, MessageBoxButton.OK, MessageBoxImage.Information);
+                    return;
+                }
+
+                var tasks = new List<Task>();
+                foreach (var device in selectedDevices)
+                {
+                    if (device.Status == "Offline")
+                        continue;
+                    if (_processingDeviceIds.Contains(device.DeviceId))
+                        continue;
+
+                    _processingDeviceIds.Add(device.DeviceId);
+                    UpdateDeviceStatus(device.DeviceId, "0%", "Start backup");
+                    tasks.Add(ProcessBackupDevicesAsync(device));
+                }
+                await Task.WhenAll(tasks);
+
+            }
+            catch (Exception ex)
+            {
+                System.Windows.MessageBox.Show($"Error backup devices: {ex.Message}");
+            }
+        }
+        private async Task RestoreDevicesAsync()
+        {
+            try
+            {
+
+                var selectedDevices = Devices.Where(device => device.IsChecked).ToList();
+                int selectedCount = selectedDevices.Count;
+
+                if (selectedCount == 0)
+                {
+                    System.Windows.MessageBox.Show(DevicesLang.logSelectDeviceChange, Lang.LogInfomation, MessageBoxButton.OK, MessageBoxImage.Information);
+                    return;
+                }
+
+                var tasks = new List<Task>();
+                foreach (var device in selectedDevices)
+                {
+                    if (device.Status == "Offline")
+                        continue;
+                    if (_processingDeviceIds.Contains(device.DeviceId))
+                        continue;
+
+                    _processingDeviceIds.Add(device.DeviceId);
+                    UpdateDeviceStatus(device.DeviceId, "0%", "Start restore");
+                    tasks.Add(ProcessRestoreDevicesAsync(device));
+                }
+                await Task.WhenAll(tasks);
+
+            }
+            catch (Exception ex)
+            {
+                System.Windows.MessageBox.Show($"Error backup devices: {ex.Message}");
             }
         }
         private async Task Screenshot()
@@ -407,12 +648,200 @@ namespace ToolChange.ViewModels
         }
         private async Task ProcessScreenShotDeviceAsync(Models.DeviceModel device)
         {
-           
+
             ADBService.ScreenshotAdb(device.DeviceId);
             UpdateDeviceStatus(device.DeviceId, "100%", "Success screenshot");
 
             _processingDeviceIds.Remove(device.DeviceId);
         }
+
+
+
+
+        private async Task ProcessBackupDevicesAsync(Models.DeviceModel device)
+        {
+
+            string folderPath = Path.Combine(System.Windows.Forms.Application.StartupPath, device.DeviceId);
+            if (!Directory.Exists(folderPath))
+            {
+                Directory.CreateDirectory(folderPath);
+            }
+            string backupPath = Path.Combine(System.Windows.Forms.Application.StartupPath, device.DeviceId, string.Concat($"dataBackupFullInfo_{device.DeviceId}"));
+            var isBackupDone = await ADBService.BackUpDeviceAsync(device.DeviceId, packages);
+
+            if (isBackupDone)
+            {
+                ADBService.runCMDRoot("shell service call notification 1 s16 \"com.google.android.gms\"", device.DeviceId);
+                UpdateDeviceStatus(device.DeviceId, "100%", "Backup success");
+                _processingDeviceIds.Remove(device.DeviceId);
+            }
+            else
+            {
+                UpdateDeviceStatus(device.DeviceId, "100%", "Backup error");
+                _processingDeviceIds.Remove(device.DeviceId);
+            }
+            _processingDeviceIds.Remove(device.DeviceId);
+        }
+        private async Task ProcessFixBackupAllAsync(string device)
+        {
+            ADBService.runCMDRoot("shell pm clear com.android.vending", device);
+            await Task.Delay(2000);
+            ADBService.runCMDRoot("shell service call notification 1 s16 \"com.google.android.gms\"", device);
+            DeviceUpdater.UpdateProgress(Devices, device, "100%", "Fix success !");
+            _processingDeviceIds.Remove(device);
+        }
+        private async Task ProcessRestoreDevicesAsync(Models.DeviceModel device)
+        {
+            string folderPath = Path.Combine(System.Windows.Forms.Application.StartupPath, device.DeviceId);
+            if (!Directory.Exists(folderPath))
+            {
+                Directory.CreateDirectory(folderPath);
+            }
+            if (string.IsNullOrEmpty(ZipUrl))
+            {
+                UpdateDeviceStatus(device.DeviceId, "0%", "Error not data backup !");
+                _processingDeviceIds.Remove(device.DeviceId);
+                return;
+            }
+            string restorePath = Path.Combine(System.Windows.Forms.Application.StartupPath, device.DeviceId, $"dataBackupFullInfo_{device.DeviceId}.7z");
+            string zip = $"./Resources/Backup/{ZipUrl}";
+            // ⚠️ CHỖ NÀY GỌI BẰNG `await Task.Run(...)`
+            bool isRestoreDone = await Task.Run(() =>
+            {
+                return restoreFullInfoExtra(zip, device.DeviceId);
+            });
+
+            if (isRestoreDone)
+            {
+                UpdateDeviceStatus(device.DeviceId, "100%", "Restore success");
+
+            }
+            else
+            {
+                UpdateDeviceStatus(device.DeviceId, "100%", "Restore Error");
+            }
+
+            _processingDeviceIds.Remove(device.DeviceId);
+        }
+        public bool restoreFullInfo(string fromDesktopFullPath, string deviceId)
+        {
+            if (!File.Exists(fromDesktopFullPath))
+            {
+                _processingDeviceIds.Remove(deviceId);
+                throw new FileNotFoundException("❌ Zip file not found: " + fromDesktopFullPath);
+            }
+
+            // ⚠️ Cấp quyền root và remount để ghi vào phân vùng hệ thống
+            ADBService.runCMDRoot("root", deviceId);
+            ADBService.runCMDRoot("remount", deviceId);
+            ADBService.runCMDRoot("shell \"mount -o rw,remount rootfs\"", deviceId);
+
+            string tempExtractDir = Path.Combine(Path.GetTempPath(), "RestoreZip_" + Guid.NewGuid().ToString("N"));
+            Directory.CreateDirectory(tempExtractDir);
+
+            try
+            {
+                ZipFile.ExtractToDirectory(fromDesktopFullPath, tempExtractDir);
+                Console.WriteLine("✅ Extracted to temp folder: " + tempExtractDir);
+                UpdateDeviceStatus(deviceId, "1%", "✅ Extracted to temp folder: " + tempExtractDir);
+
+                var files = Directory.GetFiles(tempExtractDir, "*", SearchOption.AllDirectories);
+                int count = 10;
+
+                foreach (var file in files)
+                {
+                    if (count < 90) count++;
+
+                    string relativePath = Path.GetRelativePath(tempExtractDir, file).Replace("\\", "/");
+                    string remotePath = "/" + relativePath; // ⚠️ Gửi đúng path gốc
+
+                    string remoteDir = Path.GetDirectoryName(remotePath).Replace("\\", "/");
+                    ADBService.runCMDRoot($"shell \"mkdir -p \\\"{remoteDir}\\\"\"", deviceId);
+
+                    var pushCmd = $"push \"{file}\" \"{remotePath}\"";
+                    ADBService.runCMDRoot(pushCmd, deviceId);
+
+                    Debug.WriteLine($"📤 Pushed: {relativePath} ➜ {remotePath}");
+                    UpdateDeviceStatus(deviceId, $"{count}%", $"📤 Pushed: {relativePath}");
+                }
+
+                ADBService.runCMDRoot($"shell \"rm -rf /sdcard/*.min\"", deviceId);
+
+                return true;
+            }
+            finally
+            {
+                if (Directory.Exists(tempExtractDir))
+                {
+                    Directory.Delete(tempExtractDir, true);
+                    Console.WriteLine("🧹 Temp folder deleted.");
+                }
+            }
+        }
+        public bool restoreFullInfoExtra(string fromDesktopFullPath, string deviceId)
+        {
+            if (!File.Exists(fromDesktopFullPath))
+            {
+                _processingDeviceIds.Remove(deviceId);
+                throw new FileNotFoundException("❌ Zip file not found: " + fromDesktopFullPath);
+            }
+
+            // Cấp quyền root và remount
+            ADBService.runCMDRoot("root", deviceId);
+            ADBService.runCMDRoot("remount", deviceId);
+            ADBService.runCMDRoot("shell \"mount -o rw,remount rootfs\"", deviceId);
+
+            string remoteZipPath = "/sdcard/restore_temp.zip";
+
+            // 1. Push ZIP file một lần duy nhất
+            ADBService.runCMDRoot($"push \"{fromDesktopFullPath}\" \"{remoteZipPath}\"", deviceId);
+            UpdateDeviceStatus(deviceId, "25%", $"✅ Pushed zip to: {remoteZipPath}");
+
+            // 2. Giải nén trên thiết bị bằng `unzip`
+            ADBService.runCMDRoot($"shell \"rm -rf /data/local/tmp/restore && mkdir -p /data/local/tmp/restore && unzip -o {remoteZipPath} -d /data/local/tmp/restore\"", deviceId);
+            UpdateDeviceStatus(deviceId, "50%", $"✅ Unzipped on device");
+
+            // 3. Di chuyển từng file về đúng vị trí gốc (nếu cần)
+            ADBService.runCMDRoot($"shell \"cp -r /data/local/tmp/restore/* /\"", deviceId);
+            UpdateDeviceStatus(deviceId, "90%", $"✅ Restored data to rootfs");
+
+            // 4. Xóa file tạm
+            ADBService.runCMDRoot($"shell \"rm -rf /data/local/tmp/restore {remoteZipPath}\"", deviceId);
+            UpdateDeviceStatus(deviceId, "100%", $"🧹 Cleaned up");
+
+            //Task.Delay(5000).Wait(); // Đợi 3 giây để đảm bảo backup hoàn tất
+            //ADBService.runCMDRoot("reboot", deviceId);
+            return true;
+        }
+        public static void AddPackage(string packageName)
+        {
+            if (!packages.Contains(packageName))
+            {
+                packages.Add(packageName);
+            }
+        }
+        public static void AddPackages(IEnumerable<string> packageNames)
+        {
+            foreach (var pkg in packageNames)
+            {
+                AddPackage(pkg);
+            }
+        }
+        public static void RemovePackages(IEnumerable<string> packageNames)
+        {
+            foreach (var pkg in packageNames)
+            {
+                packages.Remove(pkg);
+            }
+        }
+        public static void RemovePackage(string packageName)
+        {
+            if (packages.Contains(packageName))
+            {
+                packages.Remove(packageName);
+            }
+        }
+
         private async Task ProcessRunScriptDeviceAsync(Models.DeviceModel device)
         {
             _cancellationTokenSource = new CancellationTokenSource();
@@ -431,7 +860,7 @@ namespace ToolChange.ViewModels
                             {
                                 UpdateDeviceStatus(device.DeviceId, "1", $"{AutomationLang.logUntimateRunSctiptInfo} {count}");
                             });
-                           
+
                             RoslynScriptAutomation.Run($"./Resources/script/{SelectedFileScript}", device.DeviceId, token);
                         }
                     });
@@ -439,14 +868,14 @@ namespace ToolChange.ViewModels
                     {
                         UpdateDeviceStatus(device.DeviceId, "100", $"{AutomationLang.logUntimateRunSctiptInfoSuccess}");
                     });
-                    
+
                     _processingDeviceIds.Remove(device.DeviceId);
                 }
                 else
                 {
                     await Task.Run(() =>
                     {
-                        if(CountRunScript == 0) { return; }
+                        if (CountRunScript == 0) { return; }
                         for (int i = 0; i < CountRunScript; i++)
                         {
                             if (token.IsCancellationRequested) return;
@@ -462,7 +891,7 @@ namespace ToolChange.ViewModels
                     {
                         UpdateDeviceStatus(device.DeviceId, "100", $"{AutomationLang.logRunSctiptInfoSuccess}");
                     });
-                   
+
                     _processingDeviceIds.Remove(device.DeviceId);
                 }
 
@@ -471,7 +900,7 @@ namespace ToolChange.ViewModels
             {
 
             }
-           
+
         }
         public void UpdateDeviceStatus(string deviceId, string newPercentage, string newProgress)
         {

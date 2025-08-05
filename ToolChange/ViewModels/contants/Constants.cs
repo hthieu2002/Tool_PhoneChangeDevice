@@ -43,10 +43,15 @@
         //version release
         public static readonly string VERSION_RELEASE = "ro.build.version.release";
         public static readonly string VERSION_RELEASE_SYSTEM = "ro.system.build.version.release";
+        public static readonly string ANDROID_VERSION_RELEASE = "ro.android.build.version.release";
         //sdk
         public static readonly string VERSION_SDK = "ro.build.version.sdk";
+        public static readonly string ANDROID_SDK = "ro.android.build.version.sdk";
+
         //security_path
         public static readonly string SECURITY_PATH = "ro.build.version.security_patch";
+        public static readonly string ANDROID_SECURITY_PATH = "ro.android.build.version.security_patch";
+
         //Builder
         public static readonly string BUILD_HOST = "ro.build.host";
         //Bootloader

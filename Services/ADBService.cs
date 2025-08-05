@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using System.Net;
 using System.Reflection;
@@ -93,6 +94,65 @@ namespace Services
             runCMD("root", deviceId);
             runCMD(string.Format("shell setprop ro.debuggable {0}", debuggableValue), deviceId);
         }
+        public static bool restoreFullInfo(string fromDesktopFullPath, string deviceId)
+        {
+            if (!File.Exists(fromDesktopFullPath))
+                throw new FileNotFoundException("❌ Zip file not found: " + fromDesktopFullPath);
+
+            runCMDRoot("root", deviceId);
+            runCMDRoot("remount", deviceId);
+            runCMDRoot("shell \"mount -o rw,remount rootfs\"", deviceId);
+
+            string tempExtractDir = Path.Combine(Path.GetTempPath(), "RestoreZip_" + Guid.NewGuid().ToString("N"));
+            Directory.CreateDirectory(tempExtractDir);
+
+            try
+            {
+                ZipFile.ExtractToDirectory(fromDesktopFullPath, tempExtractDir);
+                Console.WriteLine("✅ Extracted to temp folder: " + tempExtractDir);
+
+                var files = Directory.GetFiles(tempExtractDir, "*", SearchOption.AllDirectories);
+                string deviceBasePath = "/sdcard/RestoreZip";
+
+                foreach (var file in files)
+                {
+                    string relativePath = Path.GetRelativePath(tempExtractDir, file);
+                    string remotePath = Path.Combine(deviceBasePath, relativePath).Replace("\\", "/");
+
+                    string remoteDir = Path.GetDirectoryName(remotePath).Replace("\\", "/");
+                    runCMDRoot($"shell \"mkdir -p \\\"{remoteDir}\\\"\"", deviceId);
+
+                    var pushCmd = $"push \"{file}\" \"{remotePath}\"";
+                    runCMDRoot(pushCmd, deviceId);
+                    Debug.WriteLine($"📤 Pushed: {relativePath}");
+                }
+
+                Dictionary<string, string> pathMapping = files
+                    .Select(localFile =>
+                    {
+                        string relativePath = Path.GetRelativePath(tempExtractDir, localFile).Replace("\\", "/");
+                        string remotePath = $"{deviceBasePath}/{relativePath}";
+                        return new KeyValuePair<string, string>(relativePath, remotePath);
+                    })
+                    .ToDictionary(kv => kv.Key, kv => kv.Value);
+
+                replaceBuildProp(deviceId, pathMapping, deviceBasePath);
+                runCMDRoot($"shell \"rm -rf /sdcard/*.min\"", deviceId);
+
+                return true;
+            }
+            finally
+            {
+                // 7. Dọn thư mục tạm trên PC
+                if (Directory.Exists(tempExtractDir))
+                {
+                    Directory.Delete(tempExtractDir, true);
+                    Console.WriteLine("🧹 Temp folder deleted.");
+                }
+            }
+        }
+
+
         public static bool restoreFullInfo(string fromDesktopFullPath, string deviceId, string password = SecurityConfig.DEFAULT_PASSWORD)
         {
             runCMD("root", deviceId);
@@ -220,9 +280,9 @@ namespace Services
         }
         public static bool backUpFullInfo(string destinationDesktopFullPath, string deviceId, string password = "")
         {
-            runCMD("root", deviceId);
-            runCMD("remount", deviceId);
-            runCMD("shell \"mount -o rw,remount rootfs\"  ", deviceId);
+            runCMDRoot("root", deviceId);
+            runCMDRoot("remount", deviceId);
+            runCMDRoot("shell \"mount -o rw,remount rootfs\"  ", deviceId);
             var fileName = destinationDesktopFullPath.Split('\\').Last().Replace(".7z", string.Empty);
             var filePath = destinationDesktopFullPath.Substring(0, destinationDesktopFullPath.LastIndexOf(@"\"));
             var zipAllPackagesCommand = String.Format("shell \"zip -r ~/{0}.zip " +
@@ -269,20 +329,238 @@ namespace Services
 
             var sevenZPackageCommand = String.Format("shell \"7z a {0}.7z {0}.zip {1}\" ", fileName, password);
 
-            var zipPackagesAdbResponse = runCMD(zipAllPackagesCommand, deviceId);
-            var sevenZPackageAdbResponse = runCMD(sevenZPackageCommand, deviceId);
+            var zipPackagesAdbResponse = runCMDRoot(zipAllPackagesCommand, deviceId);
+            var sevenZPackageAdbResponse = runCMDRoot(sevenZPackageCommand, deviceId);
             //var 7zPackageAdbResponse = run
-            var pullResponse = runCMD(String.Format("pull /{0}.7z \"{1}\" ", fileName, filePath), deviceId);
+            var pullResponse = runCMDRoot(String.Format("pull /{0}.7z \"{1}\" ", fileName, filePath), deviceId);
 
-            runCMD("shell \"rm -rf *.zip\"", deviceId);
-            runCMD("shell \"rm -rf *.7z\"", deviceId);
-            runCMD("shell \"rm -rf /system/build.prop.min\"", deviceId);
-            runCMD("shell \"rm -rf /system/vendor/build.prop.min\"", deviceId);
+            runCMDRoot("shell \"rm -rf *.zip\"", deviceId);
+            runCMDRoot("shell \"rm -rf *.7z\"", deviceId);
+            runCMDRoot("shell \"rm -rf /system/build.prop.min\"", deviceId);
+            runCMDRoot("shell \"rm -rf /system/vendor/build.prop.min\"", deviceId);
 
             return zipPackagesAdbResponse.Contains("adding")
                 && pullResponse.Contains("1 file pulled")
                 && sevenZPackageAdbResponse.Contains("Everything is Ok");
         }
+        public static async Task<bool> BackUpDeviceAsync(string deviceId, List<string> packages)
+        {
+            return await Task.Run(() =>
+            {
+                if (packages.Count == 0)
+                {
+                    return false;
+                }
+
+                var destinationZipPath = $"./Resources/Backup/backup_{deviceId}.zip";
+                string tempLocalFolder = Path.Combine(Path.GetTempPath(), "AndroidBackupTemp");
+
+                if (Directory.Exists(tempLocalFolder)) Directory.Delete(tempLocalFolder, true);
+                Directory.CreateDirectory(tempLocalFolder);
+
+                string backupFolder = Path.GetDirectoryName(destinationZipPath);
+                if (!Directory.Exists(backupFolder)) Directory.CreateDirectory(backupFolder);
+
+                // Tạo danh sách các path cần pull dựa vào các package truyền vào
+                var androidPaths = new HashSet<string>
+        {
+            "/system/build.prop.min",
+            "/system/vendor/build.prop.min",
+            "/data/system/notification_policy.xml",
+            "/data/system/package",
+            "/data/system/notification_log.xml",
+            "/data/system/locksettings.db",
+            "/data/system/users/0/app_idle_stats.xml",
+            "/data/system/users/0/runtime-permissions.xml",
+            "/data/system/users/0/appwidgets.xml",
+            "/data/system/users/0/settings_ssaid.xml",
+            "/data/system/users/0/package-restrictions.xml",
+            "/data/system/users/0/settings_system.xml",
+            "/data/system/users/0/wallpaper_info.xml",
+            "/data/system",
+            "/data/system_ce",
+            "/data/system_de",
+            "/data/system_ce/0/accounts_ce.db",
+            "/data/system/syncmanager.db",
+
+            // Tài khoản & token
+            "/data/system/users/0/accounts.db",
+            "/data/system/sync",
+            "/data/misc/keystore",
+            "/data/misc/user/0",
+            "/data/misc/keychain",
+            "/data/misc/profiles"
+        };
+                foreach (var pkg in packages.Distinct())
+                {
+                    androidPaths.Add($"/data/data/{pkg}");
+                    androidPaths.Add($"/data/data/{pkg}/lib");
+                    androidPaths.Add($"/data/user_de/0/{pkg}");
+                    androidPaths.Add($"/sdcard/Android/data/{pkg}");
+                    androidPaths.Add($"/sdcard/Android/data/{pkg}/files");
+                }
+
+
+                runCMDRoot("root", deviceId);
+                runCMDRoot("remount", deviceId);
+
+                foreach (var path in androidPaths)
+                {
+                    string relativePath = path.TrimStart('/');
+                    string localPath = Path.Combine(tempLocalFolder, relativePath.Replace("/", Path.DirectorySeparatorChar.ToString()));
+
+                    // Đảm bảo thư mục cha tồn tại
+                    Directory.CreateDirectory(Path.GetDirectoryName(localPath));
+
+                    // Kiểm tra trước khi pull
+                    var lsResult = runCMDRoot($"shell ls \"{path}\"", deviceId);
+                    if (lsResult.Contains("No such file or directory"))
+                    {
+                        Console.WriteLine($"⚠️ Skipped missing path: {path}");
+                        continue;
+                    }
+
+                    var pullCmd = $"pull \"{path}\" \"{localPath}\"";
+                    var result = runCMDRoot(pullCmd, deviceId);
+
+                    if (result?.Contains("failed") == true)
+                    {
+                        Console.WriteLine($"❌ Failed to pull: {path}");
+                        Console.WriteLine(result);
+                    }
+                    else
+                    {
+                        Console.WriteLine($"✅ Pulled: {path}");
+                    }
+                }
+
+                try
+                {
+                    if (File.Exists(destinationZipPath))
+                        File.Delete(destinationZipPath);
+
+                    ZipFile.CreateFromDirectory(tempLocalFolder, destinationZipPath);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("Error creating ZIP: " + ex.Message);
+                    return false;
+                }
+                finally
+                {
+                    Directory.Delete(tempLocalFolder, true);
+                }
+
+                return File.Exists(destinationZipPath);
+            });
+        }
+
+        /* public static async Task<bool> BackUpDeviceAsync(string deviceId)
+         {
+             return await Task.Run(() =>
+             {
+                 var destinationZipPath = $"./Resources/Backup/backup_{deviceId}.zip";
+                 string tempLocalFolder = Path.Combine(Path.GetTempPath(), "AndroidBackupTemp");
+
+                 if (Directory.Exists(tempLocalFolder)) Directory.Delete(tempLocalFolder, true);
+                 Directory.CreateDirectory(tempLocalFolder);
+
+                 string backupFolder = Path.GetDirectoryName(destinationZipPath);
+                 if (!Directory.Exists(backupFolder))
+                 {
+                     Directory.CreateDirectory(backupFolder);
+                 }
+
+                 string[] androidPaths = new string[]
+ {
+                "/system/build.prop.min",
+                "/system/vendor/build.prop.min",
+                "/data/data/com.google.android.gms",
+                "/data/data/com.google.android.gsf",
+                "/data/data/com.android.vending",
+                "/data/data/com.android.vending/lib",
+                "/data/data/com.android.providers.settings", // bổ sung
+                "/data/data/com.android.providers.downloads", // bổ sung
+                "/data/user_de/0/com.android.vending",
+                "/data/user_de/0/com.google.android.gms",
+                "/data/user_de/0/com.google.android.gsf",
+                "/sdcard/Android/data/com.google.android.gms",
+                "/sdcard/Android/data/com.android.vending",
+                // Cần duyệt tất cả file trong các thư mục sau:
+                "/sdcard/Android/data/com.google.android.gms/files", // gợi ý: duyệt đệ quy
+                "/sdcard/Android/data/com.android.vending/files",   // gợi ý: duyệt đệ quy
+                "/data/system/notification_policy.xml",
+                "/data/system/package", // có thể là package.xml, package.list,...
+                "/data/system/notification_log.xml", // nếu có
+                "/data/system/locksettings.db",      // hoặc locksettings.xml
+                "/data/system/users/0/app_idle_stats.xml",
+                "/data/system/users/0/runtime-permissions.xml",
+                "/data/system/users/0/appwidgets.xml",
+                "/data/system/users/0/settings_ssaid.xml",
+                "/data/system/users/0/package-restrictions.xml",
+                "/data/system/users/0/settings_system.xml",
+                "/data/system/users/0/wallpaper_info.xml",
+                // có thể bổ sung thêm:
+                "/data/system", // nếu bạn muốn lấy toàn bộ
+                "/data/system_ce",
+                "/data/system_de"
+ };
+
+
+                 runCMDRoot("root", deviceId);
+                 runCMDRoot("remount", deviceId);
+
+                 foreach (var path in androidPaths)
+                 {
+                     string relativePath = path.TrimStart('/');
+                     string localPath = Path.Combine(tempLocalFolder, relativePath.Replace("/", Path.DirectorySeparatorChar.ToString()));
+
+                     // Đảm bảo thư mục cha tồn tại
+                     Directory.CreateDirectory(Path.GetDirectoryName(localPath));
+
+                     // Kiểm tra trước khi pull
+                     var lsResult = runCMDRoot($"shell ls \"{path}\"", deviceId);
+                     if (lsResult.Contains("No such file or directory"))
+                     {
+                         Console.WriteLine($"⚠️ Skipped missing path: {path}");
+                         continue;
+                     }
+
+                     var pullCmd = $"pull \"{path}\" \"{localPath}\"";
+                     var result = runCMDRoot(pullCmd, deviceId);
+
+                     if (result?.Contains("failed") == true)
+                     {
+                         Console.WriteLine($"❌ Failed to pull: {path}");
+                         Console.WriteLine(result);
+                     }
+                     else
+                     {
+                         Console.WriteLine($"✅ Pulled: {path}");
+                     }
+                 }
+
+
+                 try
+                 {
+                     if (File.Exists(destinationZipPath))
+                         File.Delete(destinationZipPath);
+
+                     ZipFile.CreateFromDirectory(tempLocalFolder, destinationZipPath);
+                 }
+                 catch (Exception ex)
+                 {
+                     Console.WriteLine("Error creating ZIP: " + ex.Message);
+                     return false;
+                 }
+                 finally
+                 {
+                     Directory.Delete(tempLocalFolder, true);
+                 }
+
+                 return File.Exists(destinationZipPath);
+             });
+         }*/
 
         public static bool hasSimcardInserted(string deviceId)
         {
@@ -1217,7 +1495,7 @@ namespace Services
             return CmdProcess.ExecuteCommand(string.Format("/C adb -s {0} {1}", deviceId, commandline), timeout);
         }
 
-        private static string runCMDRoot(string commandline, string deviceId, int timeout = 0)
+        public static string runCMDRoot(string commandline, string deviceId, int timeout = 0)
         {
             string adbArgs = $"-s {deviceId} {commandline}";
             Console.WriteLine(adbArgs);
@@ -2491,7 +2769,7 @@ namespace Services
             using var process = Process.Start(psi);
             process.WaitForExit();
         }
-       
+
         public static void RemoveAccountsDb(string device)
         {
             RunAdbCommand($"-s {device} shell rm -rf /data/system/users/0/accounts.db");
@@ -2505,7 +2783,7 @@ namespace Services
                 {
                     string packageName = line.Substring("package:".Length);
                     Console.WriteLine(packageName);
-                    Task.Delay(1000).Wait(); 
+                    Task.Delay(1000).Wait();
                     string result = RunAdbCommandEX(device, $"shell pm uninstall --user 0 {packageName}");
                     Task.Delay(1000).Wait();
                 }
@@ -2534,6 +2812,74 @@ namespace Services
 
             return output;
         }
+        public static Task<List<(string PackageName, string AppLabel)>> GetUserInstalledAppsAsync(string deviceId)
+        {
+            return Task.Run(() =>
+            {
+                var result = new List<(string, string)>();
 
+                // Lấy danh sách các app không phải system app
+                var packageListOutput = RunAdbCommandIconApp($"-s {deviceId} shell pm list packages -3");
+
+                var packages = packageListOutput
+                    .Split('\n')
+                    .Select(line => line.Replace("package:", "").Trim())
+                    .Where(p => !string.IsNullOrWhiteSpace(p))
+                    .ToList();
+
+                foreach (var package in packages)
+                {
+                    var labelOutput = RunAdbCommandIconApp($"-s {deviceId} shell dumpsys package {package}");
+
+                    string label = null;
+
+                    using (var reader = new StringReader(labelOutput))
+                    {
+                        string line;
+                        while ((line = reader.ReadLine()) != null)
+                        {
+                            if (line.Contains("application-label:"))
+                            {
+                                label = line.Substring(line.IndexOf("application-label:") + "application-label:".Length).Trim();
+                                break;
+                            }
+                        }
+                    }
+
+                    if (string.IsNullOrEmpty(label))
+                    {
+                        var lastPart = package.Split('.').LastOrDefault();
+                        label = !string.IsNullOrEmpty(lastPart)
+                            ? char.ToUpper(lastPart[0]) + lastPart.Substring(1)
+                            : package;
+                    }
+
+                    result.Add((package, label));
+                }
+
+                return result;
+            });
+        }
+
+
+        private static string RunAdbCommandIconApp(string args)
+        {
+            var process = new System.Diagnostics.Process
+            {
+                StartInfo = new()
+                {
+                    FileName = "adb",
+                    Arguments = args,
+                    RedirectStandardOutput = true,
+                    UseShellExecute = false,
+                    CreateNoWindow = true
+                }
+            };
+            process.Start();
+            string output = process.StandardOutput.ReadToEnd();
+            process.WaitForExit();
+            return output;
+        }
     }
+
 }

@@ -881,9 +881,9 @@ namespace ToolChange.ViewModels
 
                 string scrcpyPath = @"./Resources/scrcpy.exe";
                 //string args = $"-s {vm.DeviceId} --window-title={vm.WindowTitle} --max-size {Math.Min(1080, 2220)} --max-fps 15 " +
-                //              "--window-borderless --window-x 3000 --window-y 3000 --no-control --no-audio --window-width 200 --window-height 400";
+                //              "--window-borderless --window-x 3000 --window-y 3000 --no-control --no-audio --window-width 200 --window-height 400  --turn-screen-off";
                 string args = $"-s {vm.DeviceId} --window-title={vm.WindowTitle} --max-size 1080 --max-fps 15 " +
-                        "--window-x 3000 --window-y 3000 --no-audio --window-width 200 --window-height 400 --lock-video-orientation=0";
+                        "--window-x 3000 --window-y 3000 --window-width 200 --window-height 400 --no-control --no-audio --lock-video-orientation=0";
 
                 Debug.WriteLine($"[scrcpy] Starting process with args: {args}");
 

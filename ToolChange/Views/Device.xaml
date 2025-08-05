@@ -536,7 +536,7 @@
                                     <ColumnDefinition Width="Auto" />
                                     <ColumnDefinition Width="130" />
                                 </Grid.ColumnDefinitions>
-                                <Label Content="Push Keybox"
+                                <Label Content="Push Keybox - pif"
                                        Grid.Column="0"
                                        Margin="10,0,10,0"
                                        HorizontalAlignment="Left"
@@ -553,7 +553,7 @@
                                     <ColumnDefinition Width="Auto" />
                                     <ColumnDefinition Width="130" />
                                 </Grid.ColumnDefinitions>
-                                <Label Content="Push pif"
+                                <Label Content="Keep Brand"
                                        Grid.Column="0"
                                        Margin="10,0,10,0"
                                        HorizontalAlignment="Left"
@@ -749,6 +749,12 @@
                                     Margin="5,5,0,0"
                                     Padding="0"
                                     Command="{Binding DeviceListVM.FakeLocationCommand}"
+                                    CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=ContextMenu}, Path=PlacementTarget.SelectedItem}" />
+                            <Button Content="Fake Time Zone"
+                                    Width="120"
+                                    Margin="5,5,0,0"
+                                    Padding="0"
+                                    Command="{Binding DeviceListVM.FakeTimeZoneCommand}"
                                     CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=ContextMenu}, Path=PlacementTarget.SelectedItem}" />
                             <Button Content="Open URL"
                                     Width="120"
