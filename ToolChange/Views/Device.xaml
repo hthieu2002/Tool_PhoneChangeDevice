@@ -548,6 +548,7 @@
                             </Grid>
                             <Grid Width="200"
                                   Height="35"
+                                  ToolTip="Sự dụng chức năng này bạn cần change thiết bị về đúng brand của thiết bị."
                                   Margin="5,5,5,10">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="Auto" />
@@ -718,7 +719,7 @@
                                     <Style TargetType="ToggleButton"
                                            BasedOn="{StaticResource MaterialDesignRaisedSecondaryLightButton}">
                                         <Setter Property="Content"
-                                                Value="Wipe data OFF" />
+                                                Value="Factory Reset OFF" />
                                         <Setter Property="Background"
                                                 Value="#FFB3B3" />
                                         <Setter Property="Foreground"
@@ -727,7 +728,7 @@
                                             <Trigger Property="IsChecked"
                                                      Value="True">
                                                 <Setter Property="Content"
-                                                        Value="Wipe data ON" />
+                                                        Value="Factory Reset ON" />
                                                 <Setter Property="Background"
                                                         Value="#FF3B8A3D" />
                                                 <Setter Property="Foreground"

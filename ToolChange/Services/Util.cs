@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Data;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -21,13 +22,26 @@ namespace ToolChange.Services
         {
             try
             {
+                if (keepBrand)
+                {
+                    var value = CheckManuAndBrand(deviceId);
+
+                    tempDevice.Manufacturer = value.manufacturer;
+                    tempDevice.Brand = value.brand;
+                }
+                
+                if (tempDevice.Brand == null || tempDevice.Brand == "")
+                {
+                    tempDevice.Brand = tempDevice.Manufacturer.ToLower();
+                }
+
                 ToolChange.Models.DeviceUpdater.UpdateProgress(deviceS, deviceId, "10%", "Change device ...");
                 if (tempDevice == null)
                 {
                     ToolChange.Models.DeviceUpdater.UpdateProgress(deviceS, deviceId, "10%", "Null error");
                     return false;
                 }
-
+              
                 if (ADBService.getDeviceStatus(deviceId) == DeviceStatus.ReadyToChange)
                 {
                     ToolChange.Models.DeviceUpdater.UpdateProgress(deviceS, deviceId, "15%", "Change device ...");
@@ -41,18 +55,14 @@ namespace ToolChange.Services
                     var lineageVersion = RandomService.generateLineageOsVersion(tempDevice.Release) + "-" + tempDevice.Code;
                     changedSystemInfo.Add(BuildKey_SYSTEM_S9.TYPE, "user");
                     changedSystemInfo.Add(BuildKey_SYSTEM_S9.USER, RandomService.generateUser());
-                    if (!keepBrand)
-                    {
-                        changedSystemInfo.Add(BuildKey_SYSTEM_S9.BRAND, tempDevice.Manufacturer.ToLower());
-                        changedSystemInfo.Add(BuildKey_SYSTEM_S9.VENDOR, tempDevice.Manufacturer);
-                    }
+                    changedSystemInfo.Add(BuildKey_SYSTEM_S9.BRAND, tempDevice.Brand);
+                    changedSystemInfo.Add(BuildKey_SYSTEM_S9.VENDOR, tempDevice.Manufacturer);
                     changedSystemInfo.Add(BuildKey_SYSTEM_S9.MODEL, tempDevice.Model);
                     changedSystemInfo.Add(BuildKey_SYSTEM_S9.MODEL_LINEAGE, tempDevice.Model);
                     changedSystemInfo.Add(BuildKey_SYSTEM_S9.DEVICE, tempDevice.Code);
                     changedSystemInfo.Add(BuildKey_SYSTEM_S9.BUILD_PRODUCT, tempDevice.Code);
                     changedSystemInfo.Add(BuildKey_SYSTEM_S9.BOARD, tempDevice.Board);
                     changedSystemInfo.Add(BuildKey_SYSTEM_S9.LINEAGE_BOARD, tempDevice.Board);
-                    // changedSystemInfo.Add(BuildKey_SYSTEM_S9.EVO_DEVICE, tempDevice.Board);
                     changedSystemInfo.Add(BuildKey_SYSTEM_S9.BUILD_HOST, tempDevice.BuildHost);
                     changedSystemInfo.Add(BuildKey_SYSTEM_S9.WIFI_MAC_ADDRESS, tempDevice.WifiMacAddress);
                     changedSystemInfo.Add(BuildKey_SYSTEM_S9.BLUETOOTH_MAC_ADDRESS, tempDevice.BlueToothMacAddress);
@@ -60,12 +70,11 @@ namespace ToolChange.Services
                     changedSystemInfo.Add(BuildKey_SYSTEM_S9.BOOT_BOOT_LOADER, tempDevice.Bootloader);
                     changedSystemInfo.Add(BuildKey_SYSTEM_S9.BOOT_LOADER_LINEAGE, tempDevice.Bootloader);
                     changedSystemInfo.Add(BuildKey_SYSTEM_S9.HARDWARE, tempDevice.Hardware);
+                    changedSystemInfo.Add(BuildKey_SYSTEM_SARGO.BOOT_HARDWARE, tempDevice.Hardware);
                     changedSystemInfo.Add(BuildKey_SYSTEM_S9.LINEAGE_HARDWARE, tempDevice.Hardware);
                     changedSystemInfo.Add(BuildKey_SYSTEM_S9.PRODUCT, tempDevice.Product);
                     changedSystemInfo.Add(BuildKey_SYSTEM_S9.PLATFORM, tempDevice.Platform);
                     changedSystemInfo.Add(BuildKey_SYSTEM_S9.LINEAGE_PLATFORM, tempDevice.Platform);
-                    ///
-                    // changedSystemInfo.Add(BuildKey_SYSTEM_S9.BOOTLOADER_UNLOCKED, "green");
                     changedSystemInfo.Add(BuildKey_SYSTEM_S9.BUILD_DISPLAY_ID, tempDevice.BuildDisplayId);
                     changedSystemInfo.Add(BuildKey_SYSTEM_S9.BUILD_TAGS, tempDevice.Tags);
                     changedSystemInfo.Add(BuildKey_SYSTEM_S9.BUILD_INCREMENTAL, tempDevice.BuildIncremental);
@@ -77,16 +86,14 @@ namespace ToolChange.Services
                     changedSystemInfo.Add(BuildKey_SYSTEM_S9.LINEAGE_VERSION, lineageVersion);
                     changedSystemInfo.Add(BuildKey_SYSTEM_S9.LINEAGE_BUILD_VERSION, RandomService.getLineageNumberVersion(tempDevice.Release));
                     changedSystemInfo.Add(BuildKey_SYSTEM_S9.LINEAGE_BUILD_VERSION_PLAT_SDK, tempDevice.Release);
+
                     changedSystemInfo.Add(BuildKey_SYSTEM_S9.BASEBAND, tempBaseband);
                     changedSystemInfo.Add(BuildKey_SYSTEM_S9.GSM_BASEBAND, tempBaseband);
                     changedSystemInfo.Add(BuildKey_SYSTEM_S9.SSID, RandomService.generateSSID());
                     changedSystemInfo.Add(BuildKey_SYSTEM_S9.BSSID, RandomService.generateMacAddress());
                     changedSystemInfo.Add(BuildKey_SYSTEM_S9.FINGERPRINT, tempDevice.Fingerprint);
-                    //changedSystemInfo.Add(BuildKey_SYSTEM_S9.SECURITY_PATH, tempDevice.SecurityPath);
                     changedSystemInfo.Add(BuildKey_SYSTEM_S9.ANDROID_SECURITY_PATH, tempDevice.SecurityPath);
-
                     changedSystemInfo.Add(BuildKey_SYSTEM_S9.BUILD_ID, tempDevice.BuildId);
-                    //changedSystemInfo.Add(BuildKey_SYSTEM_S9.VERSION_RELEASE, tempDevice.Release);
                     changedSystemInfo.Add(BuildKey_SYSTEM_S9.ANDROID_VERSION_RELEASE, tempDevice.Release);
                     changedSystemInfo.Add(BuildKey_SYSTEM_S9.ANDROID_SDK, tempDevice.SDK);
                     changedSystemInfo.Add(BuildKey_SYSTEM_S9.FINGERPRINT_SYSTEM, tempDevice.Fingerprint);
@@ -183,20 +190,21 @@ namespace ToolChange.Services
 
                     ADBService.putSetting(GlobalAndroidSettings.IMEI0, tempDevice.Imei, deviceId);
                     ADBService.putSetting(GlobalAndroidSettings.IMEI1, tempDevice.Imei1, deviceId);
-                    ADBService.putSetting("spoof_status", "true", deviceId);
-                    ADBService.putSetting("spoof_imei", tempDevice.Imei, deviceId);
                     // generate 48 bit random number for hardware serial no
                     ADBService.putSetting(GlobalAndroidSettings.HARDWARE_SERIALNO, tempDevice.SerialNo, deviceId);
                     //// generate android ID
-                    /* ADBService.putSetting(GlobalAndroidSettings.ANDROID_ID, tempDevice.AndroidId, deviceId);
-                     ADBService.putSetting("android_id", tempDevice.AndroidId, deviceId, "secure");*/
+                    ADBService.putSetting(GlobalAndroidSettings.ANDROID_ID, tempDevice.AndroidId, deviceId);
+                    ADBService.putSetting("android_id", tempDevice.AndroidId, deviceId, "secure");
+
                     ADBService.updateInitRc(tempDevice.Imei, tempDevice.Imei1, tempDevice.SerialNo, tempDevice.Bootloader, tempDevice.Baseband, tempDevice.Model, deviceId, tempDevice.Hardware, tempDevice.Platform);
                     ADBService.fakeLocalHostNameV6(deviceId);
-                    ToolChange.Models.DeviceUpdater.UpdateProgress(deviceS, deviceId, "55%", "Save information ");
+
                     // fake wifi mac address
                     ADBService.fakeWifiMacAddress(tempDevice.WifiMacAddress, deviceId);
+
                     if (isFakeSim)
                     {
+
                         ToolChange.Models.DeviceUpdater.UpdateProgress(deviceS, deviceId, "75%", "Fake sim .. ");
                         // setting sim card
                         ADBService.putSetting(GlobalAndroidSettings.SIM_OPERATOR_NUMERIC, tempDevice.SimOperatorNumeric, deviceId); // set sim numeric e.g. 42503
@@ -215,7 +223,7 @@ namespace ToolChange.Services
                         ADBService.putSetting(GlobalAndroidSettings.SIM_STATE, "5", deviceId);
                         ADBService.putSetting(GlobalAndroidSettings.NETWORK_TYPE, "13", deviceId);
 
-                        //                        public static readonly string DATA_ACTIVITY = string.Concat(MI_PREFIX, "data_activity");
+                        //public static readonly string DATA_ACTIVITY = string.Concat(MI_PREFIX, "data_activity");
                         //public static readonly string DATA_STATE = string.Concat(MI_PREFIX, "data_state");
                         //public static readonly string DATA_NETWORK_TYPE = string.Concat(MI_PREFIX, "data_network_type");
                         ADBService.putSetting(GlobalAndroidSettings.DATA_NETWORK_TYPE, "13", deviceId);
@@ -269,10 +277,54 @@ namespace ToolChange.Services
                 return false;
             }
         }
+        public static (string brand, string manufacturer) CheckManuAndBrand(string deviceId)
+        {
+            string brand = RunAdbCommand($"-s {deviceId} shell getprop ro.product.vendor.brand");
+            string manufacturer = RunAdbCommand($"-s {deviceId} shell getprop ro.product.vendor.manufacturer");
+
+            // Nếu các giá trị trên trả về rỗng (có thể do build.prop bị sửa), thử lấy từ các property khác
+            if (string.IsNullOrWhiteSpace(brand))
+                brand = RunAdbCommand($"-s {deviceId} shell getprop ro.product.system.brand");
+
+            if (string.IsNullOrWhiteSpace(manufacturer))
+                manufacturer = RunAdbCommand($"-s {deviceId} shell getprop ro.product.system.manufacturer");
+
+            // Có thể fallback cuối cùng
+            if (string.IsNullOrWhiteSpace(brand))
+                brand = RunAdbCommand($"-s {deviceId} shell getprop ro.product.brand");
+
+            if (string.IsNullOrWhiteSpace(manufacturer))
+                manufacturer = RunAdbCommand($"-s {deviceId} shell getprop ro.product.manufacturer");
+
+            return (brand.Trim(), manufacturer.Trim());
+        }
+
+        private static string RunAdbCommand(string arguments)
+        {
+            using (var process = new System.Diagnostics.Process())
+            {
+                process.StartInfo.FileName = "adb";
+                process.StartInfo.Arguments = arguments;
+                process.StartInfo.RedirectStandardOutput = true;
+                process.StartInfo.RedirectStandardError = true;
+                process.StartInfo.UseShellExecute = false;
+                process.StartInfo.CreateNoWindow = true;
+
+                process.Start();
+                string output = process.StandardOutput.ReadToEnd();
+                process.WaitForExit();
+                return output;
+            }
+        }
+
         public static bool SaveDeviceSIm(POCO.Models.DeviceModel tempDevice, string deviceId, string applicationPath)
         {
             try
             {
+
+
+                Debug.WriteLine($"{tempDevice.SimOperatorCountry} \n {tempDevice.SimOperatorName} \n {tempDevice.SimOperatorNumeric}" +
+                    $"\n {tempDevice.SimPhoneNumber} ");
                 ADBService.putSetting(GlobalAndroidSettings.SIM_OPERATOR_NUMERIC, tempDevice.SimOperatorNumeric, deviceId); // set sim numeric e.g. 42503
     
                 ADBService.putSetting(GlobalAndroidSettings.SIM_OPERATOR_COUNTRY, tempDevice.SimOperatorCountry, deviceId); // set country of operator code
@@ -385,7 +437,7 @@ namespace ToolChange.Services
                 changedSystemInfo.Add($"ro.{partition.Key}.build.version.release", tempDevice.Release);
                 changedSystemInfo.Add($"ro.{partition.Key}.build.version.release_or_codename", tempDevice.Release);
                 //changedSystemInfo.Add($"ro.{partition.Key}.build.version.sdk", tempDevice.BuildDate);
-                changedSystemInfo.Add($"ro.product.{partition.Key}.brand", tempDevice.Manufacturer.ToLower());
+                changedSystemInfo.Add($"ro.product.{partition.Key}.brand", tempDevice.Brand);
                 changedSystemInfo.Add($"ro.product.{partition.Key}.device", tempDevice.Code);
                 changedSystemInfo.Add($"ro.product.{partition.Key}.manufacturer", tempDevice.Manufacturer);
                 changedSystemInfo.Add($"ro.product.{partition.Key}.model", tempDevice.Model);
@@ -393,6 +445,14 @@ namespace ToolChange.Services
                 ADBService.replaceBuildProp(partition.Value, changedSystemInfo, deviceId);
                 Console.WriteLine($"*******END Partition {partition.Key}*******");
             }
+            var changedPixelExpInfo = new Dictionary<string, string>();
+            changedPixelExpInfo.Add("org.pixelexperience.device", tempDevice.Code);
+            changedPixelExpInfo.Add("org.pixelexperience.version.display", "unknown");
+            changedPixelExpInfo.Add("org.pixelexperience.build_date", "unknown");
+            changedPixelExpInfo.Add("org.pixelexperience.build_date_utc", "unknown");
+            changedPixelExpInfo.Add("org.pixelexperience.build_type", "unknown");
+            changedPixelExpInfo.Add("org.pixelexperience.build_security_patch", "unknown");
+            ADBService.replaceBuildProp("system/build.prop", changedPixelExpInfo, deviceId);
         }
         //public static string generateCertSubject()
         //{

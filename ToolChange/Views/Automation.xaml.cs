@@ -43,14 +43,20 @@ namespace ToolChange.Views
 
             if (Directory.Exists(backupFolder))
             {
-                var files = Directory.GetFiles(backupFolder, "*.zip"); // lọc file .zip
-                backupComboBox.ItemsSource = files.Select(f => System.IO.Path.GetFileName(f)).ToList();
+                var files = Directory.GetFiles(backupFolder, "*.zip")
+                                     .Select(f => new FileInfo(f))
+                                     .OrderByDescending(f => f.LastWriteTime) // sắp xếp theo thời gian sửa đổi gần nhất
+                                     .Select(f => f.Name)
+                                     .ToList();
+
+                backupComboBox.ItemsSource = files;
             }
             else
             {
                 backupComboBox.ItemsSource = new List<string> { "Không có thư mục Backup" };
             }
         }
+
 
         private void AutomationPage_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
         {

@@ -343,117 +343,7 @@ namespace Services
                 && pullResponse.Contains("1 file pulled")
                 && sevenZPackageAdbResponse.Contains("Everything is Ok");
         }
-        public static async Task<bool> BackUpDeviceAsync(string deviceId, List<string> packages)
-        {
-            return await Task.Run(() =>
-            {
-                if (packages.Count == 0)
-                {
-                    return false;
-                }
-
-                var destinationZipPath = $"./Resources/Backup/backup_{deviceId}.zip";
-                string tempLocalFolder = Path.Combine(Path.GetTempPath(), "AndroidBackupTemp");
-
-                if (Directory.Exists(tempLocalFolder)) Directory.Delete(tempLocalFolder, true);
-                Directory.CreateDirectory(tempLocalFolder);
-
-                string backupFolder = Path.GetDirectoryName(destinationZipPath);
-                if (!Directory.Exists(backupFolder)) Directory.CreateDirectory(backupFolder);
-
-                // Tạo danh sách các path cần pull dựa vào các package truyền vào
-                var androidPaths = new HashSet<string>
-        {
-            "/system/build.prop.min",
-            "/system/vendor/build.prop.min",
-            "/data/system/notification_policy.xml",
-            "/data/system/package",
-            "/data/system/notification_log.xml",
-            "/data/system/locksettings.db",
-            "/data/system/users/0/app_idle_stats.xml",
-            "/data/system/users/0/runtime-permissions.xml",
-            "/data/system/users/0/appwidgets.xml",
-            "/data/system/users/0/settings_ssaid.xml",
-            "/data/system/users/0/package-restrictions.xml",
-            "/data/system/users/0/settings_system.xml",
-            "/data/system/users/0/wallpaper_info.xml",
-            "/data/system",
-            "/data/system_ce",
-            "/data/system_de",
-            "/data/system_ce/0/accounts_ce.db",
-            "/data/system/syncmanager.db",
-
-            // Tài khoản & token
-            "/data/system/users/0/accounts.db",
-            "/data/system/sync",
-            "/data/misc/keystore",
-            "/data/misc/user/0",
-            "/data/misc/keychain",
-            "/data/misc/profiles"
-        };
-                foreach (var pkg in packages.Distinct())
-                {
-                    androidPaths.Add($"/data/data/{pkg}");
-                    androidPaths.Add($"/data/data/{pkg}/lib");
-                    androidPaths.Add($"/data/user_de/0/{pkg}");
-                    androidPaths.Add($"/sdcard/Android/data/{pkg}");
-                    androidPaths.Add($"/sdcard/Android/data/{pkg}/files");
-                }
-
-
-                runCMDRoot("root", deviceId);
-                runCMDRoot("remount", deviceId);
-
-                foreach (var path in androidPaths)
-                {
-                    string relativePath = path.TrimStart('/');
-                    string localPath = Path.Combine(tempLocalFolder, relativePath.Replace("/", Path.DirectorySeparatorChar.ToString()));
-
-                    // Đảm bảo thư mục cha tồn tại
-                    Directory.CreateDirectory(Path.GetDirectoryName(localPath));
-
-                    // Kiểm tra trước khi pull
-                    var lsResult = runCMDRoot($"shell ls \"{path}\"", deviceId);
-                    if (lsResult.Contains("No such file or directory"))
-                    {
-                        Console.WriteLine($"⚠️ Skipped missing path: {path}");
-                        continue;
-                    }
-
-                    var pullCmd = $"pull \"{path}\" \"{localPath}\"";
-                    var result = runCMDRoot(pullCmd, deviceId);
-
-                    if (result?.Contains("failed") == true)
-                    {
-                        Console.WriteLine($"❌ Failed to pull: {path}");
-                        Console.WriteLine(result);
-                    }
-                    else
-                    {
-                        Console.WriteLine($"✅ Pulled: {path}");
-                    }
-                }
-
-                try
-                {
-                    if (File.Exists(destinationZipPath))
-                        File.Delete(destinationZipPath);
-
-                    ZipFile.CreateFromDirectory(tempLocalFolder, destinationZipPath);
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine("Error creating ZIP: " + ex.Message);
-                    return false;
-                }
-                finally
-                {
-                    Directory.Delete(tempLocalFolder, true);
-                }
-
-                return File.Exists(destinationZipPath);
-            });
-        }
+       
 
         /* public static async Task<bool> BackUpDeviceAsync(string deviceId)
          {
@@ -2297,6 +2187,7 @@ namespace Services
         public static void FakeTimezone(string timezone, string deviceId)
         {
             rootAndRemount(deviceId);
+            runCMDRoot($"shell settings put global auto_time_zone 0 \"{timezone}\"", deviceId);
             runCMDRoot($"shell setprop persist.sys.timezone \"{timezone}\"", deviceId);
             runCMDRoot($"shell am broadcast -a android.intent.action.TIMEZONE_CHANGED", deviceId);
             runCMDRoot($"shell settings put system time_12_24 24", deviceId);

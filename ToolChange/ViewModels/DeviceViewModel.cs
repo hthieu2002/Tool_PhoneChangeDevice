@@ -1948,7 +1948,7 @@ namespace ToolChange.ViewModels
                         }
                     }
 
-                    if (IsCheckedpif == true)
+                    if (IsCheckedKeyBox == true)
                     {
                         messageBoxPushFileJson = System.Windows.MessageBox.Show(DevicesLang.logChangeDevicePif, Lang.LogInfomation, MessageBoxButton.YesNo, MessageBoxImage.Warning);
                     }
@@ -2065,10 +2065,6 @@ namespace ToolChange.ViewModels
             DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "5%", "Change device start");
             await Task.Run(async () =>
             {
-                await System.Windows.Application.Current.Dispatcher.InvokeAsync(() =>
-                {
-
-                });
                 DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "7%", "Enable Wifi");
 
                 ADBService.enableWifi(false, device.DeviceId);
@@ -2234,11 +2230,11 @@ namespace ToolChange.ViewModels
                 {
                     DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "76%", "Change sim success ");
 
-                    DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "80%", "Wipe");
-                    var packagesWipeAfterChanger = loadWipeListConfig();
-                    wipePackagesChanger(packagesWipeAfterChanger, device.DeviceId);
+                    //DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "80%", "Wipe");
+                    //var packagesWipeAfterChanger = loadWipeListConfig();
+                    //wipePackagesChanger(packagesWipeAfterChanger, device.DeviceId);
 
-                    ADBService.cleanGMSPackagesAndAccounts(device.DeviceId);
+                  //  ADBService.cleanGMSPackagesAndAccounts(device.DeviceId);
 
                     DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "99%", "Reboot!");
                     _processingDeviceIds.Remove(device.DeviceId);
@@ -2460,13 +2456,29 @@ namespace ToolChange.ViewModels
         }
         private async Task ProcessFakeTimeZoneAllAsync(Models.DeviceModel device, string timezone, string time)
         {
-            if (!string.IsNullOrEmpty(timezone) && !string.IsNullOrEmpty(timezone))
+            if (!string.IsNullOrEmpty(timezone))
             {
                 DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "30%", $"Start fake time zone {time}");
-                ADBService.FakeTimezone(timezone, device.DeviceId);
-                DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "100%", $"Fake time zone success {time}");
-                _processingDeviceIds.Remove(device.DeviceId);
+
+                // Chạy nền để không bị treo
+                await Task.Run(() =>
+                {
+                    try
+                    {
+                        ADBService.FakeTimezone(timezone, device.DeviceId);
+                        DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "100%", $"Fake time zone success {time}");
+                    }
+                    catch (Exception ex)
+                    {
+                        DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "100%", $"Failed to fake timezone: {ex.Message}");
+                    }
+                    finally
+                    {
+                        _processingDeviceIds.Remove(device.DeviceId);
+                    }
+                });
             }
+
         }
         private async Task OpenUrl()
         {
