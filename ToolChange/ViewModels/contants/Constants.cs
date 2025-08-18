@@ -50,7 +50,7 @@
 
         //security_path
         public static readonly string SECURITY_PATH = "ro.build.version.security_patch";
-        public static readonly string ANDROID_SECURITY_PATH = "ro.android.build.version.security_patch";
+       // public static readonly string ANDROID_SECURITY_PATH = "ro.android.build.version.security_patch";
 
         //Builder
         public static readonly string BUILD_HOST = "ro.build.host";
@@ -140,6 +140,9 @@
         public static readonly string PRODUCT_ODM = "ro.product.odm.name";
         public static readonly string DEVICE_ODM = "ro.product.odm.device";
 
+
+        public static readonly string VERSION_RELEASE_OR_PREVIEW_DISPLAY = "ro.build.version.release_or_preview_display";
+        public static readonly string VERSION_RELEASE_OR_CODENAME = "ro.build.version.release_or_codename";
     }
     class BuildKey_SYSTEM_SARGO
     {

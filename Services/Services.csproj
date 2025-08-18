@@ -13,6 +13,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\MiHttpClient\MiHttpClient.csproj" />
     <ProjectReference Include="..\POCO\POCO.csproj" />
   </ItemGroup>
 

@@ -1,4 +1,8 @@
-﻿using Services;
+﻿using AuthenticationService;
+using MiHttpClient;
+using OfficeOpenXml.FormulaParsing.LexicalAnalysis;
+using POCO.Models;
+using Services;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -13,6 +17,7 @@ using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Forms;
 using System.Windows.Input;
 using System.Windows.Threading;
 using ToolChange.Language;
@@ -27,6 +32,11 @@ namespace ToolChange.ViewModels
 {
     public class AutomationViewModel : INotifyPropertyChanged
     {
+        private MiChangerGraphQLClient miChangerGraphQLClient;
+        private CognitoService cognitoService;
+        private string token;
+        private string endpoint = Properties.Settings.Default.endpoint;
+        private string authenticationType = "authorization";
         public LocalizationViewModel LanguageVM { get; set; }
         public AutomationViewModel AutomationListVM { get; set; }
         public ObservableCollection<Models.DeviceModel> Devices { get; private set; } = new ObservableCollection<Models.DeviceModel>();
@@ -259,6 +269,13 @@ namespace ToolChange.ViewModels
         {
             _ = LoadDevices();
 
+            cognitoService = new CognitoService(Properties.Settings.Default.poolId, Properties.Settings.Default.clientId);
+
+            token = cognitoService.getIdToken(Properties.Settings.Default.user, Properties.Settings.Default.password);
+
+            //string token = "eyJraWQiOiJGallIT0JuUERvNTdXMENjWHlQNEdvOGFCbEd1NEFnUDNYZEtGNTluQzF3PSIsImFsZyI6IlJTMjU2In0.eyJzdWIiOiIwMTM5ZDBiZC01MzI1LTQwZGQtODY0Yi0wZDNkOGFjNmZlZjAiLCJhdWQiOiIzZ29zNWppbWliODJqbDNmOXZjNjI4M2twciIsImNvZ25pdG86Z3JvdXBzIjpbIlN0YW5kYXJkIl0sImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJldmVudF9pZCI6ImIxMjlmZDhlLTE5MDItNGM3Zi1hYzBhLWUyOGQ3YWNhYTlmZiIsInRva2VuX3VzZSI6ImlkIiwiYXV0aF90aW1lIjoxNTk5MjA2ODU5LCJpc3MiOiJodHRwczpcL1wvY29nbml0by1pZHAuYXAtc291dGhlYXN0LTEuYW1hem9uYXdzLmNvbVwvYXAtc291dGhlYXN0LTFfaG5WWGljam9sIiwiY29nbml0bzp1c2VybmFtZSI6IjAxMzlkMGJkLTUzMjUtNDBkZC04NjRiLTBkM2Q4YWM2ZmVmMCIsImV4cCI6MTU5OTIxMDQ1OSwiaWF0IjoxNTk5MjA2ODU5LCJlbWFpbCI6ImRldkB5b3BtYWlsLmNvbSJ9.WUZ3aW97f9oHXv_WSpeM3zUCtS5End-_F9fI8mjj3XMIsvyDTERmWrK5zWxHBeSEOgItmAJrMk3OWEg7bOE-8V98M9c921_MVP58uhgbWZHeXAnRgLDzZASOVE0pdPcjxbXGY9MxeWUNNp39U9E4Fo1YIrZbmS4fVHXVrhP4dhblAmsloroLPc-cBuslHYyHrRc9dLw-1f4Dacnvcd_J2Y8Lv_EvivsMuVNx5SYgnbLC7SsJ2_JNecSq1WdWGneiwuamkkzXDcmv644z7U6WWRyi9FeE0YP0hD09JXyN5CJRIWt563XR2684mf4o_xWbwZiS0KtjSio_D4sE88yyCg";
+            miChangerGraphQLClient = new MiChangerGraphQLClient(endpoint, authenticationType, token);
+
             LoadDevicesCommand = new RelayCommand(async () => await LoadDevicesAsync());
             BackupDevicesCommand = new RelayCommand(async () => await BackupDevicesAsync());
             FixRebootDeviceCommand = new RelayCommand(async () => await FixRebootDeviceAsync());
@@ -376,15 +393,21 @@ namespace ToolChange.ViewModels
                 {
                     if (device.Status == "Offline")
                     {
-                        DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "0%", "Devices offline");
+                        UpdateDeviceStatus(device.DeviceId, "0%", "⚠ Device offline");
                         continue;
                     }
-                   
-
-                    if (_processingDeviceIds.Contains(device.DeviceId))
+                    if (!await ADBService.CheckDeviceActiveBool(device.DeviceId, miChangerGraphQLClient))
+                    {
+                        UpdateDeviceStatus(device.DeviceId, "0%", "⚠ Device not active");
                         continue;
+                    }
+                    if (_processingDeviceIds.Contains(device.DeviceId))
+                    {
+                        UpdateDeviceStatus(device.DeviceId, "%", "⏳ Device running...");
+                        continue;
+                    }
 
-                   
+
 
                     _processingDeviceIds.Add(device.DeviceId);
 
@@ -402,6 +425,7 @@ namespace ToolChange.ViewModels
         {
             try
             {
+                
                 ObservableCollection<Models.AppItem> ItemDevice = new ObservableCollection<Models.AppItem>();
                 var selectedDevices = Devices.Where(device => device.IsChecked && device.Status == "Online").ToList();
                 int selectedCount = selectedDevices.Count;
@@ -476,9 +500,20 @@ namespace ToolChange.ViewModels
                 foreach (var device in selectedDevices)
                 {
                     if (device.Status == "Offline")
+                    {
+                        UpdateDeviceStatus(device.DeviceId, "0%", "⚠ Device offline");
                         continue;
+                    }
+                    if (!await ADBService.CheckDeviceActiveBool(device.DeviceId, miChangerGraphQLClient))
+                    {
+                        UpdateDeviceStatus(device.DeviceId, "0%", "⚠ Device not active");
+                        continue;
+                    }
                     if (_processingDeviceIds.Contains(device.DeviceId))
+                    {
+                        UpdateDeviceStatus(device.DeviceId, "%", "⏳ Device running...");
                         continue;
+                    }
 
                     _processingDeviceIds.Add(device.DeviceId);
                     UpdateDeviceStatus(device.DeviceId, "0%", "Fix reboot");
@@ -509,10 +544,24 @@ namespace ToolChange.ViewModels
                 var tasks = new List<Task>();
                 foreach (var device in selectedDevices)
                 {
+                   
+
                     if (device.Status == "Offline")
+                    {
+                        UpdateDeviceStatus(device.DeviceId, "0%", "⚠ Device offline");
                         continue;
+                    }
+                    if (!await ADBService.CheckDeviceActiveBool(device.DeviceId, miChangerGraphQLClient))
+                    {
+                        UpdateDeviceStatus(device.DeviceId, "0%", "⚠ Device not active");
+                        continue;
+                    }
                     if (_processingDeviceIds.Contains(device.DeviceId))
+                    {
+                        UpdateDeviceStatus(device.DeviceId, "%", "⏳ Device running...");
                         continue;
+                    }
+                       
 
                     _processingDeviceIds.Add(device.DeviceId);
                     UpdateDeviceStatus(device.DeviceId, "0%", "Start backup");
@@ -544,9 +593,20 @@ namespace ToolChange.ViewModels
                 foreach (var device in selectedDevices)
                 {
                     if (device.Status == "Offline")
+                    {
+                        UpdateDeviceStatus(device.DeviceId, "0%", "⚠ Device offline");
                         continue;
+                    }
+                    if (!await ADBService.CheckDeviceActiveBool(device.DeviceId, miChangerGraphQLClient))
+                    {
+                        UpdateDeviceStatus(device.DeviceId, "0%", "⚠ Device not active");
+                        continue;
+                    }
                     if (_processingDeviceIds.Contains(device.DeviceId))
+                    {
+                        UpdateDeviceStatus(device.DeviceId, "%", "⏳ Device running...");
                         continue;
+                    }
 
                     _processingDeviceIds.Add(device.DeviceId);
                     UpdateDeviceStatus(device.DeviceId, "0%", "Start restore");
@@ -577,9 +637,20 @@ namespace ToolChange.ViewModels
                 foreach (var device in selectedDevices)
                 {
                     if (device.Status == "Offline")
+                    {
+                        UpdateDeviceStatus(device.DeviceId, "0%", "⚠ Device offline");
                         continue;
+                    }
+                    if (!await ADBService.CheckDeviceActiveBool(device.DeviceId, miChangerGraphQLClient))
+                    {
+                        UpdateDeviceStatus(device.DeviceId, "0%", "⚠ Device not active");
+                        continue;
+                    }
                     if (_processingDeviceIds.Contains(device.DeviceId))
+                    {
+                        UpdateDeviceStatus(device.DeviceId, "%", "⏳ Device running...");
                         continue;
+                    }
 
                     _processingDeviceIds.Add(device.DeviceId);
                     UpdateDeviceStatus(device.DeviceId, "0%", "Start screenshot");
@@ -617,9 +688,20 @@ namespace ToolChange.ViewModels
                     foreach (var device in selectedDevices)
                     {
                         if (device.Status == "Offline")
+                        {
+                            UpdateDeviceStatus(device.DeviceId, "0%", "⚠ Device offline");
                             continue;
+                        }
+                        if (!await ADBService.CheckDeviceActiveBool(device.DeviceId, miChangerGraphQLClient))
+                        {
+                            UpdateDeviceStatus(device.DeviceId, "0%", "⚠ Device not active");
+                            continue;
+                        }
                         if (_processingDeviceIds.Contains(device.DeviceId))
+                        {
+                            UpdateDeviceStatus(device.DeviceId, "%", "⏳ Device running...");
                             continue;
+                        }
 
                         _processingDeviceIds.Add(device.DeviceId);
 
@@ -776,23 +858,36 @@ namespace ToolChange.ViewModels
                     "/data/misc/profiles"
                 });
                     }
+                    else
+                    {
+                        androidPaths.UnionWith(new[]
+{
+    $"/data/system/users/0/runtime-permissions.xml",
+    $"/data/system/users/0/package-restrictions.xml",
+    $"/data/system_ce/0/accounts_ce.db",
+    $"/data/system/users/0/accounts.db",
+    $"/data/misc/keystore",
+    $"/data/misc/keychain"
+});
+
+                    }
 
                     foreach (var pkg in packages.Distinct())
-                    {
-                        UpdateDeviceStatus(deviceId, "30%", $"copy {pkg}");
-
-                        androidPaths.Add($"/data/data/{pkg}");
-                        androidPaths.Add($"/data/data/{pkg}/lib");
-                        androidPaths.Add($"/data/user_de/0/{pkg}");
-                        androidPaths.Add($"/sdcard/Android/data/{pkg}");
-                        androidPaths.Add($"/sdcard/Android/data/{pkg}/files");
-
-                        if (pkg != "com.android.vending" && pkg != "com.google.android.gsf" && pkg != "com.google.android.gms")
                         {
-                            androidPaths.Add($"/sdcard/Android/obb/{pkg}");
-                            androidPaths.Add($"/data/user/0/{pkg}");
+                            UpdateDeviceStatus(deviceId, "30%", $"copy {pkg}");
+
+                            androidPaths.Add($"/data/data/{pkg}");
+                            androidPaths.Add($"/data/data/{pkg}/lib");
+                            androidPaths.Add($"/data/user_de/0/{pkg}");
+                            androidPaths.Add($"/sdcard/Android/data/{pkg}");
+                            androidPaths.Add($"/sdcard/Android/data/{pkg}/files");
+
+                            if (pkg != "com.android.vending" && pkg != "com.google.android.gsf" && pkg != "com.google.android.gms")
+                            {
+                                androidPaths.Add($"/sdcard/Android/obb/{pkg}");
+                                androidPaths.Add($"/data/user/0/{pkg}");
+                            }
                         }
-                    }
 
                     ADBService.runCMDRoot("root", deviceId);
                     ADBService.runCMDRoot("remount", deviceId);
@@ -957,6 +1052,41 @@ namespace ToolChange.ViewModels
                 }
             }
         }
+        //public bool restoreFullInfoExtra(string fromDesktopFullPath, string deviceId)
+        //{
+        //    if (!File.Exists(fromDesktopFullPath))
+        //    {
+        //        _processingDeviceIds.Remove(deviceId);
+        //        throw new FileNotFoundException("❌ Zip file not found: " + fromDesktopFullPath);
+        //    }
+
+        //    // Cấp quyền root và remount
+        //    ADBService.runCMDRoot("root", deviceId);
+        //    ADBService.runCMDRoot("remount", deviceId);
+        //    ADBService.runCMDRoot("shell \"mount -o rw,remount rootfs\"", deviceId);
+
+        //    string remoteZipPath = "/sdcard/restore_temp.zip";
+
+        //    // 1. Push ZIP file một lần duy nhất
+        //    ADBService.runCMDRoot($"push \"{fromDesktopFullPath}\" \"{remoteZipPath}\"", deviceId);
+        //    UpdateDeviceStatus(deviceId, "25%", $"✅ Pushed zip to: {remoteZipPath}");
+
+        //    // 2. Giải nén trên thiết bị bằng `unzip`
+        //    ADBService.runCMDRoot($"shell \"rm -rf /data/local/tmp/restore && mkdir -p /data/local/tmp/restore && unzip -o {remoteZipPath} -d /data/local/tmp/restore\"", deviceId);
+        //    UpdateDeviceStatus(deviceId, "50%", $"✅ Unzipped on device");
+
+        //    // 3. Di chuyển từng file về đúng vị trí gốc (nếu cần)
+        //    ADBService.runCMDRoot($"shell \"cp -r /data/local/tmp/restore/* /\"", deviceId);
+        //    UpdateDeviceStatus(deviceId, "90%", $"✅ Restored data to rootfs");
+
+        //    // 4. Xóa file tạm
+        //    ADBService.runCMDRoot($"shell \"rm -rf /data/local/tmp/restore {remoteZipPath}\"", deviceId);
+        //    UpdateDeviceStatus(deviceId, "100%", $"🧹 Cleaned up");
+
+        //    Task.Delay(5000).Wait(); // Đợi 3 giây để đảm bảo backup hoàn tất
+        //    ADBService.runCMDRoot("reboot", deviceId);
+        //    return true;
+        //}
         public bool restoreFullInfoExtra(string fromDesktopFullPath, string deviceId)
         {
             if (!File.Exists(fromDesktopFullPath))
@@ -965,33 +1095,63 @@ namespace ToolChange.ViewModels
                 throw new FileNotFoundException("❌ Zip file not found: " + fromDesktopFullPath);
             }
 
-            // Cấp quyền root và remount
+            // Danh sách các từ khóa cần bỏ qua (file dễ gây lỗi nav bar)
+            string[] skipKeywords = {
+        "systemui", "overlays", "display-manager-state.xml",
+        "settings_system.xml", "settings_secure.xml", "settings_global.xml",
+        "navigation", "framework-res", "input", "device_policies.xml"
+    };
+
+            // 1. Giải nén ZIP ra thư mục tạm trên PC
+            string tempExtractDir = Path.Combine(Path.GetTempPath(), "restore_temp_" + Guid.NewGuid().ToString("N"));
+            Directory.CreateDirectory(tempExtractDir);
+
+            System.IO.Compression.ZipFile.ExtractToDirectory(fromDesktopFullPath, tempExtractDir);
+
+            // 2. Lọc bỏ file có chứa từ khóa nguy hiểm
+            foreach (var file in Directory.GetFiles(tempExtractDir, "*", SearchOption.AllDirectories))
+            {
+                string lower = file.ToLower();
+                if (skipKeywords.Any(k => lower.Contains(k)))
+                {
+                    Console.WriteLine($"[SKIP] {file}");
+                    File.Delete(file);
+                }
+            }
+
+            // 3. Nén lại ZIP an toàn để đẩy lên thiết bị
+            string safeZipPath = Path.Combine(Path.GetTempPath(), "restore_safe.zip");
+            if (File.Exists(safeZipPath)) File.Delete(safeZipPath);
+            System.IO.Compression.ZipFile.CreateFromDirectory(tempExtractDir, safeZipPath);
+
+            // 4. Thực hiện restore trên thiết bị
             ADBService.runCMDRoot("root", deviceId);
             ADBService.runCMDRoot("remount", deviceId);
             ADBService.runCMDRoot("shell \"mount -o rw,remount rootfs\"", deviceId);
 
-            string remoteZipPath = "/sdcard/restore_temp.zip";
+            string remoteZipPath = "/sdcard/restore_safe.zip";
+            ADBService.runCMDRoot($"push \"{safeZipPath}\" \"{remoteZipPath}\"", deviceId);
+            UpdateDeviceStatus(deviceId, "25%", $"✅ Pushed safe zip to: {remoteZipPath}");
 
-            // 1. Push ZIP file một lần duy nhất
-            ADBService.runCMDRoot($"push \"{fromDesktopFullPath}\" \"{remoteZipPath}\"", deviceId);
-            UpdateDeviceStatus(deviceId, "25%", $"✅ Pushed zip to: {remoteZipPath}");
-
-            // 2. Giải nén trên thiết bị bằng `unzip`
+            // Giải nén an toàn
             ADBService.runCMDRoot($"shell \"rm -rf /data/local/tmp/restore && mkdir -p /data/local/tmp/restore && unzip -o {remoteZipPath} -d /data/local/tmp/restore\"", deviceId);
             UpdateDeviceStatus(deviceId, "50%", $"✅ Unzipped on device");
 
-            // 3. Di chuyển từng file về đúng vị trí gốc (nếu cần)
+            // Copy dữ liệu
             ADBService.runCMDRoot($"shell \"cp -r /data/local/tmp/restore/* /\"", deviceId);
-            UpdateDeviceStatus(deviceId, "90%", $"✅ Restored data to rootfs");
+            UpdateDeviceStatus(deviceId, "90%", $"✅ Restored safe data to rootfs");
 
-            // 4. Xóa file tạm
+            // Xóa file tạm
             ADBService.runCMDRoot($"shell \"rm -rf /data/local/tmp/restore {remoteZipPath}\"", deviceId);
             UpdateDeviceStatus(deviceId, "100%", $"🧹 Cleaned up");
 
-            Task.Delay(5000).Wait(); // Đợi 3 giây để đảm bảo backup hoàn tất
+            Task.Delay(3000).Wait();
             ADBService.runCMDRoot("reboot", deviceId);
+
             return true;
         }
+
+
         public static void AddPackage(string packageName)
         {
             if (!packages.Contains(packageName))
@@ -1102,7 +1262,6 @@ namespace ToolChange.ViewModels
                 device.Progress = newProgress;
             }
         }
-
         private async Task UpdateDevicesStatus()
         {
             try
@@ -1110,14 +1269,14 @@ namespace ToolChange.ViewModels
                 var adbDevices = await GetDevicesFromAdbAsync();
                 var adbDeviceDict = adbDevices.ToDictionary(d => d.DeviceId, d => d);
 
-                System.Windows.Application.Current.Dispatcher.Invoke(() =>
+                await System.Windows.Application.Current.Dispatcher.Invoke(async () =>
                 {
                     foreach (var device in Devices)
                     {
                         if (adbDeviceDict.TryGetValue(device.DeviceId, out var adbDevice))
                         {
                             string newStatus = adbDevice.Status;
-                            string newActive = ADBService.CheckDeviceActive(device.DeviceId);
+                            string newActive = await ADBService.CheckDeviceActive(device.DeviceId, miChangerGraphQLClient);
 
                             if (device.Status != newStatus || device.Active != newActive)
                             {
@@ -1232,7 +1391,7 @@ namespace ToolChange.ViewModels
                             Name = "",
                             Percentage = "0%",
                             Progress = "",
-                            Active = status == "Online" ? ADBService.CheckDeviceActive(deviceId) : "NO"
+                            Active = status == "Online" ? await ADBService.CheckDeviceActive(deviceId, miChangerGraphQLClient) : "NO"
                         });
                     }
                 }

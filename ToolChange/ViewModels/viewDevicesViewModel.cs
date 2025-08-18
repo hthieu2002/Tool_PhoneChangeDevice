@@ -1,4 +1,6 @@
-﻿using OpenCvSharp;
+﻿using AuthenticationService;
+using MiHttpClient;
+using OpenCvSharp;
 using OpenCvSharp.Internal;
 using Services;
 using System;
@@ -32,6 +34,12 @@ namespace ToolChange.ViewModels
 {
     public class viewDevicesViewModel : INotifyPropertyChanged
     {
+        private MiChangerGraphQLClient miChangerGraphQLClient;
+        private CognitoService cognitoService;
+        private string token;
+        private string endpoint = Properties.Settings.Default.endpoint;
+        private string authenticationType = "authorization";
+
         [DllImport("user32.dll")]
         static extern bool IsWindowVisible(IntPtr hWnd);
 
@@ -186,6 +194,13 @@ namespace ToolChange.ViewModels
                 ItemWidth = 200;
                 ItemHeight = 400;
             }
+
+            cognitoService = new CognitoService(Properties.Settings.Default.poolId, Properties.Settings.Default.clientId);
+
+            token = cognitoService.getIdToken(Properties.Settings.Default.user, Properties.Settings.Default.password);
+
+            //string token = "eyJraWQiOiJGallIT0JuUERvNTdXMENjWHlQNEdvOGFCbEd1NEFnUDNYZEtGNTluQzF3PSIsImFsZyI6IlJTMjU2In0.eyJzdWIiOiIwMTM5ZDBiZC01MzI1LTQwZGQtODY0Yi0wZDNkOGFjNmZlZjAiLCJhdWQiOiIzZ29zNWppbWliODJqbDNmOXZjNjI4M2twciIsImNvZ25pdG86Z3JvdXBzIjpbIlN0YW5kYXJkIl0sImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJldmVudF9pZCI6ImIxMjlmZDhlLTE5MDItNGM3Zi1hYzBhLWUyOGQ3YWNhYTlmZiIsInRva2VuX3VzZSI6ImlkIiwiYXV0aF90aW1lIjoxNTk5MjA2ODU5LCJpc3MiOiJodHRwczpcL1wvY29nbml0by1pZHAuYXAtc291dGhlYXN0LTEuYW1hem9uYXdzLmNvbVwvYXAtc291dGhlYXN0LTFfaG5WWGljam9sIiwiY29nbml0bzp1c2VybmFtZSI6IjAxMzlkMGJkLTUzMjUtNDBkZC04NjRiLTBkM2Q4YWM2ZmVmMCIsImV4cCI6MTU5OTIxMDQ1OSwiaWF0IjoxNTk5MjA2ODU5LCJlbWFpbCI6ImRldkB5b3BtYWlsLmNvbSJ9.WUZ3aW97f9oHXv_WSpeM3zUCtS5End-_F9fI8mjj3XMIsvyDTERmWrK5zWxHBeSEOgItmAJrMk3OWEg7bOE-8V98M9c921_MVP58uhgbWZHeXAnRgLDzZASOVE0pdPcjxbXGY9MxeWUNNp39U9E4Fo1YIrZbmS4fVHXVrhP4dhblAmsloroLPc-cBuslHYyHrRc9dLw-1f4Dacnvcd_J2Y8Lv_EvivsMuVNx5SYgnbLC7SsJ2_JNecSq1WdWGneiwuamkkzXDcmv644z7U6WWRyi9FeE0YP0hD09JXyN5CJRIWt563XR2684mf4o_xWbwZiS0KtjSio_D4sE88yyCg";
+            miChangerGraphQLClient = new MiChangerGraphQLClient(endpoint, authenticationType, token);
         }
 
         private void ToggleSelectDevice(ScrcpyDeviceModel model)
@@ -670,14 +685,24 @@ namespace ToolChange.ViewModels
                 await Task.Delay(1000);
             }
             tokenSource = new CancellationTokenSource();
-           
+            var activeDevices = new List<string>();
+
             while (!tokenSource.IsCancellationRequested)
             {
                 var connected = await GetConnectedDeviceIdsAsync();
                 Debug.WriteLine($"[Monitor] Devices connected: {string.Join(", ", connected)}");
 
-                var added = connected.Except(_currentDeviceIds).ToList();
-                var removed = _currentDeviceIds.Except(connected).ToList();
+                foreach (var deviceId in connected)
+                {
+                    if (await ADBService.CheckDeviceActiveBool(deviceId, miChangerGraphQLClient))
+                    {
+                        activeDevices.Add(deviceId);
+                    }
+                }
+
+                // Tính added / removed chỉ dựa trên active devices
+                var added = activeDevices.Except(_currentDeviceIds).ToList();
+                var removed = _currentDeviceIds.Except(activeDevices).ToList();
 
                 // Xử lý thêm thiết bị
                 foreach (var id in added)

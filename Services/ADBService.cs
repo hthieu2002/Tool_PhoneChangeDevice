@@ -1,4 +1,6 @@
-﻿using System;
+﻿using MiHttpClient;
+using POCO.Models;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
@@ -873,9 +875,11 @@ namespace Services
         {
             if (!string.IsNullOrEmpty(value))
             {
-                runCMDRoot(String.Format("shell settings put {0} {1} '{2}'", settingType, key, value), deviceId);
+                //runCMDRoot(String.Format("shell settings put {0} {1} '{2}'", settingType, key, value), deviceId);
+                runCMDRoot($"shell settings put {settingType} {key} '{value}'", deviceId);
             }
         }
+       
         public static void deleteSetting(string key, string deviceId)
         {
             runCMDRoot(String.Format("shell settings delete global {0}", key), deviceId);
@@ -2612,33 +2616,61 @@ namespace Services
             return;
         }
 
-        public static string CheckDeviceActive(string deviceId)
+        private static DateTime _lastCheckTime = DateTime.MinValue;
+        private static string _lastResult = "NO"; // kết quả lần gọi trước
+        private const int MinIntervalMs = 2000; // 2 giây
+
+        public async static Task<string> CheckDeviceActive(string deviceId, MiChangerGraphQLClient miChangerGraphQLClient)
         {
+            if (_lastCheckTime != DateTime.MinValue)
+            {
+                var elapsed = (DateTime.UtcNow - _lastCheckTime).TotalMilliseconds;
+                if (elapsed < MinIntervalMs)
+                {
+                    Debug.WriteLine($"Bỏ qua gọi CheckDeviceActive (mới gọi {elapsed:F0} ms trước). Giữ kết quả cũ: {_lastResult}");
+                    return _lastResult; // giữ nguyên kết quả lần trước
+                }
+            }
+
+            _lastCheckTime = DateTime.UtcNow;
+
             try
             {
-                Process process = new Process
-                {
-                    StartInfo = new ProcessStartInfo
-                    {
-                        FileName = "Resources/adb",
-                        Arguments = $"-s {deviceId} shell getprop init.svc.bootanim",
-                        RedirectStandardOutput = true,
-                        UseShellExecute = false,
-                        CreateNoWindow = true
-                    }
-                };
-                process.Start();
-                string output = process.StandardOutput.ReadToEnd().Trim();
-                process.WaitForExit();
-
-                return output == "stopped" ? "YES" : "NO";
+                LicensesModel licenses = await miChangerGraphQLClient.GetActiveLicensesBySerialNo(deviceId);
+                _lastResult = (licenses?.Licenses?.Count > 0) ? "YES" : "NO"; // lưu lại kết quả
+                Debug.WriteLine($"Active Licenses: {licenses?.Licenses?.Count ?? 0} → {_lastResult}");
+                return _lastResult;
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error checking device active status for {deviceId}: {ex.Message}");
-                return "NO";
+                Debug.WriteLine($"Error checking device active status for {deviceId}: {ex.Message}");
+                return "NO"; 
             }
         }
+
+
+
+        public async static Task<bool> CheckDeviceActiveBool(string deviceId, MiChangerGraphQLClient miChangerGraphQLClient)
+{
+    try
+    {
+        // Lấy license của thiết bị theo serial
+        LicensesModel licenses = await miChangerGraphQLClient.GetActiveLicensesBySerialNo(deviceId);
+
+        Debug.WriteLine($"Active Licenses: {licenses?.Licenses?.Count ?? 0}");
+
+        // Nếu có license => true, ngược lại => false
+        return (licenses != null && 
+                licenses.Licenses != null && 
+                licenses.Licenses.Count > 0);
+    }
+    catch (Exception ex)
+    {
+        MessageBox.Show($"Error checking device active status for {deviceId}: {ex.Message}");
+        return false;
+    }
+}
+
         public static void ScreenshotAdb(string id)
         {
             runCMDRoot("shell screencap /sdcard/screenshot.png", id);

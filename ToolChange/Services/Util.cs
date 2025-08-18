@@ -92,8 +92,12 @@ namespace ToolChange.Services
                     changedSystemInfo.Add(BuildKey_SYSTEM_S9.SSID, RandomService.generateSSID());
                     changedSystemInfo.Add(BuildKey_SYSTEM_S9.BSSID, RandomService.generateMacAddress());
                     changedSystemInfo.Add(BuildKey_SYSTEM_S9.FINGERPRINT, tempDevice.Fingerprint);
-                    changedSystemInfo.Add(BuildKey_SYSTEM_S9.ANDROID_SECURITY_PATH, tempDevice.SecurityPath);
+                 //   changedSystemInfo.Add(BuildKey_SYSTEM_S9.ANDROID_SECURITY_PATH, tempDevice.SecurityPath);
                     changedSystemInfo.Add(BuildKey_SYSTEM_S9.BUILD_ID, tempDevice.BuildId);
+                    changedSystemInfo.Add(BuildKey_SYSTEM_S9.SECURITY_PATH, tempDevice.SecurityPath);
+                   // changedSystemInfo.Add(BuildKey_SYSTEM_S9.VERSION_RELEASE, tempDevice.Release);
+                 //   changedSystemInfo.Add(BuildKey_SYSTEM_S9.VERSION_RELEASE_OR_CODENAME, tempDevice.Release);
+                //    changedSystemInfo.Add(BuildKey_SYSTEM_S9.VERSION_RELEASE_OR_PREVIEW_DISPLAY, tempDevice.Release);
                     changedSystemInfo.Add(BuildKey_SYSTEM_S9.ANDROID_VERSION_RELEASE, tempDevice.Release);
                     changedSystemInfo.Add(BuildKey_SYSTEM_S9.ANDROID_SDK, tempDevice.SDK);
                     changedSystemInfo.Add(BuildKey_SYSTEM_S9.FINGERPRINT_SYSTEM, tempDevice.Fingerprint);
@@ -427,6 +431,7 @@ namespace ToolChange.Services
             {
                 Console.WriteLine($"*******START Partition {partition.Key}*******");
                 var changedSystemInfo = new Dictionary<string, string>();
+                changedSystemInfo.Add($"ro.{partition.Key}.build.security_patch", tempDevice.SecurityPath);
                 changedSystemInfo.Add($"ro.{partition.Key}.build.date", tempDevice.BuildDate);
                 changedSystemInfo.Add($"ro.{partition.Key}.build.date.utc", tempDevice.BuildDateUtc);
                 changedSystemInfo.Add($"ro.{partition.Key}.build.fingerprint", tempDevice.Fingerprint);

@@ -39,6 +39,11 @@ namespace ToolChange.ViewModels
 {
     public class DeviceViewModel : INotifyPropertyChanged
     {
+        private CognitoService cognitoService;
+        private string token;
+        private string endpoint = Properties.Settings.Default.endpoint;
+        private string authenticationType = "authorization";
+
         [DllImport("user32.dll", SetLastError = true)]
         static extern IntPtr FindWindow(string lpClassName, string lpWindowName);
         public LocalizationViewModel LanguageVM { get; set; }
@@ -671,6 +676,9 @@ namespace ToolChange.ViewModels
 
             _ = ResetDeviceJson();
             _ = LoadDevices();
+
+            _ = CreateService();
+
             LoadData();
             //   AsyncTask();
             Brand = DeviceTypes.First();
@@ -866,14 +874,14 @@ namespace ToolChange.ViewModels
                 var adbDeviceDict = adbDevices.ToDictionary(d => d.DeviceId, d => d);
                 if (System.Windows.Application.Current != null && System.Windows.Application.Current.Dispatcher != null)
                 {
-                    System.Windows.Application.Current.Dispatcher.Invoke(() =>
+                    await System.Windows.Application.Current.Dispatcher.Invoke(async () => 
                     {
                         foreach (var device in Devices)
                         {
                             if (adbDeviceDict.TryGetValue(device.DeviceId, out var adbDevice))
                             {
                                 string newStatus = adbDevice.Status;
-                                string newActive = ADBService.CheckDeviceActive(device.DeviceId);
+                                string newActive = await ADBService.CheckDeviceActive(device.DeviceId, miChangerGraphQLClient);
 
                                 if (device.Status != newStatus || device.Active != newActive)
                                 {
@@ -933,7 +941,7 @@ namespace ToolChange.ViewModels
                             Name = "",
                             Percentage = "0%",
                             Progress = "",
-                            Active = status == "Online" ? ADBService.CheckDeviceActive(deviceId) : "NO"
+                            Active = status == "Online" ? await ADBService.CheckDeviceActive(deviceId, miChangerGraphQLClient) : "NO"
                         });
                     }
                 }
@@ -1088,8 +1096,10 @@ namespace ToolChange.ViewModels
             dialog.ShowDialog();
         }
 
-        private void FakeProxyDeviceId(Models.DeviceModel device)
+        private async void FakeProxyDeviceId(Models.DeviceModel device)
         {
+        
+
             string proxyHost = "";
             string proxyPort = "";
             string proxyUsername = string.Empty;
@@ -1122,13 +1132,30 @@ namespace ToolChange.ViewModels
                 DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "---%", "ERROR");
                 return;
             }
+
+            if (device.Status == "Offline")
+            {
+                UpdateDeviceStatus(device.DeviceId, "0%", "⚠ Device offline");
+                return;
+            }
+            if (!await ADBService.CheckDeviceActiveBool(device.DeviceId, miChangerGraphQLClient))
+            {
+                UpdateDeviceStatus(device.DeviceId, "0%", "⚠ Device not active");
+                return;
+            }
+            if (_processingDeviceIds.Contains(device.DeviceId))
+            {
+                UpdateDeviceStatus(device.DeviceId, "%", "⏳ Device running...");
+                return;
+            }
+
             try
             {
                 DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "5%", DevicesLang.logTitleProxy);
                 string proxy = $"{proxyHost}:{proxyPort}:{proxyUsername}:{proxyPassword}";
 
                 var currentTask = TaskScheduler.FromCurrentSynchronizationContext();
-                Task.Run(() =>
+                await Task.Run(() =>
                 {
                     var isFakeTimeZone = FakeTimeZone(proxy, device.DeviceId);
                     if (isFakeTimeZone)
@@ -1187,7 +1214,7 @@ namespace ToolChange.ViewModels
 
 
         }
-        private void FakeProxyDeviceIdHttp(Models.DeviceModel device)
+        private async void FakeProxyDeviceIdHttp(Models.DeviceModel device)
         {
             string proxyHost = "";
             string proxyPort = "";
@@ -1221,13 +1248,30 @@ namespace ToolChange.ViewModels
                 DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "---%", "ERROR");
                 return;
             }
+
+
+            if (device.Status == "Offline")
+            {
+                UpdateDeviceStatus(device.DeviceId, "0%", "⚠ Device offline");
+                return;
+            }
+            if (!await ADBService.CheckDeviceActiveBool(device.DeviceId, miChangerGraphQLClient))
+            {
+                UpdateDeviceStatus(device.DeviceId, "0%", "⚠ Device not active");
+                return;
+            }
+            if (_processingDeviceIds.Contains(device.DeviceId))
+            {
+                UpdateDeviceStatus(device.DeviceId, "%", "⏳ Device running...");
+                return;
+            }
             try
             {
                 DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "5%", DevicesLang.logTitleProxy);
                 string proxy = $"{proxyHost}:{proxyPort}:{proxyUsername}:{proxyPassword}";
 
                 var currentTask = TaskScheduler.FromCurrentSynchronizationContext();
-                Task.Run(() =>
+                await Task.Run(() =>
                 {
                     var isFakeTimeZone = FakeTimeZoneHttp(proxy, device.DeviceId);
                     if (isFakeTimeZone)
@@ -1617,7 +1661,7 @@ namespace ToolChange.ViewModels
                 Mac = RandomService.generateMacAddress();
 
                 tempDeviceAll.SimOperatorCountry = currentSelectedCountry.CountryIso;
-                tempDeviceAll.SimOperatorName = currentSelectedCarrier.Name.Split('-')[0].Replace("&", "^&");
+                tempDeviceAll.SimOperatorName = currentSelectedCarrier.Name.Split('-')[0].Replace("&", "&");
                 tempDeviceAll.AndroidId = RandomService.getRandomStringHex16Digit();
                 tempDeviceAll.WifiMacAddress = Mac;
                 tempDeviceAll.BlueToothMacAddress = RandomService.generateMacAddress();
@@ -1804,27 +1848,25 @@ namespace ToolChange.ViewModels
                     foreach (var device in selectedDevices)
                     {
                         if (device.Status == "Offline")
+                        {
+                            UpdateDeviceStatus(device.DeviceId, "0%", "⚠ Device offline");
                             continue;
+
+                        }
+                        if (!await ADBService.CheckDeviceActiveBool(device.DeviceId, miChangerGraphQLClient))
+                        {
+                            UpdateDeviceStatus(device.DeviceId, "0%", "⚠ Device not active");
+                            continue;
+
+                        }
                         if (_processingDeviceIds.Contains(device.DeviceId))
                         {
+                            UpdateDeviceStatus(device.DeviceId, "%", "⏳ Device running...");
                             continue;
-                        }
-                        if (Properties.Settings.Default.ClearData)
-                        {
-                            // true clear data
-                            DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "0%", "Wipe data ON");
-                            DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "0%", "Delete app");
-                            ADBService.UninstallAllUserApps(device.DeviceId);
-                            Task.Delay(1000).Wait();
-                            DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "0%", "Delete account");
-                            ADBService.RemoveAccountsDb(device.DeviceId);
-                            Task.Delay(1000).Wait();
-                        }
-                        else
-                        {
-                            DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "0%", "Wipe data OFF");
+
                         }
 
+                      
                         _processingDeviceIds.Add(device.DeviceId);
                         if (messageBoxPushFile == MessageBoxResult.Yes && selectedFilePath != null)
                         {
@@ -1990,22 +2032,24 @@ namespace ToolChange.ViewModels
                     foreach (var device in selectedDevices)
                     {
                         if (device.Status == "Offline")
+                        {
+                            UpdateDeviceStatus(device.DeviceId, "0%", "⚠ Device offline");
                             continue;
+
+                        }
+                        if (!await ADBService.CheckDeviceActiveBool(device.DeviceId, miChangerGraphQLClient))
+                        {
+                            UpdateDeviceStatus(device.DeviceId, "0%", "⚠ Device not active");
+                            continue;
+
+                        }
                         if (_processingDeviceIds.Contains(device.DeviceId))
                         {
+                            UpdateDeviceStatus(device.DeviceId, "%", "⏳ Device running...");
                             continue;
+
                         }
-                        if (Properties.Settings.Default.ClearData)
-                        {
-                            // true clear data
-                            DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "0%", "Wipe data ON");
-                            DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "0%", "Delete app");
-                            ADBService.UninstallAllUserApps(device.DeviceId);
-                            Task.Delay(1000).Wait();
-                            DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "0%", "Delete account");
-                            ADBService.RemoveAccountsDb(device.DeviceId);
-                            Task.Delay(1000).Wait();
-                        }
+
                         _processingDeviceIds.Add(device.DeviceId);
                         if (messageBoxPushFile == MessageBoxResult.Yes && selectedFilePath != null)
                         {
@@ -2039,6 +2083,19 @@ namespace ToolChange.ViewModels
         }
         private async Task ProcessChangeDeviceAsync(Models.DeviceModel device, int checkChange = 0)
         {
+            if (Properties.Settings.Default.ClearData)
+            {
+                DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "0%", "Wipe data ON");
+                DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "0%", "Delete app");
+                await Task.Run(() =>
+                {
+                    ADBService.UninstallAllUserApps(device.DeviceId); // Chạy trên thread phụ
+
+                    Thread.Sleep(1000);
+                });
+                DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "0%", "Delete account");
+                ADBService.RemoveAccountsDb(device.DeviceId);
+            }
             //  UpdateDeviceStatus(device.DeviceId, "0%", "Change device start");
             DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "0%", "Change device start");
             POCO.Models.DeviceModel deviceTemp = null;
@@ -2132,9 +2189,23 @@ namespace ToolChange.ViewModels
                     foreach (var device in selectedDevices)
                     {
                         if (device.Status == "Offline")
+                        {
+                            UpdateDeviceStatus(device.DeviceId, "0%", "⚠ Device offline");
                             continue;
+
+                        }
+                        if (!await ADBService.CheckDeviceActiveBool(device.DeviceId, miChangerGraphQLClient))
+                        {
+                            UpdateDeviceStatus(device.DeviceId, "0%", "⚠ Device not active");
+                            continue;
+
+                        }
                         if (_processingDeviceIds.Contains(device.DeviceId))
+                        {
+                            UpdateDeviceStatus(device.DeviceId, "%", "⏳ Device running...");
                             continue;
+
+                        }
 
                         _processingDeviceIds.Add(device.DeviceId);
 
@@ -2174,9 +2245,23 @@ namespace ToolChange.ViewModels
                     foreach (var device in selectedDevices)
                     {
                         if (device.Status == "Offline")
+                        {
+                            UpdateDeviceStatus(device.DeviceId, "0%", "⚠ Device offline");
                             continue;
+
+                        }
+                        if (!await ADBService.CheckDeviceActiveBool(device.DeviceId, miChangerGraphQLClient))
+                        {
+                            UpdateDeviceStatus(device.DeviceId, "0%", "⚠ Device not active");
+                            continue;
+
+                        }
                         if (_processingDeviceIds.Contains(device.DeviceId))
+                        {
+                            UpdateDeviceStatus(device.DeviceId, "%", "⏳ Device running...");
                             continue;
+
+                        }
 
                         _processingDeviceIds.Add(device.DeviceId);
 
@@ -2276,11 +2361,22 @@ namespace ToolChange.ViewModels
                 {
                     if (device.Status == "Offline")
                     {
+                        UpdateDeviceStatus(device.DeviceId, "0%", "⚠ Device offline");
                         continue;
-                    }
 
-                    if (_processingDeviceIds.Contains(device.DeviceId))
+                    }
+                    if (!await ADBService.CheckDeviceActiveBool(device.DeviceId, miChangerGraphQLClient))
+                    {
+                        UpdateDeviceStatus(device.DeviceId, "0%", "⚠ Device not active");
                         continue;
+
+                    }
+                    if (_processingDeviceIds.Contains(device.DeviceId))
+                    {
+                        UpdateDeviceStatus(device.DeviceId, "%", "⏳ Device running...");
+                        continue;
+
+                    }
 
                     _processingDeviceIds.Add(device.DeviceId);
 
@@ -2359,12 +2455,22 @@ namespace ToolChange.ViewModels
                 {
                     if (device.Status == "Offline")
                     {
-                        DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "0%", $"Device offline");
+                        UpdateDeviceStatus(device.DeviceId, "0%", "⚠ Device offline");
                         continue;
-                    }
 
-                    if (_processingDeviceIds.Contains(device.DeviceId))
+                    }
+                    if (!await ADBService.CheckDeviceActiveBool(device.DeviceId, miChangerGraphQLClient))
+                    {
+                        UpdateDeviceStatus(device.DeviceId, "0%", "⚠ Device not active");
                         continue;
+
+                    }
+                    if (_processingDeviceIds.Contains(device.DeviceId))
+                    {
+                        UpdateDeviceStatus(device.DeviceId, "%", "⏳ Device running...");
+                        continue;
+
+                    }
 
                     _processingDeviceIds.Add(device.DeviceId);
 
@@ -2429,11 +2535,22 @@ namespace ToolChange.ViewModels
                 {
                     if (device.Status == "Offline")
                     {
+                        UpdateDeviceStatus(device.DeviceId, "0%", "⚠ Device offline");
                         continue;
+
                     }
-                    
-                    if (_processingDeviceIds.Contains(device.DeviceId))
+                    if (!await ADBService.CheckDeviceActiveBool(device.DeviceId, miChangerGraphQLClient))
+                    {
+                        UpdateDeviceStatus(device.DeviceId, "0%", "⚠ Device not active");
                         continue;
+
+                    }
+                    if (_processingDeviceIds.Contains(device.DeviceId))
+                    {
+                        UpdateDeviceStatus(device.DeviceId, "%", "⏳ Device running...");
+                        continue;
+
+                    }
 
                     if (string.IsNullOrEmpty(timezone) || string.IsNullOrEmpty(timezone))
                     {
@@ -2526,8 +2643,21 @@ namespace ToolChange.ViewModels
                 {
                     if (device.Status == "Offline")
                     {
-                        DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "0%", $"Device offline");
+                        UpdateDeviceStatus(device.DeviceId, "0%", "⚠ Device offline");
                         continue;
+
+                    }
+                    if (!await ADBService.CheckDeviceActiveBool(device.DeviceId, miChangerGraphQLClient))
+                    {
+                        UpdateDeviceStatus(device.DeviceId, "0%", "⚠ Device not active");
+                        continue;
+
+                    }
+                    if (_processingDeviceIds.Contains(device.DeviceId))
+                    {
+                        UpdateDeviceStatus(device.DeviceId, "%", "⏳ Device running...");
+                        continue;
+
                     }
 
                     tasks.Add(ProcessOpenUrlAsync(device, url));
@@ -2594,18 +2724,31 @@ namespace ToolChange.ViewModels
 
                 foreach (var device in (deviceCheck ? selectedDevices.Cast<Models.DeviceModel>() : devices))
                 {
-                    if (device.Status == "Offline")
-                    {
-                        continue;
-                    }
+                   
                     if (string.IsNullOrEmpty(typeProxy))
                     {
                         System.Windows.MessageBox.Show("Type proxy null", "ERROR", MessageBoxButton.OK, MessageBoxImage.Warning);
                         return;
                     }
 
-                    if (_processingDeviceIds.Contains(device.DeviceId))
+                    if (device.Status == "Offline")
+                    {
+                        UpdateDeviceStatus(device.DeviceId, "0%", "⚠ Device offline");
                         continue;
+
+                    }
+                    if (!await ADBService.CheckDeviceActiveBool(device.DeviceId, miChangerGraphQLClient))
+                    {
+                        UpdateDeviceStatus(device.DeviceId, "0%", "⚠ Device not active");
+                        continue;
+
+                    }
+                    if (_processingDeviceIds.Contains(device.DeviceId))
+                    {
+                        UpdateDeviceStatus(device.DeviceId, "%", "⏳ Device running...");
+                        continue;
+
+                    }
 
                     if (string.IsNullOrEmpty(proxyHost) || string.IsNullOrEmpty(proxyPort))
                     {
