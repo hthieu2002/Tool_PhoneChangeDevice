@@ -7,6 +7,7 @@ using System.Data;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using ToolChange.ViewModels;
 using ToolChange.ViewModels.Constants;
@@ -33,6 +34,15 @@ namespace ToolChange.Services
                 if (tempDevice.Brand == null || tempDevice.Brand == "")
                 {
                     tempDevice.Brand = tempDevice.Manufacturer.ToLower();
+                }
+
+                Regex IsoDateRegex =
+                    new Regex(@"^(?<y>\d{4})-(?<m>0[1-9]|1[0-2])-(?<d>0[1-9]|[12]\d|3[01])$",
+                    RegexOptions.Compiled);
+
+                if (!IsoDateRegex.IsMatch(tempDevice.SecurityPath))
+                {
+                    tempDevice.SecurityPath = DateTime.Now.ToString("yyyy-MM-dd");
                 }
 
                 ToolChange.Models.DeviceUpdater.UpdateProgress(deviceS, deviceId, "10%", "Change device ...");
@@ -92,12 +102,12 @@ namespace ToolChange.Services
                     changedSystemInfo.Add(BuildKey_SYSTEM_S9.SSID, RandomService.generateSSID());
                     changedSystemInfo.Add(BuildKey_SYSTEM_S9.BSSID, RandomService.generateMacAddress());
                     changedSystemInfo.Add(BuildKey_SYSTEM_S9.FINGERPRINT, tempDevice.Fingerprint);
-                 //   changedSystemInfo.Add(BuildKey_SYSTEM_S9.ANDROID_SECURITY_PATH, tempDevice.SecurityPath);
+                    // changedSystemInfo.Add(BuildKey_SYSTEM_S9.ANDROID_SECURITY_PATH, tempDevice.SecurityPath);
                     changedSystemInfo.Add(BuildKey_SYSTEM_S9.BUILD_ID, tempDevice.BuildId);
                     changedSystemInfo.Add(BuildKey_SYSTEM_S9.SECURITY_PATH, tempDevice.SecurityPath);
-                   // changedSystemInfo.Add(BuildKey_SYSTEM_S9.VERSION_RELEASE, tempDevice.Release);
-                 //   changedSystemInfo.Add(BuildKey_SYSTEM_S9.VERSION_RELEASE_OR_CODENAME, tempDevice.Release);
-                //    changedSystemInfo.Add(BuildKey_SYSTEM_S9.VERSION_RELEASE_OR_PREVIEW_DISPLAY, tempDevice.Release);
+                    // changedSystemInfo.Add(BuildKey_SYSTEM_S9.VERSION_RELEASE, tempDevice.Release);
+                    // changedSystemInfo.Add(BuildKey_SYSTEM_S9.VERSION_RELEASE_OR_CODENAME, tempDevice.Release);
+                    // changedSystemInfo.Add(BuildKey_SYSTEM_S9.VERSION_RELEASE_OR_PREVIEW_DISPLAY, tempDevice.Release);
                     changedSystemInfo.Add(BuildKey_SYSTEM_S9.ANDROID_VERSION_RELEASE, tempDevice.Release);
                     changedSystemInfo.Add(BuildKey_SYSTEM_S9.ANDROID_SDK, tempDevice.SDK);
                     changedSystemInfo.Add(BuildKey_SYSTEM_S9.FINGERPRINT_SYSTEM, tempDevice.Fingerprint);
