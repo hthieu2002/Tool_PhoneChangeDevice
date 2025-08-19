@@ -577,6 +577,7 @@ namespace Services
             runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/system_de/0/powerstats"), deviceId);
             runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/system_de/0/ringtones"), deviceId);
             runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/system_de/0/system"), deviceId);
+            runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/system/users/0/settings_ssaid.xml"), deviceId);
             runCMDRoot(String.Format("shell \"rm -rf {0} \"", Package_Data.CHROME), deviceId);
             runCMDRoot(String.Format("shell \"rm -rf {0} \"", Package_Data.IMS), deviceId);
             runCMDRoot(String.Format("shell \"rm -rf {0} \"", Package_Data.CALENDAR), deviceId);
@@ -638,6 +639,10 @@ namespace Services
             runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/bootchart"), deviceId);
             runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/cache"), deviceId);
             runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/dalvik-cache"), deviceId);
+            runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/system/dropbox/*"), deviceId);
+            runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/misc/profiles/*"), deviceId);
+            runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/misc/gatekeeper/*"), deviceId);
+
             var getPixelExp = runCMD(String.Format("shell getprop | findstr pixelexperience"), deviceId);
             if (string.IsNullOrEmpty(getPixelExp))
             {
@@ -657,6 +662,8 @@ namespace Services
             //DeviceService.setNewUserKey(deviceId);
             runCMDRoot(String.Format("shell \"rm -rf {0} \"", "./etc/security/otacerts.zip"), deviceId);
             //runCMD(String.Format("shell \"rm -rf {0} \"", "/data/app"), deviceId);
+
+            runCMDRoot("remount", deviceId);
             updateFileDateTimeModification("./system/product/priv-app", deviceId);
             updateFileDateTimeModification("./system/product/app", deviceId);
         }
