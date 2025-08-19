@@ -188,7 +188,7 @@ namespace ToolChange.Views
 
         private async void MainWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            e.Cancel = true; // Chặn tắt app tạm thời
+            e.Cancel = true;
 
             var result = await DialogHost.Show(new ConfirmDialog(), "RootDialog", ClosingEventHandler);
 
