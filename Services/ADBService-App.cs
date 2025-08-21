@@ -62,14 +62,15 @@ namespace Services
             var cert = X509CertService.GenerateCertificate(generateCertSubject());
             var rawSignatureData = cert.GetRawCertDataString();
             var leftPadding = "".PadLeft(4); // an unit of "TAB" character in .rc/shell format
-            var props = $"{leftPadding}setprop ro.boot.bootloader \"{bootloader}\"\r\n" +
-                        $"{leftPadding}setprop ro.bootloader \"{bootloader}\"\r\n" +
+            var props = 
+                        //$"{leftPadding}setprop ro.bootloader \"{bootloader}\"\r\n" +
                         //$"{leftPadding}setprop ro.serialno \"{serialNumber}\"\r\n" +
-                        //$"{leftPadding}setprop ro.boot.serialno \"{serialNumber}\"\r\n" +
-                        //$"{leftPadding}setprop ril.serialnumber \"{serialNumber}\"\r\n" +
-                        //$"{leftPadding}setprop sys.serialnumber \"{serialNumber}\"\r\n" +
-                        $"{leftPadding}setprop ro.baseband \"{baseband}\"\r\n" +
-                        $"{leftPadding}setprop gsm.version.baseband \"{baseband}\"\r\n";
+                        ////$"{leftPadding}setprop ro.boot.serialno \"{serialNumber}\"\r\n" +
+                        ////$"{leftPadding}setprop ril.serialnumber \"{serialNumber}\"\r\n" +
+                        ////$"{leftPadding}setprop sys.serialnumber \"{serialNumber}\"\r\n" +
+                        //$"{leftPadding}setprop ro.baseband \"{baseband}\"\r\n" +
+                        //$"{leftPadding}setprop gsm.version.baseband \"{baseband}\"\r\n" +
+                        $"";
             var exePath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
             var originalInitRcPath = Path.Combine(exePath, $"Resources/init.lineage20.rc");
             var systemPathInitRc = "/etc/init/hw/init.rc";

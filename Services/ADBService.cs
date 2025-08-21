@@ -577,7 +577,7 @@ namespace Services
             runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/system_de/0/powerstats"), deviceId);
             runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/system_de/0/ringtones"), deviceId);
             runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/system_de/0/system"), deviceId);
-            runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/system/users/0/settings_ssaid.xml"), deviceId);
+          //  runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/system/users/0/settings_ssaid.xml"), deviceId);
             runCMDRoot(String.Format("shell \"rm -rf {0} \"", Package_Data.CHROME), deviceId);
             runCMDRoot(String.Format("shell \"rm -rf {0} \"", Package_Data.IMS), deviceId);
             runCMDRoot(String.Format("shell \"rm -rf {0} \"", Package_Data.CALENDAR), deviceId);

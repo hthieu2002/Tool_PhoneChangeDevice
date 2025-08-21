@@ -218,14 +218,9 @@ namespace ToolChange.ViewModels
 };
         private static readonly List<string> AvailableOs = new List<string>
 {
-    "24",
-    "26",
-    "27",
-    "28",
-    "29",
-    "30",
-    "31",
-    "32"
+    "33",
+    "34",
+    "35"
 };
         private void RandomizeBrand()
         {
@@ -260,7 +255,9 @@ namespace ToolChange.ViewModels
     "Android 10",
     "Android 11",
     "Android 12",
-    "Android 13"
+    "Android 13",
+    "Android 14",
+    "Android 15"
 };
         private string _user = Properties.Settings.Default.user;
         private string _brand;
@@ -337,7 +334,7 @@ namespace ToolChange.ViewModels
                 }
                 if (BrandRandom)
                 {
-                    var newList = new[] { "Random", "Android 7", "Android 8", "Android 9", "Android 10", "Android 11", "Android 12", "Android 13" };
+                    var newList = new[] { "Random", "Android 7", "Android 8", "Android 9", "Android 10", "Android 11", "Android 12", "Android 13" , "Android 14", "Android 15"};
                     DeviceTypesOs.Clear();
                     foreach (var item in newList)
                     {
@@ -349,7 +346,7 @@ namespace ToolChange.ViewModels
                 {
                     if (value == "Samsung" || value == "Random")
                     {
-                        var newList = new[] { "Random", "Android 7", "Android 8", "Android 9", "Android 10", "Android 11", "Android 12", "Android 13" };
+                        var newList = new[] { "Random", "Android 7", "Android 8", "Android 9", "Android 10", "Android 11", "Android 12", "Android 13" , "Android 14", "Android 15"};
 
                         DeviceTypesOs.Clear();
                         foreach (var item in newList)
@@ -360,7 +357,7 @@ namespace ToolChange.ViewModels
                     }
                     if (value == "Xiaomi")
                     {
-                        var newList = new[] { "Random", "Android 8", "Android 9", "Android 10", "Android 11", "Android 12" };
+                        var newList = new[] { "Random", "Android 7", "Android 8", "Android 9", "Android 10", "Android 11", "Android 12", "Android 13", "Android 14", "Android 15" };
 
                         DeviceTypesOs.Clear();
                         foreach (var item in newList)
@@ -371,7 +368,7 @@ namespace ToolChange.ViewModels
                     }
                     if (value == "Oppo")
                     {
-                        var newList = new[] { "Random", "Android 8", "Android 9", "Android 10", "Android 11", "Android 12" };
+                        var newList = new[] { "Random", "Android 10", "Android 11", "Android 12", "Android 13", "Android 14", "Android 15" };
 
                         DeviceTypesOs.Clear();
                         foreach (var item in newList)
@@ -382,7 +379,7 @@ namespace ToolChange.ViewModels
                     }
                     if (value == "Vivo")
                     {
-                        var newList = new[] { "Random", "Android 10", "Android 11", "Android 12" };
+                        var newList = new[] { "Random", "Android 11", "Android 12", "Android 13", "Android 14", "Android 15" };
 
                         DeviceTypesOs.Clear();
                         foreach (var item in newList)
@@ -393,7 +390,7 @@ namespace ToolChange.ViewModels
                     }
                     if (value == "Realme")
                     {
-                        var newList = new[] { "Random", "Android 10", "Android 11", "Android 12" };
+                        var newList = new[] { "Random", "Android 11", "Android 12", "Android 13", "Android 14", "Android 15" };
 
                         DeviceTypesOs.Clear();
                         foreach (var item in newList)
@@ -404,7 +401,7 @@ namespace ToolChange.ViewModels
                     }
                     if (value == "Google")
                     {
-                        var newList = new[] { "Random", "Android 11", "Android 12" };
+                        var newList = new[] { "Random", "Android 11", "Android 12", "Android 13", "Android 14", "Android 15" };
 
                         DeviceTypesOs.Clear();
                         foreach (var item in newList)
@@ -481,6 +478,14 @@ namespace ToolChange.ViewModels
                 {
                     value = "Android 13";
 
+                }
+                if (value == "14")
+                {
+                    value = "Android 14";
+                }
+                if (value == "15")
+                {
+                    value = "Android 15";
                 }
 
                 _os = value;
@@ -1487,40 +1492,20 @@ namespace ToolChange.ViewModels
                         }
                         else if (Os == "Android 13")
                         {
-                            OsValue = "32";
+                            OsValue = "33";
+                        }
+                        else if (Os == "Android 14")
+                        {
+                            OsValue = "34";
+                        }
+                        else if (Os == "Android 15")
+                        {
+                            OsValue = "35";
                         }
                         else
                         {
                             OsValue = "29";
                         }
-                    }
-
-                    if (BrandValue == "Google" && (Os == "Random" || OsValue == "24"))
-                    {
-                        OsValue = "30";
-                    }
-                    if ((BrandValue == "realme" || BrandValue == "vivo") && (Os == "Random" || OsValue == "24"))
-                    {
-                        if ((OsValue == "29" || OsValue == "30"))
-                        {
-
-                        }
-                        else
-                        {
-                            OsValue = "29";
-                        }
-                    }
-                    if ((BrandValue == "OPPO" || BrandValue == "Xiaomi") && (Os == "Random" || OsValue == "24"))
-                    {
-                        if ((OsValue == "29" || OsValue == "30" || OsValue == "28" || OsValue == "27"))
-                        {
-
-                        }
-                        else
-                        {
-                            OsValue = "29";
-                        }
-
                     }
                 }
 
@@ -1610,23 +1595,11 @@ namespace ToolChange.ViewModels
                         case "Android 10": OsValue = "29"; break;
                         case "Android 11": OsValue = "30"; break;
                         case "Android 12": OsValue = "31"; break;
-                        case "Android 13": OsValue = "32"; break;
+                        case "Android 13": OsValue = "33"; break;
+                        case "Android 14": OsValue = "34"; break;
+                        case "Android 15": OsValue = "35"; break;
                         default: OsValue = "29"; break;
                     }
-                }
-
-                // ✅ Điều kiện đặc biệt cho 1 số hãng
-                if (BrandValue == "Google" && OsValue == "24")
-                {
-                    OsValue = "30";
-                }
-                if ((BrandValue == "realme" || BrandValue == "vivo") && OsValue == "24")
-                {
-                    OsValue = "29";
-                }
-                if ((BrandValue == "OPPO" || BrandValue == "Xiaomi") && OsValue == "24")
-                {
-                    OsValue = "29";
                 }
 
                 // ✅ Kiểm tra an toàn
@@ -1853,12 +1826,12 @@ namespace ToolChange.ViewModels
                             continue;
 
                         }
-                        if (!await ADBService.CheckDeviceActiveBool(device.DeviceId, miChangerGraphQLClient))
-                        {
-                            UpdateDeviceStatus(device.DeviceId, "0%", "⚠ Device not active");
-                            continue;
+                        //if (!await ADBService.CheckDeviceActiveBool(device.DeviceId, miChangerGraphQLClient))
+                        //{
+                        //    UpdateDeviceStatus(device.DeviceId, "0%", "⚠ Device not active");
+                        //    continue;
 
-                        }
+                        //}
                         if (_processingDeviceIds.Contains(device.DeviceId))
                         {
                             UpdateDeviceStatus(device.DeviceId, "%", "⏳ Device running...");

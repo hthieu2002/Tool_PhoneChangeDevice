@@ -50,7 +50,8 @@
 
         //security_path
         public static readonly string SECURITY_PATH = "ro.build.version.security_patch";
-       // public static readonly string ANDROID_SECURITY_PATH = "ro.android.build.version.security_patch";
+        public static readonly string ANDROID_SECURITY_PATH = "ro.android.build.version.security_patch";
+        // public static readonly string ANDROID_SECURITY_PATH = "ro.android.build.version.security_patch";
 
         //Builder
         public static readonly string BUILD_HOST = "ro.build.host";

@@ -102,9 +102,9 @@ namespace ToolChange.Services
                     changedSystemInfo.Add(BuildKey_SYSTEM_S9.SSID, RandomService.generateSSID());
                     changedSystemInfo.Add(BuildKey_SYSTEM_S9.BSSID, RandomService.generateMacAddress());
                     changedSystemInfo.Add(BuildKey_SYSTEM_S9.FINGERPRINT, tempDevice.Fingerprint);
-                    // changedSystemInfo.Add(BuildKey_SYSTEM_S9.ANDROID_SECURITY_PATH, tempDevice.SecurityPath);
+                    changedSystemInfo.Add(BuildKey_SYSTEM_S9.ANDROID_SECURITY_PATH, tempDevice.SecurityPath);
                     changedSystemInfo.Add(BuildKey_SYSTEM_S9.BUILD_ID, tempDevice.BuildId);
-                    changedSystemInfo.Add(BuildKey_SYSTEM_S9.SECURITY_PATH, tempDevice.SecurityPath);
+                   // changedSystemInfo.Add(BuildKey_SYSTEM_S9.SECURITY_PATH, tempDevice.SecurityPath);
                     // changedSystemInfo.Add(BuildKey_SYSTEM_S9.VERSION_RELEASE, tempDevice.Release);
                     // changedSystemInfo.Add(BuildKey_SYSTEM_S9.VERSION_RELEASE_OR_CODENAME, tempDevice.Release);
                     // changedSystemInfo.Add(BuildKey_SYSTEM_S9.VERSION_RELEASE_OR_PREVIEW_DISPLAY, tempDevice.Release);
@@ -210,7 +210,7 @@ namespace ToolChange.Services
                     ADBService.putSetting(GlobalAndroidSettings.ANDROID_ID, tempDevice.AndroidId, deviceId);
                     ADBService.putSetting("android_id", tempDevice.AndroidId, deviceId, "secure");
 
-                    ADBService.updateInitRc(tempDevice.Imei, tempDevice.Imei1, tempDevice.SerialNo, tempDevice.Bootloader, tempDevice.Baseband, tempDevice.Model, deviceId, tempDevice.Hardware, tempDevice.Platform);
+                   // ADBService.updateInitRc(tempDevice.Imei, tempDevice.Imei1, tempDevice.SerialNo, tempDevice.Bootloader, tempDevice.Baseband, tempDevice.Model, deviceId, tempDevice.Hardware, tempDevice.Platform);
                     ADBService.fakeLocalHostNameV6(deviceId);
 
                     // fake wifi mac address
@@ -441,7 +441,7 @@ namespace ToolChange.Services
             {
                 Console.WriteLine($"*******START Partition {partition.Key}*******");
                 var changedSystemInfo = new Dictionary<string, string>();
-                changedSystemInfo.Add($"ro.{partition.Key}.build.security_patch", tempDevice.SecurityPath);
+              //  changedSystemInfo.Add($"ro.{partition.Key}.build.security_patch", tempDevice.SecurityPath);
                 changedSystemInfo.Add($"ro.{partition.Key}.build.date", tempDevice.BuildDate);
                 changedSystemInfo.Add($"ro.{partition.Key}.build.date.utc", tempDevice.BuildDateUtc);
                 changedSystemInfo.Add($"ro.{partition.Key}.build.fingerprint", tempDevice.Fingerprint);
@@ -449,8 +449,8 @@ namespace ToolChange.Services
                 changedSystemInfo.Add($"ro.{partition.Key}.build.tags", tempDevice.Tags);
                 changedSystemInfo.Add($"ro.{partition.Key}.build.type", "user");
                 changedSystemInfo.Add($"ro.{partition.Key}.build.version.incremental", tempDevice.BuildIncremental);
-                changedSystemInfo.Add($"ro.{partition.Key}.build.version.release", tempDevice.Release);
-                changedSystemInfo.Add($"ro.{partition.Key}.build.version.release_or_codename", tempDevice.Release);
+                //changedSystemInfo.Add($"ro.{partition.Key}.build.version.release", tempDevice.Release);
+                //changedSystemInfo.Add($"ro.{partition.Key}.build.version.release_or_codename", tempDevice.Release);
                 //changedSystemInfo.Add($"ro.{partition.Key}.build.version.sdk", tempDevice.BuildDate);
                 changedSystemInfo.Add($"ro.product.{partition.Key}.brand", tempDevice.Brand);
                 changedSystemInfo.Add($"ro.product.{partition.Key}.device", tempDevice.Code);
