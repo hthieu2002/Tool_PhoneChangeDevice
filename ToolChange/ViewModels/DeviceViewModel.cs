@@ -334,7 +334,7 @@ namespace ToolChange.ViewModels
                 }
                 if (BrandRandom)
                 {
-                    var newList = new[] { "Random", "Android 7", "Android 8", "Android 9", "Android 10", "Android 11", "Android 12", "Android 13" , "Android 14", "Android 15"};
+                    var newList = new[] { "Random", "Android 7", "Android 8", "Android 9", "Android 10", "Android 11", "Android 12", "Android 13", "Android 14", "Android 15" };
                     DeviceTypesOs.Clear();
                     foreach (var item in newList)
                     {
@@ -346,7 +346,7 @@ namespace ToolChange.ViewModels
                 {
                     if (value == "Samsung" || value == "Random")
                     {
-                        var newList = new[] { "Random", "Android 7", "Android 8", "Android 9", "Android 10", "Android 11", "Android 12", "Android 13" , "Android 14", "Android 15"};
+                        var newList = new[] { "Random", "Android 7", "Android 8", "Android 9", "Android 10", "Android 11", "Android 12", "Android 13", "Android 14", "Android 15" };
 
                         DeviceTypesOs.Clear();
                         foreach (var item in newList)
@@ -651,7 +651,7 @@ namespace ToolChange.ViewModels
         }
 
 
-        public ObservableCollection<Models.DeviceModel> Devices { get; set; } 
+        public ObservableCollection<Models.DeviceModel> Devices { get; set; }
         public ICommand DeleteDeviceCommand { get; private set; }
         public ICommand CopyDeviceIdCommand { get; private set; }
         public ICommand CopyDeviceIdCommandAll { get; private set; }
@@ -827,10 +827,10 @@ namespace ToolChange.ViewModels
                 {
                     device.Index = index++;
                 }
-              
+
                 OnPropertyChanged(nameof(Devices));
 
-              
+
             }
             catch (Exception ex)
             {
@@ -879,7 +879,7 @@ namespace ToolChange.ViewModels
                 var adbDeviceDict = adbDevices.ToDictionary(d => d.DeviceId, d => d);
                 if (System.Windows.Application.Current != null && System.Windows.Application.Current.Dispatcher != null)
                 {
-                    await System.Windows.Application.Current.Dispatcher.Invoke(async () => 
+                    await System.Windows.Application.Current.Dispatcher.Invoke(async () =>
                     {
                         foreach (var device in Devices)
                         {
@@ -1067,7 +1067,7 @@ namespace ToolChange.ViewModels
             var brandTask = Task.Run(() => GetDeviceInfoFromADB(device.DeviceId, "getprop ro.product.brand"));
             var nameTask = Task.Run(() => GetDeviceInfoFromADB(device.DeviceId, "getprop ro.android.board"));
             var modelTask = Task.Run(() => GetDeviceInfoFromADB(device.DeviceId, "getprop ro.product.model"));
-            var os1Task = Task.Run(() => GetDeviceInfoFromADB(device.DeviceId, "getprop ro.bootimage.build.version.release"));
+            var os1Task = Task.Run(() => GetDeviceInfoFromADB(device.DeviceId, "getprop ro.android.build.version.release"));
             var countryTask = Task.Run(() => GetDeviceInfoFromADB(device.DeviceId, "settings get global mi_sim_operator_country"));
             var simTask = Task.Run(() => GetDeviceInfoFromADB(device.DeviceId, "settings get global mi_sim_operator_name"));
             var serialTask = Task.Run(() => GetDeviceInfoFromADB(device.DeviceId, "getprop ro.serialno"));
@@ -1086,7 +1086,7 @@ namespace ToolChange.ViewModels
             vm.Brand = brandTask.Result;
             vm.Name = nameTask.Result;
             vm.Model = modelTask.Result;
-            vm.Os = os1Task.Result;
+            vm.Os = "Android "+os1Task.Result;
             vm.Country = countryTask.Result;
             vm.Sim = simTask.Result;
             vm.Serial = serialTask.Result;
@@ -1103,7 +1103,7 @@ namespace ToolChange.ViewModels
 
         private async void FakeProxyDeviceId(Models.DeviceModel device)
         {
-        
+
 
             string proxyHost = "";
             string proxyPort = "";
@@ -1778,8 +1778,8 @@ namespace ToolChange.ViewModels
                             }
                         }
                     }
-                    
-                    if (IsCheckedKeyBox == true) 
+
+                    if (IsCheckedKeyBox == true)
                     {
                         messageBoxPushFileJson = System.Windows.MessageBox.Show(DevicesLang.logChangeDevicePif, Lang.LogInfomation, MessageBoxButton.YesNo, MessageBoxImage.Warning);
                     }
@@ -1826,12 +1826,12 @@ namespace ToolChange.ViewModels
                             continue;
 
                         }
-                        //if (!await ADBService.CheckDeviceActiveBool(device.DeviceId, miChangerGraphQLClient))
-                        //{
-                        //    UpdateDeviceStatus(device.DeviceId, "0%", "⚠ Device not active");
-                        //    continue;
+                        if (!await ADBService.CheckDeviceActiveBool(device.DeviceId, miChangerGraphQLClient))
+                        {
+                            UpdateDeviceStatus(device.DeviceId, "0%", "⚠ Device not active");
+                            continue;
 
-                        //}
+                        }
                         if (_processingDeviceIds.Contains(device.DeviceId))
                         {
                             UpdateDeviceStatus(device.DeviceId, "%", "⏳ Device running...");
@@ -1839,7 +1839,7 @@ namespace ToolChange.ViewModels
 
                         }
 
-                      
+
                         _processingDeviceIds.Add(device.DeviceId);
                         if (messageBoxPushFile == MessageBoxResult.Yes && selectedFilePath != null)
                         {
@@ -2103,6 +2103,8 @@ namespace ToolChange.ViewModels
                 Console.WriteLine(IsCheckedSim);
                 await Task.Delay(1000);
                 DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "9%", "Start change device ...");
+
+
                 saveResult = Services.Util.SaveDeviceInfo(this, Devices, checkChange == 0 ? tempDeviceAll : deviceTemp, device.DeviceId, AppDomain.CurrentDomain.BaseDirectory, IsCheckedSim, IsCheckedpif);
 
                 //    UpdateDeviceStatus(device.DeviceId, "75%", "Change device ....");
@@ -2292,7 +2294,7 @@ namespace ToolChange.ViewModels
                     //var packagesWipeAfterChanger = loadWipeListConfig();
                     //wipePackagesChanger(packagesWipeAfterChanger, device.DeviceId);
 
-                  //  ADBService.cleanGMSPackagesAndAccounts(device.DeviceId);
+                    //  ADBService.cleanGMSPackagesAndAccounts(device.DeviceId);
 
                     DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "99%", "Reboot!");
                     _processingDeviceIds.Remove(device.DeviceId);
@@ -2697,7 +2699,7 @@ namespace ToolChange.ViewModels
 
                 foreach (var device in (deviceCheck ? selectedDevices.Cast<Models.DeviceModel>() : devices))
                 {
-                   
+
                     if (string.IsNullOrEmpty(typeProxy))
                     {
                         System.Windows.MessageBox.Show("Type proxy null", "ERROR", MessageBoxButton.OK, MessageBoxImage.Warning);
@@ -2872,7 +2874,7 @@ namespace ToolChange.ViewModels
                     device.IsChecked = false;
                 }
             }
-          
+
             await SaveDevices();
         }
         public void UpdateDeviceStatus(string deviceId, string newPercentage, string newProgress)

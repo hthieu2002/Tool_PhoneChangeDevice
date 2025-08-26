@@ -23,6 +23,29 @@ namespace ToolChange.Services
         {
             try
             {
+               // tempDevice.Release = "13";
+               // tempDevice.Board = "oriole";
+               // tempDevice.BuildIncremental = "8877034";
+               // tempDevice.BuildDisplayId = "TP1A.220624.021.8877034";
+               // tempDevice.Code = "oriole";
+               // tempDevice.Hardware = "Tensor";
+               // tempDevice.BuildHost = "abfarm-release-rbe-64-00076";
+               // tempDevice.SDK = "33";
+               // tempDevice.Model = "Pixel 6";
+               // tempDevice.Product = "oriole";
+               // tempDevice.BuildDescription = "oriole-user 13 TP1A.220624.021 8877034 release-keys";
+               // tempDevice.Brand = "google";
+               // tempDevice.Baseband = "8877034";
+               // tempDevice.BuildFlavor = "oriole-user";
+               // tempDevice.SecurityPath = "2022-08-05";
+               // tempDevice.Fingerprint = "google/oriole/oriole:13/TP1A.220624.021/8877034:user/release-keys";
+               // tempDevice.BuildId = "TP1A.220624.021";
+               // tempDevice.Manufacturer = "Google";
+               // tempDevice.BuildDateUtc = "1658954537";
+               // tempDevice.Platform = "gs101";
+               //// tempDevice.Gpu = "ARM|Mali-G78";
+               // tempDevice.Name = "Google Pixel 6";
+
                 if (keepBrand)
                 {
                     var value = CheckManuAndBrand(deviceId);
@@ -208,6 +231,8 @@ namespace ToolChange.Services
                     ADBService.putSetting(GlobalAndroidSettings.HARDWARE_SERIALNO, tempDevice.SerialNo, deviceId);
                     //// generate android ID
                     ADBService.putSetting(GlobalAndroidSettings.ANDROID_ID, tempDevice.AndroidId, deviceId);
+                    ADBService.putSetting("mi_bluetooth_mac_address", tempDevice.BlueToothMacAddress, deviceId);
+                    ADBService.putSetting("mi_wifi_mac_address", tempDevice.WifiMacAddress, deviceId);
                     ADBService.putSetting("android_id", tempDevice.AndroidId, deviceId, "secure");
 
                    // ADBService.updateInitRc(tempDevice.Imei, tempDevice.Imei1, tempDevice.SerialNo, tempDevice.Bootloader, tempDevice.Baseband, tempDevice.Model, deviceId, tempDevice.Hardware, tempDevice.Platform);

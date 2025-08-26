@@ -9,6 +9,10 @@
   <UseWindowsForms>true</UseWindowsForms>
   <PackageIcon>icon.png</PackageIcon>
   <ApplicationIcon>logo.ico</ApplicationIcon>
+<RuntimeIdentifiers>win-x64</RuntimeIdentifiers>
+<PublishSingleFile>true</PublishSingleFile>
+ <IncludeAllContentForSelfExtract>false</IncludeAllContentForSelfExtract>
+<PublishTrimmed>false</PublishTrimmed>
   </PropertyGroup>
 
   <ItemGroup>
