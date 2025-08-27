@@ -61,11 +61,21 @@ namespace ToolChange.ViewModels
       
         private bool IsValidLongitude(string value)
         {
+            if (value == "") return true;
+
+            if (Regex.IsMatch(value, @"^[-+ ]$")) // chỉ chấp nhận số (có dấu - và phần thập phân)
+                return true;
+
             return double.TryParse(value, out double number) && number >= -180.0 && number <= 180.0;
         }
 
         private bool IsValidLatitude(string value)
         {
+            if (value == "") return true;
+
+            if (Regex.IsMatch(value, @"^[-+ ]$")) // chỉ chấp nhận số (có dấu - và phần thập phân)
+                return true;
+
             return double.TryParse(value, out double number) && number >= -90.0 && number <= 90.0;
         }
 

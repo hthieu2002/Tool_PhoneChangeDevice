@@ -2198,7 +2198,7 @@ namespace Services
         public static void FakeTimezone(string timezone, string deviceId)
         {
             rootAndRemount(deviceId);
-            runCMDRoot($"shell settings put global auto_time_zone 0 \"{timezone}\"", deviceId);
+          //  runCMDRoot($"shell settings put global auto_time_zone 0 \"{timezone}\"", deviceId);
             runCMDRoot($"shell setprop persist.sys.timezone \"{timezone}\"", deviceId);
             runCMDRoot($"shell am broadcast -a android.intent.action.TIMEZONE_CHANGED", deviceId);
             runCMDRoot($"shell settings put system time_12_24 24", deviceId);
