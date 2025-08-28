@@ -77,6 +77,16 @@ namespace ToolChange.ViewModels
                 OnPropertyChanged(nameof(DeviceALL));
             }
         }
+        private bool deviceAutoALL = true;
+        public bool DeviceAutoALL
+        {
+            get => deviceAutoALL;
+            set
+            {
+                deviceAutoALL = value;
+                OnPropertyChanged(nameof(DeviceAutoALL));
+            }
+        }
         public ICommand OKCommand { get; }
         public ICommand CancelCommand { get; }
 

@@ -157,10 +157,23 @@
                     </Border>
 
                 </Grid>
-                <CheckBox Content="Fake toàn bộ thiết bị"
-                          Grid.Row="3"
-                          IsChecked="{Binding DeviceALL, Mode=TwoWay}"
-                          Margin="30,10" />
+                <Grid Grid.Row="3">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+                    <CheckBox Content="Fake toàn bộ thiết bị"
+                             
+                              IsChecked="{Binding DeviceALL, Mode=TwoWay}"
+                              Margin="30,10" />
+                    <CheckBox Content="Fake auto theo mạng"
+                              ToolTip="Fake theo nhà mạng/ip các lựa chọn trước sẽ bị vô hiệu hóa"
+                              Grid.Row="1"
+                              IsChecked="{Binding DeviceAutoALL, Mode=TwoWay}"
+                              Margin="30,5" />
+                </Grid>
+               
+               
                 <Grid Grid.Row="4"
                       Margin="0,30,0,0">
                     <Button Width="150"

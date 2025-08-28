@@ -8,6 +8,7 @@ using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
 using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -2205,6 +2206,8 @@ namespace Services
             runCMDRoot($"shell am broadcast -a android.intent.action.TIME_SET", deviceId);
             //runCMD($"shell \"cmd time_zone_detector suggest_telephony_time_zone --suggestion --slot_index 0 --zone_id {timezone} --quality multiple_same --match_type country\"", deviceId);
         }
+       
+
 
         public static void AdjustVolume(bool isUp, string deviceId)
         {
