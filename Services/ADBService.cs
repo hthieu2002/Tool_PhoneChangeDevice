@@ -25,6 +25,7 @@ namespace Services
     [Obfuscation(Exclude = false)]
     public static partial class ADBService
     {
+        private static readonly string[] OsAll = { "29", "30", "31", "32", "33", "34", "35" };
         private static List<Point> getKeysCoordinator(string text)
         {
             List<Point> result = new List<Point>();
@@ -2873,6 +2874,8 @@ namespace Services
         {
             string valueRandomBrand = "samsung";
             string valueRandomOs = "29";
+            var rnd = Random.Shared;
+
             // data asus, google, LGE, Nokia, oneplus, oppo, samsung, vivo, xiaomi
             if ((brandInput is bool b1 && b1) ||
       (brandInput is string s1 && (string.IsNullOrWhiteSpace(s1) || s1.Equals("Random", StringComparison.OrdinalIgnoreCase))))
@@ -2881,7 +2884,7 @@ namespace Services
                 // random brand
                 string[] brands = { "asus", "google", "LGE", "Nokia", "oneplus", "oppo", "samsung", "vivo", "xiaomi" };
 
-                Random rnd = new Random();
+               
                 valueRandomBrand = brands[rnd.Next(brands.Length)];
             }
             else
@@ -2901,25 +2904,26 @@ namespace Services
                     case "Xiaomi": valueRandomBrand = "Xiaomi"; break;
                 }
             }
+            bool isSamsung = string.Equals(valueRandomBrand, "Samsung", StringComparison.OrdinalIgnoreCase);
+
             if ((osInput is bool b2 && b2) ||
     (osInput is string s2 && (string.IsNullOrWhiteSpace(s2) || s2.Equals("Random", StringComparison.OrdinalIgnoreCase))))
             {
-                // random os
-                string[] os = { "29", "30", "31", "32", "33", "34", "35" };
-
-                Random rnd = new Random();
-                valueRandomOs = os[rnd.Next(os.Length)];
+                var osPool = isSamsung ? OsAll : OsAll.Where(x => x != "32").ToArray();
+                valueRandomOs = osPool[rnd.Next(osPool.Length)];
             }
             else
             {
-                valueRandomOs = osInput as string;
-                Random rnd = new Random();
+                valueRandomOs = osInput as string;           
+
                 switch (valueRandomOs)
                 {
                     case "Android 10": valueRandomOs = "29"; break;
                     case "Android 11": valueRandomOs = "30"; break;
                     case "Android 12":
-                        valueRandomOs = (rnd.Next(0, 2) == 0) ? "31" : "32";
+                        valueRandomOs = isSamsung
+                            ? (rnd.Next(0, 2) == 0 ? "31" : "32")
+                            : "31";
                         break;
                     case "Android 13": valueRandomOs = "33"; break;
                     case "Android 14": valueRandomOs = "34"; break;
@@ -2939,15 +2943,15 @@ namespace Services
             // Mapping brand → list OS hợp lệ
             Dictionary<string, string[]> validMap = new Dictionary<string, string[]>
     {
-        { "asus",     new[] { "29", "30", "31", "32" } }, // Android 10,11,12
-        { "google",   new[] { "29", "30", "31", "32", "33", "34", "35" } },
+        { "asus",     new[] { "29", "30", "31" } }, // Android 10,11,12
+        { "google",   new[] { "29", "30", "31", "33", "34", "35" } },
         { "LGE",      new[] { "29" } },                   // chỉ Android 10
         { "Nokia",    new[] { "29", "30" } },             // Android 10,11
         { "oneplus",  new[] { "29", "30", "33" } },       // Android 10,11,13
-        { "oppo",     new[] { "29", "30", "31", "32", "34" } }, // 10,11,12,14
+        { "oppo",     new[] { "29", "30", "31", "34" } }, // 10,11,12,14
         { "samsung",  new[] { "29", "30", "31", "32", "33", "34", "35" } },
         { "vivo",     new[] { "29", "30", "34" } },       // 10,11,14
-        { "Xiaomi",   new[] { "29", "30", "31", "32", "33", "34", "35" } },
+        { "Xiaomi",   new[] { "29", "30", "31", "33", "34", "35" } },
         { "realme",   new[] { "30", "31" } }
     };
 

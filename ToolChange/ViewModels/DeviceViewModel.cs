@@ -537,13 +537,13 @@ namespace ToolChange.ViewModels
                     _isAllChecked = value;
                     OnPropertyChanged(nameof(IsAllChecked));
 
-                    _isUpdatingCheckAll = true; // ⚠️ bắt đầu chặn trigger
+                    _isUpdatingCheckAll = true; // bắt đầu chặn trigger
                     foreach (var device in Devices)
                     {
                         device.IsChecked = value;
                     }
                     _ = SaveDevices();
-                    _isUpdatingCheckAll = false; // ✅ cho phép lại
+                    _isUpdatingCheckAll = false; // cho phép lại
                 }
             }
         }
@@ -698,7 +698,7 @@ namespace ToolChange.ViewModels
             {
                 if (e.PropertyName == nameof(Models.DeviceModel.IsChecked))
                 {
-                    if (_isUpdatingCheckAll) return; // ✅ Đang trong quá trình cập nhật từ IsAllChecked → bỏ qua
+                    if (_isUpdatingCheckAll) return; //Đang trong quá trình cập nhật từ IsAllChecked → bỏ qua
 
                     // Cập nhật lại IsAllChecked theo danh sách
                     _isAllChecked = Devices.All(d => d.IsChecked);
@@ -1013,7 +1013,7 @@ namespace ToolChange.ViewModels
         {
             if (device == null) return;
 
-            // 1️⃣  Khởi tạo dialog & VM trước
+            // Khởi tạo dialog & VM trước
             var vm = new DetailDeviceViewModel
             {
                 Title = DevicesLang.TitleDetailDevice
@@ -1029,7 +1029,7 @@ namespace ToolChange.ViewModels
                 DataContext = vm
             };
 
-            // 2️⃣  Chạy song song các lệnh ADB trên thread nền
+            // Chạy song song các lệnh ADB trên thread nền
             var brandTask = Task.Run(() => GetDeviceInfoFromADB(device.DeviceId, "getprop ro.product.brand"));
             var nameTask = Task.Run(() => GetDeviceInfoFromADB(device.DeviceId, "getprop ro.android.board"));
             var modelTask = Task.Run(() => GetDeviceInfoFromADB(device.DeviceId, "getprop ro.product.model"));
@@ -1048,7 +1048,7 @@ namespace ToolChange.ViewModels
                                simTask, serialTask, codeTask, phoneTask,
                                imeiTask, imsiTask, iccidTask, macTask);
 
-            // 3️⃣  Gán dữ liệu (đang ở UI-thread vì await đã về Dispatcher)
+            // Gán dữ liệu (đang ở UI-thread vì await đã về Dispatcher)
             vm.Brand = brandTask.Result;
             vm.Name = nameTask.Result;
             vm.Model = modelTask.Result;
@@ -1647,12 +1647,12 @@ namespace ToolChange.ViewModels
                             continue;
 
                         }
-                        //if (!await ADBService.CheckDeviceActiveBool(device.DeviceId, miChangerGraphQLClient))
-                        //{
-                        //    UpdateDeviceStatus(device.DeviceId, "0%", "⚠ Device not active");
-                        //    continue;
+                        if (!await ADBService.CheckDeviceActiveBool(device.DeviceId, miChangerGraphQLClient))
+                        {
+                            UpdateDeviceStatus(device.DeviceId, "0%", "⚠ Device not active");
+                            continue;
 
-                        //}
+                        }
                         if (_processingDeviceIds.Contains(device.DeviceId))
                         {
                             UpdateDeviceStatus(device.DeviceId, "%", "⏳ Device running...");
@@ -1990,12 +1990,12 @@ namespace ToolChange.ViewModels
                             continue;
 
                         }
-                        //if (!await ADBService.CheckDeviceActiveBool(device.DeviceId, miChangerGraphQLClient))
-                        //{
-                        //    UpdateDeviceStatus(device.DeviceId, "0%", "⚠ Device not active");
-                        //    continue;
+                        if (!await ADBService.CheckDeviceActiveBool(device.DeviceId, miChangerGraphQLClient))
+                        {
+                            UpdateDeviceStatus(device.DeviceId, "0%", "⚠ Device not active");
+                            continue;
 
-                        //}
+                        }
                         if (_processingDeviceIds.Contains(device.DeviceId))
                         {
                             UpdateDeviceStatus(device.DeviceId, "%", "⏳ Device running...");
@@ -2255,12 +2255,12 @@ namespace ToolChange.ViewModels
                         continue;
 
                     }
-                    //if (!await ADBService.CheckDeviceActiveBool(device.DeviceId, miChangerGraphQLClient))
-                    //{
-                    //    UpdateDeviceStatus(device.DeviceId, "0%", "⚠ Device not active");
-                    //    continue;
+                    if (!await ADBService.CheckDeviceActiveBool(device.DeviceId, miChangerGraphQLClient))
+                    {
+                        UpdateDeviceStatus(device.DeviceId, "0%", "⚠ Device not active");
+                        continue;
 
-                    //}
+                    }
                     if (_processingDeviceIds.Contains(device.DeviceId))
                     {
                         UpdateDeviceStatus(device.DeviceId, "%", "⏳ Device running...");
@@ -2337,12 +2337,12 @@ namespace ToolChange.ViewModels
                         continue;
 
                     }
-                    //if (!await ADBService.CheckDeviceActiveBool(device.DeviceId, miChangerGraphQLClient))
-                    //{
-                    //    UpdateDeviceStatus(device.DeviceId, "0%", "⚠ Device not active");
-                    //    continue;
+                    if (!await ADBService.CheckDeviceActiveBool(device.DeviceId, miChangerGraphQLClient))
+                    {
+                        UpdateDeviceStatus(device.DeviceId, "0%", "⚠ Device not active");
+                        continue;
 
-                    //}
+                    }
                     if (_processingDeviceIds.Contains(device.DeviceId))
                     {
                         UpdateDeviceStatus(device.DeviceId, "%", "⏳ Device running...");
@@ -2600,12 +2600,12 @@ namespace ToolChange.ViewModels
                         continue;
 
                     }
-                    //if (!await ADBService.CheckDeviceActiveBool(device.DeviceId, miChangerGraphQLClient))
-                    //{
-                    //    UpdateDeviceStatus(device.DeviceId, "0%", "⚠ Device not active");
-                    //    continue;
+                    if (!await ADBService.CheckDeviceActiveBool(device.DeviceId, miChangerGraphQLClient))
+                    {
+                        UpdateDeviceStatus(device.DeviceId, "0%", "⚠ Device not active");
+                        continue;
 
-                    //}
+                    }
                     if (_processingDeviceIds.Contains(device.DeviceId))
                     {
                         UpdateDeviceStatus(device.DeviceId, "%", "⏳ Device running...");

@@ -396,11 +396,11 @@ namespace ToolChange.ViewModels
                         UpdateDeviceStatus(device.DeviceId, "0%", "⚠ Device offline");
                         continue;
                     }
-                    //if (!await ADBService.CheckDeviceActiveBool(device.DeviceId, miChangerGraphQLClient))
-                    //{
-                    //    UpdateDeviceStatus(device.DeviceId, "0%", "⚠ Device not active");
-                    //    continue;
-                    //}
+                    if (!await ADBService.CheckDeviceActiveBool(device.DeviceId, miChangerGraphQLClient))
+                    {
+                        UpdateDeviceStatus(device.DeviceId, "0%", "⚠ Device not active");
+                        continue;
+                    }
                     if (_processingDeviceIds.Contains(device.DeviceId))
                     {
                         UpdateDeviceStatus(device.DeviceId, "%", "⏳ Device running...");
@@ -551,11 +551,11 @@ namespace ToolChange.ViewModels
                         UpdateDeviceStatus(device.DeviceId, "0%", "⚠ Device offline");
                         continue;
                     }
-                    //if (!await ADBService.CheckDeviceActiveBool(device.DeviceId, miChangerGraphQLClient))
-                    //{
-                    //    UpdateDeviceStatus(device.DeviceId, "0%", "⚠ Device not active");
-                    //    continue;
-                    //}
+                    if (!await ADBService.CheckDeviceActiveBool(device.DeviceId, miChangerGraphQLClient))
+                    {
+                        UpdateDeviceStatus(device.DeviceId, "0%", "⚠ Device not active");
+                        continue;
+                    }
                     if (_processingDeviceIds.Contains(device.DeviceId))
                     {
                         UpdateDeviceStatus(device.DeviceId, "%", "⏳ Device running...");
@@ -597,11 +597,11 @@ namespace ToolChange.ViewModels
                         UpdateDeviceStatus(device.DeviceId, "0%", "⚠ Device offline");
                         continue;
                     }
-                    //if (!await ADBService.CheckDeviceActiveBool(device.DeviceId, miChangerGraphQLClient))
-                    //{
-                    //    UpdateDeviceStatus(device.DeviceId, "0%", "⚠ Device not active");
-                    //    continue;
-                    //}
+                    if (!await ADBService.CheckDeviceActiveBool(device.DeviceId, miChangerGraphQLClient))
+                    {
+                        UpdateDeviceStatus(device.DeviceId, "0%", "⚠ Device not active");
+                        continue;
+                    }
                     if (_processingDeviceIds.Contains(device.DeviceId))
                     {
                         UpdateDeviceStatus(device.DeviceId, "%", "⏳ Device running...");
