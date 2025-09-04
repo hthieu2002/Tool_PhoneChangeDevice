@@ -23,28 +23,30 @@ namespace ToolChange.Services
         {
             try
             {
-               // tempDevice.Release = "13";
-               // tempDevice.Board = "oriole";
-               // tempDevice.BuildIncremental = "8877034";
-               // tempDevice.BuildDisplayId = "TP1A.220624.021.8877034";
-               // tempDevice.Code = "oriole";
-               // tempDevice.Hardware = "Tensor";
-               // tempDevice.BuildHost = "abfarm-release-rbe-64-00076";
-               // tempDevice.SDK = "33";
-               // tempDevice.Model = "Pixel 6";
-               // tempDevice.Product = "oriole";
-               // tempDevice.BuildDescription = "oriole-user 13 TP1A.220624.021 8877034 release-keys";
-               // tempDevice.Brand = "google";
-               // tempDevice.Baseband = "8877034";
-               // tempDevice.BuildFlavor = "oriole-user";
-               // tempDevice.SecurityPath = "2022-08-05";
-               // tempDevice.Fingerprint = "google/oriole/oriole:13/TP1A.220624.021/8877034:user/release-keys";
-               // tempDevice.BuildId = "TP1A.220624.021";
-               // tempDevice.Manufacturer = "Google";
-               // tempDevice.BuildDateUtc = "1658954537";
-               // tempDevice.Platform = "gs101";
-               //// tempDevice.Gpu = "ARM|Mali-G78";
-               // tempDevice.Name = "Google Pixel 6";
+              //  tempDevice.Release = "13";
+              //  tempDevice.Board = "taro";
+              //  tempDevice.BuildIncremental = "F721USQU1BVK3";
+              //  tempDevice.BuildDisplayId = "TP1A.220624.014.F721USQU1BVK3";
+              //  tempDevice.Code = "b4q";
+              //  tempDevice.Hardware = "qcom";
+              //  tempDevice.BuildHost = "SWDK3910";
+              //  tempDevice.SDK = "33";
+              //  tempDevice.Model = "SM-F721U";
+              //  tempDevice.Product = "b4qsqw";
+              //  tempDevice.BuildDescription = "b4qsqw-user 13 TP1A.220624.014 F721USQU1BVK3 release-keys";
+              //  tempDevice.Brand = "samsung";
+              //  tempDevice.Baseband = "F721USQU1BVK3";
+              //  tempDevice.BuildFlavor = "b4qsqw-user";
+              //  tempDevice.SecurityPath = "2022-11-01";
+              //  tempDevice.Fingerprint = "samsung/b4qsqw/b4q:13/TP1A.220624.014/F721USQU1BVK3:user/release-keys";
+              //  tempDevice.BuildId = "TP1A.220624.014";
+              //  tempDevice.Manufacturer = "samsung";
+              //  tempDevice.BuildDateUtc = "1669596334";
+              //  tempDevice.Platform = "taro";
+              //  tempDevice.Bootloader = "F721USQU1BVK3";
+              //// tempDevice.Gpu = "Qualcomm|Adreno (TM) 730";
+              //  tempDevice.Name = "Samsung Galaxy Z Flip4";
+
 
                 if (keepBrand)
                 {

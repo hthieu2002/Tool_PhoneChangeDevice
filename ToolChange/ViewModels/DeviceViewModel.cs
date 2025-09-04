@@ -19,6 +19,7 @@ using System.Diagnostics;
 using System.IdentityModel.Tokens.Jwt;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
 using System.Runtime.InteropServices;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -58,6 +59,16 @@ namespace ToolChange.ViewModels
         public ObservableCollection<SimCarrier> Countries { get; set; } = new();
         public ObservableCollection<POCO.Models.ComboBoxItem> SimOptions { get; set; } = new();
         private string _fakeProxyData;
+
+        private static readonly string[] OsFull = { "Android 10", "Android 11", "Android 12", "Android 13", "Android 14", "Android 15" };
+        private static readonly string[] OsOppo = { "Android 10", "Android 11", "Android 12", "Android 14" };
+        private static readonly string[] OsVivo = { "Android 10", "Android 11", "Android 12", "Android 14" };
+        private static readonly string[] OsRealme = { "Android 11", "Android 12" };
+        private static readonly string[] OsAsus = { "Android 10", "Android 11", "Android 12" };
+        private static readonly string[] OsLGE = { "Android 10" };
+        private static readonly string[] OsNokia = { "Android 10", "Android 11" };
+        private static readonly string[] OsOnePlus = { "Android 10", "Android 11", "Android 13" };
+
         private SimCarrier _selectedCountry;
         public SimCarrier SelectedCountry
         {
@@ -218,6 +229,10 @@ namespace ToolChange.ViewModels
 };
         private static readonly List<string> AvailableOs = new List<string>
 {
+    "29",
+    "30",
+    "31",
+    "32",
     "33",
     "34",
     "35"
@@ -234,24 +249,29 @@ namespace ToolChange.ViewModels
             int index = random.Next(AvailableOs.Count);
             OsValue = AvailableOs[index];
         }
-        public ObservableCollection<string> DeviceTypes { get; } = new ObservableCollection<string>
-{
-    "Random",
-    "Samsung",
-    "Xiaomi",
-    "Oppo",
-    "Vivo",
-    "Realme",
-    "Google"
-};
+        public ObservableCollection<string> DeviceTypes { get; } =
+      new ObservableCollection<string>(
+          new[]
+          {
+            "Samsung",
+            "Xiaomi",
+            "Oppo",
+            "Vivo",
+            "Realme",
+            "Google",
+            "Asus",
+            "LGE",
+            "OnePlus",
+            "Nokia"
+          }
+          .OrderBy(x => x)               // sắp xếp A-Z
+          .Prepend("Random")             // đưa Random lên đầu
+      );
+
         public ObservableCollection<string> DeviceTypesOs { get; } = new ObservableCollection<string>
 
 {
     "Random",
-    "Android 7",
-    "Android 8",
-    "Android 8.1.0",
-    "Android 9",
     "Android 10",
     "Android 11",
     "Android 12",
@@ -274,6 +294,7 @@ namespace ToolChange.ViewModels
         private string _brandValue;
         private string _osValue;
         private string _osValueMax;
+        private bool _isSyncing;
         public string BrandValue
         {
             get => _brandValue;
@@ -308,111 +329,34 @@ namespace ToolChange.ViewModels
             get => _brand;
             set
             {
-                if (value == "samsung")
-                {
-                    value = "Samsung";
-                }
-                if (value == "Xiaomi")
-                {
-                    value = "Xiaomi";
-                }
-                if (value == "OPPO")
-                {
-                    value = "Oppo";
-                }
-                if (value == "vivo")
-                {
-                    value = "Vivo";
-                }
-                if (value == "realme")
-                {
-                    value = "Realme";
-                }
-                if (value == "Google")
-                {
-                    value = "Google";
-                }
-                if (BrandRandom)
-                {
-                    var newList = new[] { "Random", "Android 7", "Android 8", "Android 9", "Android 10", "Android 11", "Android 12", "Android 13", "Android 14", "Android 15" };
-                    DeviceTypesOs.Clear();
-                    foreach (var item in newList)
-                    {
-                        DeviceTypesOs.Add(item);
-                    }
-                    Os = DeviceTypesOs.First();
-                }
-                else
-                {
-                    if (value == "Samsung" || value == "Random")
-                    {
-                        var newList = new[] { "Random", "Android 7", "Android 8", "Android 9", "Android 10", "Android 11", "Android 12", "Android 13", "Android 14", "Android 15" };
+                if (value != BrandValue)
+                    OsRandom = true; 
+                if (value == null) return;
 
-                        DeviceTypesOs.Clear();
-                        foreach (var item in newList)
-                        {
-                            DeviceTypesOs.Add(item);
-                        }
-                        Os = DeviceTypesOs.First();
-                    }
-                    if (value == "Xiaomi")
-                    {
-                        var newList = new[] { "Random", "Android 7", "Android 8", "Android 9", "Android 10", "Android 11", "Android 12", "Android 13", "Android 14", "Android 15" };
+                var normalized = ADBService.GetValueBrand(value);
+                if (string.Equals(_brand, normalized, StringComparison.OrdinalIgnoreCase))
+                    return;
 
-                        DeviceTypesOs.Clear();
-                        foreach (var item in newList)
-                        {
-                            DeviceTypesOs.Add(item);
-                        }
-                        Os = DeviceTypesOs.First();
-                    }
-                    if (value == "Oppo")
-                    {
-                        var newList = new[] { "Random", "Android 10", "Android 11", "Android 12", "Android 13", "Android 14", "Android 15" };
-
-                        DeviceTypesOs.Clear();
-                        foreach (var item in newList)
-                        {
-                            DeviceTypesOs.Add(item);
-                        }
-                        Os = DeviceTypesOs.First();
-                    }
-                    if (value == "Vivo")
-                    {
-                        var newList = new[] { "Random", "Android 11", "Android 12", "Android 13", "Android 14", "Android 15" };
-
-                        DeviceTypesOs.Clear();
-                        foreach (var item in newList)
-                        {
-                            DeviceTypesOs.Add(item);
-                        }
-                        Os = DeviceTypesOs.First();
-                    }
-                    if (value == "Realme")
-                    {
-                        var newList = new[] { "Random", "Android 11", "Android 12", "Android 13", "Android 14", "Android 15" };
-
-                        DeviceTypesOs.Clear();
-                        foreach (var item in newList)
-                        {
-                            DeviceTypesOs.Add(item);
-                        }
-                        Os = DeviceTypesOs.First();
-                    }
-                    if (value == "Google")
-                    {
-                        var newList = new[] { "Random", "Android 11", "Android 12", "Android 13", "Android 14", "Android 15" };
-
-                        DeviceTypesOs.Clear();
-                        foreach (var item in newList)
-                        {
-                            DeviceTypesOs.Add(item);
-                        }
-                        Os = DeviceTypesOs.First();
-                    }
+                if (_isSyncing)
+                {
+                    _brand = normalized;
+                    OnPropertyChanged(nameof(Brand));
+                    return;
                 }
-                _brand = value;
-                OnPropertyChanged(nameof(Brand));
+
+                _isSyncing = true;
+                try
+                {
+                    _brand = normalized;
+                    OnPropertyChanged(nameof(Brand));
+                    RefreshOsByBrand(_brand, BrandRandom);
+
+                    if ((string.IsNullOrWhiteSpace(_os) && DeviceTypesOs != null && DeviceTypesOs.Any()) || _os == "Random")
+                        Os = DeviceTypesOs.First();  
+
+                    Debug.WriteLine(Os);
+                }
+                finally { _isSyncing = false; }
             }
         }
         public string Name
@@ -438,60 +382,14 @@ namespace ToolChange.ViewModels
             get => _os;
             set
             {
-                if (value == "Random")
-                {
-                    value = "Random";
-                }
-                if (value == "7" || value == "6.0.1" || value == "7.1.2")
-                {
-                    value = "Android 7";
-                }
-                if (value == "7.1.0")
-                {
-                    value = "Android 7.1.0";
-                }
-                if (value == "8" || value == "8.0.0")
-                {
-                    value = "Android 8";
-                }
-                if (value == "8.1.0")
-                {
-                    value = "Android 8.1.0";
-                }
-                if (value == "9")
-                {
-                    value = "Android 9";
-                }
-                if (value == "10")
-                {
-                    value = "Android 10";
-                }
-                if (value == "11")
-                {
-                    value = "Android 11";
-                }
-                if (value == "12")
-                {
-                    value = "Android 12";
-                }
-                if (value == "13")
-                {
-                    value = "Android 13";
-
-                }
-                if (value == "14")
-                {
-                    value = "Android 14";
-                }
-                if (value == "15")
-                {
-                    value = "Android 15";
-                }
+                value = ADBService.GetValueOS(value);
 
                 _os = value;
                 OnPropertyChanged(nameof(Os));
             }
         }
+
+
 
         public string Serial
         {
@@ -726,6 +624,74 @@ namespace ToolChange.ViewModels
             };
 
         }
+        private void RebuildBrandList(IList<string> brands)
+        {
+            var current = _brand;
+
+            DeviceTypes.Clear();
+            DeviceTypes.Add("Random");
+            foreach (var b in brands)
+                DeviceTypes.Add(b);
+
+            // Nếu BrandRandom → chọn "Random"
+            if (BrandRandom)
+            {
+                if (!string.Equals(_brand, "Random", StringComparison.OrdinalIgnoreCase))
+                    Brand = "Random";
+                return;
+            }
+
+            // Nếu brand hiện tại vẫn còn trong list → giữ nguyên
+            if (!string.IsNullOrEmpty(current) &&
+                DeviceTypes.Any(x => x.Equals(current, StringComparison.OrdinalIgnoreCase)))
+            {
+                // giữ _brand, KHÔNG set lại để tránh re-entrancy
+                return;
+            }
+
+            // Nếu không còn, chọn brand hợp lệ đầu tiên (ưu tiên brand thực, không phải "Random")
+            var firstRealBrand = DeviceTypes.FirstOrDefault(x => !x.Equals("Random", StringComparison.OrdinalIgnoreCase));
+            if (firstRealBrand != null)
+                Brand = firstRealBrand;
+            else
+                Brand = "Random";
+        }
+        private void RefreshOsByBrand(string value, bool BrandRandom)
+        {
+            if (BrandOsMap.TryGetValue(value, out var osList))
+            {
+                SetOsOptions(osList);
+            }
+            else
+            {
+                SetOsOptions(OsFull);
+            }
+        }
+        private void SetOsOptions(IEnumerable<string> osList)
+        {
+            DeviceTypesOs.Clear();
+            DeviceTypesOs.Add("Random");
+            foreach (var os in osList)
+                DeviceTypesOs.Add(os);
+
+            Os = DeviceTypesOs.First(); // luôn là "Random"
+        }
+
+        private static readonly Dictionary<string, string[]> BrandOsMap = new(StringComparer.OrdinalIgnoreCase)
+        {
+            ["Samsung"] = OsFull,
+            ["Xiaomi"] = OsFull,
+            ["Google"] = OsFull,
+            ["Oppo"] = OsOppo,
+            ["Vivo"] = OsVivo,
+            ["Realme"] = OsRealme,
+            ["Asus"] = OsAsus,
+            ["LGE"] = OsLGE,
+            ["Nokia"] = OsNokia,
+            ["OnePlus"] = OsOnePlus,
+            // fallback cho brand khác nếu cần có thể thêm ở đây
+        };
+
         private void AttachPropertyChanged(Models.DeviceModel device)
         {
             device.PropertyChanged += (sender, e) =>
@@ -1086,7 +1052,7 @@ namespace ToolChange.ViewModels
             vm.Brand = brandTask.Result;
             vm.Name = nameTask.Result;
             vm.Model = modelTask.Result;
-            vm.Os = "Android "+os1Task.Result;
+            vm.Os = "Android " + os1Task.Result;
             vm.Country = countryTask.Result;
             vm.Sim = simTask.Result;
             vm.Serial = serialTask.Result;
@@ -1406,116 +1372,21 @@ namespace ToolChange.ViewModels
 
             try
             {
-                if (BrandRandom)
-                {
-                    RandomizeBrand();
-                }
-                else
-                {
-                    if (Brand == "Random")
-                    {
-                        // brand random
-                        RandomizeBrand();
-                    }
-                    else
-                    {
-                        if (Brand == "Samsung")
-                        {
-                            BrandValue = "samsung";
-                        }
-                        else if (Brand == "Oppo")
-                        {
-                            BrandValue = "OPPO";
-                        }
-                        else if (Brand == "Vivo")
-                        {
-                            BrandValue = "vivo";
-                        }
-                        else if (Brand == "Realme")
-                        {
-                            BrandValue = "realme";
-                        }
-                        else if (Brand == "Google")
-                        {
-                            BrandValue = "Google";
-                        }
-                        else
-                        {
-                            BrandValue = "Xiaomi";
-                        }
-                    }
-                }
-                if (OsRandom)
-                {
-                    OsValue = "24";
-                }
-                else
-                {
-                    if (Os == "Random")
-                    {
-                        // brand random
-                        OsValue = "24";
-                    }
-                    else
-                    {
-                        if (Os == "")
-                        {
-                            Os = "Random";
-                        }
-                        if (Os == "Android 8.1.0")
-                        {
-                            OsValue = "27";
-                        }
-                        else if (Os == "Android 7")
-                        {
-                            OsValue = "25";
-                        }
-                        else if (Os == "Android 8")
-                        {
-                            OsValue = "26";
-                        }
-                        else if (Os == "Android 9")
-                        {
-                            OsValue = "28";
-                        }
-                        else if (Os == "Android 10")
-                        {
-                            OsValue = "29";
-                        }
-                        else if (Os == "Android 11")
-                        {
-                            OsValue = "30";
-                        }
-                        else if (Os == "Android 12")
-                        {
-                            OsValue = "31";
-                        }
-                        else if (Os == "Android 13")
-                        {
-                            OsValue = "33";
-                        }
-                        else if (Os == "Android 14")
-                        {
-                            OsValue = "34";
-                        }
-                        else if (Os == "Android 15")
-                        {
-                            OsValue = "35";
-                        }
-                        else
-                        {
-                            OsValue = "29";
-                        }
-                    }
-                }
+                (string brand, string os) value;
 
-                await Task.Delay(1000);
-                tempDevice = await miChangerGraphQLClient.GetRandomDeviceV3(brand: BrandValue, sdkMin: int.Parse(OsValue), sdkMax: (Os == "Random" || OsRandom) ? 32 : int.Parse(OsValue));
+                object brandArg = BrandRandom ? (object)true : (object)(Brand ?? "");
+                object osArg = OsRandom ? (object)true : (object)(Os ?? "");
+
+                value = ADBService.GetRandomValue(brandArg, osArg);
+
+                tempDevice = await miChangerGraphQLClient.GetRandomDeviceV3(
+                        brand: value.brand,
+                        sdkMin: int.Parse(value.os),
+                        sdkMax: int.Parse(value.os));
                 if (tempDevice.Model == null)
                 {
-                    throw new Exception(DevicesLang.logDeviceRandomEx);
+                    return null;
                 }
-
                 tempDevice.IMSI = RandomService.generateIMSI(mcc, mnc);
                 tempDevice.ICCID = RandomService.generateICCID(currentSelectedCountry.CountryCode, mnc);
                 tempDevice.SerialNo = RandomService.getRandomStringHex16Digit().Substring(0, RandomService.randomInRange(8, 13));
@@ -1557,70 +1428,20 @@ namespace ToolChange.ViewModels
 
             try
             {
-                if (BrandRandom || Brand == "Random")
-                {
-                    RandomizeBrand();
-                }
-                else
-                {
-                    switch (Brand)
-                    {
-                        case "Samsung":
-                            BrandValue = "samsung"; break;
-                        case "Oppo":
-                            BrandValue = "OPPO"; break;
-                        case "Vivo":
-                            BrandValue = "vivo"; break;
-                        case "Realme":
-                            BrandValue = "realme"; break;
-                        case "Google":
-                            BrandValue = "Google"; break;
-                        default:
-                            BrandValue = "Xiaomi"; break;
-                    }
-                }
+                (string brand, string os) value;
 
-                if (OsRandom || Os == "Random" || string.IsNullOrEmpty(Os))
-                {
-                    OsValue = "24";
-                }
-                else
-                {
-                    switch (Os)
-                    {
-                        case "Android 8.1.0": OsValue = "27"; break;
-                        case "Android 7": OsValue = "25"; break;
-                        case "Android 8": OsValue = "26"; break;
-                        case "Android 9": OsValue = "28"; break;
-                        case "Android 10": OsValue = "29"; break;
-                        case "Android 11": OsValue = "30"; break;
-                        case "Android 12": OsValue = "31"; break;
-                        case "Android 13": OsValue = "33"; break;
-                        case "Android 14": OsValue = "34"; break;
-                        case "Android 15": OsValue = "35"; break;
-                        default: OsValue = "29"; break;
-                    }
-                }
+                object brandArg = BrandRandom ? (object)true : (object)(Brand ?? "");
+                object osArg = OsRandom ? (object)true : (object)(Os ?? "");
 
-                // ✅ Kiểm tra an toàn
-                if (!int.TryParse(OsValue, out int sdkParsed))
-                {
-                    sdkParsed = 29;
-                }
-
-                int sdkMax = (Os == "Random" || OsRandom) ? 32 : sdkParsed;
+                value = ADBService.GetRandomValue(brandArg, osArg);
 
                 tempDeviceAll = await miChangerGraphQLClient.GetRandomDeviceV3(
-                    brand: BrandValue,
-                    sdkMin: sdkParsed,
-                    sdkMax: sdkMax);
+                        brand: value.brand,
+                        sdkMin: int.Parse(value.os),
+                        sdkMax: int.Parse(value.os));
 
-                if (tempDeviceAll.Model == null)
-                {
-                    throw new Exception("Không tìm thấy thiết bị phù hợp.");
-                }
+                if (tempDeviceAll.Model == null) throw new Exception("Không tìm thấy thiết bị phù hợp.");
 
-                // ✅ Gán giá trị thiết bị
                 Brand = tempDeviceAll.Manufacturer;
                 Name = tempDeviceAll.Board;
                 Model = tempDeviceAll.Model;
@@ -1826,12 +1647,12 @@ namespace ToolChange.ViewModels
                             continue;
 
                         }
-                        if (!await ADBService.CheckDeviceActiveBool(device.DeviceId, miChangerGraphQLClient))
-                        {
-                            UpdateDeviceStatus(device.DeviceId, "0%", "⚠ Device not active");
-                            continue;
+                        //if (!await ADBService.CheckDeviceActiveBool(device.DeviceId, miChangerGraphQLClient))
+                        //{
+                        //    UpdateDeviceStatus(device.DeviceId, "0%", "⚠ Device not active");
+                        //    continue;
 
-                        }
+                        //}
                         if (_processingDeviceIds.Contains(device.DeviceId))
                         {
                             UpdateDeviceStatus(device.DeviceId, "%", "⏳ Device running...");
@@ -2169,12 +1990,12 @@ namespace ToolChange.ViewModels
                             continue;
 
                         }
-                        if (!await ADBService.CheckDeviceActiveBool(device.DeviceId, miChangerGraphQLClient))
-                        {
-                            UpdateDeviceStatus(device.DeviceId, "0%", "⚠ Device not active");
-                            continue;
+                        //if (!await ADBService.CheckDeviceActiveBool(device.DeviceId, miChangerGraphQLClient))
+                        //{
+                        //    UpdateDeviceStatus(device.DeviceId, "0%", "⚠ Device not active");
+                        //    continue;
 
-                        }
+                        //}
                         if (_processingDeviceIds.Contains(device.DeviceId))
                         {
                             UpdateDeviceStatus(device.DeviceId, "%", "⏳ Device running...");
@@ -2434,12 +2255,12 @@ namespace ToolChange.ViewModels
                         continue;
 
                     }
-                    if (!await ADBService.CheckDeviceActiveBool(device.DeviceId, miChangerGraphQLClient))
-                    {
-                        UpdateDeviceStatus(device.DeviceId, "0%", "⚠ Device not active");
-                        continue;
+                    //if (!await ADBService.CheckDeviceActiveBool(device.DeviceId, miChangerGraphQLClient))
+                    //{
+                    //    UpdateDeviceStatus(device.DeviceId, "0%", "⚠ Device not active");
+                    //    continue;
 
-                    }
+                    //}
                     if (_processingDeviceIds.Contains(device.DeviceId))
                     {
                         UpdateDeviceStatus(device.DeviceId, "%", "⏳ Device running...");
@@ -2471,6 +2292,7 @@ namespace ToolChange.ViewModels
                 string time = "";
                 string timezone = "";
                 bool deviceCheck = false;
+                bool deviceautoCheck = true;
                 ObservableCollection<Models.DeviceModel> devices = new ObservableCollection<Models.DeviceModel>();
                 var selectedDevices = Devices.Where(device => device.IsChecked).ToList();
                 int selectedCount = selectedDevices.Count;
@@ -2498,6 +2320,7 @@ namespace ToolChange.ViewModels
                     timezone = vm.SelectedTimeZone;
                     deviceCheck = vm.DeviceALL;
                     devices = vm.SelectedDevices;
+                    deviceautoCheck = vm.DeviceAutoALL;
                 }
                 else
                 {
@@ -2514,12 +2337,12 @@ namespace ToolChange.ViewModels
                         continue;
 
                     }
-                    if (!await ADBService.CheckDeviceActiveBool(device.DeviceId, miChangerGraphQLClient))
-                    {
-                        UpdateDeviceStatus(device.DeviceId, "0%", "⚠ Device not active");
-                        continue;
+                    //if (!await ADBService.CheckDeviceActiveBool(device.DeviceId, miChangerGraphQLClient))
+                    //{
+                    //    UpdateDeviceStatus(device.DeviceId, "0%", "⚠ Device not active");
+                    //    continue;
 
-                    }
+                    //}
                     if (_processingDeviceIds.Contains(device.DeviceId))
                     {
                         UpdateDeviceStatus(device.DeviceId, "%", "⏳ Device running...");
@@ -2527,7 +2350,7 @@ namespace ToolChange.ViewModels
 
                     }
 
-                    if (string.IsNullOrEmpty(timezone) || string.IsNullOrEmpty(timezone))
+                    if ((string.IsNullOrEmpty(timezone) || string.IsNullOrEmpty(timezone)) && !deviceautoCheck)
                     {
                         DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "0%", "error time zone");
                         return;
@@ -2535,7 +2358,7 @@ namespace ToolChange.ViewModels
                     DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "0%", $"Start fake time zone {time}");
                     _processingDeviceIds.Add(device.DeviceId);
 
-                    tasks.Add(ProcessFakeTimeZoneAllAsync(device, timezone, time));
+                    tasks.Add(ProcessFakeTimeZoneAllAsync(device, timezone, time, deviceautoCheck));
                     _processingDeviceIds.Remove(device.DeviceId);
                 }
                 await Task.WhenAll(tasks);
@@ -2546,18 +2369,25 @@ namespace ToolChange.ViewModels
                 Debug.WriteLine(e);
             }
         }
-        private async Task ProcessFakeTimeZoneAllAsync(Models.DeviceModel device, string timezone, string time)
+        private async Task ProcessFakeTimeZoneAllAsync(Models.DeviceModel device, string timezone, string time, bool autoCheck)
         {
-            if (!string.IsNullOrEmpty(timezone))
+            if (!string.IsNullOrEmpty(timezone) || autoCheck)
             {
                 DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "30%", $"Start fake time zone {time}");
 
                 // Chạy nền để không bị treo
-                await Task.Run(() =>
+                await Task.Run(async () =>
                 {
                     try
                     {
-                        ADBService.FakeTimezone(timezone, device.DeviceId);
+                        if (autoCheck)
+                        {
+                            time = FakeTimezoneByNetwork(device.DeviceId);
+                        }
+                        else
+                        {
+                            ADBService.FakeTimezone(timezone, device.DeviceId);
+                        }
                         DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "100%", $"Fake time zone success {time}");
                     }
                     catch (Exception ex)
@@ -2572,6 +2402,64 @@ namespace ToolChange.ViewModels
             }
 
         }
+        public string FakeTimezoneByNetwork(string deviceId)
+        {
+            try
+            {
+                DeviceUpdater.UpdateProgress(Devices, deviceId, "35%", "Bắt đầu fake timezone...");
+
+                string timezone = GetTimezoneFromDevice(deviceId);
+
+                if (!string.IsNullOrEmpty(timezone))
+                {
+                    DeviceUpdater.UpdateProgress(Devices, deviceId, "40%", $"Lấy được timezone từ device: {timezone}");
+
+                    ADBService.rootAndRemount(deviceId);
+
+                    ADBService.runCMDRoot($"shell setprop persist.sys.timezone \"{timezone}\"", deviceId);
+                    DeviceUpdater.UpdateProgress(Devices, deviceId, "50%", $"Set timezone = {timezone}");
+
+                    ADBService.runCMDRoot($"shell am broadcast -a android.intent.action.TIMEZONE_CHANGED", deviceId);
+                    ADBService.runCMDRoot($"shell settings put system time_12_24 24", deviceId);
+                    ADBService.runCMDRoot($"shell am broadcast -a android.intent.action.TIME_SET", deviceId);
+
+                    DeviceUpdater.UpdateProgress(Devices, deviceId, "80%", $"✅ Fake timezone success → {timezone}");
+                }
+                else
+                {
+                    DeviceUpdater.UpdateProgress(Devices, deviceId, "80%", "❌ Không lấy được timezone từ device.");
+                }
+
+                return timezone;
+            }
+            catch (Exception ex)
+            {
+                DeviceUpdater.UpdateProgress(Devices, deviceId, "80%", $"❌ Lỗi FakeTimezoneByNetwork: {ex.Message}");
+                return "Error";
+            }
+        }
+
+        public static string GetTimezoneFromDevice(string deviceId)
+        {
+            try
+            {
+                // Gọi API trực tiếp từ thiết bị Android (qua proxy/device IP)
+                string cmd = "shell curl -s http://ip-api.com/json/?fields=timezone";
+                string result = ADBService.runCMDRoot(cmd, deviceId);
+
+                if (!string.IsNullOrEmpty(result))
+                {
+                    dynamic json = Newtonsoft.Json.JsonConvert.DeserializeObject(result);
+                    return json.timezone;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Lỗi GetTimezoneFromDevice: " + ex.Message);
+            }
+            return null;
+        }
+
         private async Task OpenUrl()
         {
             try
@@ -2712,12 +2600,12 @@ namespace ToolChange.ViewModels
                         continue;
 
                     }
-                    if (!await ADBService.CheckDeviceActiveBool(device.DeviceId, miChangerGraphQLClient))
-                    {
-                        UpdateDeviceStatus(device.DeviceId, "0%", "⚠ Device not active");
-                        continue;
+                    //if (!await ADBService.CheckDeviceActiveBool(device.DeviceId, miChangerGraphQLClient))
+                    //{
+                    //    UpdateDeviceStatus(device.DeviceId, "0%", "⚠ Device not active");
+                    //    continue;
 
-                    }
+                    //}
                     if (_processingDeviceIds.Contains(device.DeviceId))
                     {
                         UpdateDeviceStatus(device.DeviceId, "%", "⏳ Device running...");

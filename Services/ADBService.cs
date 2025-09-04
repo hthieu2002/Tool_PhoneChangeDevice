@@ -1,4 +1,6 @@
 ﻿using MiHttpClient;
+using Newtonsoft.Json.Linq;
+using Org.BouncyCastle.Math.Field;
 using POCO.Models;
 using System;
 using System.Collections.Generic;
@@ -346,7 +348,7 @@ namespace Services
                 && pullResponse.Contains("1 file pulled")
                 && sevenZPackageAdbResponse.Contains("Everything is Ok");
         }
-       
+
 
         /* public static async Task<bool> BackUpDeviceAsync(string deviceId)
          {
@@ -578,7 +580,7 @@ namespace Services
             runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/system_de/0/powerstats"), deviceId);
             runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/system_de/0/ringtones"), deviceId);
             runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/system_de/0/system"), deviceId);
-          //  runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/system/users/0/settings_ssaid.xml"), deviceId);
+            //  runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/system/users/0/settings_ssaid.xml"), deviceId);
             runCMDRoot(String.Format("shell \"rm -rf {0} \"", Package_Data.CHROME), deviceId);
             runCMDRoot(String.Format("shell \"rm -rf {0} \"", Package_Data.IMS), deviceId);
             runCMDRoot(String.Format("shell \"rm -rf {0} \"", Package_Data.CALENDAR), deviceId);
@@ -887,7 +889,7 @@ namespace Services
                 runCMDRoot($"shell settings put {settingType} {key} '{value}'", deviceId);
             }
         }
-       
+
         public static void deleteSetting(string key, string deviceId)
         {
             runCMDRoot(String.Format("shell settings delete global {0}", key), deviceId);
@@ -2199,14 +2201,14 @@ namespace Services
         public static void FakeTimezone(string timezone, string deviceId)
         {
             rootAndRemount(deviceId);
-          //  runCMDRoot($"shell settings put global auto_time_zone 0 \"{timezone}\"", deviceId);
+            //  runCMDRoot($"shell settings put global auto_time_zone 0 \"{timezone}\"", deviceId);
             runCMDRoot($"shell setprop persist.sys.timezone \"{timezone}\"", deviceId);
             runCMDRoot($"shell am broadcast -a android.intent.action.TIMEZONE_CHANGED", deviceId);
             runCMDRoot($"shell settings put system time_12_24 24", deviceId);
             runCMDRoot($"shell am broadcast -a android.intent.action.TIME_SET", deviceId);
             //runCMD($"shell \"cmd time_zone_detector suggest_telephony_time_zone --suggestion --slot_index 0 --zone_id {timezone} --quality multiple_same --match_type country\"", deviceId);
         }
-       
+
 
 
         public static void AdjustVolume(bool isUp, string deviceId)
@@ -2654,32 +2656,32 @@ namespace Services
             catch (Exception ex)
             {
                 Debug.WriteLine($"Error checking device active status for {deviceId}: {ex.Message}");
-                return "NO"; 
+                return "NO";
             }
         }
 
 
 
         public async static Task<bool> CheckDeviceActiveBool(string deviceId, MiChangerGraphQLClient miChangerGraphQLClient)
-{
-    try
-    {
-        // Lấy license của thiết bị theo serial
-        LicensesModel licenses = await miChangerGraphQLClient.GetActiveLicensesBySerialNo(deviceId);
+        {
+            try
+            {
+                // Lấy license của thiết bị theo serial
+                LicensesModel licenses = await miChangerGraphQLClient.GetActiveLicensesBySerialNo(deviceId);
 
-        Debug.WriteLine($"Active Licenses: {licenses?.Licenses?.Count ?? 0}");
+                Debug.WriteLine($"Active Licenses: {licenses?.Licenses?.Count ?? 0}");
 
-        // Nếu có license => true, ngược lại => false
-        return (licenses != null && 
-                licenses.Licenses != null && 
-                licenses.Licenses.Count > 0);
-    }
-    catch (Exception ex)
-    {
-        MessageBox.Show($"Error checking device active status for {deviceId}: {ex.Message}");
-        return false;
-    }
-}
+                // Nếu có license => true, ngược lại => false
+                return (licenses != null &&
+                        licenses.Licenses != null &&
+                        licenses.Licenses.Count > 0);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error checking device active status for {deviceId}: {ex.Message}");
+                return false;
+            }
+        }
 
         public static void ScreenshotAdb(string id)
         {
@@ -2813,6 +2815,157 @@ namespace Services
             process.WaitForExit();
             return output;
         }
+
+        public static string GetValueBrand(string value)
+        {
+            var map = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                ["samsung"] = "Samsung",
+                ["xiaomi"] = "Xiaomi",
+                ["oppo"] = "Oppo",
+                ["vivo"] = "Vivo",
+                ["realme"] = "Realme",
+                ["google"] = "Google",
+                ["asus"] = "Asus",
+                ["LGE"] = "LGE",
+                ["Nokia"] = "Nokia",
+                ["oneplus"] = "OnePlus",
+                ["Random"] = "Random"
+            };
+
+            return map.TryGetValue(value.Trim(), out var normalized) ? normalized : value.Trim();
+        }
+
+        public static string GetValueOS(string value)
+        {
+            if (value == "Random")
+            {
+                value = "Random";
+            }
+            if (value == "10")
+            {
+                value = "Android 10";
+            }
+            if (value == "11")
+            {
+                value = "Android 11";
+            }
+            if (value == "12")
+            {
+                value = "Android 12";
+            }
+            if (value == "13")
+            {
+                value = "Android 13";
+            }
+            if (value == "14")
+            {
+                value = "Android 14";
+            }
+            if (value == "15")
+            {
+                value = "Android 15";
+            }
+            return value;
+        }
+
+        public static (string brand, string os) GetRandomValue(object brandInput, object osInput)
+        {
+            string valueRandomBrand = "samsung";
+            string valueRandomOs = "29";
+            // data asus, google, LGE, Nokia, oneplus, oppo, samsung, vivo, xiaomi
+            if ((brandInput is bool b1 && b1) ||
+      (brandInput is string s1 && (string.IsNullOrWhiteSpace(s1) || s1.Equals("Random", StringComparison.OrdinalIgnoreCase))))
+
+            {
+                // random brand
+                string[] brands = { "asus", "google", "LGE", "Nokia", "oneplus", "oppo", "samsung", "vivo", "xiaomi" };
+
+                Random rnd = new Random();
+                valueRandomBrand = brands[rnd.Next(brands.Length)];
+            }
+            else
+            {
+                valueRandomBrand = brandInput as string;
+                switch (valueRandomBrand)
+                {
+                    case "Samsung": valueRandomBrand = "samsung"; break;
+                    case "Oppo": valueRandomBrand = "OPPO"; break;
+                    case "Vivo": valueRandomBrand = "vivo"; break;
+                    case "Realme": valueRandomBrand = "realme"; break;
+                    case "Google": valueRandomBrand = "Google"; break;
+                    case "Asus": valueRandomBrand = "asus"; break;
+                    case "LGE": valueRandomBrand = "LGE"; break;
+                    case "Nokia": valueRandomBrand = "Nokia"; break;
+                    case "OnePlus": valueRandomBrand = "oneplus"; break;
+                    case "Xiaomi": valueRandomBrand = "Xiaomi"; break;
+                }
+            }
+            if ((osInput is bool b2 && b2) ||
+    (osInput is string s2 && (string.IsNullOrWhiteSpace(s2) || s2.Equals("Random", StringComparison.OrdinalIgnoreCase))))
+            {
+                // random os
+                string[] os = { "29", "30", "31", "32", "33", "34", "35" };
+
+                Random rnd = new Random();
+                valueRandomOs = os[rnd.Next(os.Length)];
+            }
+            else
+            {
+                valueRandomOs = osInput as string;
+                Random rnd = new Random();
+                switch (valueRandomOs)
+                {
+                    case "Android 10": valueRandomOs = "29"; break;
+                    case "Android 11": valueRandomOs = "30"; break;
+                    case "Android 12":
+                        valueRandomOs = (rnd.Next(0, 2) == 0) ? "31" : "32";
+                        break;
+                    case "Android 13": valueRandomOs = "33"; break;
+                    case "Android 14": valueRandomOs = "34"; break;
+                    case "Android 15": valueRandomOs = "35"; break;
+                    default: valueRandomOs = "29"; break;
+                }
+            }
+             // check điều kiện Os và Brand phù hợp nhau
+             valueRandomOs = GetValidOsForBrand(valueRandomBrand, valueRandomOs);
+
+            return (valueRandomBrand, valueRandomOs);
+
+        }
+
+        public static string GetValidOsForBrand(string brand, string currentOs)
+        {
+            // Mapping brand → list OS hợp lệ
+            Dictionary<string, string[]> validMap = new Dictionary<string, string[]>
+    {
+        { "asus",     new[] { "29", "30", "31", "32" } }, // Android 10,11,12
+        { "google",   new[] { "29", "30", "31", "32", "33", "34", "35" } },
+        { "LGE",      new[] { "29" } },                   // chỉ Android 10
+        { "Nokia",    new[] { "29", "30" } },             // Android 10,11
+        { "oneplus",  new[] { "29", "30", "33" } },       // Android 10,11,13
+        { "oppo",     new[] { "29", "30", "31", "32", "34" } }, // 10,11,12,14
+        { "samsung",  new[] { "29", "30", "31", "32", "33", "34", "35" } },
+        { "vivo",     new[] { "29", "30", "34" } },       // 10,11,14
+        { "Xiaomi",   new[] { "29", "30", "31", "32", "33", "34", "35" } },
+        { "realme",   new[] { "30", "31" } }
+    };
+
+            if (!validMap.ContainsKey(brand))
+                return currentOs; // nếu brand không có trong map thì giữ nguyên
+
+            var validOsList = validMap[brand];
+
+            // Nếu OS hiện tại không nằm trong list hợp lệ thì random lại
+            if (!validOsList.Contains(currentOs))
+            {
+                Random rnd = new Random();
+                currentOs = validOsList[rnd.Next(validOsList.Length)];
+            }
+
+            return currentOs;
+        }
+
     }
 
 }
