@@ -179,7 +179,26 @@
                                         Binding="{Binding Progress}"
                                         IsReadOnly="True"
                                         Width="*"
-                                        MinWidth="100" />
+                                        MinWidth="100">
+                        <DataGridTextColumn.ElementStyle>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="Foreground"
+                                        Value="#FF096C00" />
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsPending}"
+                                                 Value="True">
+                                        <Setter Property="Foreground"
+                                                Value="#FFFFCA23" />
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding HasWarning}"
+                                                 Value="True">
+                                        <Setter Property="Foreground"
+                                                Value="#FFFF5C5C" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </DataGridTextColumn.ElementStyle>
+                    </DataGridTextColumn>
 
                     <!-- Status Column with Conditional Style -->
                     <DataGridTemplateColumn Header="Status"

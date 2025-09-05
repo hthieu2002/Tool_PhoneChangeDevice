@@ -129,7 +129,10 @@ namespace ToolChange.Services
                     changedSystemInfo.Add(BuildKey_SYSTEM_S9.FINGERPRINT, tempDevice.Fingerprint);
                     changedSystemInfo.Add(BuildKey_SYSTEM_S9.ANDROID_SECURITY_PATH, tempDevice.SecurityPath);
                     changedSystemInfo.Add(BuildKey_SYSTEM_S9.BUILD_ID, tempDevice.BuildId);
-                   // changedSystemInfo.Add(BuildKey_SYSTEM_S9.SECURITY_PATH, tempDevice.SecurityPath);
+
+                    changedSystemInfo.Add("ro.android.soc.manufacturer", tempDevice.Manufacturer);
+                    changedSystemInfo.Add("ro.android.soc.model", tempDevice.Hardware);
+                    // changedSystemInfo.Add(BuildKey_SYSTEM_S9.SECURITY_PATH, tempDevice.SecurityPath);
                     // changedSystemInfo.Add(BuildKey_SYSTEM_S9.VERSION_RELEASE, tempDevice.Release);
                     // changedSystemInfo.Add(BuildKey_SYSTEM_S9.VERSION_RELEASE_OR_CODENAME, tempDevice.Release);
                     // changedSystemInfo.Add(BuildKey_SYSTEM_S9.VERSION_RELEASE_OR_PREVIEW_DISPLAY, tempDevice.Release);

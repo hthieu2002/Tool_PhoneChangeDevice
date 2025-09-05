@@ -218,6 +218,7 @@ namespace ToolChange.ViewModels
                 }
             }
         }
+
         private static readonly List<string> AvailableBrands = new List<string>
 {
     "samsung",
@@ -329,8 +330,6 @@ namespace ToolChange.ViewModels
             get => _brand;
             set
             {
-                if (value != BrandValue)
-                    OsRandom = true; 
                 if (value == null) return;
 
                 var normalized = ADBService.GetValueBrand(value);
@@ -863,7 +862,7 @@ namespace ToolChange.ViewModels
                             }
                             else if (device.Status != "Offline" || device.Active != "NO")
                             {
-                                DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "0%", "Device offline");
+                                DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "0%", "⚠ Device offline");
                                 _processingDeviceIds.Remove(device.DeviceId);
                                 device.Status = "Offline";
                                 device.Active = "NO";
@@ -1160,7 +1159,7 @@ namespace ToolChange.ViewModels
                         }
                         if (step >= 39)
                         {
-                            DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "99%", "Fake proxy success, check error - wifi error");
+                            DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "99%", "⚠ Fake proxy success, check error - wifi error");
                             return;
                         }
                         Thread.Sleep(5000);
@@ -1277,7 +1276,7 @@ namespace ToolChange.ViewModels
                         }
                         if (step >= 39)
                         {
-                            DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "99%", "Fake proxy success, check error - wifi error");
+                            DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "99%", "⚠ Fake proxy success, check error - wifi error");
                             return;
                         }
                         Thread.Sleep(5000);
@@ -1954,7 +1953,7 @@ namespace ToolChange.ViewModels
             {
                 if (!saveResult)
                 {
-                    DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "0%", "Change device error!");
+                    DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "0%", "⚠ Change device error!");
                     _processingDeviceIds.Remove(device.DeviceId);
                     System.Windows.MessageBox.Show(DevicesLang.logErrorExChangeDevice
                                             , DevicesLang.logErrorExTitleChangeDevice + " " + device.DeviceId
@@ -2130,7 +2129,7 @@ namespace ToolChange.ViewModels
             {
                 if (!saveResult)
                 {
-                    DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "0%", "Error");
+                    DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "0%", "⚠ Error");
                     _processingDeviceIds.Remove(device.DeviceId);
                     System.Windows.MessageBox.Show(DevicesLang.logErrorExChangeDevice
                                             , DevicesLang.logErrorExTitleChangeDevice
@@ -2427,14 +2426,14 @@ namespace ToolChange.ViewModels
                 }
                 else
                 {
-                    DeviceUpdater.UpdateProgress(Devices, deviceId, "80%", "❌ Không lấy được timezone từ device.");
+                    DeviceUpdater.UpdateProgress(Devices, deviceId, "80%", "⚠ Không lấy được timezone từ device.");
                 }
 
                 return timezone;
             }
             catch (Exception ex)
             {
-                DeviceUpdater.UpdateProgress(Devices, deviceId, "80%", $"❌ Lỗi FakeTimezoneByNetwork: {ex.Message}");
+                DeviceUpdater.UpdateProgress(Devices, deviceId, "80%", $"⚠ Lỗi FakeTimezoneByNetwork: {ex.Message}");
                 return "Error";
             }
         }
@@ -2615,7 +2614,7 @@ namespace ToolChange.ViewModels
 
                     if (string.IsNullOrEmpty(proxyHost) || string.IsNullOrEmpty(proxyPort))
                     {
-                        DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "0%", "error proxy");
+                        DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "0%", "⚠ error proxy");
                         return;
                     }
 
@@ -2709,7 +2708,7 @@ namespace ToolChange.ViewModels
                         else
                         {
                             _processingDeviceIds.Remove(device.DeviceId);
-                            DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "0%", "Error ! Again fake proxy");
+                            DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "0%", "⚠ Error ! Again fake proxy");
                             return;
                         }
                         _processingDeviceIds.Remove(device.DeviceId);
@@ -2734,7 +2733,7 @@ namespace ToolChange.ViewModels
                 ADBService.FakeLocation(x, y, device.DeviceId);
                 DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "100%", $"Success fake location for location {x} - {y}");
             }
-            else { UpdateDeviceStatus(device.DeviceId, "0%", "Value latitude and longitude is null !"); }
+            else { UpdateDeviceStatus(device.DeviceId, "0%", "⚠ Value latitude and longitude is null !"); }
 
         }
         private async Task ProcessOpenUrlAsync(Models.DeviceModel device, string url)
@@ -2746,7 +2745,7 @@ namespace ToolChange.ViewModels
                 ADBService.OpenUrl(url, device.DeviceId);
                 DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "100%", $"Success open url for {url}");
             }
-            else { UpdateDeviceStatus(device.DeviceId, "0%", "Url null"); }
+            else { UpdateDeviceStatus(device.DeviceId, "0%", "⚠ Url null"); }
 
         }
         private async Task CheckBoxDevice(Models.DeviceModel device)

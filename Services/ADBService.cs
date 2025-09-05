@@ -26,6 +26,41 @@ namespace Services
     public static partial class ADBService
     {
         private static readonly string[] OsAll = { "29", "30", "31", "32", "33", "34", "35" };
+        private static readonly Dictionary<string, string[]> BrandOsMap =
+    new(StringComparer.OrdinalIgnoreCase)
+{
+    { "asus",     new[] { "29", "30", "31" } },                 // 10,11,12
+    { "google",   new[] { "29", "30", "31", "33", "34", "35" } },// 10,11,12,13,14,15 (32 tuỳ bạn có cho hay không)
+    { "LGE",      new[] { "29" } },                             // 10
+    { "Nokia",    new[] { "29", "30" } },                       // 10,11
+    { "oneplus",  new[] { "29", "30", "33" } },                 // 10,11,13
+    { "oppo",     new[] { "29", "30", "31", "34" } },           // 10,11,12,14
+    { "samsung",  new[] { "29", "30", "31", "32", "33", "34", "35" } },
+    { "vivo",     new[] { "29", "30", "34" } },                 // 10,11,14
+    { "xiaomi",   new[] { "29", "30", "31", "33", "34", "35" } },
+    { "realme",   new[] { "30", "31" } }                        // ví dụ: 11,12
+};
+
+        private static readonly string[] BrandsPool =
+{ "asus", "google", "LGE", "Nokia", "oneplus", "oppo", "samsung", "vivo", "xiaomi" };
+
+        private static readonly Dictionary<string, string> BrandAlias =
+            new(StringComparer.OrdinalIgnoreCase)
+            {
+                ["samsung"] = "samsung",
+                ["oppo"] = "oppo",
+                ["vivo"] = "vivo",
+                ["realme"] = "realme",
+                ["google"] = "google",
+                ["asus"] = "asus",
+                ["lge"] = "LGE",
+                ["lg"] = "LGE",
+                ["nokia"] = "Nokia",
+                ["oneplus"] = "oneplus",
+                ["xiaomi"] = "xiaomi"
+            };
+
+
         private static List<Point> getKeysCoordinator(string text)
         {
             List<Point> result = new List<Point>();
@@ -2869,104 +2904,105 @@ namespace Services
             }
             return value;
         }
-
+        private static string NormalizeBrand(string? input)
+        {
+            if (string.IsNullOrWhiteSpace(input)) return "samsung"; // default
+            var key = input.Trim();
+            return BrandAlias.TryGetValue(key, out var norm) ? norm : key;
+        }
         public static (string brand, string os) GetRandomValue(object brandInput, object osInput)
         {
             string valueRandomBrand = "samsung";
             string valueRandomOs = "29";
             var rnd = Random.Shared;
 
-            // data asus, google, LGE, Nokia, oneplus, oppo, samsung, vivo, xiaomi
-            if ((brandInput is bool b1 && b1) ||
-      (brandInput is string s1 && (string.IsNullOrWhiteSpace(s1) || s1.Equals("Random", StringComparison.OrdinalIgnoreCase))))
+            // --- BRAND ---
+            bool brandWasRandom =
+                (brandInput is bool b1 && b1) ||
+                (brandInput is string s1 && (string.IsNullOrWhiteSpace(s1) ||
+                                             s1.Equals("Random", StringComparison.OrdinalIgnoreCase)));
 
+            if (brandWasRandom)
             {
-                // random brand
-                string[] brands = { "asus", "google", "LGE", "Nokia", "oneplus", "oppo", "samsung", "vivo", "xiaomi" };
-
-               
-                valueRandomBrand = brands[rnd.Next(brands.Length)];
+                valueRandomBrand = BrandsPool[rnd.Next(BrandsPool.Length)];
             }
             else
             {
-                valueRandomBrand = brandInput as string;
-                switch (valueRandomBrand)
-                {
-                    case "Samsung": valueRandomBrand = "samsung"; break;
-                    case "Oppo": valueRandomBrand = "OPPO"; break;
-                    case "Vivo": valueRandomBrand = "vivo"; break;
-                    case "Realme": valueRandomBrand = "realme"; break;
-                    case "Google": valueRandomBrand = "Google"; break;
-                    case "Asus": valueRandomBrand = "asus"; break;
-                    case "LGE": valueRandomBrand = "LGE"; break;
-                    case "Nokia": valueRandomBrand = "Nokia"; break;
-                    case "OnePlus": valueRandomBrand = "oneplus"; break;
-                    case "Xiaomi": valueRandomBrand = "Xiaomi"; break;
-                }
+                valueRandomBrand = NormalizeBrand(brandInput as string);
             }
-            bool isSamsung = string.Equals(valueRandomBrand, "Samsung", StringComparison.OrdinalIgnoreCase);
 
-            if ((osInput is bool b2 && b2) ||
-    (osInput is string s2 && (string.IsNullOrWhiteSpace(s2) || s2.Equals("Random", StringComparison.OrdinalIgnoreCase))))
+            // --- OS ---
+            bool isSamsung = string.Equals(valueRandomBrand, "Samsung", StringComparison.OrdinalIgnoreCase);
+            bool osWasRandom =
+                (osInput is bool b2 && b2) ||
+                (osInput is string s2 && (string.IsNullOrWhiteSpace(s2) ||
+                                          s2.Equals("Random", StringComparison.OrdinalIgnoreCase)));
+
+            if (osWasRandom)
             {
-                var osPool = isSamsung ? OsAll : OsAll.Where(x => x != "32").ToArray();
+                var osPool = isSamsung ? OsAll : OsAll.Where(x => x != "32").ToArray(); // cấm 32 nếu không phải Samsung
                 valueRandomOs = osPool[rnd.Next(osPool.Length)];
             }
             else
             {
-                valueRandomOs = osInput as string;           
+                valueRandomOs = osInput as string ?? "29";
 
-                switch (valueRandomOs)
+                // Nếu user đưa thẳng API level (29..35) thì giữ; nếu là nhãn thì map
+                if (!OsAll.Contains(valueRandomOs))
                 {
-                    case "Android 10": valueRandomOs = "29"; break;
-                    case "Android 11": valueRandomOs = "30"; break;
-                    case "Android 12":
-                        valueRandomOs = isSamsung
-                            ? (rnd.Next(0, 2) == 0 ? "31" : "32")
-                            : "31";
-                        break;
-                    case "Android 13": valueRandomOs = "33"; break;
-                    case "Android 14": valueRandomOs = "34"; break;
-                    case "Android 15": valueRandomOs = "35"; break;
-                    default: valueRandomOs = "29"; break;
+                    switch (valueRandomOs)
+                    {
+                        case "Android 10": valueRandomOs = "29"; break;
+                        case "Android 11": valueRandomOs = "30"; break;
+                        case "Android 12":
+                            valueRandomOs = isSamsung
+                                ? (rnd.Next(0, 2) == 0 ? "31" : "32")
+                                : "31";
+                            break;
+                        case "Android 13": valueRandomOs = "33"; break;
+                        case "Android 14": valueRandomOs = "34"; break;
+                        case "Android 15": valueRandomOs = "35"; break;
+                        default: valueRandomOs = "29"; break;
+                    }
+                }
+                else
+                {
+                    // bảo vệ rule: nếu 32 mà không phải Samsung → ép về 31
+                    if (valueRandomOs == "32" && !isSamsung)
+                        valueRandomOs = "31";
                 }
             }
-             // check điều kiện Os và Brand phù hợp nhau
-             valueRandomOs = GetValidOsForBrand(valueRandomBrand, valueRandomOs);
+
+            // --- YÊU CẦU MỚI ---
+            // Nếu brandInput là random và osInput KHÔNG random → random lại BRAND theo OS đã có
+            if (brandWasRandom && !osWasRandom)
+            {
+                var candidateBrands = BrandOsMap
+                    .Where(kv => kv.Value.Contains(valueRandomOs))
+                    .Select(kv => kv.Key)
+                    .ToArray();
+
+                if (candidateBrands.Length > 0)
+                    valueRandomBrand = candidateBrands[rnd.Next(candidateBrands.Length)];
+                // nếu không có candidate (hiếm) thì giữ nguyên brand hiện tại
+            }
+
+            // Bảo đảm cặp (brand, os) hợp lệ (sẽ không đổi OS nếu đã khớp)
+            valueRandomOs = GetValidOsForBrand(valueRandomBrand, valueRandomOs);
 
             return (valueRandomBrand, valueRandomOs);
-
         }
 
         public static string GetValidOsForBrand(string brand, string currentOs)
         {
-            // Mapping brand → list OS hợp lệ
-            Dictionary<string, string[]> validMap = new Dictionary<string, string[]>
-    {
-        { "asus",     new[] { "29", "30", "31" } }, // Android 10,11,12
-        { "google",   new[] { "29", "30", "31", "33", "34", "35" } },
-        { "LGE",      new[] { "29" } },                   // chỉ Android 10
-        { "Nokia",    new[] { "29", "30" } },             // Android 10,11
-        { "oneplus",  new[] { "29", "30", "33" } },       // Android 10,11,13
-        { "oppo",     new[] { "29", "30", "31", "34" } }, // 10,11,12,14
-        { "samsung",  new[] { "29", "30", "31", "32", "33", "34", "35" } },
-        { "vivo",     new[] { "29", "30", "34" } },       // 10,11,14
-        { "Xiaomi",   new[] { "29", "30", "31", "33", "34", "35" } },
-        { "realme",   new[] { "30", "31" } }
-    };
+            if (!BrandOsMap.TryGetValue(brand, out var validOsList))
+                return currentOs;
 
-            if (!validMap.ContainsKey(brand))
-                return currentOs; // nếu brand không có trong map thì giữ nguyên
-
-            var validOsList = validMap[brand];
-
-            // Nếu OS hiện tại không nằm trong list hợp lệ thì random lại
             if (!validOsList.Contains(currentOs))
             {
-                Random rnd = new Random();
+                var rnd = Random.Shared;
                 currentOs = validOsList[rnd.Next(validOsList.Length)];
             }
-
             return currentOs;
         }
 

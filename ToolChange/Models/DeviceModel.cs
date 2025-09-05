@@ -89,7 +89,10 @@ namespace ToolChange.Models
                 if (_progress != value)
                 {
                     _progress = value;
+
                     OnPropertyChanged(nameof(Progress));
+                    OnPropertyChanged(nameof(HasWarning));
+                    OnPropertyChanged(nameof(IsPending));
                 }
             }
         }
@@ -119,7 +122,9 @@ namespace ToolChange.Models
                 }
             }
         }
-       
+     
+        public bool HasWarning => Progress?.Contains("⚠") == true; // đỏ
+        public bool IsPending => Progress?.Contains("⏳") == true; // vàng
         public string DisplayLabel => $"{DeviceId} - {Name}";
 
         public event PropertyChangedEventHandler PropertyChanged;
