@@ -35,7 +35,7 @@ namespace ToolChange.ViewModels
         private MiChangerGraphQLClient miChangerGraphQLClient;
         private CognitoService cognitoService;
         private string token;
-        private string endpoint = Properties.Settings.Default.endpoint;
+        private string endpoint = DeepDroid.Properties.Settings.Default.endpoint;
         private string authenticationType = "authorization";
         public LocalizationViewModel LanguageVM { get; set; }
         public AutomationViewModel AutomationListVM { get; set; }
@@ -46,7 +46,7 @@ namespace ToolChange.ViewModels
         private readonly string jsonFilePath = Path.Combine("Resources", "Devices", "devices.json");
         private readonly string scriptDirectory = Path.Combine("Resources", "Script");
         private readonly HashSet<string> _processingDeviceIds = new();
-        private string _user = Properties.Settings.Default.user;
+        private string _user = DeepDroid.Properties.Settings.Default.user;
         private ObservableCollection<string> _scriptFiles = new();
         private string[] _loadFileScript = Array.Empty<string>();
         private string _selectedFileScript;
@@ -65,8 +65,8 @@ namespace ToolChange.ViewModels
                 if (_user != value)
                 {
                     _user = value;
-                    Properties.Settings.Default.user = value;
-                    Properties.Settings.Default.Save();
+                    DeepDroid.Properties.Settings.Default.user = value;
+                    DeepDroid.Properties.Settings.Default.Save();
                     OnPropertyChanged(nameof(User));
                 }
             }
@@ -269,9 +269,9 @@ namespace ToolChange.ViewModels
         {
             _ = LoadDevices();
 
-            cognitoService = new CognitoService(Properties.Settings.Default.poolId, Properties.Settings.Default.clientId);
+            cognitoService = new CognitoService(DeepDroid.Properties.Settings.Default.poolId, DeepDroid.Properties.Settings.Default.clientId);
 
-            token = cognitoService.getIdToken(Properties.Settings.Default.user, Properties.Settings.Default.password);
+            token = cognitoService.getIdToken(DeepDroid.Properties.Settings.Default.user, DeepDroid.Properties.Settings.Default.password);
 
             //string token = "eyJraWQiOiJGallIT0JuUERvNTdXMENjWHlQNEdvOGFCbEd1NEFnUDNYZEtGNTluQzF3PSIsImFsZyI6IlJTMjU2In0.eyJzdWIiOiIwMTM5ZDBiZC01MzI1LTQwZGQtODY0Yi0wZDNkOGFjNmZlZjAiLCJhdWQiOiIzZ29zNWppbWliODJqbDNmOXZjNjI4M2twciIsImNvZ25pdG86Z3JvdXBzIjpbIlN0YW5kYXJkIl0sImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJldmVudF9pZCI6ImIxMjlmZDhlLTE5MDItNGM3Zi1hYzBhLWUyOGQ3YWNhYTlmZiIsInRva2VuX3VzZSI6ImlkIiwiYXV0aF90aW1lIjoxNTk5MjA2ODU5LCJpc3MiOiJodHRwczpcL1wvY29nbml0by1pZHAuYXAtc291dGhlYXN0LTEuYW1hem9uYXdzLmNvbVwvYXAtc291dGhlYXN0LTFfaG5WWGljam9sIiwiY29nbml0bzp1c2VybmFtZSI6IjAxMzlkMGJkLTUzMjUtNDBkZC04NjRiLTBkM2Q4YWM2ZmVmMCIsImV4cCI6MTU5OTIxMDQ1OSwiaWF0IjoxNTk5MjA2ODU5LCJlbWFpbCI6ImRldkB5b3BtYWlsLmNvbSJ9.WUZ3aW97f9oHXv_WSpeM3zUCtS5End-_F9fI8mjj3XMIsvyDTERmWrK5zWxHBeSEOgItmAJrMk3OWEg7bOE-8V98M9c921_MVP58uhgbWZHeXAnRgLDzZASOVE0pdPcjxbXGY9MxeWUNNp39U9E4Fo1YIrZbmS4fVHXVrhP4dhblAmsloroLPc-cBuslHYyHrRc9dLw-1f4Dacnvcd_J2Y8Lv_EvivsMuVNx5SYgnbLC7SsJ2_JNecSq1WdWGneiwuamkkzXDcmv644z7U6WWRyi9FeE0YP0hD09JXyN5CJRIWt563XR2684mf4o_xWbwZiS0KtjSio_D4sE88yyCg";
             miChangerGraphQLClient = new MiChangerGraphQLClient(endpoint, authenticationType, token);

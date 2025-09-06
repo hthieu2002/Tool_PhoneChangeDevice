@@ -38,15 +38,15 @@ namespace ToolChange.ViewModels
                 new LanguageItem { DisplayName = "Vietnamese", Value = "vi" },
                 new LanguageItem { DisplayName = "English", Value = "en" }
             };
-            var savedLang = Properties.Settings.Default.lang ?? "en";
+            var savedLang = DeepDroid.Properties.Settings.Default.lang ?? "en";
             SelectedLanguage = Languages.FirstOrDefault(l => l.Value == savedLang) ?? Languages[0];
         }
         private void HandleLanguageChanged(LanguageItem language)
         {
             if (language != null)
             {
-                Properties.Settings.Default.lang = language.Value;
-                Properties.Settings.Default.Save();
+                DeepDroid.Properties.Settings.Default.lang = language.Value;
+                DeepDroid.Properties.Settings.Default.Save();
                 ViewModelLocator.Localization.Refresh();
             }
         }

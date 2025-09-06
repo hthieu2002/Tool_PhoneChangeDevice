@@ -9,7 +9,7 @@ namespace ToolChange.Services
 {
     public static class LocalizationService
     {
-        private static string _currentLanguage = Properties.Settings.Default.lang;
+        private static string _currentLanguage = DeepDroid.Properties.Settings.Default.lang;
 
         // Dictionary<language, Dictionary<key, value>>
         private static readonly Dictionary<string, Dictionary<string, string>> _translations = new()
@@ -332,8 +332,8 @@ namespace ToolChange.Services
 
         public static void SetLanguage(string language)
         {
-            Properties.Settings.Default.lang = language;
-            Properties.Settings.Default.Save();
+            DeepDroid.Properties.Settings.Default.lang = language;
+            DeepDroid.Properties.Settings.Default.Save();
 
             if (_translations.ContainsKey(language))
                 _currentLanguage = language;

@@ -32,16 +32,16 @@ namespace ToolChange
         private void CheckFirstRunOfNewVersion()
         {
             string currentVersion = Assembly.GetExecutingAssembly().GetName().Version.ToString();
-            string savedVersion = ToolChange.Properties.Settings.Default.Version;
+            string savedVersion = DeepDroid.Properties.Settings.Default.Version;
 
             if (currentVersion != savedVersion)
             {
                 // Reset về mặc định
-                ToolChange.Properties.Settings.Default.Reset();
+                DeepDroid.Properties.Settings.Default.Reset();
 
                 // Cập nhật version hiện tại để lần sau không reset nữa
-                ToolChange.Properties.Settings.Default.Version = currentVersion;
-                ToolChange.Properties.Settings.Default.Save();
+                DeepDroid.Properties.Settings.Default.Version = currentVersion;
+                DeepDroid.Properties.Settings.Default.Save();
             }
         }
 

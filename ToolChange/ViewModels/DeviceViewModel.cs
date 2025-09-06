@@ -42,7 +42,7 @@ namespace ToolChange.ViewModels
     {
         private CognitoService cognitoService;
         private string token;
-        private string endpoint = Properties.Settings.Default.endpoint;
+        private string endpoint = DeepDroid.Properties.Settings.Default.endpoint;
         private string authenticationType = "authorization";
 
         [DllImport("user32.dll", SetLastError = true)]
@@ -280,7 +280,7 @@ namespace ToolChange.ViewModels
     "Android 14",
     "Android 15"
 };
-        private string _user = Properties.Settings.Default.user;
+        private string _user = DeepDroid.Properties.Settings.Default.user;
         private string _brand;
         private string _name;
         private string _model;
@@ -461,14 +461,14 @@ namespace ToolChange.ViewModels
                 if (_user != value)
                 {
                     _user = value;
-                    Properties.Settings.Default.user = value;
-                    Properties.Settings.Default.Save();
+                    DeepDroid.Properties.Settings.Default.user = value;
+                    DeepDroid.Properties.Settings.Default.Save();
                     OnPropertyChanged(nameof(User));
                 }
             }
         }
 
-        private bool _clearData = Properties.Settings.Default.ClearData;
+        private bool _clearData = DeepDroid.Properties.Settings.Default.ClearData;
         public bool IsClearData
         {
             get => _clearData;
@@ -477,8 +477,8 @@ namespace ToolChange.ViewModels
                 if (_clearData != value)
                 {
                     _clearData = value;
-                    Properties.Settings.Default.ClearData = value;
-                    Properties.Settings.Default.Save();
+                    DeepDroid.Properties.Settings.Default.ClearData = value;
+                    DeepDroid.Properties.Settings.Default.Save();
 
                     OnPropertyChanged(nameof(IsClearData));
                 }
@@ -1646,12 +1646,12 @@ namespace ToolChange.ViewModels
                             continue;
 
                         }
-                        if (!await ADBService.CheckDeviceActiveBool(device.DeviceId, miChangerGraphQLClient))
-                        {
-                            UpdateDeviceStatus(device.DeviceId, "0%", "⚠ Device not active");
-                            continue;
+                        //if (!await ADBService.CheckDeviceActiveBool(device.DeviceId, miChangerGraphQLClient))
+                        //{
+                        //    UpdateDeviceStatus(device.DeviceId, "0%", "⚠ Device not active");
+                        //    continue;
 
-                        }
+                        //}
                         if (_processingDeviceIds.Contains(device.DeviceId))
                         {
                             UpdateDeviceStatus(device.DeviceId, "%", "⏳ Device running...");
@@ -1876,7 +1876,7 @@ namespace ToolChange.ViewModels
         }
         private async Task ProcessChangeDeviceAsync(Models.DeviceModel device, int checkChange = 0)
         {
-            if (Properties.Settings.Default.ClearData)
+            if (DeepDroid.Properties.Settings.Default.ClearData)
             {
                 DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "0%", "Wipe data ON");
                 DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "0%", "Delete app");

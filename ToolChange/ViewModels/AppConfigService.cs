@@ -31,10 +31,10 @@ namespace ToolChange.ViewModels
         {
             try
             {
-                var property = typeof(Properties.Settings).GetProperty(key);
+                var property = typeof(DeepDroid.Properties.Settings).GetProperty(key);
                 if (property != null)
                 {
-                    var value = property.GetValue(Properties.Settings.Default)?.ToString();
+                    var value = property.GetValue(DeepDroid.Properties.Settings.Default)?.ToString();
                     return value ?? string.Empty;
                 }
                 return string.Empty;

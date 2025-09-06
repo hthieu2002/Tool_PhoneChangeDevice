@@ -1697,7 +1697,7 @@ namespace ToolChange.ViewModels
 
         public void Refresh()
         {
-            LocalizationService.SetLanguage(Properties.Settings.Default.lang);
+            LocalizationService.SetLanguage(DeepDroid.Properties.Settings.Default.lang);
 
             Device = LocalizationService.Get("Device");
             Automation = LocalizationService.Get("Automation");

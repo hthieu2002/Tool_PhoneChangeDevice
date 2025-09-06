@@ -13,6 +13,12 @@
 <PublishSingleFile>true</PublishSingleFile>
  <IncludeAllContentForSelfExtract>false</IncludeAllContentForSelfExtract>
 <PublishTrimmed>false</PublishTrimmed>
+<AssemblyName>DeepDroid</AssemblyName>
+<RootNamespace>DeepDroid</RootNamespace>
+ <AssemblyTitle>DeepDroid</AssemblyTitle>
+  <Product>DeepDroid</Product>
+  <Company>MAT</Company>
+  <Description>Manager devices</Description>
   </PropertyGroup>
 
   <ItemGroup>
@@ -61,7 +67,12 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="logo.ico" />
+    <Content Include="logo.ico">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Resource Include="Resources\logo.ico">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
   </ItemGroup>
 
   <ItemGroup>

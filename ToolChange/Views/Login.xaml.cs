@@ -31,8 +31,8 @@ namespace ToolChange.Views
             InitializeComponent();
             _viewModel = new DeviceViewModel();
             DataContext = _viewModel;
-            txtUsername.Text = Properties.Settings.Default.user;
-            txtPassword.Password = Properties.Settings.Default.password;
+            txtUsername.Text = DeepDroid.Properties.Settings.Default.user;
+            txtPassword.Password = DeepDroid.Properties.Settings.Default.password;
             var poolId = AppConfigService.ReadSetting("poolId");
             var clientId = AppConfigService.ReadSetting("clientId");
             cognitoService = new CognitoService(poolId, clientId);
@@ -81,8 +81,8 @@ namespace ToolChange.Views
 
                 if (!string.IsNullOrEmpty(token))
                 {
-                    Properties.Settings.Default.user = username;
-                    Properties.Settings.Default.password = password;
+                    DeepDroid.Properties.Settings.Default.user = username;
+                    DeepDroid.Properties.Settings.Default.password = password;
                     var home = new Home();
                     home.Show();
                     this.Close();

@@ -71,7 +71,7 @@ namespace ToolChange.Views
         private async void Load_On()
         {
             string url;
-            if (Properties.Settings.Default.lang == "vi")
+            if (DeepDroid.Properties.Settings.Default.lang == "vi")
             {
                 url = "https://docs.google.com/document/d/1fmuHbrPjCyIGiVeuv_q7bNrzSxefpeKTqjtbxucEEmc/preview";
             }
