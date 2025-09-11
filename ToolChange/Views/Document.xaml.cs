@@ -73,11 +73,11 @@ namespace ToolChange.Views
             string url;
             if (DeepDroid.Properties.Settings.Default.lang == "vi")
             {
-                url = "https://docs.google.com/document/d/1fmuHbrPjCyIGiVeuv_q7bNrzSxefpeKTqjtbxucEEmc/preview";
+                url = "https://docs.google.com/document/d/1fqKkwLtDm9Hdi1fYw1Got3grV3KsWvAdKtamO0hqI74/preview";
             }
             else
             {
-                url = "https://docs.google.com/document/d/1wdSArEG95Oy3CUoT_OvV7772v2CkC6pchOLwZGvHgsk/preview";
+                url = "https://docs.google.com/document/d/1UwrQ-j9-GBHLSnct0mJoZ5I4mBhcvHwN5Xe9ejSnjUc/preview";
             }
             await WebViewDocs.EnsureCoreWebView2Async();
             WebViewDocs.CoreWebView2.Navigate(url);

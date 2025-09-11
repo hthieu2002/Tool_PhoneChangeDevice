@@ -280,7 +280,8 @@ namespace ToolChange.ViewModels
     "Android 14",
     "Android 15"
 };
-        private string _user = DeepDroid.Properties.Settings.Default.user;
+        private string _user = DeepDroid.Properties.Settings.Default.user.Split('@')[0];
+
         private string _brand;
         private string _name;
         private string _model;
@@ -2599,12 +2600,12 @@ namespace ToolChange.ViewModels
                         continue;
 
                     }
-                    if (!await ADBService.CheckDeviceActiveBool(device.DeviceId, miChangerGraphQLClient))
-                    {
-                        UpdateDeviceStatus(device.DeviceId, "0%", "⚠ Device not active");
-                        continue;
+                    //if (!await ADBService.CheckDeviceActiveBool(device.DeviceId, miChangerGraphQLClient))
+                    //{
+                    //    UpdateDeviceStatus(device.DeviceId, "0%", "⚠ Device not active");
+                    //    continue;
 
-                    }
+                    //}
                     if (_processingDeviceIds.Contains(device.DeviceId))
                     {
                         UpdateDeviceStatus(device.DeviceId, "%", "⏳ Device running...");

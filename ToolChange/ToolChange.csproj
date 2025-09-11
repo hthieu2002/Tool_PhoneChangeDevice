@@ -7,7 +7,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
   <UseWindowsForms>true</UseWindowsForms>
-  <PackageIcon>icon.png</PackageIcon>
+  <PackageIcon>img_1204_720.jpg</PackageIcon>
   <ApplicationIcon>logo.ico</ApplicationIcon>
 <RuntimeIdentifiers>win-x64</RuntimeIdentifiers>
 <PublishSingleFile>true</PublishSingleFile>
@@ -202,7 +202,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="bin\Debug\net8.0-windows\Resources\icon.png">
+    <None Include="..\..\img_1204_720.jpg">
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
     </None>
@@ -268,6 +268,10 @@
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="bin\Debug\net8.0-windows\Resources\" />
   </ItemGroup>
 
 </Project>

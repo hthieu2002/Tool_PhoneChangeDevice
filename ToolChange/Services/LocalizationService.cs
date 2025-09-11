@@ -168,7 +168,7 @@ namespace ToolChange.Services
                 { "DocumentImageAutomationView2","/Resources/Icons/scriptAutomationview1.jpg"},
                 { "DocumentImageAutomationView3","/Resources/Icons/scriptAutomationview2.jpg"},
                 { "DocumentImageViewDevice","/Resources/Icons/viewdevice.jpg"},
-                { "WebViewUrl","https://docs.google.com/document/d/1fmuHbrPjCyIGiVeuv_q7bNrzSxefpeKTqjtbxucEEmc/preview"}
+                { "WebViewUrl","https://docs.google.com/document/d/1fqKkwLtDm9Hdi1fYw1Got3grV3KsWvAdKtamO0hqI74/preview"}
             }
         },
         {
@@ -325,7 +325,7 @@ namespace ToolChange.Services
                 { "DocumentImageAutomationView2","/Resources/Icons/ENscriptAutomationview1.jpg"},
                 { "DocumentImageAutomationView3","/Resources/Icons/ENscriptAutomationview2.jpg"},
                 { "DocumentImageViewDevice","/Resources/Icons/ENviewdevice.jpg"},
-                { "WebViewUrl","https://docs.google.com/document/d/1wdSArEG95Oy3CUoT_OvV7772v2CkC6pchOLwZGvHgsk/preview"}
+                { "WebViewUrl","https://docs.google.com/document/d/1UwrQ-j9-GBHLSnct0mJoZ5I4mBhcvHwN5Xe9ejSnjUc/preview"}
             }
         }
     };

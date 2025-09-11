@@ -565,24 +565,7 @@
                                           HorizontalAlignment="Left"
                                           Grid.Column="1" />
                             </Grid>
-                            <Grid Width="200"
-                                  Height="35"
-                                  ToolTip="Sự dụng chức năng này bạn cần change thiết bị về đúng brand của thiết bị."
-                                  Margin="5,5,5,10">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto" />
-                                    <ColumnDefinition Width="130" />
-                                </Grid.ColumnDefinitions>
-                                <Label Content="Keep Brand"
-                                       Grid.Column="0"
-                                       Margin="10,0,10,0"
-                                       HorizontalAlignment="Left"
-                                       VerticalAlignment="Center"
-                                       FontWeight="Bold" />
-                                <CheckBox IsChecked="{Binding DeviceListVM.IsCheckedpif, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                          HorizontalAlignment="Left"
-                                          Grid.Column="1" />
-                            </Grid>
+                           
                          
                         </UniformGrid>
                     </ScrollViewer>
