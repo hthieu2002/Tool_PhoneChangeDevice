@@ -42,7 +42,7 @@ namespace Services
 };
 
         private static readonly string[] BrandsPool =
-{ "asus", "google", "LGE", "Nokia", "oneplus", "oppo", "samsung", "vivo", "xiaomi" };
+{ "asus", "Google", "LGE", "Nokia", "oneplus", "oppo", "samsung", "vivo", "xiaomi" };
 
         private static readonly Dictionary<string, string> BrandAlias =
             new(StringComparer.OrdinalIgnoreCase)
@@ -51,11 +51,11 @@ namespace Services
                 ["oppo"] = "oppo",
                 ["vivo"] = "vivo",
                 ["realme"] = "realme",
-                ["google"] = "google",
+                ["google"] = "Google",
                 ["asus"] = "asus",
                 ["lge"] = "LGE",
                 ["lg"] = "LGE",
-                ["nokia"] = "Nokia",
+                ["nokia"] = "nokia",
                 ["oneplus"] = "oneplus",
                 ["xiaomi"] = "xiaomi"
             };
@@ -2945,36 +2945,46 @@ namespace Services
             }
             else
             {
-                valueRandomOs = osInput as string ?? "29";
-
-                // Nếu user đưa thẳng API level (29..35) thì giữ; nếu là nhãn thì map
-                if (!OsAll.Contains(valueRandomOs))
                 {
-                    switch (valueRandomOs)
+                    valueRandomOs = osInput as string ?? "29";
+                    if (!OsAll.Contains(valueRandomOs))
                     {
-                        case "Android 10": valueRandomOs = "29"; break;
-                        case "Android 11": valueRandomOs = "30"; break;
-                        case "Android 12":
-                            valueRandomOs = isSamsung
-                                ? (rnd.Next(0, 2) == 0 ? "31" : "32")
-                                : "31";
-                            break;
-                        case "Android 13": valueRandomOs = "33"; break;
-                        case "Android 14": valueRandomOs = "34"; break;
-                        case "Android 15": valueRandomOs = "35"; break;
-                        default: valueRandomOs = "29"; break;
+                        switch (valueRandomOs)
+                        {
+                            case "Android 10": valueRandomOs = "29"; break;
+                            case "Android 11": valueRandomOs = "30"; break;
+                            case "Android 12":
+                                valueRandomOs = isSamsung ? (rnd.Next(0, 2) == 0 ? "31" : "32") : "31";
+                                break;
+                            case "Android 13": valueRandomOs = "33"; break;
+                            case "Android 14": valueRandomOs = "34"; break;
+                            case "Android 15": valueRandomOs = "35"; break;
+                            default: valueRandomOs = "29"; break;
+                        }
+                    }
+
+                    if (brandWasRandom)
+                    {
+                        var candidateBrands = BrandOsMap
+                            .Where(kv => kv.Value.Contains(valueRandomOs))
+                            .Select(kv => kv.Key)
+                            .ToArray();
+
+                        if (candidateBrands.Length > 0)
+                        {
+                            valueRandomBrand = candidateBrands[rnd.Next(candidateBrands.Length)];
+                            isSamsung = valueRandomBrand.Equals("Samsung", StringComparison.OrdinalIgnoreCase);
+                        }
+                    }
+                    else
+                    {
+                        if (valueRandomOs == "32" && !isSamsung)
+                            valueRandomOs = "31";
                     }
                 }
-                else
-                {
-                    // bảo vệ rule: nếu 32 mà không phải Samsung → ép về 31
-                    if (valueRandomOs == "32" && !isSamsung)
-                        valueRandomOs = "31";
-                }
+
             }
 
-            // --- YÊU CẦU MỚI ---
-            // Nếu brandInput là random và osInput KHÔNG random → random lại BRAND theo OS đã có
             if (brandWasRandom && !osWasRandom)
             {
                 var candidateBrands = BrandOsMap
@@ -2984,10 +2994,8 @@ namespace Services
 
                 if (candidateBrands.Length > 0)
                     valueRandomBrand = candidateBrands[rnd.Next(candidateBrands.Length)];
-                // nếu không có candidate (hiếm) thì giữ nguyên brand hiện tại
             }
 
-            // Bảo đảm cặp (brand, os) hợp lệ (sẽ không đổi OS nếu đã khớp)
             valueRandomOs = GetValidOsForBrand(valueRandomBrand, valueRandomOs);
 
             return (valueRandomBrand, valueRandomOs);

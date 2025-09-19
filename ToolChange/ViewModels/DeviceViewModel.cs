@@ -1436,7 +1436,7 @@ namespace ToolChange.ViewModels
                 value = ADBService.GetRandomValue(brandArg, osArg);
 
                 tempDeviceAll = await miChangerGraphQLClient.GetRandomDeviceV3(
-                        brand: value.brand,
+                        brand:  value.brand,
                         sdkMin: int.Parse(value.os),
                         sdkMax: int.Parse(value.os));
 
