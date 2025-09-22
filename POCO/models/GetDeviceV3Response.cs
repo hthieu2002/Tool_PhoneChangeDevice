@@ -3,8 +3,8 @@
 namespace POCO.ResponseModels
 
 {
-    public class GetDeviceV3Response
+    public class GetDeviceV4Response
     {
-        public DeviceModel GetDeviceV3 { get; set; }
+        public DeviceModel GetDeviceV4 { get; set; }
     }
 }

@@ -1435,11 +1435,11 @@ namespace ToolChange.ViewModels
 
                 value = ADBService.GetRandomValue(brandArg, osArg);
 
-                tempDeviceAll = await miChangerGraphQLClient.GetRandomDeviceV3(
-                        brand:  value.brand,
+                tempDeviceAll = await miChangerGraphQLClient.GetRandomDeviceV4(
+                        brand: value.brand,
                         sdkMin: int.Parse(value.os),
                         sdkMax: int.Parse(value.os));
-
+                //   tempDeviceAll = await miChangerGraphQLClient.GetRandomDeviceV3();
                 if (tempDeviceAll.Model == null) throw new Exception("Không tìm thấy thiết bị phù hợp.");
 
                 Brand = tempDeviceAll.Manufacturer;

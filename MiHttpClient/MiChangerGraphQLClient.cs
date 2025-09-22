@@ -243,15 +243,15 @@ namespace MiHttpClient
             //}
             return model;
         }
-        public async Task<DeviceModel> GetRandomDeviceV3(
+        public async Task<DeviceModel> GetRandomDeviceV4(
             string brand = "",
             string model = "",
-            int sdkMin = 24,
-            int sdkMax = 32)
+            int sdkMin = 33,
+            int sdkMax = 35)
         {
             var query = @"
-                     query getDeviceV3($brand: String, $model: String, $sdkMin: Int, $sdkMax: Int) {
-                        getDeviceV3(brand: $brand, model: $model, sdkMin: $sdkMin, sdkMax: $sdkMax) {
+                     query getDeviceV4($brand: String, $model: String, $sdkMin: Int, $sdkMax: Int) {
+                        GetDeviceV4: getDeviceV4(brand: $brand, model: $model, sdkMin: $sdkMin, sdkMax: $sdkMax) {
 							  model
                               gaid
                               board
@@ -264,6 +264,7 @@ namespace MiHttpClient
                               buildDateUtc
                               hardware
                               imei
+                              gpu
                               imei1
                               buildHost
                               gsf
@@ -275,16 +276,16 @@ namespace MiHttpClient
                 ";
             try
             {
-                var response = await SendQueryAsync<GetDeviceV3Response>(query, new
+                var response = await SendQueryAsync<GetDeviceV4Response>(query, new
                 {
                     brand = brand,
                     model = model,
                     sdkMin = sdkMin,
                     sdkMax = sdkMax
                 });
-                if (response.GetDeviceV3 == null)
+                if (response.GetDeviceV4 == null)
                     throw new Exception("NULL");
-                var result = response.GetDeviceV3;
+                var result = response.GetDeviceV4;
                 return NormalizeDeviceResponse(result);
             }
             catch (Exception ex)

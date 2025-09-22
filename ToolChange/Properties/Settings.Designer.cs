@@ -61,7 +61,7 @@ namespace DeepDroid.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("ap-southeast-1_Cha6gy7Ui")]
+        [global::System.Configuration.DefaultSettingValueAttribute("ap-southeast-1_rDZVAWUDz")]
         public string poolId {
             get {
                 return ((string)(this["poolId"]));
@@ -70,7 +70,7 @@ namespace DeepDroid.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("4h21ba0at8flinn9iq351if381")]
+        [global::System.Configuration.DefaultSettingValueAttribute("6faro93uc538e6vqpce0fjjqpq")]
         public string clientId {
             get {
                 return ((string)(this["clientId"]));
@@ -79,7 +79,7 @@ namespace DeepDroid.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("https://nievrqo2rbdtfhmhzc2bg2epka.appsync-api.ap-southeast-1.amazonaws.com/graph" +
+        [global::System.Configuration.DefaultSettingValueAttribute("https://lvmafq6ajjgtvgxxebsdam7dhu.appsync-api.ap-southeast-1.amazonaws.com/graph" +
             "ql")]
         public string endpoint {
             get {

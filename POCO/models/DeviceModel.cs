@@ -49,6 +49,7 @@ namespace POCO.Models
         public string SimOperatorName { get; set; }
         public string Gaid { get; set; } = string.Empty;
         public string Gsf { get; set; } = string.Empty;
+        public string Gpu { get; set; } = string.Empty;
         //public string Source { get; set; }
         [JsonIgnore]
         public string Tags { get; set; } = "release-keys";

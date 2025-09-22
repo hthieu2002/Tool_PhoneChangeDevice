@@ -1,5 +1,5 @@
 ﻿<?xml version='1.0' encoding='utf-8'?>
-<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="ToolChange.Properties" GeneratedClassName="Settings">
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="DeepDroid.Properties" GeneratedClassName="Settings">
   <Profiles />
   <Settings>
     <Setting Name="lang" Type="System.String" Scope="User">
@@ -12,13 +12,13 @@
       <Value Profile="(Default)" />
     </Setting>
     <Setting Name="poolId" Type="System.String" Scope="Application">
-      <Value Profile="(Default)">ap-southeast-1_Cha6gy7Ui</Value>
+      <Value Profile="(Default)">ap-southeast-1_rDZVAWUDz</Value>
     </Setting>
     <Setting Name="clientId" Type="System.String" Scope="Application">
-      <Value Profile="(Default)">4h21ba0at8flinn9iq351if381</Value>
+      <Value Profile="(Default)">6faro93uc538e6vqpce0fjjqpq</Value>
     </Setting>
     <Setting Name="endpoint" Type="System.String" Scope="Application">
-      <Value Profile="(Default)">https://nievrqo2rbdtfhmhzc2bg2epka.appsync-api.ap-southeast-1.amazonaws.com/graphql</Value>
+      <Value Profile="(Default)">https://lvmafq6ajjgtvgxxebsdam7dhu.appsync-api.ap-southeast-1.amazonaws.com/graphql</Value>
     </Setting>
     <Setting Name="token" Type="System.String" Scope="User">
       <Value Profile="(Default)" />
