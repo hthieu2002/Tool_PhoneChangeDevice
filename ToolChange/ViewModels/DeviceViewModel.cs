@@ -60,14 +60,10 @@ namespace ToolChange.ViewModels
         public ObservableCollection<POCO.Models.ComboBoxItem> SimOptions { get; set; } = new();
         private string _fakeProxyData;
 
-        private static readonly string[] OsFull = { "Android 10", "Android 11", "Android 12", "Android 13", "Android 14", "Android 15" };
-        private static readonly string[] OsOppo = { "Android 10", "Android 11", "Android 12", "Android 14" };
-        private static readonly string[] OsVivo = { "Android 10", "Android 11", "Android 12", "Android 14" };
-        private static readonly string[] OsRealme = { "Android 11", "Android 12" };
-        private static readonly string[] OsAsus = { "Android 10", "Android 11", "Android 12" };
-        private static readonly string[] OsLGE = { "Android 10" };
-        private static readonly string[] OsNokia = { "Android 10", "Android 11" };
-        private static readonly string[] OsOnePlus = { "Android 10", "Android 11", "Android 13" };
+        private static readonly string[] OsFull = { "Android 13", "Android 14", "Android 15" };
+        private static readonly string[] OsOppo = {"Android 14" };
+        private static readonly string[] OsVivo = { "Android 14" };
+        private static readonly string[] OsOnePlus = { "Android 13" };
 
         private SimCarrier _selectedCountry;
         public SimCarrier SelectedCountry
@@ -258,12 +254,8 @@ namespace ToolChange.ViewModels
             "Xiaomi",
             "Oppo",
             "Vivo",
-            "Realme",
             "Google",
-            "Asus",
-            "LGE",
             "OnePlus",
-            "Nokia"
           }
           .OrderBy(x => x)               // sắp xếp A-Z
           .Prepend("Random")             // đưa Random lên đầu
@@ -273,9 +265,6 @@ namespace ToolChange.ViewModels
 
 {
     "Random",
-    "Android 10",
-    "Android 11",
-    "Android 12",
     "Android 13",
     "Android 14",
     "Android 15"
@@ -684,10 +673,6 @@ namespace ToolChange.ViewModels
             ["Google"] = OsFull,
             ["Oppo"] = OsOppo,
             ["Vivo"] = OsVivo,
-            ["Realme"] = OsRealme,
-            ["Asus"] = OsAsus,
-            ["LGE"] = OsLGE,
-            ["Nokia"] = OsNokia,
             ["OnePlus"] = OsOnePlus,
             // fallback cho brand khác nếu cần có thể thêm ở đây
         };
@@ -1379,7 +1364,7 @@ namespace ToolChange.ViewModels
 
                 value = ADBService.GetRandomValue(brandArg, osArg);
 
-                tempDevice = await miChangerGraphQLClient.GetRandomDeviceV3(
+                tempDevice = await miChangerGraphQLClient.GetRandomDeviceV4(
                         brand: value.brand,
                         sdkMin: int.Parse(value.os),
                         sdkMax: int.Parse(value.os));
@@ -1439,7 +1424,7 @@ namespace ToolChange.ViewModels
                         brand: value.brand,
                         sdkMin: int.Parse(value.os),
                         sdkMax: int.Parse(value.os));
-                //   tempDeviceAll = await miChangerGraphQLClient.GetRandomDeviceV3();
+                //    tempDeviceAll = await miChangerGraphQLClient.GetRandomDeviceV4();
                 if (tempDeviceAll.Model == null) throw new Exception("Không tìm thấy thiết bị phù hợp.");
 
                 Brand = tempDeviceAll.Manufacturer;

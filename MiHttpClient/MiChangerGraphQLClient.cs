@@ -325,6 +325,9 @@ namespace MiHttpClient
                 });
                 if (response.GetDeviceWadogeNew == null)
                     throw new Exception("NULL");
+
+                
+
                 var result = response.GetDeviceWadogeNew;
                 return NormalizeDeviceResponse(result);
             }

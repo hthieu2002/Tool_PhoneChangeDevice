@@ -25,39 +25,30 @@ namespace Services
     [Obfuscation(Exclude = false)]
     public static partial class ADBService
     {
-        private static readonly string[] OsAll = { "29", "30", "31", "32", "33", "34", "35" };
+        private static readonly string[] OsAll = { "33", "34", "35" };
         private static readonly Dictionary<string, string[]> BrandOsMap =
     new(StringComparer.OrdinalIgnoreCase)
 {
-    { "asus",     new[] { "29", "30", "31" } },                 // 10,11,12
-    { "google",   new[] { "29", "30", "31", "33", "34", "35" } },// 10,11,12,13,14,15 (32 tuỳ bạn có cho hay không)
-    { "LGE",      new[] { "29" } },                             // 10
-    { "Nokia",    new[] { "29", "30" } },                       // 10,11
-    { "oneplus",  new[] { "29", "30", "33" } },                 // 10,11,13
-    { "oppo",     new[] { "29", "30", "31", "34" } },           // 10,11,12,14
-    { "samsung",  new[] { "29", "30", "31", "32", "33", "34", "35" } },
-    { "vivo",     new[] { "29", "30", "34" } },                 // 10,11,14
-    { "xiaomi",   new[] { "29", "30", "31", "33", "34", "35" } },
-    { "realme",   new[] { "30", "31" } }                        // ví dụ: 11,12
+    { "google",   new[] { "33", "34", "35" } },// 10,11,12,13,14,15 (32 tuỳ bạn có cho hay không)
+    { "oneplus",  new[] { "33" } },                 // 10,11,13
+    { "oppo",     new[] { "34" } },           // 10,11,12,14
+    { "samsung",  new[] { "33", "34", "35" } },
+    { "vivo",     new[] { "34" } },                 // 10,11,14
+    { "xiaomi",   new[] { "34", "35" } }                        // ví dụ: 11,12
 };
 
         private static readonly string[] BrandsPool =
-{ "asus", "Google", "LGE", "Nokia", "oneplus", "oppo", "samsung", "vivo", "xiaomi" };
+{"google", "OnePlus", "OPPO", "samsung", "vivo", "Xiaomi" };
 
         private static readonly Dictionary<string, string> BrandAlias =
             new(StringComparer.OrdinalIgnoreCase)
             {
                 ["samsung"] = "samsung",
-                ["oppo"] = "oppo",
+                ["oppo"] = "OPPO",
                 ["vivo"] = "vivo",
-                ["realme"] = "realme",
-                ["google"] = "Google",
-                ["asus"] = "asus",
-                ["lge"] = "LGE",
-                ["lg"] = "LGE",
-                ["nokia"] = "nokia",
-                ["oneplus"] = "oneplus",
-                ["xiaomi"] = "xiaomi"
+                ["google"] = "google",
+                ["oneplus"] = "OnePlus",
+                ["xiaomi"] = "Xiaomi"
             };
 
 
@@ -2860,11 +2851,7 @@ namespace Services
                 ["xiaomi"] = "Xiaomi",
                 ["oppo"] = "Oppo",
                 ["vivo"] = "Vivo",
-                ["realme"] = "Realme",
                 ["google"] = "Google",
-                ["asus"] = "Asus",
-                ["LGE"] = "LGE",
-                ["Nokia"] = "Nokia",
                 ["oneplus"] = "OnePlus",
                 ["Random"] = "Random"
             };
@@ -2877,18 +2864,6 @@ namespace Services
             if (value == "Random")
             {
                 value = "Random";
-            }
-            if (value == "10")
-            {
-                value = "Android 10";
-            }
-            if (value == "11")
-            {
-                value = "Android 11";
-            }
-            if (value == "12")
-            {
-                value = "Android 12";
             }
             if (value == "13")
             {
@@ -2951,11 +2926,6 @@ namespace Services
                     {
                         switch (valueRandomOs)
                         {
-                            case "Android 10": valueRandomOs = "29"; break;
-                            case "Android 11": valueRandomOs = "30"; break;
-                            case "Android 12":
-                                valueRandomOs = isSamsung ? (rnd.Next(0, 2) == 0 ? "31" : "32") : "31";
-                                break;
                             case "Android 13": valueRandomOs = "33"; break;
                             case "Android 14": valueRandomOs = "34"; break;
                             case "Android 15": valueRandomOs = "35"; break;
