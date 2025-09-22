@@ -29,20 +29,53 @@
                    HorizontalContentAlignment="Left"
                    VerticalContentAlignment="Center"
                    Padding="20,0,0,0" />
-            <materialDesign:PackIcon Grid.Column="1"
-                                     Kind="User"
-                                     Width="24"
-                                     Height="24"
-                                     VerticalAlignment="Center"
-                                     HorizontalAlignment="Right" />
-            <Label Content="{Binding AutomationListVM.User}"
-                   Grid.Column="2"
-                   HorizontalContentAlignment="Right"
-                   Padding="10"
-                   VerticalContentAlignment="Center"
-                   Margin="10,0,20,0" />
 
+            <materialDesign:PopupBox Grid.Column="2"
+                                     Grid.ColumnSpan="2"
+                                     PlacementMode="BottomAndAlignRightEdges"
+                                     StaysOpen="False">
 
+                <!-- Header hiển thị khi chưa click -->
+                <materialDesign:PopupBox.ToggleContent>
+                    <StackPanel Orientation="Horizontal"
+                                Margin="0,0,20,0"
+                                Cursor="Hand">
+                        <materialDesign:PackIcon Kind="User"
+                                                 Width="24"
+                                                 Height="24"
+                                                 VerticalAlignment="Center"
+                                                 Margin="0,0,5,0" />
+                        <TextBlock Text="{Binding AutomationListVM.User}"
+                                   VerticalAlignment="Center"
+                                   FontWeight="SemiBold"
+                                   Foreground="Black" />
+                    </StackPanel>
+                </materialDesign:PopupBox.ToggleContent>
+
+                <!-- Nội dung xổ xuống (PopupContent chỉ set 1 lần) -->
+                <materialDesign:PopupBox.PopupContent>
+                    <StackPanel Background="White"
+                                Width="150">
+                        <Button Content="Profile"
+                                Style="{StaticResource MaterialDesignFlatButton}"
+                                HorizontalContentAlignment="Left"
+                                Padding="10,0,0,0" />
+                        <Button Content="Settings"
+                                Style="{StaticResource MaterialDesignFlatButton}"
+                                HorizontalContentAlignment="Left"
+                                Padding="10,0,0,0"
+                                Click="MenuSettings_Click" />
+                        <Separator />
+                        <Button Content="Logout"
+                                Command="{Binding LogoutCommand}"
+                                Style="{StaticResource MaterialDesignFlatButton}"
+                                HorizontalContentAlignment="Left"
+                                Padding="10,0,0,0"
+                                Click="MenuLogout_Click" />
+                    </StackPanel>
+                </materialDesign:PopupBox.PopupContent>
+
+            </materialDesign:PopupBox>
         </Grid>
         <Grid Grid.Row="1"
               Margin="3">

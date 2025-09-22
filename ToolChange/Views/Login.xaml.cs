@@ -36,8 +36,33 @@ namespace ToolChange.Views
             var poolId = AppConfigService.ReadSetting("poolId");
             var clientId = AppConfigService.ReadSetting("clientId");
             cognitoService = new CognitoService(poolId, clientId);
+
+            Loaded += Login_Loaded;
+        }
+        private async void Login_Loaded(object sender, RoutedEventArgs e)
+        {
+            if (!string.IsNullOrWhiteSpace(txtUsername.Text) &&
+                !string.IsNullOrWhiteSpace(txtPassword.Password))
+            {
+
+                if (isLoggingIn)
+                    return;
+
+                isLoggingIn = true;
+                btnLogin.Cursor = System.Windows.Input.Cursors.Wait;
+                try
+                {
+                    await login(); // Gọi hàm login async
+                }
+                finally
+                {
+                    isLoggingIn = false;
+                    btnLogin.Cursor = System.Windows.Input.Cursors.Hand;
+                }
+            }
         }
 
+       
         private async void BtnLogin_Click(object sender, RoutedEventArgs e)
         {
             if (isLoggingIn)
@@ -72,7 +97,7 @@ namespace ToolChange.Views
                 string password = txtPassword.Password;
                 string token = "";
 
-                // ✅ Chạy getIdToken ở background thread và cho timeout 6 giây
+                //Chạy getIdToken ở background thread và cho timeout 6 giây
                 var cts = new CancellationTokenSource(TimeSpan.FromSeconds(6));
                 token = await Task.Run(() =>
                 {
@@ -83,9 +108,12 @@ namespace ToolChange.Views
                 {
                     DeepDroid.Properties.Settings.Default.user = username;
                     DeepDroid.Properties.Settings.Default.password = password;
+                    DeepDroid.Properties.Settings.Default.Save();
                     var home = new Home();
                     home.Show();
-                    this.Close();
+                    //this.Close();
+
+                    System.Windows.Application.Current.MainWindow.Close();
                 }
                 else
                 {

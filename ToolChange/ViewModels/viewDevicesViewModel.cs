@@ -698,6 +698,7 @@ namespace ToolChange.ViewModels
                     {
                         activeDevices.Add(deviceId);
                     }
+                    activeDevices.Add(deviceId);
                 }
 
                 // Tính added / removed chỉ dựa trên active devices

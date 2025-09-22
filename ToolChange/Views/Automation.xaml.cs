@@ -116,5 +116,33 @@ namespace ToolChange.Views
             ScriptAutomation sc = new ScriptAutomation();
             sc.Show();
         }
+
+        private void MenuSettings_Click(object sender, RoutedEventArgs e)
+        {
+            Setiing setting = new Setiing();
+            setting.ShowDialog();
+        }
+        private void MenuLogout_Click(object sender, RoutedEventArgs e)
+        {
+            DeepDroid.Properties.Settings.Default.user = string.Empty;
+            DeepDroid.Properties.Settings.Default.password = string.Empty;
+            DeepDroid.Properties.Settings.Default.token = string.Empty;
+            DeepDroid.Properties.Settings.Default.Save();
+
+            var app = System.Windows.Application.Current;
+
+            var login = new Login();
+            app.MainWindow = login;
+
+            if (Window.GetWindow(this) is Home home)
+            {
+                home.SuppressClosePrompt = true;
+                home.Close();
+            }
+            foreach (Window w in app.Windows)
+                if (!ReferenceEquals(w, login)) w.Close();
+
+            login.Show();
+        }
     }
 }

@@ -246,8 +246,8 @@ namespace MiHttpClient
         public async Task<DeviceModel> GetRandomDeviceV4(
             string brand = "",
             string model = "",
-            int sdkMin = 33,
-            int sdkMax = 35)
+            int sdkMin = 30,
+            int sdkMax = 33)
         {
             var query = @"
                      query getDeviceV4($brand: String, $model: String, $sdkMin: Int, $sdkMax: Int) {

@@ -29,7 +29,7 @@ namespace POCO.Models
         public string AndroidId { get; set; }
         public string Fingerprint { get; set; }
         public string Release { get; set; }
-        public string SDK { get; set; } = "28";
+        public string SDK { get; set; } = "33";
         public string SecurityPath { get; set; }
         public string BuildHost { get; set; }
         public string BuildId { get; set; }

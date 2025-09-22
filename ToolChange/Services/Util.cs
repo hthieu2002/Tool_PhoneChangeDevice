@@ -19,34 +19,11 @@ namespace ToolChange.Services
     {
         public static bool checkSim;
 
-        public static bool SaveDeviceInfo(DeviceViewModel model, ObservableCollection<ToolChange.Models.DeviceModel> deviceS , POCO.Models.DeviceModel tempDevice, string deviceId, string applicationPath, bool isFakeSim = false, bool keepBrand = false)
+        public static bool SaveDeviceInfo(DeviceViewModel model, ObservableCollection<ToolChange.Models.DeviceModel> deviceS , POCO.Models.DeviceModel tempDevice, string deviceId, string applicationPath, bool isFakeSim = false, bool keepBrand = false, bool isFakeSdk = true)
         {
             try
             {
-              //  tempDevice.Release = "13";
-              //  tempDevice.Board = "taro";
-              //  tempDevice.BuildIncremental = "F721USQU1BVK3";
-              //  tempDevice.BuildDisplayId = "TP1A.220624.014.F721USQU1BVK3";
-              //  tempDevice.Code = "b4q";
-              //  tempDevice.Hardware = "qcom";
-              //  tempDevice.BuildHost = "SWDK3910";
-              //  tempDevice.SDK = "33";
-              //  tempDevice.Model = "SM-F721U";
-              //  tempDevice.Product = "b4qsqw";
-              //  tempDevice.BuildDescription = "b4qsqw-user 13 TP1A.220624.014 F721USQU1BVK3 release-keys";
-              //  tempDevice.Brand = "samsung";
-              //  tempDevice.Baseband = "F721USQU1BVK3";
-              //  tempDevice.BuildFlavor = "b4qsqw-user";
-              //  tempDevice.SecurityPath = "2022-11-01";
-              //  tempDevice.Fingerprint = "samsung/b4qsqw/b4q:13/TP1A.220624.014/F721USQU1BVK3:user/release-keys";
-              //  tempDevice.BuildId = "TP1A.220624.014";
-              //  tempDevice.Manufacturer = "samsung";
-              //  tempDevice.BuildDateUtc = "1669596334";
-              //  tempDevice.Platform = "taro";
-              //  tempDevice.Bootloader = "F721USQU1BVK3";
-              //// tempDevice.Gpu = "Qualcomm|Adreno (TM) 730";
-              //  tempDevice.Name = "Samsung Galaxy Z Flip4";
-
+                ADBService.runCMDRoot($"shell setprop persist.sys.pixelprops.sdk {isFakeSdk.ToString().ToLower()}", deviceId);
 
                 if (keepBrand)
                 {

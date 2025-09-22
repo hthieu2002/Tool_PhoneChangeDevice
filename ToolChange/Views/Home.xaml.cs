@@ -27,6 +27,8 @@ namespace ToolChange.Views
     /// </summary>
     public partial class Home : Window
     {
+        private bool _isCloseConfirmed = false;   // chặn re-enter
+        public bool SuppressClosePrompt { get; set; } = false;
         private Dictionary<string, object> viewCache = new Dictionary<string, object>();
         public MainViewModel ViewModel { get; set; }
         public Home()
@@ -188,17 +190,19 @@ namespace ToolChange.Views
 
         private async void MainWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
+            if (SuppressClosePrompt || _isCloseConfirmed)
+                return;
+
             e.Cancel = true;
 
             var result = await DialogHost.Show(new ConfirmDialog(), "RootDialog", ClosingEventHandler);
-
+           
             if (result?.ToString().ToLower() == "true")
             {
                 DeviceViewModel.StopLoop();
                 AutomationViewModel.StopLoop();
                 CloseAllScrcpyWindows();
                 System.Windows.Application.Current.Shutdown();
-                
             }
         }
     }
