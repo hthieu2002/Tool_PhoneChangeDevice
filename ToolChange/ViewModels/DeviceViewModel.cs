@@ -1,5 +1,6 @@
 ﻿using Amazon.Extensions.CognitoAuthentication;
 using AuthenticationService;
+using DeepDroid.Models;
 using Dynamitey.Internal.Optimization;
 using Microsoft.VisualBasic.ApplicationServices;
 using Microsoft.Win32;
@@ -1695,7 +1696,31 @@ namespace ToolChange.ViewModels
 
                             DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "0%", "Push file pif.json to phone success");
                             await Task.Delay(1000);
+
+
+                            DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "0%", "In progress setprop pihooks to phone");
+                            string jsonContent = File.ReadAllText(selectedFilePathJson);
+                            await Task.Delay(1000);
+                            PifData pifData = JsonConvert.DeserializeObject<PifData>(jsonContent);
+
+                            string[] parts = pifData.FINGERPRINT.Split("/");
+                            List<string> splitFingerprint = new List<string>();
+                            foreach (string part in parts)
+                            {
+                                string[] subParts = part.Split(':');
+                                splitFingerprint.AddRange(subParts);
+                            }
+
+                            ADBService.runCMDRoot($"shell setprop persist.sys.pihooks_SECURITY_PATCH {pifData.SECURITY_PATCH}", device.DeviceId);
+                            ADBService.runCMDRoot($"shell setprop persist.sys.pihooks_DEVICE_INITIAL_SDK_INT {pifData.DEVICE_INITIAL_SDK_INT}", device.DeviceId);
+                            ADBService.runCMDRoot($"shell setprop persist.sys.pihooks_ID {splitFingerprint[4]}", device.DeviceId);
+
+                            DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "0%", "Setprop pihooks to phone success");
+                            await Task.Delay(1000);
+
                         }
+
+                       
 
                         tasks.Add(ProcessChangeDeviceAsync(device));
                     }
