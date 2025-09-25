@@ -26,7 +26,7 @@ namespace ToolChange.Services
                 ADBService.runCMDRoot($"shell setprop persist.sys.pixelprops.sdk {isFakeSdk.ToString().ToLower()}", deviceId);
 
                 if (keepBrand)
-                {
+                {   
                     var value = CheckManuAndBrand(deviceId);
 
                     tempDevice.Manufacturer = value.manufacturer;

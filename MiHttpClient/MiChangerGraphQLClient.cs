@@ -283,8 +283,16 @@ namespace MiHttpClient
                     sdkMin = sdkMin,
                     sdkMax = sdkMax
                 });
-                if (response.GetDeviceV4 == null)
-                    throw new Exception("NULL");
+                if (response.GetDeviceV4 == null) {
+                    response = await SendQueryAsync<GetDeviceV4Response>(query, new
+                    {
+                        brand = brand,
+                        model = model,
+                        sdkMin = sdkMin,
+                        sdkMax = sdkMax
+                    });
+                }
+                    //throw new Exception("NULL");
                 var result = response.GetDeviceV4;
                 return NormalizeDeviceResponse(result);
             }
