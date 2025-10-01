@@ -216,8 +216,9 @@ namespace ToolChange.Services
                     ADBService.putSetting("mi_bluetooth_mac_address", tempDevice.BlueToothMacAddress, deviceId);
                     ADBService.putSetting("mi_wifi_mac_address", tempDevice.WifiMacAddress, deviceId);
                     ADBService.putSetting("android_id", tempDevice.AndroidId, deviceId, "secure");
+                    ADBService.putSetting("mi_android_id", tempDevice.AndroidId, deviceId);
 
-                   // ADBService.updateInitRc(tempDevice.Imei, tempDevice.Imei1, tempDevice.SerialNo, tempDevice.Bootloader, tempDevice.Baseband, tempDevice.Model, deviceId, tempDevice.Hardware, tempDevice.Platform);
+                    // ADBService.updateInitRc(tempDevice.Imei, tempDevice.Imei1, tempDevice.SerialNo, tempDevice.Bootloader, tempDevice.Baseband, tempDevice.Model, deviceId, tempDevice.Hardware, tempDevice.Platform);
                     ADBService.fakeLocalHostNameV6(deviceId);
 
                     // fake wifi mac address
