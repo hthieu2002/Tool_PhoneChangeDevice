@@ -24,7 +24,7 @@ namespace ToolChange.Services
         {
             try
             {
-                ADBService.runCMDRoot($"shell setprop persist.sys.pixelprops.sdk {isFakeSdk.ToString().ToLower()}", deviceId);
+                ADBService.runCMDRoot($"shell setprop persist.sys.pixelexperience.sdk {isFakeSdk.ToString().ToLower()}", deviceId);
 
                 if (keepBrand)
                 {   
@@ -79,7 +79,6 @@ namespace ToolChange.Services
                     changedSystemInfo.Add("ro.build.date.utc", tempDevice.BuildDateUtc);
                     changedSystemInfo.Add("ro.build.flavor", tempDevice.BuildFlavor);
                     changedSystemInfo.Add("ro.build.id", tempDevice.BuildId);
-                    changedSystemInfo.Add("ro.build.version.security_patch", tempDevice.SecurityPath);
 
                     changedSystemInfo.Add("ro.product.name", tempDevice.Product);
                     changedSystemInfo.Add("ro.product.brand", tempDevice.Brand);
@@ -92,6 +91,7 @@ namespace ToolChange.Services
                     changedSystemInfo.Add("ro.android.bootloader", tempDevice.Bootloader);
                     changedSystemInfo.Add("ro.android.hardware", tempDevice.Hardware);
                     changedSystemInfo.Add("ro.android.platform", tempDevice.Platform);
+                    changedSystemInfo.Add("ro.android.board", tempDevice.Board);
 
                     changedSystemInfo.Add("ro.android.SSID", RandomService.generateSSID());
                     changedSystemInfo.Add("ro.android.BSSID", RandomService.generateMacAddress());
@@ -107,11 +107,11 @@ namespace ToolChange.Services
                     changedSystemInfo.Add("bluetooth.device.default_name", tempDevice.Manufacturer);
 
                     changedSystemInfo.Add("org.pixelexperience.device", tempDevice.Code);
-                    changedSystemInfo.Add("org.pixelexperience.version.display", lineageVersion);
-                    changedSystemInfo.Add("org.pixelexperience.build_date", tempDevice.BuildDate);
-                    changedSystemInfo.Add("org.pixelexperience.build_date_utc", tempDevice.BuildDateUtc);
-                    changedSystemInfo.Add("org.pixelexperience.build_type", "user");
-                    changedSystemInfo.Add("org.pixelexperience.build_security_patch", tempDevice.SecurityPath);
+                    changedSystemInfo.Add("org.pixelexperience.version.display", "unknown");
+                    changedSystemInfo.Add("org.pixelexperience.build_date", "unknown");
+                    changedSystemInfo.Add("org.pixelexperience.build_date_utc", "unknown");
+                    changedSystemInfo.Add("org.pixelexperience.build_type", "unknown");
+                    changedSystemInfo.Add("org.pixelexperience.build_security_patch", "unknown");
 
                     Models.DeviceUpdater.UpdateProgress(deviceS, deviceId, "45%", "save information ");
                     ADBService.replaceBuildProp("/system/build.prop", changedSystemInfo, deviceId);
@@ -123,11 +123,9 @@ namespace ToolChange.Services
                     ADBService.replaceBuildProp("product/etc/build.prop", changedProductInfo, deviceId);
 
                     var changedVendorInfo = new Dictionary<string, string>();
-                    //changedVendorInfo.Add("ro.soc.manufacturer", tempDevice.Manufacturer);
-                    //changedVendorInfo.Add("ro.soc.model", tempDevice.Hardware);
-                    //changedVendorInfo.Add("ro.product.board", tempDevice.Hardware);
-                    //changedVendorInfo.Add("ro.board.platform", tempDevice.Platform);
-                    changedVendorInfo.Add("ro.vendor.build.security_patch", tempDevice.SecurityPath);
+                    changedVendorInfo.Add("ro.soc.manufacturer", tempDevice.Manufacturer);
+                    changedVendorInfo.Add("ro.soc.model", tempDevice.Hardware);
+                    changedVendorInfo.Add("ro.product.board", tempDevice.Board);
                     changedVendorInfo.Add("bluetooth.device.default_name", tempDevice.Manufacturer);
                     ADBService.replaceBuildProp("vendor/build.prop", changedVendorInfo, deviceId);
                     ADBService.replaceBuildProp("vendor/etc/build.prop", changedVendorInfo, deviceId);
