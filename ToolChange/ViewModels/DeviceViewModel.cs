@@ -1703,24 +1703,75 @@ namespace ToolChange.ViewModels
                             await Task.Delay(1000);
                             PifData pifData = JsonConvert.DeserializeObject<PifData>(jsonContent);
 
-                            string[] parts = pifData.FINGERPRINT.Split("/");
-                            List<string> splitFingerprint = new List<string>();
-                            foreach (string part in parts)
+                            if (pifData == null)
                             {
-                                string[] subParts = part.Split(':');
-                                splitFingerprint.AddRange(subParts);
+                                DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "0%", "File PIF data null");
+                            } 
+                            else
+                            {
+                                var props = typeof(PifData).GetProperties()
+                                                            .Where(p => p.PropertyType == typeof(string))
+                                                            .Select(p => new { Name = p.Name, Value = p.GetValue(pifData) as string })
+                                                            .Where(p => string.IsNullOrEmpty(p.Value) && p.Name != "RELEASE")
+                                                            .ToList();
+
+                                if (props.Any())
+                                {
+                                    string missing = string.Join(", ", props.Select(p => p.Name));
+                                    DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "0%", $"Missing or empty fields: {missing}");
+                                }
+                                else
+                                {
+                                    if (!string.IsNullOrEmpty(pifData.FINGERPRINT))
+                                    {
+                                        string[] parts = pifData.FINGERPRINT.Split("/");
+                                        List<string> splitFingerprint = new List<string>();
+                                        foreach (string part in parts)
+                                        {
+                                            string[] subParts = part.Split(':');
+                                            splitFingerprint.AddRange(subParts);
+                                        }
+
+                                        if (splitFingerprint.Count == 8)
+                                        {
+                                            var changePifInfo = new Dictionary<string, string>();
+                                            changePifInfo.Add("persist.sys.pixelexperience.pihooks_BRAND", splitFingerprint[0]);
+                                            changePifInfo.Add("persist.sys.pixelexperience.pihooks_PRODUCT", splitFingerprint[1]);
+                                            changePifInfo.Add("persist.sys.pixelexperience.pihooks_DEVICE", splitFingerprint[2]);
+                                            changePifInfo.Add("persist.sys.pixelexperience.pihooks_BOARD", splitFingerprint[2]);
+                                            changePifInfo.Add("persist.sys.pixelexperience.pihooks_HARDWARE", splitFingerprint[2]);
+                                            changePifInfo.Add("persist.sys.pixelexperience.pihooks_ID",splitFingerprint[4]);
+                                            changePifInfo.Add("persist.sys.pixelexperience.pihooks_INCREMENTAL", splitFingerprint[5]);
+                                            changePifInfo.Add("persist.sys.pixelexperience.pihooks_FINGERPRINT", pifData.FINGERPRINT);
+                                            changePifInfo.Add("persist.sys.pixelexperience.pihooks_MANUFACTURER", pifData.MANUFACTURER);
+                                            changePifInfo.Add("persist.sys.pixelexperience.pihooks_MODEL", $"\"{pifData.MODEL}\"");
+                                            changePifInfo.Add("persist.sys.pixelexperience.pihooks_SECURITY_PATCH", pifData.SECURITY_PATCH);
+                                            changePifInfo.Add("persist.sys.pixelexperience.pihooks_DEVICE_INITIAL_SDK_INT", pifData.DEVICE_INITIAL_SDK_INT);
+                                            changePifInfo.Add("persist.sys.pixelexperience.pihooks_SDK_INT", pifData.SDK_INT);
+                                            if(!string.IsNullOrEmpty(pifData.RELEASE))
+                                                changePifInfo.Add("persist.sys.pixelexperience.pihooks_RELEASE", pifData.RELEASE);
+                                            else
+                                            {
+                                                changePifInfo.Add("persist.sys.pixelexperience.pihooks_RELEASE", splitFingerprint[3]);
+                                            }
+
+                                            ADBService.replaceBuildProp("/product/etc/build.prop", changePifInfo, device.DeviceId);
+
+                                            DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "0%", "Setprop pihooks to phone success");
+                                            await Task.Delay(1000);
+                                        }
+                                        else
+                                        {
+                                            DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "0%", "Invalid FINGERPRINT format");
+                                        }
+                                    }
+                                    else
+                                    {
+                                        DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "0%", "FINGERPRINT is null or empty");
+                                    }
+                                }
                             }
-
-                            ADBService.runCMDRoot($"shell setprop persist.sys.pihooks_SECURITY_PATCH {pifData.SECURITY_PATCH}", device.DeviceId);
-                            ADBService.runCMDRoot($"shell setprop persist.sys.pihooks_DEVICE_INITIAL_SDK_INT {pifData.DEVICE_INITIAL_SDK_INT}", device.DeviceId);
-                            ADBService.runCMDRoot($"shell setprop persist.sys.pihooks_ID {splitFingerprint[4]}", device.DeviceId);
-
-                            DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "0%", "Setprop pihooks to phone success");
-                            await Task.Delay(1000);
-
                         }
-
-                       
 
                         tasks.Add(ProcessChangeDeviceAsync(device));
                     }

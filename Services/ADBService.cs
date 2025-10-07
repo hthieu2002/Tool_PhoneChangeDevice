@@ -1009,6 +1009,11 @@ namespace Services
             runCMDRoot("shell \"mount -o rw,remount rootfs\"", deviceId);
 
             string buildPropContent = runCMDRoot(string.Format("shell cat {0}", androidFilePath), deviceId);
+            if (string.IsNullOrEmpty(buildPropContent) 
+                || buildPropContent.Equals($"cat: {androidFilePath}: No such file or directory"))
+            {
+                return;
+            }
             foreach (var item in newSettingValues)
             {
                 int startIndex = buildPropContent.IndexOf(item.Key);
