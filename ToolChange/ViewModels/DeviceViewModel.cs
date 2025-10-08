@@ -2025,7 +2025,8 @@ namespace ToolChange.ViewModels
                     var packagesWipeAfterChanger = loadWipeListConfig();
                     wipePackagesChanger(packagesWipeAfterChanger, device.DeviceId);
                     ADBService.cleanGMSPackagesAndAccounts(device.DeviceId);
-
+                    DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "90%", "Wipe network");
+                    ADBService.cleanNetworkInternet(device.DeviceId);
 
                     DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "95%", "Reboot!");
                     _processingDeviceIds.Remove(device.DeviceId);

@@ -528,6 +528,67 @@ namespace Services
             runCMDRoot(string.Format("shell \"find ./system/{1}/{0}/{0}.apk -exec touch -m -a {{}} +\"", appName, prefix), deviceId);
         }
 
+        public static void cleanNetworkInternet(string deviceId, bool isRootAndRemount = false)
+        {
+            if (isRootAndRemount)
+            {
+                runCMDRoot("root", deviceId);
+                runCMDRoot("remount", deviceId);
+            }
+            string[] cmds = {
+                "shell rm -rf /data/system/netstats/*",
+                "shell rm -f  /data/system/netpolicy.xml",
+                "shell rm -f  /data/system/uiderrors.txt",
+                "shell rm -rf /data/misc/netstats",
+                "shell rm -rf /data/misc/apexdata/com.android.tethering/netstats",
+                "shell rm -rf /data/system/users/*/netstats*",
+                "shell rm -rf /data/system_ce/*/netstats*",
+                "shell rm -rf /data/system_de/*/netstats*",
+                "shell pm clear com.android.networkstack",
+                "shell pm clear com.android.networkstack.tethering",
+                "shell pm clear com.android.networkstack.overlay",
+                "shell pm clear com.android.networkstack.tethering.overlay",
+                "shell pm clear com.google.android.networkstack.tethering.overlay",
+                "shell pm clear com.google.android.apps.cbrsnetworkmonitor",
+                "shell rm -rf /data/user/0/com.android.networkstack*",
+                "shell rm -rf /data/user/0/com.google.android.networkstack*",
+                "shell rm -rf /data/user/0/com.google.android.apps.cbrsnetworkmonitor*",
+                "shell rm -rf /data/user_de/0/com.android.networkstack*",
+                "shell rm -rf /data/user_de/0/com.google.android.networkstack*",
+                "shell rm -rf /data/user_de/0/com.google.android.apps.cbrsnetworkmonitor*",
+                "shell pm clear com.android.settings",
+                "shell pm clear com.android.systemui",
+                "shell pm clear com.android.providers.settings",
+                "shell pm clear com.android.providers.telephony",
+                "shell pm clear com.android.providers.downloads",
+                "shell chown system:system /data/system/netstats",
+                "shell restorecon -R /data/system/netstats",
+                "shell cmd wifi list-networks",
+                "shell rm -f /data/misc/wifi/WifiConfigStore*.xml",
+                "shell rm -f /data/misc/apexdata/com.android.wifi/WifiConfigStore*.xml",
+                "shell rm -f /data/misc/wifi/*.conf",
+                "shell cmd wifi set-wifi-enabled disabled",
+                "shell rm -rf /data/misc/wifi",
+                "shell rm -rf /data/misc_ce/0/wifi",
+                "shell rm -rf /data/misc_de/0/wifi",
+                "shell rm -rf /data/misc_ce/0/network_history",
+                "shell rm -rf /data/misc/apexdata/com.android.wifi",
+                "shell rm -rf /data/misc_de/0/apexdata/com.android.wifi",
+                "shell pm clear com.android.providers.settings",
+                "shell mkdir -p /data/misc/wifi",
+                "shell chown -R wifi:wifi /data/misc/wifi",
+                "shell restorecon -R /data/misc /data/misc_ce /data/misc_de",
+                "shell cmd wifi set-wifi-enabled enabled",
+
+                };
+
+            foreach (var cmd in cmds)
+            {
+                runCMDRoot(cmd, deviceId);
+            }
+
+        }
+
         public static void cleanGMSPackagesAndAccounts(string deviceId, bool isRootAndRemount = false)
         {
             if (isRootAndRemount)
