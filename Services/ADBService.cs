@@ -556,29 +556,12 @@ namespace Services
                 "shell rm -rf /data/user_de/0/com.android.networkstack*",
                 "shell rm -rf /data/user_de/0/com.google.android.networkstack*",
                 "shell rm -rf /data/user_de/0/com.google.android.apps.cbrsnetworkmonitor*",
-                "shell pm clear com.android.settings",
-                "shell pm clear com.android.systemui",
-                "shell pm clear com.android.providers.settings",
+             
                 "shell pm clear com.android.providers.telephony",
                 "shell pm clear com.android.providers.downloads",
                 "shell chown system:system /data/system/netstats",
                 "shell restorecon -R /data/system/netstats",
-                "shell cmd wifi list-networks",
-                "shell rm -f /data/misc/wifi/WifiConfigStore*.xml",
-                "shell rm -f /data/misc/apexdata/com.android.wifi/WifiConfigStore*.xml",
-                "shell rm -f /data/misc/wifi/*.conf",
-                "shell cmd wifi set-wifi-enabled disabled",
-                "shell rm -rf /data/misc/wifi",
-                "shell rm -rf /data/misc_ce/0/wifi",
-                "shell rm -rf /data/misc_de/0/wifi",
-                "shell rm -rf /data/misc_ce/0/network_history",
-                "shell rm -rf /data/misc/apexdata/com.android.wifi",
-                "shell rm -rf /data/misc_de/0/apexdata/com.android.wifi",
-                "shell pm clear com.android.providers.settings",
-                "shell mkdir -p /data/misc/wifi",
-                "shell chown -R wifi:wifi /data/misc/wifi",
-                "shell restorecon -R /data/misc /data/misc_ce /data/misc_de",
-                "shell cmd wifi set-wifi-enabled enabled",
+                
 
                 };
 
