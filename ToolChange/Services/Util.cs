@@ -24,6 +24,18 @@ namespace ToolChange.Services
         {
             try
             {
+                //tempDevice.Brand = "google";
+                //tempDevice.Manufacturer = "Google";
+                //tempDevice.Name = "husky";
+                //tempDevice.Fingerprint = "google/husky_beta/husky:16/BP41.250822.010/14082742:user/release-keys";
+                //tempDevice.Manufacturer = "Google";
+                //tempDevice.Model = "Pixel 8 Pro";
+                //tempDevice.Code = "husky";
+                //tempDevice.Release = "16";
+                //tempDevice.BuildId = "BP41.250822.010";
+                //tempDevice.Product = "husky_beta";
+                //tempDevice.SecurityPath = "2025-09-05";
+
                 ADBService.runCMDRoot($"shell setprop persist.sys.pixelexperience.sdk {isFakeSdk.ToString().ToLower()}", deviceId);
 
                 if (keepBrand)
@@ -157,7 +169,7 @@ namespace ToolChange.Services
                     ADBService.putSetting("mi_wifi_mac_address", tempDevice.WifiMacAddress, deviceId);
                     ADBService.putSetting("android_id", tempDevice.AndroidId, deviceId, "secure");
 
-                    // ADBService.updateInitRc(tempDevice.Imei, tempDevice.Imei1, tempDevice.SerialNo, tempDevice.Bootloader, tempDevice.Baseband, tempDevice.Model, deviceId, tempDevice.Hardware, tempDevice.Platform);
+                    ADBService.updateInitRc(tempDevice.Imei, tempDevice.Imei1, tempDevice.SerialNo, tempDevice.Bootloader, tempDevice.Baseband, tempDevice.Model, deviceId, tempDevice.Hardware, tempDevice.Platform);
                     ADBService.fakeLocalHostNameV6(deviceId);
 
                     // fake wifi mac address
