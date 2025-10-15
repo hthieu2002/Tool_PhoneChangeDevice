@@ -226,14 +226,6 @@ namespace ToolChange.Services
                         ADBService.deleteSetting(GlobalAndroidSettings.DATA_STATE, deviceId);
                         ADBService.deleteSetting(GlobalAndroidSettings.DATA_ACTIVITY, deviceId);
                     }
-
-
-                    // update new GSF number
-                    //string tempGsfInLong = long.Parse(tempDevice.Gsf, System.Globalization.NumberStyles.HexNumber).ToString();
-                    //string currentGSF = ADBService.getGSFNumber(deviceId);
-                    //ADBService.stringReplace(currentGSF, tempGsfInLong, "data/data/com.google.android.gms/files/checkin_id_token", deviceId);
-                    //ADBService.stringReplace(currentGSF, tempGsfInLong, "data/data/com.google.android.gms/shared_prefs/Checkin.xml", deviceId);
-                    ADBService.ChangeMacAddress(deviceId, tempDevice.WifiMacAddress);
                     Console.WriteLine("3.DONE put setting");
                     return true;
 
