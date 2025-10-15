@@ -1963,6 +1963,9 @@ namespace ToolChange.ViewModels
         }
         private async Task ProcessChangeDeviceAsync(Models.DeviceModel device, int checkChange = 0)
         {
+            DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "0%", "Change device start");
+            ADBService.cleanFolder(device.DeviceId);
+
             if (DeepDroid.Properties.Settings.Default.ClearData)
             {
                 DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "0%", "Wipe data ON");
@@ -1996,6 +1999,7 @@ namespace ToolChange.ViewModels
                 }
 
             }
+          
             var uiThreadScheduler = TaskScheduler.FromCurrentSynchronizationContext();
             var saveResult = true;
             //UpdateDeviceStatus(device.DeviceId, "5%", "Change device start");
@@ -2010,8 +2014,7 @@ namespace ToolChange.ViewModels
                 Console.WriteLine(IsCheckedSim);
                 await Task.Delay(1000);
                 DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "9%", "Start change device ...");
-
-
+             
                 saveResult = Services.Util.SaveDeviceInfo(this, Devices, checkChange == 0 ? tempDeviceAll : deviceTemp, device.DeviceId, AppDomain.CurrentDomain.BaseDirectory, IsCheckedSim, IsCheckedpif, IsFakeSdk);
 
                 //    UpdateDeviceStatus(device.DeviceId, "75%", "Change device ....");
@@ -2027,7 +2030,8 @@ namespace ToolChange.ViewModels
                     ADBService.cleanGMSPackagesAndAccounts(device.DeviceId);
                     DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "90%", "Wipe network");
                     ADBService.cleanNetworkInternet(device.DeviceId);
-
+                //    DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "93%", "Wipe");
+              //      ADBService.cleanFolder(device.DeviceId);
                     DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "95%", "Reboot!");
                     _processingDeviceIds.Remove(device.DeviceId);
                     ADBService.restartDevice(device.DeviceId);

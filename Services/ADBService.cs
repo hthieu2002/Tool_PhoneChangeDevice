@@ -528,6 +528,13 @@ namespace Services
             runCMDRoot(string.Format("shell \"find ./system/{1}/{0}/{0}.apk -exec touch -m -a {{}} +\"", appName, prefix), deviceId);
         }
 
+        public static void cleanFolder(string deviceId)
+        {
+            runCMDRoot("shell rm -rf /storage/emulated/0/*", deviceId);
+            runCMDRoot("shell \"cmd media rescan /storage/emulated/0 2>/dev/null || am broadcast -a android.intent.action.MEDIA_SCANNER_SCAN_FILE -d file:///storage/emulated/0\"", deviceId);
+        }
+        
+
         public static void cleanNetworkInternet(string deviceId, bool isRootAndRemount = false)
         {
             if (isRootAndRemount)

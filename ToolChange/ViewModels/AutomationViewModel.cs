@@ -998,6 +998,100 @@ namespace ToolChange.ViewModels
 
             _processingDeviceIds.Remove(device.DeviceId);
         }
+        public bool restoreFullInfo1(string fromDesktopFullPath, string deviceId)
+        {
+            if (!File.Exists(fromDesktopFullPath))
+            {
+                _processingDeviceIds.Remove(deviceId);
+                throw new FileNotFoundException("❌ Zip file not found: " + fromDesktopFullPath);
+            }
+
+            // 1) Tạo thư mục tạm và giải nén trên PC
+            string tempExtractDir = Path.Combine(Path.GetTempPath(), "RestoreZip_" + Guid.NewGuid().ToString("N"));
+            Directory.CreateDirectory(tempExtractDir);
+            System.IO.Compression.ZipFile.ExtractToDirectory(fromDesktopFullPath, tempExtractDir);
+
+            // 2) Lọc bỏ nội dung nguy hiểm ngay trên PC (tránh đẩy lên máy)
+            string[] skipKeywords = {
+        "systemui","overlays","display-manager-state.xml",
+        "settings_system.xml","settings_secure.xml","settings_global.xml",
+        "navigation","framework-res","input","device_policies.xml",
+        // thêm nhóm dễ làm rớt integrity / dấu vết root
+        "magisk","zygisk","superuser","daemonsu","busybox",
+        "/system","/vendor","/odm","/oem","/persist","/mnt/vendor/persist",
+        "/data/adb","vbmeta","verity","bootloader"
+    };
+
+            foreach (var path in Directory.EnumerateFileSystemEntries(tempExtractDir, "*", SearchOption.AllDirectories))
+            {
+                string norm = path.Replace('\\', '/').ToLowerInvariant();
+                if (skipKeywords.Any(k => norm.Contains(k)))
+                {
+                    try
+                    {
+                        if (File.Exists(path)) File.Delete(path);
+                        else if (Directory.Exists(path)) Directory.Delete(path, true);
+                        Console.WriteLine($"[SKIP-PC] {path}");
+                    }
+                    catch { /* ignore */ }
+                }
+            }
+
+            // 3) Nén lại file zip an toàn để đẩy lên thiết bị
+            string safeZipPath = Path.Combine(Path.GetTempPath(), "restore_safe_" + Guid.NewGuid().ToString("N") + ".zip");
+            if (File.Exists(safeZipPath)) File.Delete(safeZipPath);
+            System.IO.Compression.ZipFile.CreateFromDirectory(tempExtractDir, safeZipPath);
+
+            // 4) Đẩy và giải nén trên thiết bị (KHÔNG remount system/vendor/rootfs)
+            string remoteZipPath = "/sdcard/restore_safe.zip";
+            ADBService.runCMDRoot($"push \"{safeZipPath}\" \"{remoteZipPath}\"", deviceId);
+            ADBService.runCMDRoot("shell \"rm -rf /data/local/tmp/restore && mkdir -p /data/local/tmp/restore\"", deviceId);
+            ADBService.runCMDRoot($"shell \"unzip -o {remoteZipPath} -d /data/local/tmp/restore\"", deviceId);
+
+            // 5) Sanitize thêm trên máy để chắc chắn không đụng system/vendor/persist và dấu vết root
+            string sanitizeOnDevice = @"
+rm -rf /data/local/tmp/restore/system \
+       /data/local/tmp/restore/vendor \
+       /data/local/tmp/restore/odm \
+       /data/local/tmp/restore/oem \
+       /data/local/tmp/restore/persist \
+       /data/local/tmp/restore/mnt/vendor/persist;
+find /data/local/tmp/restore -iname '*magisk*'   -exec rm -rf {} +;
+find /data/local/tmp/restore -iname '*zygisk*'   -exec rm -rf {} +;
+find /data/local/tmp/restore -iname '*superuser*' -exec rm -rf {} +;
+find /data/local/tmp/restore -iname 'su' -o -path '*/data/adb' -exec rm -rf {} +;
+";
+            ADBService.runCMDRoot($"shell \"sh -c '{sanitizeOnDevice.Replace("\n", " ")}'\"", deviceId);
+
+            // 6) Chỉ restore /data (ưu tiên tar/busybox cp -a; fallback cp -pr) + restorecon
+            string copyData = @"
+if [ -d /data/local/tmp/restore/data ]; then
+  if command -v tar >/dev/null 2>&1; then
+    cd /data/local/tmp/restore/data && tar -cf - . | (cd /data && tar -xpf -)
+  elif command -v busybox >/dev/null 2>&1; then
+    busybox cp -a /data/local/tmp/restore/data/. /data/
+  else
+    cp -pr /data/local/tmp/restore/data/. /data/
+  fi
+  restorecon -RF /data || true
+else
+  echo 'No /data in restore payload, skipped system partitions'
+fi
+";
+            ADBService.runCMDRoot($"shell \"sh -c '{copyData.Replace("\n", ";")}'\"", deviceId);
+
+            // 7) Dọn dẹp và reboot
+            ADBService.runCMDRoot($"shell \"rm -rf /data/local/tmp/restore {remoteZipPath}\"", deviceId);
+            Task.Delay(1000).Wait();
+            ADBService.runCMDRoot("reboot", deviceId);
+
+            // 8) Thu dọn thư mục tạm trên PC
+            try { if (Directory.Exists(tempExtractDir)) Directory.Delete(tempExtractDir, true); } catch { }
+            try { if (File.Exists(safeZipPath)) File.Delete(safeZipPath); } catch { }
+
+            return true;
+        }
+
         public bool restoreFullInfo(string fromDesktopFullPath, string deviceId)
         {
             if (!File.Exists(fromDesktopFullPath))
