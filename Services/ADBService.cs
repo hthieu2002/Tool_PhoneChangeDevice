@@ -568,7 +568,6 @@ namespace Services
                 "shell pm clear com.android.providers.downloads",
                 "shell chown system:system /data/system/netstats",
                 "shell restorecon -R /data/system/netstats",
-                
 
                 };
 
@@ -623,311 +622,79 @@ namespace Services
             runCMDRoot(String.Format("shell pm clear {0}", "com.google.android.syncadapters.contacts"), deviceId);
             runCMDRoot(String.Format("shell pm clear {0}", "com.google.android.gms"), deviceId);
 
-            string[] packageFolder = new string[]
-            {
-                "com.android.calllogbackup",
-                "com.android.chrome",
-                "com.android.companiondevicemanager",
-                "com.android.companiondevicemanager.auto_generated_characteristics_rro",
-                "com.android.cts.ctsshim",
-                "com.android.cts.priv.ctsshim",
-                "com.android.htmlviewer",
-                "com.android.keychain",
-                "com.android.localtransport",
-                "com.android.location.fused",
-                "com.google.android.accessibility.soundamplifier",
-                "com.google.android.accessibility.switchaccess",
-                "com.google.android.aicore",
-                "com.google.android.apps.accessibility.voiceaccess",
-                "com.google.android.apps.carrier.carrierwifi",
-                "com.google.android.apps.carrier.log",
-                "com.google.android.apps.cbrsnetworkmonitor",
-                "com.google.android.apps.customization.pixel",
-                "com.google.android.apps.dreamliner",
-                "com.google.android.apps.internal.betterbug",
-                "com.google.android.apps.messaging",
-                "com.google.android.apps.nbu.files",
-                "com.google.android.apps.pixel.agent",
-                "com.google.android.apps.pixel.creativeassistant",
-                "com.google.android.apps.pixel.dcservice",
-                "com.google.android.apps.pixel.relationships",
-                "com.google.android.apps.pixel.support",
-                "com.google.android.apps.privacy.wildlife",
-                "com.google.android.apps.recorder",
-                "com.google.android.apps.restore",
-                "com.google.android.apps.scone",
-                "com.google.android.apps.setupwizard.searchselector",
-                "com.google.android.apps.turbo",
-                "com.google.android.apps.weather",
-                "com.google.android.apps.wellbeing",
-                "com.google.android.apps.work.clouddpc",
-                "com.google.android.as",
-                "com.google.android.as.oss",
-                "com.google.android.avatarpicker",
-                "com.google.android.carrier",
-                "com.google.android.carrierlocation",
-                "com.google.android.carriersetup",
-                "com.google.android.configupdater",
-                "com.google.android.connectivitythermalpowermanager",
-                "com.google.android.dialer",
-                "com.google.android.dreamlinerupdater",
-                "com.google.android.euicc",
-                "com.google.android.euiccoverlay",
-                "com.google.android.feedback",
-                "com.google.android.flipendo",
-                "com.google.android.flipendo.pixel.overlay",
-                "com.google.android.gms",
-                "com.google.android.gms.location.history",
-                "com.google.android.gms.supervision",
-                "com.google.android.grilservice",
-                "com.google.android.gsf",
-                "com.google.android.hardwareinfo",
-                "com.google.android.markup",
-                "com.google.android.marvin.talkback",
-                "com.google.android.onetimeinitializer",
-                "com.google.android.overlay.googleconfig",
-                "com.google.android.overlay.googlewebview",
-                "com.google.android.overlay.permissioncontroller",
-                "com.google.android.overlay.pixelconfig2018",
-                "com.google.android.overlay.pixelconfig2019",
-                "com.google.android.overlay.pixelconfig2019midyear",
-                "com.google.android.overlay.pixelconfigcommon",
-                "com.google.android.packageinstaller",
-                "com.google.android.partnersetup",
-                "com.google.android.pixel.avatarpicker",
-                "com.google.android.pixel.setupwizard",
-                "com.google.android.pixel.setupwizard.overlay",
-                "com.google.android.projection.gearhead",
-                "com.google.android.settings.clear.calling.overlay",
-                "com.google.android.settings.intelligence",
-                "com.google.android.settings.overlay.pixelvpnconfig",
-                "com.google.android.setupwizard",
-                "com.google.android.storagemanager",
-                "com.google.android.tag",
-                "com.google.android.trichromelibrary_699813532",
-                "com.google.android.tts",
-                "com.google.android.webview",
-                "com.google.ar.core",
-                "com.google.assistant.hubui",
-                "com.google.audio.hearing.visualization.accessibility.scribe",
-                "com.google.euiccpixel",
-                "com.google.euiccpixel.overlay.gs201",
-                "com.google.euiccpixel.permissions",
-                "com.google.mainline.adservices",
-                "com.google.mainline.telemetry",
-                "com.google.omadm.trigger"
-            };
 
-            string[] rootDir = new string[]
-            {
-                "~/data/data",
-                "~/data/user/0",
-                "~/data/user_de/0"
-            };
+            runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/data/*/*"), deviceId);
+            runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/user/*/*/*"), deviceId);
+            runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/user_de/*/*/*"), deviceId);
 
-            foreach (var dir in rootDir)
-            {
-                foreach (var package in packageFolder)
-                {
-                    runCMDRoot(String.Format("shell \"rm -rf {0}/{1}/* \"", dir, package), deviceId);
-                }
-            }
-
-            runCMDRoot(String.Format("shell \"rm -rf {0} \"", Package_Data.SYSTEM_SYNC), deviceId);
-            runCMDRoot(String.Format("shell \"rm -rf {0} \"", Package_Data.SYSTEM_CE), deviceId);
-            //runCMD(String.Format("shell \"rm -rf {0} \"", Package_Data.SYSTEM_DE), deviceId); // Pixel is starting...
-            runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/system_de/0/accounts_de.db"), deviceId);
-            runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/system_de/0/accounts_de.db-journal"), deviceId);
-            runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/system_de/0/LocalesFromDelegatePrefs.xml"), deviceId);
-            runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/system_de/0/persisted_taskIds.txt"), deviceId);
-            runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/system_de/0/apprestriction"), deviceId);
-            runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/system_de/0/app_lock"), deviceId);
-            runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/system_de/0/powerstats"), deviceId);
-            runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/system_de/0/ringtones"), deviceId);
-            runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/system_de/0/system"), deviceId);
-            runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/system/users/0/settings_ssaid.xml"), deviceId);
-
-            runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/drm/fwdlock/kek.dat"), deviceId);
             runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/system/sync/*"), deviceId);
             runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/system/slice/*"), deviceId);
-            runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/vendor/mediadrm/IDM1013/L3/*"), deviceId);
+            runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/system/graphicsstats/*/*/*"), deviceId);
+            runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/system_ce/*/*"), deviceId);
+            //runCMD(String.Format("shell \"rm -rf {0} \"", Package_Data.SYSTEM_DE), deviceId); // Pixel is starting...
+            runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/system_de/*/accounts_de.db"), deviceId);
+            runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/system_de/*/accounts_de.db-journal"), deviceId);
+            runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/system_de/*/LocalesFromDelegatePrefs.xml"), deviceId);
+            runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/system_de/*/persisted_taskIds.txt"), deviceId);
+            runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/system_de/*/apprestriction/*"), deviceId);
+            runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/system_de/*/app_lock/*"), deviceId);
+            runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/system_de/*/powerstats/*"), deviceId);
+            runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/system_de/*/ringtones/*"), deviceId);
+            runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/system_de/*/system/*"), deviceId);
+            runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/system/users/*/settings_ssaid.xml"), deviceId);
+            runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/system/dropbox/*"), deviceId);
+            runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/misc/profiles/*"), deviceId);
+            runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/misc/gatekeeper/*"), deviceId);
+            runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/misc_de/*/*"), deviceId);
+            runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/misc_ce/*/*"), deviceId);
+            runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/media/*"), deviceId);
+            runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/mediadrm/*"), deviceId);
+            runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/per_boot/*"), deviceId);
+            runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/preloads/*"), deviceId);
+            runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/resource-cache/*"), deviceId);
+            runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/rollback/*"), deviceId);
+            runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/rollback-history/*"), deviceId);
+            runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/rollback-observer/*"), deviceId);
+            runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/server_configurable_flags/*"), deviceId);
+            runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/ss/*"), deviceId);
+            runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/ssh/*"), deviceId);
+            runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/tombstones/*"), deviceId);
+            //runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/vendor/mediadrm/IDM1013/L3/*"), deviceId);
+            runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/vendor/*"), deviceId);
+            runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/vendor_ce/*/*"), deviceId);
+            runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/vendor_de/*/*"), deviceId);
+            runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/nfc/*"), deviceId);
+            runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/ota/*"), deviceId);
+            runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/ota_package/*"), deviceId);
+            runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/fonts/*"), deviceId);
+            runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/gsi/*"), deviceId);
+            runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/gsi_persistent_data"), deviceId);
+            runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/incremental/*"), deviceId);
+            runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/lost+found/*"), deviceId);
+            runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/backup/*"), deviceId);
+            runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/bootanim/*"), deviceId);
+            runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/bootchart/*"), deviceId);
+            runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/cache/*"), deviceId);
+            runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/dalvik-cache/*"), deviceId);
+            runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/drm/*"), deviceId);
+            runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/anr/*"), deviceId);
+            runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/apex/*"), deviceId);
+            runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/app-asec/*"), deviceId);
+            runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/app-ephemeral/*"), deviceId);
+            runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/app-lib/*"), deviceId);
+            runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/app-private/*"), deviceId);
+            runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/app-staging/*"), deviceId);
+            runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/mnt/user/0/self/primary/Android/data/*/*"), deviceId);
             runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/system/product/app/webview/oat/*"), deviceId);
             runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/system/product/app/webview/*/oat/*"), deviceId);
-            runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/system/dropbox/*"), deviceId);
-            runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/misc/profiles/*"), deviceId);
-            runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/misc/gatekeeper/*"), deviceId);
-            //DeviceService.setNewUserKey(deviceId);
+            runCMDRoot(String.Format("shell \"find /data/local -mindepth 1 -maxdepth 1 -type d -not -path '/data/local/tmp' -exec rm -rf {{}} +\""), deviceId);
             runCMDRoot(String.Format("shell \"rm -rf {0} \"", "./etc/security/otacerts.zip"), deviceId);
+
             runCMDRoot("remount", deviceId);
             updateFileDateTimeModification("./system/product/priv-app", deviceId);
             updateFileDateTimeModification("./system/product/app", deviceId);
-            runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/mnt/user/0/self/primary/Android/data/com.google.android.gms"), deviceId);
-            runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/mnt/user/0/self/primary/Android/data/com.android.vending"), deviceId);
         }
 
-
-        /*    public static void cleanGMSPackagesAndAccounts(string deviceId, bool isRootAndRemount = false)
-            {
-                if (isRootAndRemount)
-                {
-                    runCMDRoot("root", deviceId);
-                    runCMDRoot("remount", deviceId);
-                }
-                //runCMD("shell \"mount -o rw,remount rootfs\"  ", deviceId);
-                // run clean package
-                runCMDRoot(String.Format("shell pm clear {0}", "com.android.chrome"), deviceId);
-                runCMDRoot(String.Format("shell pm clear {0}", "com.android.vending"), deviceId);
-                runCMDRoot(String.Format("shell pm clear {0}", "com.android.providers.contacts"), deviceId);
-                runCMDRoot(String.Format("shell pm clear {0}", "com.android.htmlviewer"), deviceId);
-                runCMDRoot(String.Format("shell pm clear {0}", "com.android.location.fused"), deviceId);
-                runCMDRoot(String.Format("shell pm clear {0}", "com.android.providers.media"), deviceId);
-                runCMDRoot(String.Format("shell pm clear {0}", "com.android.providers.downloads"), deviceId);
-                runCMDRoot(String.Format("shell pm clear {0}", "com.android.providers.downloads.ui"), deviceId);
-                runCMDRoot(String.Format("shell pm clear {0}", "org.lineageos.jelly"), deviceId);
-                runCMDRoot(String.Format("shell pm clear {0}", "com.android.webview"), deviceId);
-                runCMDRoot(String.Format("shell pm clear {0}", "com.google.android.webview"), deviceId);
-                runCMDRoot(String.Format("shell pm clear {0}", "com.google.android.gsf"), deviceId);
-                runCMDRoot(String.Format("shell pm clear {0}", "com.google.android.ims"), deviceId);
-                runCMDRoot(String.Format("shell pm clear {0}", "com.google.android.gm"), deviceId);
-                runCMDRoot(String.Format("shell pm clear {0}", "com.google.android.calendar"), deviceId);
-                runCMDRoot(String.Format("shell pm clear {0}", "com.google.android.play.games"), deviceId);
-                runCMDRoot(String.Format("shell pm clear {0}", "com.google.android.gsf.login"), deviceId);
-                runCMDRoot(String.Format("shell pm clear {0}", "com.google.android.youtube"), deviceId);
-                runCMDRoot(String.Format("shell pm clear {0}", "com.google.android.apps.magazines"), deviceId);
-                runCMDRoot(String.Format("shell pm clear {0}", "com.google.android.apps.docs"), deviceId);
-                //runCMD(String.Format("shell pm clear {0}", "tugapower.codeaurora.browser"), deviceId);
-                runCMDRoot(String.Format("shell pm clear {0}", "com.google.android.configupdater"), deviceId);
-                runCMDRoot(String.Format("shell pm clear {0}", "com.google.android.onetimeinitializer"), deviceId);
-                runCMDRoot(String.Format("shell pm clear {0}", "com.google.android.setupwizard"), deviceId);
-                runCMDRoot(String.Format("shell pm clear {0}", "com.google.android.tts"), deviceId);
-                runCMDRoot(String.Format("shell pm clear {0}", "com.google.android.apps.restore"), deviceId);
-                runCMDRoot(String.Format("shell pm clear {0}", "com.google.android.backuptransport"), deviceId);
-                runCMDRoot(String.Format("shell pm clear {0}", "com.google.android.carriersetup"), deviceId);
-                runCMDRoot(String.Format("shell pm clear {0}", "com.google.android.ext.services"), deviceId);
-                runCMDRoot(String.Format("shell pm clear {0}", "com.google.android.feedback"), deviceId);
-                runCMDRoot(String.Format("shell pm clear {0}", "com.google.android.partnersetup"), deviceId);
-                runCMDRoot(String.Format("shell pm clear {0}", "com.google.android.syncadapters.calendar"), deviceId);
-                runCMDRoot(String.Format("shell pm clear {0}", "com.google.android.syncadapters.contacts"), deviceId);
-                runCMDRoot(String.Format("shell pm clear {0}", "com.google.android.gms"), deviceId);
-                //runCMD("shell stop", deviceId);
-                runCMDRoot(String.Format("shell \"rm -rf {0} \"", "com.google.android.configupdater/*"), deviceId);
-                runCMDRoot(String.Format("shell \"rm -rf {0} \"", "com.google.android.onetimeinitializer/*"), deviceId);
-                runCMDRoot(String.Format("shell \"rm -rf {0} \"", "com.google.android.setupwizard/*"), deviceId);
-                runCMDRoot(String.Format("shell \"rm -rf {0} \"", "com.google.android.tts/*"), deviceId);
-                runCMDRoot(String.Format("shell \"rm -rf {0} \"", "com.google.android.apps.restore/*"), deviceId);
-                runCMDRoot(String.Format("shell \"rm -rf {0} \"", "com.google.android.backuptransport/*"), deviceId);
-                runCMDRoot(String.Format("shell \"rm -rf {0} \"", "com.google.android.carriersetup/*"), deviceId);
-                runCMDRoot(String.Format("shell \"rm -rf {0} \"", "com.google.android.ext.services/*"), deviceId);
-                runCMDRoot(String.Format("shell \"rm -rf {0} \"", "com.google.android.feedback/*"), deviceId);
-                runCMDRoot(String.Format("shell \"rm -rf {0} \"", "com.google.android.partnersetup/*"), deviceId);
-                runCMDRoot(String.Format("shell \"rm -rf {0} \"", "com.google.android.syncadapters.calendar/*"), deviceId);
-                runCMDRoot(String.Format("shell \"rm -rf {0} \"", "com.google.android.syncadapters.contacts/*"), deviceId);
-                //run delete package
-                runCMDRoot(String.Format("shell \"rm -rf {0} \"", Package_Data.GSF), deviceId);
-                runCMDRoot(String.Format("shell \"rm -rf {0} \"", Package_Data.VENDING), deviceId);
-                runCMDRoot(String.Format("shell \"rm -rf {0} \"", Package_Data.SYSTEM_SYNC), deviceId);
-                runCMDRoot(String.Format("shell \"rm -rf {0} \"", Package_Data.SYSTEM_CE), deviceId);
-                //runCMD(String.Format("shell \"rm -rf {0} \"", Package_Data.SYSTEM_DE), deviceId); // Pixel is starting...
-                runCMDRoot(String.Format("shell \"rm {0} \"", "/data/system_de/0/accounts_de.db"), deviceId);
-                runCMDRoot(String.Format("shell \"rm {0} \"", "/data/system_de/0/accounts_de.db-journal"), deviceId);
-                runCMDRoot(String.Format("shell \"rm {0} \"", "/data/system_de/0/LocalesFromDelegatePrefs.xml"), deviceId);
-                runCMDRoot(String.Format("shell \"rm {0} \"", "/data/system_de/0/persisted_taskIds.txt"), deviceId);
-                runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/system_de/0/apprestriction"), deviceId);
-                runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/system_de/0/app_lock"), deviceId);
-                runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/system_de/0/powerstats"), deviceId);
-                runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/system_de/0/ringtones"), deviceId);
-                runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/system_de/0/system"), deviceId);
-                //  runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/system/users/0/settings_ssaid.xml"), deviceId);
-                runCMDRoot(String.Format("shell \"rm -rf {0} \"", Package_Data.CHROME), deviceId);
-                runCMDRoot(String.Format("shell \"rm -rf {0} \"", Package_Data.IMS), deviceId);
-                runCMDRoot(String.Format("shell \"rm -rf {0} \"", Package_Data.CALENDAR), deviceId);
-                runCMDRoot(String.Format("shell \"rm -rf {0} \"", Package_Data.GMAIL), deviceId);
-                runCMDRoot(String.Format("shell \"rm -rf {0} \"", Package_Data.PLAY_GAME), deviceId);
-                runCMDRoot(String.Format("shell \"rm -rf {0} \"", Package_Data.HTML_VIEWER), deviceId);
-                runCMDRoot(String.Format("shell \"rm -rf {0} \"", Package_Data.WEBVIEW), deviceId);
-                runCMDRoot(String.Format("shell \"rm -rf {0} \"", Package_Data.GOOGLE_WEBVIEW), deviceId);
-                runCMDRoot(String.Format("shell \"rm -rf {0} \"", Package_Data.GOOGLE_BACKUPTRANSPORT), deviceId);
-                runCMDRoot(String.Format("shell \"rm -rf {0} \"", Package_Data.LOCATION), deviceId);
-                runCMDRoot(String.Format("shell \"rm -rf {0} \"", Package_Data.JELLY), deviceId);
-                runCMDRoot(String.Format("shell \"rm -rf {0} \"", Package_Data.GMS), deviceId);
-                runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/drm/fwdlock/kek.dat"), deviceId);
-                runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/sdcard/*"), deviceId);
-                runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/system/sync/*"), deviceId);
-                runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/system/slice/*"), deviceId);
-                runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/vendor/mediadrm/IDM1013/L3/*"), deviceId);
-                runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/system/product/app/webview/oat/*"), deviceId);
-                runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/system/product/app/webview/*/
-        /*"), deviceId);
-            // update 20/2/2025
-            runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/mnt/user/0/self/primary/Android/data/com.google.android.gms"), deviceId);
-            runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/mnt/user/0/self/primary/Android/data/com.android.vending"), deviceId);
-            // clear wifi data
-            runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/misc/apexdata/com.android.tethering/netstats/*"), deviceId);
-            runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/system/netstats/*"), deviceId);
-            //runCMD(String.Format("shell \"rm -rf {0} \"", "/data/property"), deviceId);
-            runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/per_boot"), deviceId);
-            runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/preloads"), deviceId);
-            runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/resource-cache"), deviceId);
-            runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/rollback"), deviceId);
-            runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/rollback-history"), deviceId);
-            runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/rollback-observer"), deviceId);
-            runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/server_configurable_flags"), deviceId);
-            runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/ss"), deviceId);
-            runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/ssh"), deviceId);
-            runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/tombstones"), deviceId);
-            runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/vendor"), deviceId);
-            runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/vendor_ce"), deviceId);
-            runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/vendor_de"), deviceId);
-            runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/media"), deviceId);
-            runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/mediadrm"), deviceId);
-            runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/misc_de"), deviceId);
-            runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/nfc"), deviceId);
-            runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/ota"), deviceId);
-            runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/ota_package"), deviceId);
-            runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/misc_ce"), deviceId);
-            runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/drm"), deviceId);
-            runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/evolution_updates"), deviceId);
-            runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/fonts"), deviceId);
-            runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/gsi"), deviceId);
-            runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/gsi_persistent_data"), deviceId);
-            runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/incremental"), deviceId);
-            runCMDRoot(String.Format("shell \"find /data/local -mindepth 1 -maxdepth 1 -type d -not -path '/data/local/tmp' -exec rm -rf {{}} +\""), deviceId);
-            //runCMD(String.Format("shell \"find /data/local -type f -not -name 'keybox.xml' -delete; find /data/local -type d -empty -not -path '/data/local/tmp' -delete\""), deviceId);
-            //runCMD(String.Format("shell \"rm -rf {0} \"", "/data/local"), deviceId);
-            runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/lost+found"), deviceId);
-            runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/backup"), deviceId);
-            runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/bootanim"), deviceId);
-            runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/bootchart"), deviceId);
-            runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/cache"), deviceId);
-            runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/dalvik-cache"), deviceId);
-            runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/system/dropbox/*"), deviceId);
-            runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/misc/profiles/*"), deviceId);
-            runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/misc/gatekeeper/*"), deviceId);
-
-            var getPixelExp = runCMD(String.Format("shell getprop | findstr pixelexperience"), deviceId);
-            if (string.IsNullOrEmpty(getPixelExp))
-            {
-                runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/data"), deviceId);
-            }
-            runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/dpm"), deviceId);
-            runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/system_ce"), deviceId);
-            runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/user_de"), deviceId);
-            //runCMD(String.Format("shell \"rm -rf {0} \"", "/data/adb"), deviceId);
-            runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/anr"), deviceId);
-            runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/apex"), deviceId);
-            runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/app-asec"), deviceId);
-            runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/app-ephemeral"), deviceId);
-            runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/app-lib"), deviceId);
-            runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/app-private"), deviceId);
-            runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/app-staging"), deviceId);
-            //DeviceService.setNewUserKey(deviceId);
-            runCMDRoot(String.Format("shell \"rm -rf {0} \"", "./etc/security/otacerts.zip"), deviceId);
-            //runCMD(String.Format("shell \"rm -rf {0} \"", "/data/app"), deviceId);
-
-            runCMDRoot("remount", deviceId);
-            updateFileDateTimeModification("./system/product/priv-app", deviceId);
-            updateFileDateTimeModification("./system/product/app", deviceId);
-        }*/
         public static void cleanFacebookData(string deviceId)
         {
             forceStopPackage("com.facebook.katana", deviceId);
