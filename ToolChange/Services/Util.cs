@@ -169,7 +169,7 @@ namespace ToolChange.Services
                     ADBService.putSetting("mi_wifi_mac_address", tempDevice.WifiMacAddress, deviceId);
                     ADBService.putSetting("android_id", tempDevice.AndroidId, deviceId, "secure");
 
-                    ADBService.updateInitRc(tempDevice.Imei, tempDevice.Imei1, tempDevice.SerialNo, tempDevice.Bootloader, tempDevice.Baseband, tempDevice.Model, deviceId, tempDevice.Hardware, tempDevice.Platform);
+                    //ADBService.updateInitRc(tempDevice.Imei, tempDevice.Imei1, tempDevice.SerialNo, tempDevice.Bootloader, tempDevice.Baseband, tempDevice.Model, deviceId, tempDevice.Hardware, tempDevice.Platform);
                     ADBService.fakeLocalHostNameV6(deviceId);
 
                     // fake wifi mac address
@@ -226,14 +226,6 @@ namespace ToolChange.Services
                         ADBService.deleteSetting(GlobalAndroidSettings.DATA_STATE, deviceId);
                         ADBService.deleteSetting(GlobalAndroidSettings.DATA_ACTIVITY, deviceId);
                     }
-
-
-                    // update new GSF number
-                    //string tempGsfInLong = long.Parse(tempDevice.Gsf, System.Globalization.NumberStyles.HexNumber).ToString();
-                    //string currentGSF = ADBService.getGSFNumber(deviceId);
-                    //ADBService.stringReplace(currentGSF, tempGsfInLong, "data/data/com.google.android.gms/files/checkin_id_token", deviceId);
-                    //ADBService.stringReplace(currentGSF, tempGsfInLong, "data/data/com.google.android.gms/shared_prefs/Checkin.xml", deviceId);
-                    ADBService.ChangeMacAddress(deviceId, tempDevice.WifiMacAddress);
                     Console.WriteLine("3.DONE put setting");
                     return true;
 
