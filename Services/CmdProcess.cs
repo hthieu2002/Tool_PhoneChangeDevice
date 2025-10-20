@@ -56,6 +56,64 @@ namespace Services
                 }
             }
         }
+        public static string ExecuteCommandRootEx(string argument, int timeoutMs = 0)
+        {
+            string adbPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Resources", "adb.exe");
+
+            var psi = new ProcessStartInfo
+            {
+                FileName = adbPath,
+                Arguments = argument,
+                UseShellExecute = false,
+                CreateNoWindow = true,
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+                StandardOutputEncoding = Encoding.UTF8
+            };
+
+            var outputSb = new StringBuilder();
+            var errorSb = new StringBuilder();
+
+            using (var process = new Process { StartInfo = psi, EnableRaisingEvents = true })
+            using (var outputWait = new AutoResetEvent(false))
+            using (var errorWait = new AutoResetEvent(false))
+            {
+                process.OutputDataReceived += (s, e) =>
+                {
+                    if (e.Data == null) outputWait.Set(); else outputSb.AppendLine(e.Data);
+                };
+                process.ErrorDataReceived += (s, e) =>
+                {
+                    if (e.Data == null) errorWait.Set(); else errorSb.AppendLine(e.Data);
+                };
+
+                process.Start();
+                process.BeginOutputReadLine();
+                process.BeginErrorReadLine();
+
+                bool exited = timeoutMs > 0
+                    ? process.WaitForExit(timeoutMs)
+                    : (process.WaitForExit(int.MaxValue), true).Item2; // effectively infinite
+
+                // Đảm bảo đọc hết buffer
+                outputWait.WaitOne(TimeSpan.FromSeconds(2));
+                errorWait.WaitOne(TimeSpan.FromSeconds(2));
+
+                if (!exited)
+                {
+                    try { process.Kill(true); } catch { /* ignore */ }
+                    throw new TimeoutException($"adb timeout: {argument}");
+                }
+
+                // Gộp stderr để bạn nhìn rõ lỗi (Permission denied, v.v.)
+                if (errorSb.Length > 0)
+                {
+                    outputSb.AppendLine(errorSb.ToString());
+                }
+                return outputSb.ToString();
+            }
+        }
+
         public static string ExecuteCommandRoot(string argument, int timeout = 0)
         {
             string adbPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Resources", "adb.exe");
