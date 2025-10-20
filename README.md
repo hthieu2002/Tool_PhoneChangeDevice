@@ -7,12 +7,12 @@ Nhấn **Start → gõ “PowerShell” → chọn “Run as Administrator”**<
 <br>
 
 2️⃣ **Di chuyển đến thư mục chứa file**<br>
-`cd "C:\Users\Hoang Trung Hieu\OneDrive\Desktop"`<br>
+`cd "C:\Users\Desktop"`<br>
 <br>
 
 3️⃣ **Chạy script với quyền Bypass**<br>
 Ví dụ kiểm tra thiết bị:<br>
-`powershell -ExecutionPolicy Bypass -File .\Check-Clean.ps1 -DeviceId 98JAY15771`<br>
+`powershell -ExecutionPolicy Bypass -File .\Check-Clean.ps1 -DeviceId id`<br>
 <br>
 
 4️⃣ **Một số tùy chọn hữu ích**<br>
