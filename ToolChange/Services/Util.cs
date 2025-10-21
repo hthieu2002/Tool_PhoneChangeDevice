@@ -78,9 +78,10 @@ namespace ToolChange.Services
                     var tempBaseband = string.IsNullOrEmpty(tempDevice.Baseband) ? tempDevice.BuildIncremental : tempDevice.Baseband;
                     Models.DeviceUpdater.UpdateProgress(deviceS, deviceId, "25%", "Change information ");
                     var lineageVersion = RandomService.generateLineageOsVersion(tempDevice.Release) + "-" + tempDevice.Code;
+                    var randomUser = RandomService.generateUser();
                     changedSystemInfo.Add("ro.build.type", "user");
                     changedSystemInfo.Add("ro.build.tags", tempDevice.Tags);
-                    changedSystemInfo.Add("ro.build.use", RandomService.generateUser());
+                    changedSystemInfo.Add("ro.build.use", randomUser);
                     changedSystemInfo.Add("ro.build.product", tempDevice.Code);
                     changedSystemInfo.Add("ro.build.fingerprint", tempDevice.Fingerprint);
                     changedSystemInfo.Add("ro.build.display.id", tempDevice.BuildDisplayId);
@@ -117,6 +118,7 @@ namespace ToolChange.Services
                     changedSystemInfo.Add("gsm.version.baseband", tempBaseband);
                     changedSystemInfo.Add("ro.com.google.clientidbase", $"android-{tempDevice.Brand}");
                     changedSystemInfo.Add("bluetooth.device.default_name", tempDevice.Manufacturer);
+                    changedSystemInfo.Add("ro.debuggable", "0");
 
                     changedSystemInfo.Add("org.pixelexperience.device", tempDevice.Code);
                     changedSystemInfo.Add("org.pixelexperience.version.display", "unknown");
@@ -151,8 +153,8 @@ namespace ToolChange.Services
                     partitionList.Add("odm", new List<string> { "/odm/build.prop", "/odm/etc/build.prop" });
                     partitionList.Add("odm_dlkm", new List<string> { "/vendor/odm_dlkm/build.prop", "/vendor/odm_dlkm/etc/build.prop" });
                     partitionList.Add("vendor_dlkm", new List<string> { "/vendor_dlkm/build.prop", "/vendor_dlkm/etc/build.prop" });
-                    partitionList.Add("system_dlkm", new List<string> { "/system/system_dlkm/build.prop", "/system/system_dlkm/etc/build.prop" });
-                    partitionList.Add("system_ext", new List<string> { "/system/system_ext/build.prop", "/system/system_ext/etc/build.prop" });
+                    partitionList.Add("system_dlkm", new List<string> { "/system_dlkm/build.prop", "/system_dlkm/etc/build.prop", "/system/system_dlkm/build.prop", "/system/system_dlkm/etc/build.prop" });
+                    partitionList.Add("system_ext", new List<string> { "/system_ext/build.prop", "/system_ext/etc/build.prop", "/system/system_ext/build.prop", "/system/system_ext/etc/build.prop" });
                     RepleacePropertiesForPartition(tempDevice, partitionList, deviceId);
 
                     ADBService.putSetting("bluetooth_address", tempDevice.BlueToothMacAddress, deviceId, "secure");
@@ -169,7 +171,7 @@ namespace ToolChange.Services
                     ADBService.putSetting("mi_wifi_mac_address", tempDevice.WifiMacAddress, deviceId);
                     ADBService.putSetting("android_id", tempDevice.AndroidId, deviceId, "secure");
 
-                    //ADBService.updateInitRc(tempDevice.Imei, tempDevice.Imei1, tempDevice.SerialNo, tempDevice.Bootloader, tempDevice.Baseband, tempDevice.Model, deviceId, tempDevice.Hardware, tempDevice.Platform);
+                    ADBService.updateInitRc(tempDevice, randomUser, deviceId);
                     ADBService.fakeLocalHostNameV6(deviceId);
 
                     // fake wifi mac address

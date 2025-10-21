@@ -57,41 +57,89 @@ namespace Services
             runCMD(string.Format("shell settings put global http_proxy {0} {1}", IP, user), deviceId);
 
         }
-        public static void updateInitRc(string imei1, string imei2, string serialNumber, string bootloader, string baseband, string model, string deviceId, string hardware = "", string platform = "")
+
+        public static void updateInitRc(POCO.Models.DeviceModel tempDevice, string generateUser, string deviceId)
         {
             var cert = X509CertService.GenerateCertificate(generateCertSubject());
             var rawSignatureData = cert.GetRawCertDataString();
             var leftPadding = "".PadLeft(4); // an unit of "TAB" character in .rc/shell format
-            var props = 
-                        //$"{leftPadding}setprop ro.bootloader \"{bootloader}\"\r\n" +
-                        //$"{leftPadding}setprop ro.serialno \"{serialNumber}\"\r\n" +
-                        ////$"{leftPadding}setprop ro.boot.serialno \"{serialNumber}\"\r\n" +
-                        ////$"{leftPadding}setprop ril.serialnumber \"{serialNumber}\"\r\n" +
-                        ////$"{leftPadding}setprop sys.serialnumber \"{serialNumber}\"\r\n" +
-                        //$"{leftPadding}setprop ro.baseband \"{baseband}\"\r\n" +
-                        //$"{leftPadding}setprop gsm.version.baseband \"{baseband}\"\r\n" +
-                        $"";
+
+            var partitionProps = new string[]
+            {
+                "system",
+                "bootimage",
+                "vendor",
+                "product",
+                "odm",
+                "odm_dlkm",
+                "vendor_dlkm",
+                "system_dlkm",
+                "system_ext"
+            };
+
+            var props = $"{leftPadding}setprop persist.sys.disable_ro_property_check \"true\"\r\n"; // disable read-only property
+
+            props +=
+                $"{leftPadding}setprop bluetooth.device.default_name \"{tempDevice.Manufacturer}\"\r\n" +
+                $"{leftPadding}setprop init.svc.adbd \"stopped\"\r\n" +
+                $"{leftPadding}setprop ro.bootloader \"{tempDevice.Bootloader}\"\r\n" +
+                $"{leftPadding}setprop ro.boot.bootloader \"{tempDevice.Bootloader}\"\r\n" +
+                $"{leftPadding}setprop ril.product_code \"{tempDevice.Bootloader}\"\r\n" +
+                $"{leftPadding}setprop ril.sw_ver \"{tempDevice.Bootloader}\"\r\n" +
+                $"{leftPadding}setprop ro.serialno \"{tempDevice.SerialNo}\"\r\n" +
+                $"{leftPadding}setprop ro.boot.serialno \"{tempDevice.SerialNo}\"\r\n" +
+                $"{leftPadding}setprop sys.serialnumber \"{tempDevice.SerialNo}\"\r\n" +
+                $"{leftPadding}setprop ro.baseband \"{tempDevice.Baseband}\"\r\n" +
+                $"{leftPadding}setprop gsm.version.baseband \"{tempDevice.Baseband}\"\r\n" +
+                $"{leftPadding}setprop ro.boot.baseband \"{tempDevice.Baseband}\"\r\n" +
+                $"{leftPadding}setprop ro.boot.em.model \"{tempDevice.Model}\"\r\n" +
+                //$"{leftPadding}setprop ro.boot.hardware \"{tempDevice.Hardware}\"\r\n" + // Can't remount
+                $"{leftPadding}setprop ro.hardware \"{tempDevice.Hardware}\"\r\n" +
+                $"{leftPadding}setprop ro.soc.model \"{tempDevice.Hardware}\"\r\n" +
+                $"{leftPadding}setprop ro.soc.manufacturer \"{tempDevice.Manufacturer}\"\r\n" +
+                //$"{leftPadding}setprop ro.board.platform \"{tempDevice.Platform}\"\r\n" + // Pixel is starting...
+                //$"{leftPadding}setprop ro.boot.hardware.platform \"{tempDevice.Platform}\"\r\n" + // Can't remount
+                $"{leftPadding}setprop ro.build.version.security_patch \"{tempDevice.SecurityPath}\"\r\n" +
+                $"{leftPadding}setprop ro.vendor.build.security_patch \"{tempDevice.SecurityPath}\"\r\n";
+                //$"{leftPadding}setprop ro.product.board \"{tempDevice.Board}\"\r\n"; Crack in s9
+
+            props += $"{leftPadding}setprop persist.sys.disable_ro_property_check \"false\"\r\n" + // enable read-only property back
+                     $"";
+
+            string initRCversion = "";
+            string sdk = getProp("ro.build.version.sdk", deviceId);
+            switch (sdk)
+            {
+                case "30":
+                    initRCversion = "lineage18";
+                    break;
+                case "33":
+                    initRCversion = "lineage20";
+                    break;
+                case "35":
+                    initRCversion = "lineage22";
+                    break;
+                default:
+                    initRCversion = "";
+                    break;
+            }
+
+            if(string.IsNullOrEmpty(initRCversion))
+            {
+                Console.WriteLine("Init RC Error");
+                return;
+            }
+
             var exePath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            var originalInitRcPath = Path.Combine(exePath, $"Resources/init.lineage20.rc");
+            var originalInitRcPath = Path.Combine(exePath, $"Resources/init.{initRCversion}.rc");
             var systemPathInitRc = "/etc/init/hw/init.rc";
-            props += $"{leftPadding}setprop ril.product_code \"{bootloader}\"\r\n" +
-                    $"{leftPadding}setprop ro.boot.em.model \"{model}\"\r\n" +
-                    $"{leftPadding}setprop ril.sw_ver \"{bootloader}\"\r\n" +
-                    //$"{leftPadding}setprop ro.boot.hardware \"{hardware}\"\r\n" +
-                    $"{leftPadding}setprop ro.board.platform \"{platform}\"\r\n" +
-                    $"{leftPadding}setprop ro.boot.hardware.platform \"{platform}\"\r\n" +
-                    $"{leftPadding}setprop ro.hardware \"{hardware}\"\r\n";
-            props += $"{leftPadding}setprop ro.boot.baseband \"{baseband}\"\r\n";
             try
             {
                 var clonedInitRcPath = Path.Combine(exePath, $"Resources/{deviceId}_init.rc");
                 File.Copy(originalInitRcPath, clonedInitRcPath, true);
-                LocalFileService.replaceAllTextInFile(clonedInitRcPath, "FLAGS_REPLACE_SYSTEM_PROPERTIES", props);
-                LocalFileService.replaceAllTextInFile(clonedInitRcPath, "FLAGS_REPLACE_WEBVIEW", $"{leftPadding}setprop ro.lineage.wvversion \"{RandomService.generateWebviewVersion()}\"");
-                if (RandomService.randomInRange(0, 100) % 3 == 0)
-                {
-                    LocalFileService.replaceAllTextInFile(clonedInitRcPath, "#FLAGS_REPLACE_SIGNATURE", $"{leftPadding}setprop ro.android.sign \"{rawSignatureData}\"");
-                }
+                LocalFileService.replaceAllTextInFile(clonedInitRcPath, "#FLAGS_REPLACE_SYSTEM_PROPERTIES", props);
+                //LocalFileService.replaceAllTextInFile(clonedInitRcPath, "FLAGS_REPLACE_WEBVIEW", $"{leftPadding}setprop ro.lineage.wvversion \"{RandomService.generateWebviewVersion()}\"");
+                LocalFileService.replaceAllTextInFile(clonedInitRcPath, "#FLAGS_REPLACE_SIGNATURE", $"{leftPadding}setprop ro.android.sign \"{rawSignatureData}\"");
                 runCMDRoot($"push \"{clonedInitRcPath}\" {systemPathInitRc}", deviceId);
                 File.Delete(clonedInitRcPath);
             }
