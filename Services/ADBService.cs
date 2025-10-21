@@ -519,7 +519,7 @@ namespace Services
 
         public static void updateFileDateTimeModification(string filePath, string deviceId)
         {
-            runCMDRoot(string.Format("shell \"find {0} -exec touch -m -a {{}} +\"", filePath), deviceId);
+            runCMDRootEx(string.Format("shell \"find {0} -exec touch -m -a {{}} +\"", filePath), deviceId);
         }
 
         public static void updateDateTimeModification(string prefix, string appName, string deviceId)
@@ -693,6 +693,8 @@ namespace Services
             runCMDRoot("remount", deviceId);
             updateFileDateTimeModification("./system/product/priv-app", deviceId);
             updateFileDateTimeModification("./system/product/app", deviceId);
+
+            runCMDRoot(String.Format("shell \"rm -rf /data/adb\""), deviceId);
         }
 
         public static void cleanFacebookData(string deviceId)
@@ -1434,6 +1436,12 @@ namespace Services
             string adbArgs = $"-s {deviceId} {commandline}";
             Console.WriteLine(adbArgs);
             return CmdProcess.ExecuteCommandRoot(adbArgs, timeout);
+        }
+        public static string runCMDRootEx(string commandline, string deviceId, int timeout = 0)
+        {
+            string adbArgs = $"-s {deviceId} {commandline}";
+            Console.WriteLine(adbArgs);
+            return CmdProcess.ExecuteCommandRootEx(adbArgs, timeout);
         }
 
         public static void FakeLocation(string latitude, string longitude, string deviceId)
