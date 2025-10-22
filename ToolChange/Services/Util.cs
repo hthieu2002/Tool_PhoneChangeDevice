@@ -1,4 +1,5 @@
-﻿using Microsoft.VisualBasic.ApplicationServices;
+﻿using DeepDroid.Models;
+using Microsoft.VisualBasic.ApplicationServices;
 using POCO.Models;
 using Services;
 using System;
@@ -26,15 +27,16 @@ namespace ToolChange.Services
             {
                 //tempDevice.Brand = "google";
                 //tempDevice.Manufacturer = "Google";
-                //tempDevice.Name = "husky";
-                //tempDevice.Fingerprint = "google/husky_beta/husky:16/BP41.250822.010/14082742:user/release-keys";
+                //tempDevice.Name = "mustang";
+                //tempDevice.Fingerprint = "google/mustang_beta/mustang:16/BP41.250916.009.A1/14246511:user/release-keys";
                 //tempDevice.Manufacturer = "Google";
-                //tempDevice.Model = "Pixel 8 Pro";
-                //tempDevice.Code = "husky";
+                //tempDevice.Model = "Pixel 10 Pro XL";
+                //tempDevice.Code = "mustang";
                 //tempDevice.Release = "16";
-                //tempDevice.BuildId = "BP41.250822.010";
-                //tempDevice.Product = "husky_beta";
-                //tempDevice.SecurityPath = "2025-09-05";
+                //tempDevice.BuildId = "BP41.250916.009.A1";
+                //tempDevice.BuildIncremental = "14246511";
+                //tempDevice.Product = "mustang_beta";
+                //tempDevice.SecurityPath = "2025-10-05";
 
                 ADBService.runCMDRoot($"shell setprop persist.sys.pixelexperience.sdk {isFakeSdk.ToString().ToLower()}", deviceId);
 
@@ -66,7 +68,9 @@ namespace ToolChange.Services
                     Models.DeviceUpdater.UpdateProgress(deviceS, deviceId, "10%", "Null error");
                     return false;
                 }
-              
+
+                VbMeta vbMeta = new VbMeta(deviceId);
+
                 if (ADBService.getDeviceStatus(deviceId) == DeviceStatus.ReadyToChange)
                 {
                     Models.DeviceUpdater.UpdateProgress(deviceS, deviceId, "15%", "Change device ...");
@@ -126,6 +130,11 @@ namespace ToolChange.Services
                     changedSystemInfo.Add("org.pixelexperience.build_date_utc", "unknown");
                     changedSystemInfo.Add("org.pixelexperience.build_type", "unknown");
                     changedSystemInfo.Add("org.pixelexperience.build_security_patch", "unknown");
+
+                    changedSystemInfo.Add("ro.boot.vbmeta.avb_version", vbMeta.VbmetaVersion);
+                    changedSystemInfo.Add("ro.boot.vbmeta.hash_alg", vbMeta.VbmetaAlgorithm);
+                    changedSystemInfo.Add("ro.boot.vbmeta.size", vbMeta.VbmetaSize);
+                    changedSystemInfo.Add("ro.boot.vbmeta.digest", vbMeta.VbmetaDigest);
 
                     Models.DeviceUpdater.UpdateProgress(deviceS, deviceId, "45%", "save information ");
                     ADBService.replaceBuildProp("/system/build.prop", changedSystemInfo, deviceId);
