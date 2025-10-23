@@ -693,8 +693,6 @@ namespace Services
             runCMDRoot("remount", deviceId);
             updateFileDateTimeModification("./system/product/priv-app", deviceId);
             updateFileDateTimeModification("./system/product/app", deviceId);
-
-            runCMDRoot(String.Format("shell \"rm -rf /data/adb\""), deviceId);
         }
 
         public static void cleanFacebookData(string deviceId)
