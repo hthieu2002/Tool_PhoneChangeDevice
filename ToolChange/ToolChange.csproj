@@ -46,6 +46,7 @@
     <None Remove="Resources\init.lineage16.rc" />
     <None Remove="Resources\init.lineage18.rc" />
     <None Remove="Resources\init.lineage20.rc" />
+    <None Remove="Resources\init.lineage22.rc" />
     <None Remove="Resources\iptables" />
     <None Remove="Resources\libusb-1.0.dll" />
     <None Remove="Resources\names.txt" />
@@ -104,6 +105,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </EmbeddedResource>
     <EmbeddedResource Include="Resources\init.lineage20.rc">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\init.lineage22.rc">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>
     <Resource Include="Resources\icon.png">
