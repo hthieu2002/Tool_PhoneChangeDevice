@@ -604,7 +604,7 @@
                                     <ColumnDefinition Width="Auto" />
                                     <ColumnDefinition Width="130" />
                                 </Grid.ColumnDefinitions>
-                                <Label Content="Push Keybox - pif"
+                                <Label Content="Fix fingerprint"
                                        Grid.Column="0"
                                        Margin="10,0,10,0"
                                        HorizontalAlignment="Left"
