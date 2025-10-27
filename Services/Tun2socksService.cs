@@ -40,6 +40,24 @@ namespace Services
             startTun2socks(proxyParams, tun2socksDir, deviceId);
         }
 
+        /**
+         * Dừng toàn bộ tiến trình tun2socks và hạ interface TUN hiện tại.
+         *
+         * @param deviceId     ID của thiết bị được sử dụng cho các lệnh ADB.
+         * @param tun0TableId  (tuỳ chọn) ID của bảng định tuyến tun0, mặc định là "9988".
+         *
+         * Lưu ý:
+         * - Khi gọi hàm này từ bên ngoài, bạn nên kiểm tra xem file `/data/local/tmp/tun0TableId.txt`
+         *   đã tồn tại và có giá trị `tun0TableId` phù hợp hay chưa.
+         * - Có thể đọc giá trị thực tế bằng lệnh:
+         *     string tun0TableId = ADBService.readFromFile("/data/local/tmp/tun0TableId.txt", deviceId);
+         * - Nếu file tồn tại và chứa giá trị khác "9988", hãy truyền giá trị đó vào `stop()`
+         *   để đảm bảo xóa đúng bảng định tuyến tương ứng.
+         *
+         * Ví dụ:
+         *     string tun0TableId = ADBService.readFromFile("/data/local/tmp/tun0TableId.txt", deviceId);
+         *     Tun2socksService.stop(deviceId, tun0TableId);
+         */
         public static void stop(string deviceId, string tun0TableId = "9988")
         {
             stopTun2Socks(deviceId, tun0TableId);
