@@ -22,6 +22,7 @@ using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Runtime.InteropServices;
+using System.Runtime.Intrinsics.Arm;
 using System.Text.Json;
 using System.Threading.Tasks;
 using System.Windows;
@@ -36,6 +37,7 @@ using ToolChange.ViewModels.Constants;
 using ToolChange.Views;
 using ToolChange.Views.ControlScriptPage;
 using Xamarin.Forms;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.StartPanel;
 
 namespace ToolChange.ViewModels
 {
@@ -1075,8 +1077,6 @@ namespace ToolChange.ViewModels
 
         private async void FakeProxyDeviceId(Models.DeviceModel device)
         {
-
-
             string proxyHost = "";
             string proxyPort = "";
             string proxyUsername = string.Empty;
@@ -1143,23 +1143,36 @@ namespace ToolChange.ViewModels
                         int port = int.Parse(proxyPort);
                         string user = proxyUsername;
                         string password = proxyPassword;
+                        string newTun0TableId = new Random().Next(9000, 10000).ToString();
+                        string authen = (!string.IsNullOrEmpty(proxyUsername) && !string.IsNullOrEmpty(proxyPassword)) ? $"{proxyUsername}:{proxyPassword}@" : "";
+                        string proxyParams = $"{typeproxy}://{proxyHost}:{proxyPort}";
+                        if (!string.IsNullOrEmpty(authen))
+                        {
+                            proxyParams = $"{typeproxy}://{authen}{proxyHost}:{proxyPort}";
+                        }
+                        string ipLocalV4 = Tun2socksService.getIpv4SocksProxy(proxy, device.DeviceId);
+                        string oldTun0TableId = ADBService.readFromFile("/data/local/tmp/tun0TableId.txt", device.DeviceId);
 
                         ADBService.enableWifi(false, device.DeviceId);
                         ADBService.rootAndRemount(device.DeviceId);
                         ADBService.putSetting("http_proxy", ":0", device.DeviceId);
-                        RedSocksService.stop(device.DeviceId);
-                        if (ADBService.checkFileOnDevice("/data/local/tmp/redsocks.conf", device.DeviceId))
+                        if (!string.IsNullOrEmpty(oldTun0TableId))
                         {
-                            DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "40%", Lang.LogError);
-                            RedSocksService.stop(device.DeviceId);
+                            Tun2socksService.stop(device.DeviceId, oldTun0TableId);
                         }
-
-                        RedSocksService.setUpRedSocksOnDevice("/data/local/tmp", device.DeviceId);
+                        else
+                        {
+                            Tun2socksService.stop(device.DeviceId);
+                        }
+                        Tun2socksService.setUpTun2socksOnDevice("/data/local/tmp", device.DeviceId, newTun0TableId);
                         DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "50%", DevicesLang.logTitleProxy);
-                        RedSocksService.start(ip, port, "/data/local/tmp", device.DeviceId, user, password, "socks5");
+                        Tun2socksService.start("/data/local/tmp", proxyParams, ipLocalV4, device.DeviceId, newTun0TableId);
+                        DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "60%", "In progress connect wifi..");
+                        Thread.Sleep(3000);
+                        ADBService.enableWifi(true, device.DeviceId);
                         ADBService.openWifiSettings(device.DeviceId);
                         int step = 0;
-                        while ((!ADBService.isWifiConnectedV2(device.DeviceId) && !ADBService.isWifiConnected(device.DeviceId)) || step == 40)
+                        while ((!ADBService.isWifiConnectedV2(device.DeviceId) && !ADBService.isWifiConnected(device.DeviceId)) || step++ == 40)
                         {
                             ADBService.openWifiSettings(device.DeviceId);
                             Thread.Sleep(3000);
@@ -1187,9 +1200,6 @@ namespace ToolChange.ViewModels
             {
                 System.Windows.MessageBox.Show(ex.Message, Lang.LogError, MessageBoxButton.OK, MessageBoxImage.Error);
             }
-
-
-
         }
         private async void FakeProxyDeviceIdHttp(Models.DeviceModel device)
         {
@@ -1198,7 +1208,7 @@ namespace ToolChange.ViewModels
             string proxyUsername = string.Empty;
             string proxyPassword = string.Empty;
 
-            const string typeproxy = "http-connect";
+            const string typeproxy = "http";
 
             var model = new FakeProxyIDViewModel();
             var log = new FakeProxyID(device.DeviceId, device.Name, "http")
@@ -1259,27 +1269,39 @@ namespace ToolChange.ViewModels
                         int port = int.Parse(proxyPort);
                         string user = proxyUsername;
                         string password = proxyPassword;
+                        string newTun0TableId = new Random().Next(9000, 10000).ToString();
+                        string authen = (!string.IsNullOrEmpty(proxyUsername) && !string.IsNullOrEmpty(proxyPassword)) ? $"{proxyUsername}:{proxyPassword}@" : "";
+                        string proxyParams = $"{typeproxy}://{proxyHost}:{proxyPort}";
+                        if (!string.IsNullOrEmpty(authen))
+                        {
+                            proxyParams = $"{typeproxy}://{authen}{proxyHost}:{proxyPort}";
+                        }
+                        string ipLocalV4 = Tun2socksService.getIpv4HttpProxy(proxy, device.DeviceId);
+                        string oldTun0TableId = ADBService.readFromFile("/data/local/tmp/tun0TableId.txt", device.DeviceId);
 
                         ADBService.enableWifi(false, device.DeviceId);
                         ADBService.rootAndRemount(device.DeviceId);
                         ADBService.putSetting("http_proxy", ":0", device.DeviceId);
-                        RedSocksService.stop(device.DeviceId);
-                        if (ADBService.checkFileOnDevice("/data/local/tmp/redsocks.conf", device.DeviceId))
+                        if (!string.IsNullOrEmpty(oldTun0TableId))
                         {
-                            DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "40%", Lang.LogError);
-                            RedSocksService.stop(device.DeviceId);
+                            Tun2socksService.stop(device.DeviceId, oldTun0TableId);
                         }
-
-                        RedSocksService.setUpRedSocksOnDevice("/data/local/tmp", device.DeviceId);
+                        else
+                        {
+                            Tun2socksService.stop(device.DeviceId);
+                        }
+                        Tun2socksService.setUpTun2socksOnDevice("/data/local/tmp", device.DeviceId, newTun0TableId);
                         DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "50%", DevicesLang.logTitleProxy);
-                        RedSocksService.start(ip, port, "/data/local/tmp", device.DeviceId, user, password, typeproxy);
+                        Tun2socksService.start("/data/local/tmp", proxyParams, ipLocalV4, device.DeviceId, newTun0TableId);
+                        DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "60%", "In progress connect wifi..");
+                        Thread.Sleep(3000);
+                        ADBService.enableWifi(true, device.DeviceId);
                         ADBService.openWifiSettings(device.DeviceId);
                         int step = 0;
-                        while ((!ADBService.isWifiConnectedV2(device.DeviceId) && !ADBService.isWifiConnected(device.DeviceId)) || step == 40)
+                        while ((!ADBService.isWifiConnectedV2(device.DeviceId) && !ADBService.isWifiConnected(device.DeviceId)) || step++ == 40)
                         {
                             ADBService.openWifiSettings(device.DeviceId);
                             Thread.Sleep(3000);
-                            step++;
                         }
                         if (step >= 39)
                         {
@@ -1917,12 +1939,12 @@ namespace ToolChange.ViewModels
                             continue;
 
                         }
-                        //if (!await ADBService.CheckDeviceActiveBool(device.DeviceId, miChangerGraphQLClient))
-                        //{
-                        //    UpdateDeviceStatus(device.DeviceId, "0%", "⚠ Device not active");
-                        //    continue;
+                        if (!await ADBService.CheckDeviceActiveBool(device.DeviceId, miChangerGraphQLClient))
+                        {
+                            UpdateDeviceStatus(device.DeviceId, "0%", "⚠ Device not active");
+                            continue;
 
-                        //}
+                        }
                         if (_processingDeviceIds.Contains(device.DeviceId))
                         {
                             UpdateDeviceStatus(device.DeviceId, "%", "⏳ Device running...");
@@ -2081,12 +2103,12 @@ namespace ToolChange.ViewModels
                             continue;
 
                         }
-                        //if (!await ADBService.CheckDeviceActiveBool(device.DeviceId, miChangerGraphQLClient))
-                        //{
-                        //    UpdateDeviceStatus(device.DeviceId, "0%", "⚠ Device not active");
-                        //    continue;
+                        if (!await ADBService.CheckDeviceActiveBool(device.DeviceId, miChangerGraphQLClient))
+                        {
+                            UpdateDeviceStatus(device.DeviceId, "0%", "⚠ Device not active");
+                            continue;
 
-                        //}
+                        }
                         if (_processingDeviceIds.Contains(device.DeviceId))
                         {
                             UpdateDeviceStatus(device.DeviceId, "%", "⏳ Device running...");
@@ -2137,12 +2159,12 @@ namespace ToolChange.ViewModels
                             continue;
 
                         }
-                        //if (!await ADBService.CheckDeviceActiveBool(device.DeviceId, miChangerGraphQLClient))
-                        //{
-                        //    UpdateDeviceStatus(device.DeviceId, "0%", "⚠ Device not active");
-                        //    continue;
+                        if (!await ADBService.CheckDeviceActiveBool(device.DeviceId, miChangerGraphQLClient))
+                        {
+                            UpdateDeviceStatus(device.DeviceId, "0%", "⚠ Device not active");
+                            continue;
 
-                        //}
+                        }
                         if (_processingDeviceIds.Contains(device.DeviceId))
                         {
                             UpdateDeviceStatus(device.DeviceId, "%", "⏳ Device running...");
@@ -2252,12 +2274,12 @@ namespace ToolChange.ViewModels
                         continue;
 
                     }
-                    //if (!await ADBService.CheckDeviceActiveBool(device.DeviceId, miChangerGraphQLClient))
-                    //{
-                    //    UpdateDeviceStatus(device.DeviceId, "0%", "⚠ Device not active");
-                    //    continue;
+                    if (!await ADBService.CheckDeviceActiveBool(device.DeviceId, miChangerGraphQLClient))
+                    {
+                        UpdateDeviceStatus(device.DeviceId, "0%", "⚠ Device not active");
+                        continue;
 
-                    //}
+                    }
                     if (_processingDeviceIds.Contains(device.DeviceId))
                     {
                         UpdateDeviceStatus(device.DeviceId, "%", "⏳ Device running...");
@@ -2346,12 +2368,12 @@ namespace ToolChange.ViewModels
                         continue;
 
                     }
-                    //if (!await ADBService.CheckDeviceActiveBool(device.DeviceId, miChangerGraphQLClient))
-                    //{
-                    //    UpdateDeviceStatus(device.DeviceId, "0%", "⚠ Device not active");
-                    //    continue;
+                    if (!await ADBService.CheckDeviceActiveBool(device.DeviceId, miChangerGraphQLClient))
+                    {
+                        UpdateDeviceStatus(device.DeviceId, "0%", "⚠ Device not active");
+                        continue;
 
-                    //}
+                    }
                     if (_processingDeviceIds.Contains(device.DeviceId))
                     {
                         UpdateDeviceStatus(device.DeviceId, "%", "⏳ Device running...");
@@ -2428,12 +2450,12 @@ namespace ToolChange.ViewModels
                         continue;
 
                     }
-                    //if (!await ADBService.CheckDeviceActiveBool(device.DeviceId, miChangerGraphQLClient))
-                    //{
-                    //    UpdateDeviceStatus(device.DeviceId, "0%", "⚠ Device not active");
-                    //    continue;
+                    if (!await ADBService.CheckDeviceActiveBool(device.DeviceId, miChangerGraphQLClient))
+                    {
+                        UpdateDeviceStatus(device.DeviceId, "0%", "⚠ Device not active");
+                        continue;
 
-                    //}
+                    }
                     if (_processingDeviceIds.Contains(device.DeviceId))
                     {
                         UpdateDeviceStatus(device.DeviceId, "%", "⏳ Device running...");
@@ -2601,12 +2623,12 @@ namespace ToolChange.ViewModels
                         continue;
 
                     }
-                    //if (!await ADBService.CheckDeviceActiveBool(device.DeviceId, miChangerGraphQLClient))
-                    //{
-                    //    UpdateDeviceStatus(device.DeviceId, "0%", "⚠ Device not active");
-                    //    continue;
+                    if (!await ADBService.CheckDeviceActiveBool(device.DeviceId, miChangerGraphQLClient))
+                    {
+                        UpdateDeviceStatus(device.DeviceId, "0%", "⚠ Device not active");
+                        continue;
 
-                    //}
+                    }
                     if (_processingDeviceIds.Contains(device.DeviceId))
                     {
                         UpdateDeviceStatus(device.DeviceId, "%", "⏳ Device running...");
@@ -2691,12 +2713,12 @@ namespace ToolChange.ViewModels
                         continue;
 
                     }
-                    //if (!await ADBService.CheckDeviceActiveBool(device.DeviceId, miChangerGraphQLClient))
-                    //{
-                    //    UpdateDeviceStatus(device.DeviceId, "0%", "⚠ Device not active");
-                    //    continue;
+                    if (!await ADBService.CheckDeviceActiveBool(device.DeviceId, miChangerGraphQLClient))
+                    {
+                        UpdateDeviceStatus(device.DeviceId, "0%", "⚠ Device not active");
+                        continue;
 
-                    //}
+                    }
                     if (_processingDeviceIds.Contains(device.DeviceId))
                     {
                         UpdateDeviceStatus(device.DeviceId, "%", "⏳ Device running...");
@@ -2748,7 +2770,7 @@ namespace ToolChange.ViewModels
                         if (typeProxy == "HTTP")
                         {
                             isFakeTimeZone = FakeTimeZoneHttp(proxy, device.DeviceId);
-                            PROXYTYPE = "http-connect";
+                            PROXYTYPE = "http";
                         }
                         else
                         {
@@ -2757,45 +2779,115 @@ namespace ToolChange.ViewModels
                         }
                         if (isFakeTimeZone)
                         {
-                            DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "10%", DevicesLang.logTitleProxy);
-                            Thread.Sleep(10000);
-                            string ip = proxyHost;
-                            int port = int.Parse(proxyPort);
-                            string user = proxyUsername;
-                            string password = proxyPassword;
-                            ADBService.enableWifi(false, device.DeviceId);
-                            ADBService.rootAndRemount(device.DeviceId);
-                            ADBService.putSetting("http_proxy", ":0", device.DeviceId);
-                            RedSocksService.stop(device.DeviceId);
-                            if (ADBService.checkFileOnDevice("/data/local/tmp/redsocks.conf", device.DeviceId))
+                            if (typeProxy == "HTTP")
                             {
-                                DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "40%", Lang.LogError);
-                                RedSocksService.stop(device.DeviceId);
-                            }
+                                DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "10%", DevicesLang.logTitleProxy);
+                                Thread.Sleep(10000);
+                                string ip = proxyHost;
+                                int port = int.Parse(proxyPort);
+                                string user = proxyUsername;
+                                string password = proxyPassword;
+                                string newTun0TableId = new Random().Next(9000, 10000).ToString();
+                                string authen = (!string.IsNullOrEmpty(proxyUsername) && !string.IsNullOrEmpty(proxyPassword)) ? $"{proxyUsername}:{proxyPassword}@" : "";
+                                string proxyParams = $"{PROXYTYPE}://{proxyHost}:{proxyPort}";
+                                if (!string.IsNullOrEmpty(authen))
+                                {
+                                    proxyParams = $"{PROXYTYPE}://{authen}{proxyHost}:{proxyPort}";
+                                }
+                                string ipLocalV4 = Tun2socksService.getIpv4HttpProxy(proxy, device.DeviceId);
+                                string oldTun0TableId = ADBService.readFromFile("/data/local/tmp/tun0TableId.txt", device.DeviceId);
 
-                            RedSocksService.setUpRedSocksOnDevice("/data/local/tmp", device.DeviceId);
-                            DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "50%", DevicesLang.logTitleProxy);
-                            RedSocksService.start(ip, port, "/data/local/tmp", device.DeviceId, user, password, PROXYTYPE);
-                            DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "60%", "In progress connect wifi..");
-                            await Task.Delay(2000);
-                            ADBService.openWifiSettings(device.DeviceId);
-                            int step = 0;
-                            while ((!ADBService.isWifiConnectedV2(device.DeviceId) && !ADBService.isWifiConnected(device.DeviceId)) || step == 40)
-                            {
+                                ADBService.enableWifi(false, device.DeviceId);
+                                ADBService.rootAndRemount(device.DeviceId);
+                                ADBService.putSetting("http_proxy", ":0", device.DeviceId);
+                                if (!string.IsNullOrEmpty(oldTun0TableId))
+                                {
+                                    Tun2socksService.stop(device.DeviceId, oldTun0TableId);
+                                }
+                                else
+                                {
+                                    Tun2socksService.stop(device.DeviceId);
+                                }
+                                Tun2socksService.setUpTun2socksOnDevice("/data/local/tmp", device.DeviceId, newTun0TableId);
+                                DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "50%", DevicesLang.logTitleProxy);
+                                Tun2socksService.start("/data/local/tmp", proxyParams, ipLocalV4, device.DeviceId, newTun0TableId);
+                                DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "60%", "In progress connect wifi..");
+                                await Task.Delay(2000);
+                                ADBService.enableWifi(true, device.DeviceId);
                                 ADBService.openWifiSettings(device.DeviceId);
-                                Thread.Sleep(3000);
+                                int step = 0;
+                                while ((!ADBService.isWifiConnectedV2(device.DeviceId) && !ADBService.isWifiConnected(device.DeviceId)) || step == 40)
+                                {
+                                    ADBService.openWifiSettings(device.DeviceId);
+                                    Thread.Sleep(3000);
+                                }
+                                if (step >= 39)
+                                {
+                                    _processingDeviceIds.Remove(device.DeviceId);
+                                    DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "99%", "Fake proxy success, check error - wifi error");
+                                    return;
+                                }
+                                Thread.Sleep(5000);
+                                ADBService.OpenBrowserWithUrl("https://browserleaks.com/ip", device.DeviceId);
+                                DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "99%", DevicesLang.logCheckProxy);
+                                await Task.Delay(2000);
+                                DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "100%", DevicesLang.logTitleProxySuccess);
+                            
                             }
-                            if (step >= 39)
+                            else
                             {
-                                _processingDeviceIds.Remove(device.DeviceId);
-                                DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "99%", "Fake proxy success, check error - wifi error");
-                                return;
+                                DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "10%", DevicesLang.logTitleProxy);
+                                Thread.Sleep(10000);
+                                string ip = proxyHost;
+                                int port = int.Parse(proxyPort);
+                                string user = proxyUsername;
+                                string password = proxyPassword;
+                                string newTun0TableId = new Random().Next(9000, 10000).ToString();
+                                string authen = (!string.IsNullOrEmpty(proxyUsername) && !string.IsNullOrEmpty(proxyPassword)) ? $"{proxyUsername}:{proxyPassword}@" : "";
+                                string proxyParams = $"{PROXYTYPE}://{proxyHost}:{proxyPort}";
+                                if (!string.IsNullOrEmpty(authen))
+                                {
+                                    proxyParams = $"{PROXYTYPE}://{authen}{proxyHost}:{proxyPort}";
+                                }
+                                string ipLocalV4 = Tun2socksService.getIpv4SocksProxy(proxy, device.DeviceId);
+                                string oldTun0TableId = ADBService.readFromFile("/data/local/tmp/tun0TableId.txt", device.DeviceId);
+
+                                ADBService.enableWifi(false, device.DeviceId);
+                                ADBService.rootAndRemount(device.DeviceId);
+                                ADBService.putSetting("http_proxy", ":0", device.DeviceId);
+                                if (!string.IsNullOrEmpty(oldTun0TableId))
+                                {
+                                    Tun2socksService.stop(device.DeviceId, oldTun0TableId);
+                                }
+                                else
+                                {
+                                    Tun2socksService.stop(device.DeviceId);
+                                }
+                                Tun2socksService.setUpTun2socksOnDevice("/data/local/tmp", device.DeviceId, newTun0TableId);
+                                DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "50%", DevicesLang.logTitleProxy);
+                                Tun2socksService.start("/data/local/tmp", proxyParams, ipLocalV4, device.DeviceId, newTun0TableId);
+                                DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "60%", "In progress connect wifi..");
+                                await Task.Delay(2000);
+                                ADBService.enableWifi(true, device.DeviceId);
+                                ADBService.openWifiSettings(device.DeviceId);
+                                int step = 0;
+                                while ((!ADBService.isWifiConnectedV2(device.DeviceId) && !ADBService.isWifiConnected(device.DeviceId)) || step == 40)
+                                {
+                                    ADBService.openWifiSettings(device.DeviceId);
+                                    Thread.Sleep(3000);
+                                }
+                                if (step >= 39)
+                                {
+                                    _processingDeviceIds.Remove(device.DeviceId);
+                                    DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "99%", "Fake proxy success, check error - wifi error");
+                                    return;
+                                }
+                                Thread.Sleep(5000);
+                                ADBService.OpenBrowserWithUrl("https://browserleaks.com/ip", device.DeviceId);
+                                DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "99%", DevicesLang.logCheckProxy);
+                                await Task.Delay(2000);
+                                DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "100%", DevicesLang.logTitleProxySuccess);
                             }
-                            Thread.Sleep(5000);
-                            ADBService.OpenBrowserWithUrl("https://browserleaks.com/ip", device.DeviceId);
-                            DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "99%", DevicesLang.logCheckProxy);
-                            await Task.Delay(2000);
-                            DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "100%", DevicesLang.logTitleProxySuccess);
                         }
                         else
                         {
@@ -3043,6 +3135,7 @@ namespace ToolChange.ViewModels
                 return false;
             }
         }
+
         private string NormalizeUrl(string url)
         {
             if (string.IsNullOrWhiteSpace(url))

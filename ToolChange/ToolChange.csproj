@@ -110,6 +110,9 @@
     <EmbeddedResource Include="Resources\init.lineage22.rc">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>
+    <EmbeddedResource Include="Resources\tun2socks">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
     <Resource Include="Resources\icon.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Resource>
@@ -197,9 +200,6 @@
     <EmbeddedResource Include="Resources\swresample-5.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </EmbeddedResource>
-    <EmbeddedResource Include="Resources\tun2socks">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </EmbeddedResource>
     <EmbeddedResource Include="Resources\webview.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </EmbeddedResource>
@@ -215,6 +215,7 @@
   <ItemGroup>
     <PackageReference Include="EPPlus" Version="6.2.4" />
     <PackageReference Include="FFmpeg.AutoGen" Version="7.1.1" />
+    <PackageReference Include="HttpToSocks5Proxy" Version="1.4.0" />
     <PackageReference Include="LibVLCSharp" Version="3.9.3" />
     <PackageReference Include="LibVLCSharp.Forms" Version="3.9.3" />
     <PackageReference Include="LibVLCSharp.WinForms" Version="3.9.3" />

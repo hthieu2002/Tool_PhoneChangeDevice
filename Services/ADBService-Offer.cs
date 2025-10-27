@@ -360,6 +360,14 @@ namespace Services
             return !string.IsNullOrEmpty(rs.Trim());
         }
 
+        /// <summary>
+        /// [DEPRECATED] — Use <see cref="Tun2socksService.setUpTun0"/> instead.
+        /// </summary>
+        /// <remarks>
+        /// This old version is now replaced by the improved method inside Tun2socksService,
+        /// which provides safer cleanup, better process handling, and more robust route/rule flushing.
+        /// </remarks>
+        [Obsolete("Use Tun2socksService.setUpTun0 instead.")]
         public static void prepareTun2Socks(int tableIpRuleId, string deviceId)
         {
             // Create TUN Interface (make sure root & remount permission granted)
@@ -406,6 +414,14 @@ namespace Services
             //runCMD("shell \"iptables -t filter -P OUTPUT ACCEPT\"", deviceId);
         }
 
+        /// <summary>
+        /// [DEPRECATED] — Use <see cref="Tun2socksService.startTun2socks"/> instead.
+        /// </summary>
+        /// <remarks>
+        /// This old version is now replaced by the improved method inside Tun2socksService,
+        /// which provides safer cleanup, better process handling, and more robust route/rule flushing.
+        /// </remarks>
+        [Obsolete("Use Tun2socksService.startTun2socks instead.")]
         public static void startTun2Socks(ProxyMode mode, string deviceId, string proxyAddress = "", string user = "", string pass = "", string encryptType = "")
         {
             // Run in detach mode
@@ -426,6 +442,14 @@ namespace Services
             }
         }
 
+        /// <summary>
+        /// [DEPRECATED] — Use <see cref="Tun2socksService.stopTun2Socks"/> instead.
+        /// </summary>
+        /// <remarks>
+        /// This old version is now replaced by the improved method inside Tun2socksService,
+        /// which provides safer cleanup, better process handling, and more robust route/rule flushing.
+        /// </remarks>
+        [Obsolete("Use Tun2socksService.stopTun2Socks instead.")]
         public static void stopTun2Socks(int tableIpRuleId, string deviceId, bool onlyTun2socks = false)
         {
             runCMD($"shell \"kill -9 $(pgrep -f tun2socks)\"", deviceId);
