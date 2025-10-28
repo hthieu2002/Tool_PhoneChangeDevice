@@ -1098,10 +1098,10 @@ namespace ToolChange.ViewModels
             };
             if (log.ShowDialog() == true)
             {
-                proxyHost = model.ProxyHost;
-                proxyPort = model.ProxyPort;
-                proxyUsername = model.ProxyUsername;
-                proxyPassword = model.ProxyPassword;
+                proxyHost = model.ProxyHost.Trim();
+                proxyPort = model.ProxyPort.Trim();
+                proxyUsername = model.ProxyUsername.Trim();
+                proxyPassword = model.ProxyPassword.Trim();
             }
 
             if (string.IsNullOrEmpty(proxyHost) || string.IsNullOrEmpty(proxyPort))
@@ -1224,10 +1224,10 @@ namespace ToolChange.ViewModels
             };
             if (log.ShowDialog() == true)
             {
-                proxyHost = model.ProxyHost;
-                proxyPort = model.ProxyPort;
-                proxyUsername = model.ProxyUsername;
-                proxyPassword = model.ProxyPassword;
+                proxyHost = model.ProxyHost.Trim();
+                proxyPort = model.ProxyPort.Trim();
+                proxyUsername = model.ProxyUsername.Trim();
+                proxyPassword = model.ProxyPassword.Trim();
             }
 
             if (string.IsNullOrEmpty(proxyHost) || string.IsNullOrEmpty(proxyPort))
@@ -2687,12 +2687,12 @@ namespace ToolChange.ViewModels
                 };
                 if (log.ShowDialog() == true)
                 {
-                    proxyHost = model.ProxyHost;
-                    proxyPort = model.ProxyPort;
-                    proxyUsername = model.ProxyUsername;
-                    proxyPassword = model.ProxyPassword;
+                    proxyHost = model.ProxyHost.Trim();
+                    proxyPort = model.ProxyPort.Trim();
+                    proxyUsername = model.ProxyUsername.Trim();
+                    proxyPassword = model.ProxyPassword.Trim();
                     deviceCheck = model.DeviceALL;
-                    typeProxy = model.TypeProxy;
+                    typeProxy = model.TypeProxy.Trim();
                     devices = model.SelectedDevices;
                 }
 
