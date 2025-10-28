@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
@@ -31,7 +32,7 @@ namespace Services
             {
                 ipLocalV4 = randomLocalIPv4ForTun2socks();
             }
-            enableIPv6(deviceId);
+            configureSysctlForTun(deviceId);
             Thread.Sleep(1000);
             setUpTun0(deviceId, ipLocalV4, tun0TableId);
             Thread.Sleep(1000);
@@ -85,8 +86,10 @@ namespace Services
             routingRulesIPv6(deviceId);
         }
 
-        private static void enableIPv6(string deviceId)
+        private static void configureSysctlForTun(string deviceId, string localWifiInterface = "wlan0")
         {
+            ADBService.runCMDRoot("shell \"sysctl net.ipv4.conf.all.rp_filter=0\"", deviceId);
+            ADBService.runCMDRoot($"shell \"sysctl net.ipv4.conf.{localWifiInterface}.rp_filter=0\"", deviceId);
             ADBService.runCMDRoot("shell \"sysctl -w net.ipv6.conf.tun0.disable_ipv6=0\"", deviceId);
             ADBService.runCMDRoot("shell \"sysctl -w net.ipv6.conf.all.forwarding=1\"", deviceId);
             ADBService.runCMDRoot("shell \"sysctl -w net.ipv6.conf.default.forwarding=1\"", deviceId);
@@ -125,22 +128,19 @@ namespace Services
             ADBService.runCMDRoot("shell \"ip -6 rule add iif lo oif tun0 uidrange 0-99999 lookup tun0 pref 231\"", deviceId);
         }
 
-        private static void configIptablesTun2socks(string deviceId)
+        private static void configIptablesTun2socks(string deviceId, string localWifiInterface = "wlan0")
         {
-            ADBService.runCMDRoot("shell \"iptables -t nat -A OUTPUT -p udp --dport 53 -j DNAT --to-destination 8.8.8.8:53\"", deviceId);
-            ADBService.runCMDRoot("shell \"iptables -t nat -A OUTPUT -p tcp --dport 53 -j DNAT --to-destination 8.8.8.8:53\"", deviceId);
-            ADBService.runCMDRoot("shell \"iptables -t nat -A PREROUTING -p udp --dport 53 -j DNAT --to-destination 8.8.8.8:53\"", deviceId);
-            ADBService.runCMDRoot("shell \"iptables -t nat -A PREROUTING -p tcp --dport 53 -j DNAT --to-destination 8.8.8.8:53\"", deviceId);
-            ADBService.runCMDRoot("shell \"iptables -t nat -A POSTROUTING -j MASQUERADE\"", deviceId);
+            ADBService.runCMDRoot("shell \"iptables -t nat -A PREROUTING -p udp --dport 53 -j DNAT --to 8.8.8.8:53\"", deviceId);
+            ADBService.runCMDRoot($"shell \"iptables -t nat -A POSTROUTING -p udp -d 8.8.8.8 --dport 53 -o {localWifiInterface} -j MASQUERADE\"", deviceId);
             ADBService.runCMDRoot("shell \"iptables -A OUTPUT ! -o tun0 -j DROP\"", deviceId);
             ADBService.runCMDRoot("shell \"iptables -I OUTPUT -m owner --uid-owner 0 -j ACCEPT\"", deviceId);
             ADBService.runCMDRoot("shell \"ip6tables -A OUTPUT ! -o tun0 -j DROP\"", deviceId);
             ADBService.runCMDRoot("shell \"ip6tables -I OUTPUT -m owner --uid-owner 0 -j ACCEPT\"", deviceId);
         }
 
-        private static void startTun2socks(string proxyParams, string tun2socksDir, string deviceId)
+        private static void startTun2socks(string proxyParams, string tun2socksDir, string deviceId, string localWifiInterface = "wlan0")
         {
-            ADBService.runCMDRoot($"shell \"{tun2socksDir}/tun2socks -device tun://tun0 -proxy {proxyParams} -interface wlan0 -mtu 1500 &> /dev/null &\"", deviceId);
+            ADBService.runCMDRoot($"shell \"nohup {tun2socksDir}/tun2socks -device tun://tun0 -proxy {proxyParams} -interface {localWifiInterface} -mtu 1500 &> /dev/null &\"", deviceId);
         }
 
         private static void stopTun2Socks(string deviceId, string tun0TableId)
@@ -149,6 +149,7 @@ namespace Services
             ADBService.runCMDRoot("shell  \"pkill -9 tun2socks\"", deviceId);
             ADBService.runCMDRoot("shell  \"ifconfig tun0 down\"", deviceId);
             ADBService.runCMDRoot("shell  \"ip tuntap del dev tun0 mode tun\"", deviceId);
+            ADBService.runCMDRoot("shell  \"ip link delete tun0\"", deviceId);
             Thread.Sleep(1000);
             ADBService.runCMDRoot($"shell  \"ip route flush table {tun0TableId}\"", deviceId);
             ADBService.runCMDRoot($"shell  \"ip rule del iif tun0 lookup local_network\"", deviceId);
@@ -196,22 +197,18 @@ namespace Services
                 {
                     var commandline = $"curl --socks5 {proxyParts[0]}:{proxyParts[1]} --proxy-user {proxyParts[2]}:{proxyParts[3]} \"{url}\"";
                     var str = CmdProcess.ExecuteCommand(string.Format("/C {0}", commandline));
-                    if (!string.IsNullOrEmpty(str))
+                    if (!string.IsNullOrEmpty(getIpv4(commandline)))
                     {
-                        JObject jsonOblect = JObject.Parse(str);
-                        ADBService.FakeTimezone(jsonOblect["query"].ToString(), deviceId);
-                        return jsonOblect["query"].ToString();
+                        return getIpv4(commandline);
                     }
                 }
                 else if (proxyParts.Length == 2)
                 {
                     var commandline = $"curl --socks5 {proxyParts[0]}:{proxyParts[1]} \"{url}\"";
                     var str = CmdProcess.ExecuteCommand(string.Format("/C {0}", commandline));
-                    if (!string.IsNullOrEmpty(str))
+                    if (!string.IsNullOrEmpty(getIpv4(commandline)))
                     {
-                        JObject jsonOblect = JObject.Parse(str);
-                        ADBService.FakeTimezone(jsonOblect["query"].ToString(), deviceId);
-                        return jsonOblect["query"].ToString();
+                        return getIpv4(commandline);
                     }
                 }
                 return "";
@@ -237,22 +234,19 @@ namespace Services
                 if (proxyParts.Length == 4)
                 {
                     commandline = $"curl --proxy http://{proxyParts[2]}:{proxyParts[3]}@{proxyParts[0]}:{proxyParts[1]} \"{url}\"";
+                    str = CmdProcess.ExecuteCommand(string.Format("/C {0}", commandline));
+                    if (!string.IsNullOrEmpty(getIpv4(commandline)))
+                    {
+                        return getIpv4(commandline);
+                    }
                 }
                 else if (proxyParts.Length == 2)
                 {
                     commandline = $"curl --proxy http://{proxyParts[0]}:{proxyParts[1]} \"{url}\"";
-                }
-                else
-                {
-                    return "";
-                }
-
-                str = CmdProcess.ExecuteCommand(string.Format("/C {0}", commandline));
-
-                if (!string.IsNullOrEmpty(str))
-                {
-                    JObject jsonObject = JObject.Parse(str);
-                    return jsonObject["query"]?.ToString();
+                    if (!string.IsNullOrEmpty(getIpv4(commandline)))
+                    {
+                        return getIpv4(commandline);
+                    }
                 }
                 return "";
             }
@@ -260,6 +254,17 @@ namespace Services
             {
                 return "";
             }
+        }
+
+        private static string getIpv4(string commandline) 
+        {
+            string str = CmdProcess.ExecuteCommand(string.Format("/C {0}", commandline));
+            if (!string.IsNullOrEmpty(str))
+            {
+                JObject jsonObject = JObject.Parse(str);
+                return jsonObject["query"]?.ToString();
+            }
+            return "";
         }
     }
 }
