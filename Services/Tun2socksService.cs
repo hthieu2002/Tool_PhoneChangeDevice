@@ -127,6 +127,11 @@ namespace Services
 
         private static void configIptablesTun2socks(string deviceId)
         {
+            ADBService.runCMDRoot("shell \"iptables -t nat -A OUTPUT -p udp --dport 53 -j DNAT --to-destination 8.8.8.8:53\"", deviceId);
+            ADBService.runCMDRoot("shell \"iptables -t nat -A OUTPUT -p tcp --dport 53 -j DNAT --to-destination 8.8.8.8:53\"", deviceId);
+            ADBService.runCMDRoot("shell \"iptables -t nat -A PREROUTING -p udp --dport 53 -j DNAT --to-destination 8.8.8.8:53\"", deviceId);
+            ADBService.runCMDRoot("shell \"iptables -t nat -A PREROUTING -p tcp --dport 53 -j DNAT --to-destination 8.8.8.8:53\"", deviceId);
+            ADBService.runCMDRoot("shell \"iptables -t nat -A POSTROUTING -j MASQUERADE\"", deviceId);
             ADBService.runCMDRoot("shell \"iptables -A OUTPUT ! -o tun0 -j DROP\"", deviceId);
             ADBService.runCMDRoot("shell \"iptables -I OUTPUT -m owner --uid-owner 0 -j ACCEPT\"", deviceId);
             ADBService.runCMDRoot("shell \"ip6tables -A OUTPUT ! -o tun0 -j DROP\"", deviceId);
@@ -197,10 +202,6 @@ namespace Services
                         ADBService.FakeTimezone(jsonOblect["query"].ToString(), deviceId);
                         return jsonOblect["query"].ToString();
                     }
-                    else
-                    {
-                        return "";
-                    }
                 }
                 else if (proxyParts.Length == 2)
                 {
@@ -212,15 +213,8 @@ namespace Services
                         ADBService.FakeTimezone(jsonOblect["query"].ToString(), deviceId);
                         return jsonOblect["query"].ToString();
                     }
-                    else
-                    {
-                        return "";
-                    }
                 }
-                else
-                {
-                    return "";
-                }
+                return "";
             }
             catch (Exception ex)
             {
@@ -260,10 +254,7 @@ namespace Services
                     JObject jsonObject = JObject.Parse(str);
                     return jsonObject["query"]?.ToString();
                 }
-                else
-                {
-                    return "";
-                }
+                return "";
             }
             catch (Exception)
             {
