@@ -1100,8 +1100,8 @@ namespace ToolChange.ViewModels
             {
                 proxyHost = model.ProxyHost.Trim();
                 proxyPort = model.ProxyPort.Trim();
-                proxyUsername = model.ProxyUsername.Trim();
-                proxyPassword = model.ProxyPassword.Trim();
+                proxyUsername = model.ProxyUsername?.Trim();
+                proxyPassword = model.ProxyPassword?.Trim();
             }
 
             if (string.IsNullOrEmpty(proxyHost) || string.IsNullOrEmpty(proxyPort))
@@ -1150,7 +1150,7 @@ namespace ToolChange.ViewModels
                         {
                             proxyParams = $"{typeproxy}://{authen}{proxyHost}:{proxyPort}";
                         }
-                        string ipLocalV4 = Tun2socksService.getIpv4SocksProxy(proxy, device.DeviceId);
+                        string ipProxyV4 = Tun2socksService.getIpv4SocksProxy(proxy, device.DeviceId);
                         string oldTun0TableId = ADBService.readFromFile("/data/local/tmp/tun0TableId.txt", device.DeviceId);
 
                         ADBService.enableWifi(false, device.DeviceId);
@@ -1166,7 +1166,7 @@ namespace ToolChange.ViewModels
                         }
                         Tun2socksService.setUpTun2socksOnDevice("/data/local/tmp", device.DeviceId, newTun0TableId);
                         DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "50%", DevicesLang.logTitleProxy);
-                        Tun2socksService.start("/data/local/tmp", proxyParams, ipLocalV4, device.DeviceId, newTun0TableId);
+                        Tun2socksService.start("/data/local/tmp", proxyParams, ipProxyV4, device.DeviceId, newTun0TableId);
                         DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "60%", "In progress connect wifi..");
                         Thread.Sleep(3000);
                         ADBService.enableWifi(true, device.DeviceId);
@@ -1226,8 +1226,8 @@ namespace ToolChange.ViewModels
             {
                 proxyHost = model.ProxyHost.Trim();
                 proxyPort = model.ProxyPort.Trim();
-                proxyUsername = model.ProxyUsername.Trim();
-                proxyPassword = model.ProxyPassword.Trim();
+                proxyUsername = model.ProxyUsername?.Trim();
+                proxyPassword = model.ProxyPassword?.Trim();
             }
 
             if (string.IsNullOrEmpty(proxyHost) || string.IsNullOrEmpty(proxyPort))
@@ -1276,7 +1276,7 @@ namespace ToolChange.ViewModels
                         {
                             proxyParams = $"{typeproxy}://{authen}{proxyHost}:{proxyPort}";
                         }
-                        string ipLocalV4 = Tun2socksService.getIpv4HttpProxy(proxy, device.DeviceId);
+                        string ipProxyV4 = Tun2socksService.getIpv4HttpProxy(proxy, device.DeviceId);
                         string oldTun0TableId = ADBService.readFromFile("/data/local/tmp/tun0TableId.txt", device.DeviceId);
 
                         ADBService.enableWifi(false, device.DeviceId);
@@ -1292,7 +1292,7 @@ namespace ToolChange.ViewModels
                         }
                         Tun2socksService.setUpTun2socksOnDevice("/data/local/tmp", device.DeviceId, newTun0TableId);
                         DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "50%", DevicesLang.logTitleProxy);
-                        Tun2socksService.start("/data/local/tmp", proxyParams, ipLocalV4, device.DeviceId, newTun0TableId);
+                        Tun2socksService.start("/data/local/tmp", proxyParams, ipProxyV4, device.DeviceId, newTun0TableId);
                         DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "60%", "In progress connect wifi..");
                         Thread.Sleep(3000);
                         ADBService.enableWifi(true, device.DeviceId);
@@ -2689,8 +2689,8 @@ namespace ToolChange.ViewModels
                 {
                     proxyHost = model.ProxyHost.Trim();
                     proxyPort = model.ProxyPort.Trim();
-                    proxyUsername = model.ProxyUsername.Trim();
-                    proxyPassword = model.ProxyPassword.Trim();
+                    proxyUsername = model.ProxyUsername?.Trim();
+                    proxyPassword = model.ProxyPassword?.Trim();
                     deviceCheck = model.DeviceALL;
                     typeProxy = model.TypeProxy.Trim();
                     devices = model.SelectedDevices;
@@ -2794,7 +2794,7 @@ namespace ToolChange.ViewModels
                                 {
                                     proxyParams = $"{PROXYTYPE}://{authen}{proxyHost}:{proxyPort}";
                                 }
-                                string ipLocalV4 = Tun2socksService.getIpv4HttpProxy(proxy, device.DeviceId);
+                                string ipProxyV4 = Tun2socksService.getIpv4HttpProxy(proxy, device.DeviceId);
                                 string oldTun0TableId = ADBService.readFromFile("/data/local/tmp/tun0TableId.txt", device.DeviceId);
 
                                 ADBService.enableWifi(false, device.DeviceId);
@@ -2810,7 +2810,7 @@ namespace ToolChange.ViewModels
                                 }
                                 Tun2socksService.setUpTun2socksOnDevice("/data/local/tmp", device.DeviceId, newTun0TableId);
                                 DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "50%", DevicesLang.logTitleProxy);
-                                Tun2socksService.start("/data/local/tmp", proxyParams, ipLocalV4, device.DeviceId, newTun0TableId);
+                                Tun2socksService.start("/data/local/tmp", proxyParams, ipProxyV4, device.DeviceId, newTun0TableId);
                                 DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "60%", "In progress connect wifi..");
                                 await Task.Delay(2000);
                                 ADBService.enableWifi(true, device.DeviceId);
@@ -2849,7 +2849,7 @@ namespace ToolChange.ViewModels
                                 {
                                     proxyParams = $"{PROXYTYPE}://{authen}{proxyHost}:{proxyPort}";
                                 }
-                                string ipLocalV4 = Tun2socksService.getIpv4SocksProxy(proxy, device.DeviceId);
+                                string ipProxyV4 = Tun2socksService.getIpv4SocksProxy(proxy, device.DeviceId);
                                 string oldTun0TableId = ADBService.readFromFile("/data/local/tmp/tun0TableId.txt", device.DeviceId);
 
                                 ADBService.enableWifi(false, device.DeviceId);
@@ -2865,7 +2865,7 @@ namespace ToolChange.ViewModels
                                 }
                                 Tun2socksService.setUpTun2socksOnDevice("/data/local/tmp", device.DeviceId, newTun0TableId);
                                 DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "50%", DevicesLang.logTitleProxy);
-                                Tun2socksService.start("/data/local/tmp", proxyParams, ipLocalV4, device.DeviceId, newTun0TableId);
+                                Tun2socksService.start("/data/local/tmp", proxyParams, ipProxyV4, device.DeviceId, newTun0TableId);
                                 DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "60%", "In progress connect wifi..");
                                 await Task.Delay(2000);
                                 ADBService.enableWifi(true, device.DeviceId);

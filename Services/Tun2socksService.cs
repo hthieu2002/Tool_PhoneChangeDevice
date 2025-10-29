@@ -25,16 +25,16 @@ namespace Services
             ADBService.runCMDRoot($"shell \"echo {tun0TableId} > /data/local/tmp/tun0TableId.txt\"", deviceId);
         }
 
-        public static void start(string tun2socksDir, string proxyParams, string ipLocalV4, string deviceId,
+        public static void start(string tun2socksDir, string proxyParams, string ipProxyV4, string deviceId,
                                  string tun0TableId = "9988")
         {
-            if(string.IsNullOrEmpty(ipLocalV4))
+            if(string.IsNullOrEmpty(ipProxyV4))
             {
-                ipLocalV4 = randomLocalIPv4ForTun2socks();
+                ipProxyV4 = randomLocalIPv4ForTun2socks();
             }
             configureSysctlForTun(deviceId);
             Thread.Sleep(1000);
-            setUpTun0(deviceId, ipLocalV4, tun0TableId);
+            setUpTun0(deviceId, ipProxyV4, tun0TableId);
             Thread.Sleep(1000);
             configIptablesTun2socks(deviceId);
             Thread.Sleep(1000);
@@ -64,32 +64,33 @@ namespace Services
             stopTun2Socks(deviceId, tun0TableId);
         }
 
-        private static void setUpTun0(string deviceId, string ipLocalV4, string tun0TableId)
+        private static void setUpTun0(string deviceId, string ipProxyV4, string tun0TableId)
         {
             var subnet = RandomService.generateSubnetMask();
             ADBService.runCMDRoot("shell \"mkdir /dev/net\"", deviceId);
             ADBService.runCMDRoot("shell \"mknod /dev/net/tun c 10 200\"", deviceId);
             ADBService.runCMDRoot("shell \"chmod 0666 /dev/net/tun\"", deviceId);
             ADBService.runCMDRoot("shell \"ip tuntap add dev tun0 mode tun\"", deviceId);
-            ADBService.runCMDRoot((string.Format($"shell \"echo '{tun0TableId} tun0' >> /data/misc/net/rt_tables\"")), deviceId);
+            ADBService.runCMDRoot($"shell \"echo '{tun0TableId} tun0' >> /data/misc/net/rt_tables\"", deviceId);
             Thread.Sleep(1000);
-            ADBService.runCMDRoot(string.Format($"shell \"ifconfig tun0 {ipLocalV4} netmask {subnet["mask"]} {ipLocalV4} up\""), deviceId);
-            ADBService.runCMDRoot("shell \"ip route add default dev tun0 proto static scope link table tun0\"", deviceId);
+            ADBService.runCMDRoot($"shell \"ifconfig tun0 {ipProxyV4} pointopoint {randomLocalIPv4ForTun2socks()} netmask {subnet["mask"]} up\"", deviceId);
             Thread.Sleep(1000);
-            ADBService.runCMDRoot("shell \"ip -6 route add default dev tun0 proto static scope link table tun0\"", deviceId);
+            ADBService.runCMDRoot($"shell \"ip route add default dev tun0 table {tun0TableId}\"", deviceId);
+            ADBService.runCMDRoot($"shell \"ip rule add from all lookup {tun0TableId} pref 100\"", deviceId);
             Thread.Sleep(1000);
+            ADBService.runCMDRoot($"shell \"ip -6 route add default dev tun0 table {tun0TableId}\"", deviceId);
+            ADBService.runCMDRoot($"shell \"ip -6 rule add from all lookup {tun0TableId} pref 100\"", deviceId);
+            Thread.Sleep(1000);
+            ADBService.runCMDRoot("shell \"ip route del default\"", deviceId);
+            ADBService.runCMDRoot("shell \"ip route add default dev tun0\"", deviceId);
             ADBService.runCMDRoot("shell \"ip link set tun0 up\"", deviceId);
             ADBService.runCMDRoot("shell \"ip route flush cache\"", deviceId);
-            Thread.Sleep(1000);
-            routingRulesIPv4(deviceId);
-            Thread.Sleep(1000);
-            routingRulesIPv6(deviceId);
         }
 
         private static void configureSysctlForTun(string deviceId, string localWifiInterface = "wlan0")
         {
-            ADBService.runCMDRoot("shell \"sysctl net.ipv4.conf.all.rp_filter=0\"", deviceId);
-            ADBService.runCMDRoot($"shell \"sysctl net.ipv4.conf.{localWifiInterface}.rp_filter=0\"", deviceId);
+            ADBService.runCMDRoot("shell \"sysctl -w net.ipv4.conf.all.rp_filter=0\"", deviceId);
+            ADBService.runCMDRoot($"shell \"sysctl -w net.ipv4.conf.{localWifiInterface}.rp_filter=0\"", deviceId);
             ADBService.runCMDRoot("shell \"sysctl -w net.ipv6.conf.tun0.disable_ipv6=0\"", deviceId);
             ADBService.runCMDRoot("shell \"sysctl -w net.ipv6.conf.all.forwarding=1\"", deviceId);
             ADBService.runCMDRoot("shell \"sysctl -w net.ipv6.conf.default.forwarding=1\"", deviceId);
@@ -104,38 +105,10 @@ namespace Services
             return $"192.168.{secondOctet}.{thirdOctet}";
         }
 
-        private static void routingRulesIPv4(string deviceId)
-        {
-            ADBService.runCMDRoot("shell \"ip rule add iif tun0 lookup local_network pref 100\"", deviceId);
-            ADBService.runCMDRoot("shell \"ip rule add fwmark 0xc0068/0xcffff lookup tun0 pref 110\"", deviceId);
-            ADBService.runCMDRoot("shell \"ip rule add fwmark 0x0/0x20000 iif lo uidrange 0-99999 lookup tun0 pref 120\"", deviceId);
-            ADBService.runCMDRoot("shell \"ip rule add fwmark 0x10068/0x1ffff iif lo uidrange 0-9999 lookup tun0 pref 121\"", deviceId);
-            ADBService.runCMDRoot("shell \"ip rule add fwmark 0x10068/0x1ffff iif lo uidrange 0-99999 lookup tun0 pref 122\"", deviceId);
-            ADBService.runCMDRoot("shell \"ip rule add fwmark 0x10068/0x1ffff iif lo uidrange 0-0 lookup tun0 pref 123\"", deviceId);
-            ADBService.runCMDRoot("shell \"ip rule add iif lo oif tun0 uidrange 0-9999 lookup tun0 pref 130\"", deviceId);
-            ADBService.runCMDRoot("shell \"ip rule add iif lo oif tun0 uidrange 0-99999 lookup tun0 pref 131\"", deviceId);
-        }
-
-        private static void routingRulesIPv6(string deviceId)
-        {
-            ADBService.runCMDRoot("shell \"ip -6 rule add iif tun0 lookup local_network pref 200\"", deviceId);
-            ADBService.runCMDRoot("shell \"ip -6 rule add fwmark 0xc0068/0xcffff lookup tun0 pref 210\"", deviceId);
-            ADBService.runCMDRoot("shell \"ip -6 rule add fwmark 0x0/0x20000 iif lo uidrange 0-99999 lookup tun0 pref 220\"", deviceId);
-            ADBService.runCMDRoot("shell \"ip -6 rule add fwmark 0x10068/0x1ffff iif lo uidrange 0-9999 lookup tun0 pref 221\"", deviceId);
-            ADBService.runCMDRoot("shell \"ip -6 rule add fwmark 0x10068/0x1ffff iif lo uidrange 0-99999 lookup tun0 pref 222\"", deviceId);
-            ADBService.runCMDRoot("shell \"ip -6 rule add fwmark 0x10068/0x1ffff iif lo uidrange 0-0 lookup tun0 pref 223\"", deviceId);
-            ADBService.runCMDRoot("shell \"ip -6 rule add iif lo oif tun0 uidrange 0-9999 lookup tun0 pref 230\"", deviceId);
-            ADBService.runCMDRoot("shell \"ip -6 rule add iif lo oif tun0 uidrange 0-99999 lookup tun0 pref 231\"", deviceId);
-        }
-
         private static void configIptablesTun2socks(string deviceId, string localWifiInterface = "wlan0")
         {
-            ADBService.runCMDRoot("shell \"iptables -t nat -A PREROUTING -p udp --dport 53 -j DNAT --to 8.8.8.8:53\"", deviceId);
-            ADBService.runCMDRoot($"shell \"iptables -t nat -A POSTROUTING -p udp -d 8.8.8.8 --dport 53 -o {localWifiInterface} -j MASQUERADE\"", deviceId);
-            ADBService.runCMDRoot("shell \"iptables -A OUTPUT ! -o tun0 -j DROP\"", deviceId);
-            ADBService.runCMDRoot("shell \"iptables -I OUTPUT -m owner --uid-owner 0 -j ACCEPT\"", deviceId);
-            ADBService.runCMDRoot("shell \"ip6tables -A OUTPUT ! -o tun0 -j DROP\"", deviceId);
-            ADBService.runCMDRoot("shell \"ip6tables -I OUTPUT -m owner --uid-owner 0 -j ACCEPT\"", deviceId);
+            ADBService.runCMDRoot($"shell \"iptables -t nat -A PREROUTING -i {localWifiInterface} -p udp --dport 53 -j DNAT --to 8.8.8.8:53\"", deviceId);
+            ADBService.runCMDRoot($"shell \"iptables -t nat -A POSTROUTING -p udp -d 8.8.8.8 --dport 53 -o tun0 -j MASQUERADE\"", deviceId);
         }
 
         private static void startTun2socks(string proxyParams, string tun2socksDir, string deviceId, string localWifiInterface = "wlan0")
@@ -143,43 +116,25 @@ namespace Services
             ADBService.runCMDRoot($"shell \"nohup {tun2socksDir}/tun2socks -device tun://tun0 -proxy {proxyParams} -interface {localWifiInterface} -mtu 1500 &> /dev/null &\"", deviceId);
         }
 
-        private static void stopTun2Socks(string deviceId, string tun0TableId)
+        private static void stopTun2Socks(string deviceId, string tun0TableId, string localWifiInterface = "wlan0")
         {
-            ADBService.runCMDRoot("shell  \"killall -q tun2socks\"", deviceId);
-            ADBService.runCMDRoot("shell  \"pkill -9 tun2socks\"", deviceId);
-            ADBService.runCMDRoot("shell  \"ifconfig tun0 down\"", deviceId);
-            ADBService.runCMDRoot("shell  \"ip tuntap del dev tun0 mode tun\"", deviceId);
-            ADBService.runCMDRoot("shell  \"ip link delete tun0\"", deviceId);
+            ADBService.runCMDRoot("shell \"killall -q tun2socks\"", deviceId);
+            ADBService.runCMDRoot("shell \"pkill -9 tun2socks\"", deviceId);
+            ADBService.runCMDRoot("shell \"ifconfig tun0 down\"", deviceId);
+            ADBService.runCMDRoot("shell \"ip tuntap del dev tun0 mode tun\"", deviceId);
+            ADBService.runCMDRoot("shell \"ip link delete tun0\"", deviceId);
             Thread.Sleep(1000);
-            ADBService.runCMDRoot($"shell  \"ip route flush table {tun0TableId}\"", deviceId);
-            ADBService.runCMDRoot($"shell  \"ip rule del iif tun0 lookup local_network\"", deviceId);
-            ADBService.runCMDRoot($"shell  \"ip rule del fwmark 0xc0068/0xcffff lookup tun0\"", deviceId);
-            ADBService.runCMDRoot($"shell  \"ip rule del fwmark 0x0/0x20000 iif lo uidrange 0-99999 lookup tun0\"", deviceId);
-            ADBService.runCMDRoot($"shell  \"ip rule del fwmark 0x10068/0x1ffff iif lo uidrange 0-9999 lookup tun0\"", deviceId);
-            ADBService.runCMDRoot($"shell  \"ip rule del fwmark 0x10068/0x1ffff iif lo uidrange 0-99999 lookup tun0\"", deviceId);
-            ADBService.runCMDRoot($"shell  \"ip rule del fwmark 0x10068/0x1ffff iif lo uidrange 0-0 lookup tun0\"", deviceId);
-            ADBService.runCMDRoot($"shell  \"ip rule del iif lo oif tun0 uidrange 0-9999 lookup tun0\"", deviceId);
-            ADBService.runCMDRoot($"shell  \"ip rule del iif lo oif tun0 uidrange 0-99999 lookup tun0\"", deviceId);
-            ADBService.runCMDRoot($"shell  \"ip route flush cache\"", deviceId);
-            Thread.Sleep(1000);
-            ADBService.runCMDRoot($"shell  \"ip -6 route flush table {tun0TableId}\"", deviceId);
-            ADBService.runCMDRoot($"shell  \"ip -6 rule del iif tun0 lookup local_network\"", deviceId);
-            ADBService.runCMDRoot($"shell  \"ip -6 rule del fwmark 0xc0068/0xcffff lookup tun0\"", deviceId);
-            ADBService.runCMDRoot($"shell  \"ip -6 rule del fwmark 0x0/0x20000 iif lo uidrange 0-99999 lookup tun0\"", deviceId);
-            ADBService.runCMDRoot($"shell  \"ip -6 rule del fwmark 0x10068/0x1ffff iif lo uidrange 0-9999 lookup tun0\"", deviceId);
-            ADBService.runCMDRoot($"shell  \"ip -6 rule del fwmark 0x10068/0x1ffff iif lo uidrange 0-99999 lookup tun0\"", deviceId);
-            ADBService.runCMDRoot($"shell  \"ip -6 rule del fwmark 0x10068/0x1ffff iif lo uidrange 0-0 lookup tun0\"", deviceId);
-            ADBService.runCMDRoot($"shell  \"ip -6 rule del iif lo oif tun0 uidrange 0-9999 lookup tun0\"", deviceId);
-            ADBService.runCMDRoot($"shell  \"ip -6 rule del iif lo oif tun0 uidrange 0-99999 lookup tun0\"", deviceId);
-            ADBService.runCMDRoot($"shell  \"ip -6 route flush cache\"", deviceId);
+            ADBService.runCMDRoot($"shell \"ip route del add default dev tun0 table {tun0TableId}\"", deviceId);
+            ADBService.runCMDRoot($"shell \"ip rule del add from all lookup {tun0TableId} pref 100\"", deviceId);
+            ADBService.runCMDRoot($"shell \"ip -6 route del add default dev tun0 table {tun0TableId}\"", deviceId);
+            ADBService.runCMDRoot($"shell \"ip -6 rule del add from all lookup {tun0TableId} pref 200\"", deviceId);
+            ADBService.runCMDRoot($"shell \"ip route del default\"", deviceId);
+            ADBService.runCMDRoot($"shell \"ip route add default dev {localWifiInterface}\"", deviceId);
+            ADBService.runCMDRoot($"shell \"ip route flush cache\"", deviceId);
             Thread.Sleep(1000);
             ADBService.runCMDRoot($"shell  \"iptables -t nat -F\"", deviceId);
             ADBService.runCMDRoot($"shell  \"iptables -t mangle -F\"", deviceId);
             ADBService.runCMDRoot($"shell  \"iptables -F\"", deviceId);
-            Thread.Sleep(1000);
-            ADBService.runCMDRoot($"shell  \"ip6tables -t nat -F\"", deviceId);
-            ADBService.runCMDRoot($"shell  \"ip6tables -t mangle -F\"", deviceId);
-            ADBService.runCMDRoot($"shell  \"ip6tables -F\"", deviceId);
             Thread.Sleep(1000);
             ADBService.runCMDRoot($"shell  \"sed -i '/{tun0TableId} tun0/d' /data/misc/net/rt_tables\"", deviceId);
             ADBService.runCMDRoot($"shell  \"rm -rf /dev/net/tun\"", deviceId);
