@@ -92,7 +92,7 @@ namespace ToolChange.ViewModels
             }
         }
         private POCO.Models.ComboBoxItem _selectedSim;
-        private bool _fakeSdk = true;
+        private bool _fakeSdk = false;
         public bool IsFakeSdk
         {
             get => _fakeSdk;
