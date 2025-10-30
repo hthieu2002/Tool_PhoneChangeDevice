@@ -30,6 +30,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Threading;
 using System.Xml.Linq;
+using Tesseract;
 using ToolChange.Language;
 using ToolChange.Models;
 using ToolChange.Services;
@@ -1478,21 +1479,19 @@ namespace ToolChange.ViewModels
                 Name = tempDeviceAll.Board;
                 Model = tempDeviceAll.Model;
                 Os = tempDeviceAll.Release;
-                Serial = tempDeviceAll.SerialNo = RandomService.getRandomStringHex16Digit().Substring(0, RandomService.randomInRange(8, 13));
-                Code = tempDeviceAll.SimOperatorNumeric = string.Concat(mcc, mnc);
-                Phone = tempDeviceAll.SimPhoneNumber = string.Format("+{0}{1}", currentSelectedCountry.CountryCode, RandomService.generatePhoneNumber());
                 Imei = tempDeviceAll.Imei;
                 Imsi = tempDeviceAll.IMSI = RandomService.generateIMSI(mcc, mnc);
                 Iccid = tempDeviceAll.ICCID = RandomService.generateICCID(currentSelectedCountry.CountryCode, mnc);
-                Mac = RandomService.generateMacAddress();
-                Gpu = tempDeviceAll.Gpu;
-
+                Serial = tempDeviceAll.SerialNo = RandomService.getRandomStringHex16Digit().Substring(0, RandomService.randomInRange(8, 13));
+                Phone = tempDeviceAll.SimPhoneNumber = string.Format("+{0}{1}", currentSelectedCountry.CountryCode, RandomService.generatePhoneNumber());
+                Code = tempDeviceAll.SimOperatorNumeric = string.Concat(mcc, mnc);
                 tempDeviceAll.SimOperatorCountry = currentSelectedCountry.CountryIso;
                 tempDeviceAll.SimOperatorName = currentSelectedCarrier.Name.Split('-')[0].Replace("&", "&");
                 tempDeviceAll.AndroidId = RandomService.getRandomStringHex16Digit();
-                tempDeviceAll.WifiMacAddress = Mac;
+                Mac = tempDeviceAll.WifiMacAddress = RandomService.generateWifiMacAddress();
                 tempDeviceAll.BlueToothMacAddress = RandomService.generateMacAddress();
 
+                Gpu = tempDeviceAll.Gpu;
                 IsButtonChangeDevice = true;
                 IsButtonChangeFull = true;
                 CustomCursorChangeDevice = System.Windows.Input.Cursors.Hand;
@@ -1962,10 +1961,90 @@ namespace ToolChange.ViewModels
                         }
                         if (messageBoxPushFileJson == MessageBoxResult.Yes && selectedFilePathJson != null)
                         {
+                            DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "0%", "In progress push file pif.json to phone");
+                            await Task.Delay(1000);
                             ADBService.ExecuteAdbCommand(
                                 $"push {selectedFilePathJson} /data/local/tmp/",
                                 device.DeviceId
                             );
+
+                            DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "0%", "Push file pif.json to phone success");
+                            await Task.Delay(1000);
+
+
+                            DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "0%", "In progress setprop pihooks to phone");
+                            string jsonContent = File.ReadAllText(selectedFilePathJson);
+                            await Task.Delay(1000);
+                            PifData pifData = JsonConvert.DeserializeObject<PifData>(jsonContent);
+
+                            if (pifData == null)
+                            {
+                                DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "0%", "File PIF data null");
+                            }
+                            else
+                            {
+                                var props = typeof(PifData).GetProperties()
+                                                            .Where(p => p.PropertyType == typeof(string))
+                                                            .Select(p => new { Name = p.Name, Value = p.GetValue(pifData) as string })
+                                                            .Where(p => string.IsNullOrEmpty(p.Value) && p.Name != "RELEASE")
+                                                            .ToList();
+
+                                if (props.Any())
+                                {
+                                    string missing = string.Join(", ", props.Select(p => p.Name));
+                                    DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "0%", $"Missing or empty fields: {missing}");
+                                }
+                                else
+                                {
+                                    if (!string.IsNullOrEmpty(pifData.FINGERPRINT))
+                                    {
+                                        string[] parts = pifData.FINGERPRINT.Split("/");
+                                        List<string> splitFingerprint = new List<string>();
+                                        foreach (string part in parts)
+                                        {
+                                            string[] subParts = part.Split(':');
+                                            splitFingerprint.AddRange(subParts);
+                                        }
+
+                                        if (splitFingerprint.Count == 8)
+                                        {
+                                            var changePifInfo = new Dictionary<string, string>();
+                                            changePifInfo.Add("persist.sys.pixelexperience.pihooks_BRAND", splitFingerprint[0]);
+                                            changePifInfo.Add("persist.sys.pixelexperience.pihooks_PRODUCT", splitFingerprint[1]);
+                                            changePifInfo.Add("persist.sys.pixelexperience.pihooks_DEVICE", splitFingerprint[2]);
+                                            changePifInfo.Add("persist.sys.pixelexperience.pihooks_BOARD", splitFingerprint[2]);
+                                            changePifInfo.Add("persist.sys.pixelexperience.pihooks_HARDWARE", splitFingerprint[2]);
+                                            changePifInfo.Add("persist.sys.pixelexperience.pihooks_ID", splitFingerprint[4]);
+                                            changePifInfo.Add("persist.sys.pixelexperience.pihooks_INCREMENTAL", splitFingerprint[5]);
+                                            changePifInfo.Add("persist.sys.pixelexperience.pihooks_FINGERPRINT", pifData.FINGERPRINT);
+                                            changePifInfo.Add("persist.sys.pixelexperience.pihooks_MANUFACTURER", pifData.MANUFACTURER);
+                                            changePifInfo.Add("persist.sys.pixelexperience.pihooks_MODEL", $"\"{pifData.MODEL}\"");
+                                            changePifInfo.Add("persist.sys.pixelexperience.pihooks_SECURITY_PATCH", pifData.SECURITY_PATCH);
+                                            changePifInfo.Add("persist.sys.pixelexperience.pihooks_DEVICE_INITIAL_SDK_INT", pifData.DEVICE_INITIAL_SDK_INT);
+                                            changePifInfo.Add("persist.sys.pixelexperience.pihooks_SDK_INT", pifData.SDK_INT);
+                                            if (!string.IsNullOrEmpty(pifData.RELEASE))
+                                                changePifInfo.Add("persist.sys.pixelexperience.pihooks_RELEASE", pifData.RELEASE);
+                                            else
+                                            {
+                                                changePifInfo.Add("persist.sys.pixelexperience.pihooks_RELEASE", splitFingerprint[3]);
+                                            }
+
+                                            ADBService.replaceBuildProp("/product/etc/build.prop", changePifInfo, device.DeviceId);
+
+                                            DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "0%", "Setprop pihooks to phone success");
+                                            await Task.Delay(1000);
+                                        }
+                                        else
+                                        {
+                                            DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "0%", "Invalid FINGERPRINT format");
+                                        }
+                                    }
+                                    else
+                                    {
+                                        DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "0%", "FINGERPRINT is null or empty");
+                                    }
+                                }
+                            }
                         }
 
                         tasks.Add(ProcessChangeDeviceAsync(device, 1));

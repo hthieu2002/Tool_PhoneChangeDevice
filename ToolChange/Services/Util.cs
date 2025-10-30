@@ -27,15 +27,15 @@ namespace ToolChange.Services
             {
                 //tempDevice.Brand = "google";
                 //tempDevice.Manufacturer = "Google";
-                //tempDevice.Name = "mustang";
-                //tempDevice.Fingerprint = "google/mustang_beta/mustang:16/BP41.250916.009.A1/14246511:user/release-keys";
+                //tempDevice.Name = "comet";
+                //tempDevice.Fingerprint = "google/comet_beta/comet:16/BP41.250916.010.A1/14281945:user/release-keys";
                 //tempDevice.Manufacturer = "Google";
-                //tempDevice.Model = "Pixel 10 Pro XL";
-                //tempDevice.Code = "mustang";
+                //tempDevice.Model = "Pixel 9 Pro Fold";
+                //tempDevice.Code = "comet";
                 //tempDevice.Release = "16";
-                //tempDevice.BuildId = "BP41.250916.009.A1";
-                //tempDevice.BuildIncremental = "14246511";
-                //tempDevice.Product = "mustang_beta";
+                //tempDevice.BuildId = "BP41.250916.010.A1";
+                //tempDevice.BuildIncremental = "14281945";
+                //tempDevice.Product = "comet_beta";
                 //tempDevice.SecurityPath = "2025-10-05";
 
                 ADBService.runCMDRoot($"shell setprop persist.sys.pixelexperience.sdk {isFakeSdk.ToString().ToLower()}", deviceId);
