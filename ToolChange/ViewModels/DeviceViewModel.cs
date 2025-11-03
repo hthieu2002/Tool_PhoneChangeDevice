@@ -2611,6 +2611,7 @@ namespace ToolChange.ViewModels
                     DeviceUpdater.UpdateProgress(Devices, deviceId, "40%", $"Lấy được timezone từ device: {timezone}");
 
                     ADBService.rootAndRemount(deviceId);
+                    ADBService.runCMDRoot($"shell settings put global auto_time_zone 0", deviceId);
                     ADBService.runCMDRoot($"shell setprop persist.sys.timezone \"{timezone}\"", deviceId);
                     DeviceUpdater.UpdateProgress(Devices, deviceId, "50%", $"Set timezone = {timezone}");
 
