@@ -361,13 +361,13 @@ namespace Services
         }
 
         /// <summary>
-        /// [DEPRECATED] — Use <see cref="Tun2socksService.setUpTun0"/> instead.
+        /// [DEPRECATED] — Use <see cref="Tun2socksService.setUpTun2socksInterface"/> instead.
         /// </summary>
         /// <remarks>
         /// This old version is now replaced by the improved method inside Tun2socksService,
         /// which provides safer cleanup, better process handling, and more robust route/rule flushing.
         /// </remarks>
-        [Obsolete("Use Tun2socksService.setUpTun0 instead.")]
+        [Obsolete("Use Tun2socksService.setUpTun2socksInterface instead.")]
         public static void prepareTun2Socks(int tableIpRuleId, string deviceId)
         {
             // Create TUN Interface (make sure root & remount permission granted)
