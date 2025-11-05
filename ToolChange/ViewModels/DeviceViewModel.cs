@@ -1396,6 +1396,7 @@ namespace ToolChange.ViewModels
             var currentSelectedCountry = SelectedCountry;
             var mcc = SelectedCountry?.Attribute?.Mcc;
             var mnc = SelectedSim?.Value;
+            string specialChars = "- &";
 
             Console.WriteLine("Country Code = {0}. MCC = {1} while carrier name = {2} MNC = {3}"
                 , currentSelectedCountry.CountryCode
@@ -1428,7 +1429,9 @@ namespace ToolChange.ViewModels
                 tempDevice.SimPhoneNumber = string.Format("+{0}{1}", currentSelectedCountry.CountryCode, RandomService.generatePhoneNumber());
                 tempDevice.SimOperatorNumeric = string.Concat(mcc, mnc);
                 tempDevice.SimOperatorCountry = currentSelectedCountry.CountryIso;
-                tempDevice.SimOperatorName = currentSelectedCarrier.Name.Substring(0, currentSelectedCarrier.Name.LastIndexOf("-")).Replace("&", "^&");
+                tempDevice.SimOperatorName = currentSelectedCarrier.Name.LastIndexOf('-') >= 0 
+                                                                ? currentSelectedCarrier.Name.Substring(0, currentSelectedCarrier.Name.LastIndexOf('-')) 
+                                                                : currentSelectedCarrier.Name;
                 tempDevice.AndroidId = RandomService.getRandomStringHex16Digit();
                 tempDevice.WifiMacAddress = RandomService.generateWifiMacAddress();
                 tempDevice.BlueToothMacAddress = RandomService.generateMacAddress();
@@ -1490,7 +1493,9 @@ namespace ToolChange.ViewModels
                 Phone = tempDeviceAll.SimPhoneNumber = string.Format("+{0}{1}", currentSelectedCountry.CountryCode, RandomService.generatePhoneNumber());
                 Code = tempDeviceAll.SimOperatorNumeric = string.Concat(mcc, mnc);
                 tempDeviceAll.SimOperatorCountry = currentSelectedCountry.CountryIso;
-                tempDeviceAll.SimOperatorName = currentSelectedCarrier.Name.Split('-')[0].Replace("&", "&");
+                tempDeviceAll.SimOperatorName = currentSelectedCarrier.Name.LastIndexOf('-') >= 0
+                                                                ? currentSelectedCarrier.Name.Substring(0, currentSelectedCarrier.Name.LastIndexOf('-'))
+                                                                : currentSelectedCarrier.Name;
                 tempDeviceAll.AndroidId = RandomService.getRandomStringHex16Digit();
                 Mac = tempDeviceAll.WifiMacAddress = RandomService.generateWifiMacAddress();
                 tempDeviceAll.BlueToothMacAddress = RandomService.generateMacAddress();
