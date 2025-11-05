@@ -604,7 +604,7 @@
                                     <ColumnDefinition Width="Auto" />
                                     <ColumnDefinition Width="130" />
                                 </Grid.ColumnDefinitions>
-                                <Label Content="Fix fingerprint"
+                                <Label Content="Fix intergefix"
                                        Grid.Column="0"
                                        Margin="10,0,10,0"
                                        HorizontalAlignment="Left"
