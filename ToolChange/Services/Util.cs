@@ -121,20 +121,23 @@ namespace ToolChange.Services
                     changedSystemInfo.Add("ro.android.gsm.version.baseband", tempBaseband);
                     changedSystemInfo.Add("gsm.version.baseband", tempBaseband);
                     changedSystemInfo.Add("ro.com.google.clientidbase", $"android-{tempDevice.Brand}");
-                    changedSystemInfo.Add("bluetooth.device.default_name", tempDevice.Manufacturer);
                     changedSystemInfo.Add("ro.debuggable", "0");
-
-                    changedSystemInfo.Add("org.pixelexperience.device", tempDevice.Code);
-                    changedSystemInfo.Add("org.pixelexperience.version.display", "unknown");
-                    changedSystemInfo.Add("org.pixelexperience.build_date", "unknown");
-                    changedSystemInfo.Add("org.pixelexperience.build_date_utc", "unknown");
-                    changedSystemInfo.Add("org.pixelexperience.build_type", "unknown");
-                    changedSystemInfo.Add("org.pixelexperience.build_security_patch", "unknown");
 
                     changedSystemInfo.Add("ro.boot.vbmeta.avb_version", vbMeta.VbmetaVersion);
                     changedSystemInfo.Add("ro.boot.vbmeta.hash_alg", vbMeta.VbmetaAlgorithm);
                     changedSystemInfo.Add("ro.boot.vbmeta.size", vbMeta.VbmetaSize);
                     changedSystemInfo.Add("ro.boot.vbmeta.digest", vbMeta.VbmetaDigest);
+
+                    string isRomPixelExperience = ADBService.getProp("org.pixelexperience.device", deviceId);
+                    if(!string.IsNullOrEmpty(isRomPixelExperience))
+                    {
+                        changedSystemInfo.Add("org.pixelexperience.device", tempDevice.Code);
+                        changedSystemInfo.Add("org.pixelexperience.version.display", "unknown");
+                        changedSystemInfo.Add("org.pixelexperience.build_date", "unknown");
+                        changedSystemInfo.Add("org.pixelexperience.build_date_utc", "unknown");
+                        changedSystemInfo.Add("org.pixelexperience.build_type", "unknown");
+                        changedSystemInfo.Add("org.pixelexperience.build_security_patch", "unknown");
+                    }
 
                     Models.DeviceUpdater.UpdateProgress(deviceS, deviceId, "45%", "save information ");
                     ADBService.replaceBuildProp("/system/build.prop", changedSystemInfo, deviceId);
