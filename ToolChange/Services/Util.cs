@@ -38,27 +38,27 @@ namespace ToolChange.Services
                 //tempDevice.Product = "comet_beta";
                 //tempDevice.SecurityPath = "2025-10-05";
 
-                tempDevice.Manufacturer = "Google";
-                tempDevice.Brand = "google";
-                tempDevice.Model = "Pixel 3a";
-                tempDevice.Fingerprint = "google/sargo/sargo:12/SP2A.220505.008/8782922:user/release-keys";
-                tempDevice.Product = "sargo";
-                tempDevice.Code = "sargo";
-                tempDevice.Release = "12";
-                tempDevice.BuildId = "SP2A.220505.008";
-                tempDevice.BuildDisplayId = "SP2A.220505.008";
-                tempDevice.BuildIncremental = "8782922";
-                tempDevice.BuildDescription = "sargo-user 12 SP2A.220505.008 8782922 release-keys";
-                tempDevice.BuildFlavor = "sargo-user";
-                tempDevice.BuildHost = "abfarm801";
-                tempDevice.BuildDate = "Wed Jun 29 18:10:44 UTC 2022";
-                tempDevice.BuildDateUtc = "1656526244";
-                tempDevice.SecurityPath = "2022-05-05";
-                tempDevice.Platform = "sdm710";
-                tempDevice.SDK = "32";
-                tempDevice.Hardware = "sargo";
-                tempDevice.Board = "sargo";
-                tempDevice.Bootloader = "b4s4-0.4-8048689";
+                //tempDevice.Manufacturer = "Google";
+                //tempDevice.Brand = "google";
+                //tempDevice.Model = "Pixel 3a";
+                //tempDevice.Fingerprint = "google/sargo/sargo:12/SP2A.220505.008/8782922:user/release-keys";
+                //tempDevice.Product = "sargo";
+                //tempDevice.Code = "sargo";
+                //tempDevice.Release = "12";
+                //tempDevice.BuildId = "SP2A.220505.008";
+                //tempDevice.BuildDisplayId = "SP2A.220505.008";
+                //tempDevice.BuildIncremental = "8782922";
+                //tempDevice.BuildDescription = "sargo-user 12 SP2A.220505.008 8782922 release-keys";
+                //tempDevice.BuildFlavor = "sargo-user";
+                //tempDevice.BuildHost = "abfarm801";
+                //tempDevice.BuildDate = "Wed Jun 29 18:10:44 UTC 2022";
+                //tempDevice.BuildDateUtc = "1656526244";
+                //tempDevice.SecurityPath = "2022-05-05";
+                //tempDevice.Platform = "sdm710";
+                //tempDevice.SDK = "32";
+                //tempDevice.Hardware = "sargo";
+                //tempDevice.Board = "sargo";
+                //tempDevice.Bootloader = "b4s4-0.4-8048689";
 
                 ADBService.runCMDRoot($"shell setprop persist.sys.pixelexperience.sdk {isFakeSdk.ToString().ToLower()}", deviceId);
 
