@@ -17,6 +17,7 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Shell;
 using System.Xml.Linq;
 using static System.Net.Mime.MediaTypeNames;
 
@@ -826,17 +827,20 @@ namespace Services
             runCMDRoot("remount", deviceId);
             runCMDRoot("shell \"mount -o rw,remount rootfs\"", deviceId);
 
-            string tmpPath = "/data/local/tmp/build.prop";
-            runCMDRoot($"shell cp {androidFilePath} {tmpPath}", deviceId);
-
-            string buildPropContent = runCMDRoot(string.Format("shell cat {0}", tmpPath), deviceId);
+            string buildPropContent = runCMDRoot(string.Format("shell cat {0}", androidFilePath), deviceId);
             if (string.IsNullOrEmpty(buildPropContent) 
                 || buildPropContent.Equals($"cat: {androidFilePath}: No such file or directory"))
             {
                 return;
             }
 
-            runCMDRoot($"shell \"sed -i '/# end of file/d' {tmpPath}\"", deviceId);
+            string sedType = "sed -i";
+            string checkSedType = runCMDRoot($"shell \"{sedType} '/end of file/d' {androidFilePath}\"", deviceId);
+            if(checkSedType.Equals("sed: no temp file"))
+            {
+                sedType = "toybox sed";
+                runCMDRoot($"shell \"{sedType} '/end of file/d' {androidFilePath}\"", deviceId);
+            }
 
             foreach (var item in newSettingValues)
             {
@@ -851,18 +855,14 @@ namespace Services
                     string source = buildPropContent.Substring(startIndex, endIndex - startIndex - 1);
                     //const string NewValue = "\/";
                     string destination = string.Format("{0}={1}", item.Key, item.Value).Replace("/", @"\/");
-                    runCMDRoot(string.Format("shell \"sed -i 's|{0}|{1}|g' {2}\" ", source, destination, tmpPath), deviceId);
-                }
+                    runCMDRoot($"shell \"{sedType} 's|{source}|{destination}|g' {androidFilePath}\" ", deviceId);
+                } 
                 else
                 {
                     runCMDRoot($"shell \"echo '{item.Key}={item.Value}' >> {androidFilePath}\"", deviceId);
                 }
             }
-            runCMDRoot($"shell \"echo '# end of file' >> {tmpPath}\"", deviceId);
-            runCMDRoot($"shell cp {tmpPath} {androidFilePath}", deviceId);
-            runCMDRoot($"shell chmod 600 {androidFilePath}", deviceId);
-            runCMDRoot($"shell chown root:root {androidFilePath}", deviceId);
-            runCMDRoot($"shell rm -rf {tmpPath}", deviceId);
+            runCMDRoot($"shell \"echo '# end of file' >> {androidFilePath}\"", deviceId);
         }
 
         //public static bool writeSettingToFileBuildProp(string settingDesktopPath, Dictionary<string, string> newSettingValues)
