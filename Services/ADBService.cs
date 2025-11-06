@@ -26,7 +26,6 @@ namespace Services
     [Obfuscation(Exclude = false)]
     public static partial class ADBService
     {
-        private static readonly bool DEBUG = true;
         private static readonly string[] OsAll = { "33", "34", "35" };
         private static readonly Dictionary<string, string[]> BrandOsMap =
             new(StringComparer.OrdinalIgnoreCase)
@@ -2687,7 +2686,9 @@ namespace Services
 
         public async static Task<string> CheckDeviceActive(string deviceId, MiChangerGraphQLClient miChangerGraphQLClient)
         {
-            if (DEBUG) return "YES";
+#if DEBUG
+            return "YES";
+#endif
             if (_lastCheckTime != DateTime.MinValue)
             {
                 var elapsed = (DateTime.UtcNow - _lastCheckTime).TotalMilliseconds;
@@ -2718,7 +2719,9 @@ namespace Services
 
         public async static Task<bool> CheckDeviceActiveBool(string deviceId, MiChangerGraphQLClient miChangerGraphQLClient)
         {
-            if (DEBUG) return true;
+#if DEBUG
+            return true;
+#endif
             try
             {
                 // Lấy license của thiết bị theo serial
