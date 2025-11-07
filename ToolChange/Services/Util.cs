@@ -140,15 +140,15 @@ namespace ToolChange.Services
                     changedSystemInfo.Add("ro.android.build.version.release", tempDevice.Release);
                     changedSystemInfo.Add("ro.android.build.version.sdk", tempDevice.SDK);
 
-                    changedSystemInfo.Add("ro.android.gsm.version.baseband", tempBaseband);
-                    changedSystemInfo.Add("gsm.version.baseband", tempBaseband);
-                    changedSystemInfo.Add("ro.com.google.clientidbase", $"android-{tempDevice.Brand}");
+                    //changedSystemInfo.Add("ro.android.gsm.version.baseband", tempBaseband);
+                    //changedSystemInfo.Add("gsm.version.baseband", tempBaseband);
+                    //changedSystemInfo.Add("ro.com.google.clientidbase", $"android-{tempDevice.Brand}");
                     changedSystemInfo.Add("ro.debuggable", "0");
 
-                    changedSystemInfo.Add("ro.boot.vbmeta.avb_version", vbMeta.VbmetaVersion);
-                    changedSystemInfo.Add("ro.boot.vbmeta.hash_alg", vbMeta.VbmetaAlgorithm);
-                    changedSystemInfo.Add("ro.boot.vbmeta.size", vbMeta.VbmetaSize);
-                    changedSystemInfo.Add("ro.boot.vbmeta.digest", vbMeta.VbmetaDigest);
+                    //changedSystemInfo.Add("ro.boot.vbmeta.avb_version", vbMeta.VbmetaVersion);
+                    //changedSystemInfo.Add("ro.boot.vbmeta.hash_alg", vbMeta.VbmetaAlgorithm);
+                    //changedSystemInfo.Add("ro.boot.vbmeta.size", vbMeta.VbmetaSize);
+                    //changedSystemInfo.Add("ro.boot.vbmeta.digest", vbMeta.VbmetaDigest);
 
                     string isRomPixelExperience = ADBService.getProp("org.pixelexperience.device", deviceId);
                     if(!string.IsNullOrEmpty(isRomPixelExperience))
@@ -166,7 +166,7 @@ namespace ToolChange.Services
                     ADBService.replaceBuildProp("/system/etc/build.prop", changedSystemInfo, deviceId);
 
                     var changedProductInfo = new Dictionary<string, string>();
-                    changedProductInfo.Add("ro.com.google.clientidbase", $"android-{tempDevice.Brand}");
+                    //changedProductInfo.Add("ro.com.google.clientidbase", $"android-{tempDevice.Brand}");
                     ADBService.replaceBuildProp("product/build.prop", changedProductInfo, deviceId);
                     ADBService.replaceBuildProp("product/etc/build.prop", changedProductInfo, deviceId);
 
@@ -174,7 +174,7 @@ namespace ToolChange.Services
                     changedVendorInfo.Add("ro.soc.manufacturer", tempDevice.Manufacturer);
                     changedVendorInfo.Add("ro.soc.model", tempDevice.Hardware);
                     changedVendorInfo.Add("ro.product.board", tempDevice.Board);
-                    changedVendorInfo.Add("bluetooth.device.default_name", tempDevice.Manufacturer);
+                    //changedVendorInfo.Add("bluetooth.device.default_name", tempDevice.Manufacturer);
                     ADBService.replaceBuildProp("vendor/build.prop", changedVendorInfo, deviceId);
                     ADBService.replaceBuildProp("vendor/etc/build.prop", changedVendorInfo, deviceId);
                     ADBService.replaceBuildProp("mnt/scratch/overlay/vendor/upper/build.prop", changedVendorInfo, deviceId);
@@ -191,8 +191,8 @@ namespace ToolChange.Services
                     partitionList.Add("system_ext", new List<string> { "/system_ext/build.prop", "/system_ext/etc/build.prop", "/system/system_ext/build.prop", "/system/system_ext/etc/build.prop" });
                     RepleacePropertiesForPartition(tempDevice, partitionList, deviceId);
 
-                    ADBService.putSetting("bluetooth_address", tempDevice.BlueToothMacAddress, deviceId, "secure");
-                    ADBService.putSetting("bluetooth_name", RandomService.generateName(), deviceId, "secure");
+                    //ADBService.putSetting("bluetooth_address", tempDevice.BlueToothMacAddress, deviceId, "secure");
+                    //ADBService.putSetting("bluetooth_name", RandomService.generateName(), deviceId, "secure");
                     ADBService.putSetting("device_name", RandomService.generateName(), deviceId);
 
                     ADBService.putSetting(GlobalAndroidSettings.IMEI0, tempDevice.Imei, deviceId);
@@ -201,15 +201,15 @@ namespace ToolChange.Services
                     ADBService.putSetting(GlobalAndroidSettings.HARDWARE_SERIALNO, tempDevice.SerialNo, deviceId);
                     //// generate android ID
                     ADBService.putSetting(GlobalAndroidSettings.ANDROID_ID, tempDevice.AndroidId, deviceId);
-                    ADBService.putSetting("mi_bluetooth_mac_address", tempDevice.BlueToothMacAddress, deviceId);
-                    ADBService.putSetting("mi_wifi_mac_address", tempDevice.WifiMacAddress, deviceId);
+                    //ADBService.putSetting("mi_bluetooth_mac_address", tempDevice.BlueToothMacAddress, deviceId);
+                    //ADBService.putSetting("mi_wifi_mac_address", tempDevice.WifiMacAddress, deviceId);
                     ADBService.putSetting("android_id", tempDevice.AndroidId, deviceId, "secure");
 
-                    ADBService.updateInitRc(tempDevice, randomUser, deviceId);
-                    ADBService.fakeLocalHostNameV6(deviceId);
+                    //ADBService.updateInitRc(tempDevice, randomUser, deviceId);
+                    //ADBService.fakeLocalHostNameV6(deviceId);
 
                     // fake wifi mac address
-                    ADBService.fakeWifiMacAddress(tempDevice.WifiMacAddress, deviceId);
+                    //ADBService.fakeWifiMacAddress(tempDevice.WifiMacAddress, deviceId);
 
                     if (isFakeSim)
                     {
