@@ -1565,7 +1565,9 @@ namespace ToolChange.ViewModels
                 Iccid = tempDeviceAll.ICCID;
 
                 tempDeviceAll.SimOperatorCountry = currentSelectedCountry.CountryIso;
-                tempDeviceAll.SimOperatorName = currentSelectedCarrier.Name.Substring(0, currentSelectedCarrier.Name.LastIndexOf("-")).Replace("&", "^&");
+                tempDeviceAll.SimOperatorName = currentSelectedCarrier.Name.LastIndexOf('-') >= 0
+                                                                ? currentSelectedCarrier.Name.Substring(0, currentSelectedCarrier.Name.LastIndexOf('-'))
+                                                                : currentSelectedCarrier.Name;
                 // tempDeviceAll.WifiMacAddress = RandomService.generateWifiMacAddress();
                 // tempDeviceAll.BlueToothMacAddress = RandomService.generateMacAddress();
 
