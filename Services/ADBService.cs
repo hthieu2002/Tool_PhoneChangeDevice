@@ -820,14 +820,57 @@ namespace Services
             //runCMD("unroot", deviceId);
             return result;
         }
+
         public static void replaceBuildProp(string androidFilePath, Dictionary<string, string> newSettingValues, string deviceId)
         {
             runCMDRoot("root", deviceId);
             runCMDRoot("remount", deviceId);
-            runCMDRoot("shell \"mount -o rw,remount rootfs\"", deviceId);
 
             string buildPropContent = runCMDRoot(string.Format("shell cat {0}", androidFilePath), deviceId);
-            if (string.IsNullOrEmpty(buildPropContent) 
+            if (string.IsNullOrEmpty(buildPropContent)
+                || buildPropContent.Equals($"cat: {androidFilePath}: No such file or directory"))
+            {
+                return;
+            }
+
+            string canWriteToFile = runCMDRoot($"shell \"sed -i '/end of file/d' {androidFilePath}\"", deviceId);
+
+            if(canWriteToFile.Contains("sed: no temp file"))
+            {
+                replaceBuildProp2(androidFilePath, newSettingValues, deviceId);
+            }
+
+            foreach (var item in newSettingValues)
+            {
+                int startIndex = buildPropContent.IndexOf(item.Key);
+                if (item.Key == "ro.build.product")
+                {
+                    startIndex = buildPropContent.LastIndexOf(item.Key);
+                }
+                if (startIndex >= 0)
+                {
+                    int endIndex = buildPropContent.IndexOf('\n', startIndex);
+                    string source = buildPropContent.Substring(startIndex, endIndex - startIndex - 1);
+                    //const string NewValue = "\/";
+                    string destination = string.Format("{0}={1}", item.Key, item.Value).Replace("/", @"\/");
+                    runCMDRoot(string.Format("shell \"sed -i 's|{0}|{1}|g' {2}\" ", source, destination, androidFilePath), deviceId);
+                }
+                else
+                {
+                    runCMDRoot($"shell \"echo '{item.Key}={item.Value}' >> {androidFilePath}\"", deviceId);
+                }
+            }
+
+            runCMDRoot($"shell \"echo '# end of file' >> {androidFilePath}\"", deviceId);
+        }
+
+        public static void replaceBuildProp2(string androidFilePath, Dictionary<string, string> newSettingValues, string deviceId)
+        {
+            runCMDRoot("root", deviceId);
+            runCMDRoot("remount", deviceId);
+
+            string buildPropContent = runCMDRoot(string.Format("shell cat {0}", androidFilePath), deviceId);
+            if (string.IsNullOrEmpty(buildPropContent)
                 || buildPropContent.Equals($"cat: {androidFilePath}: No such file or directory"))
             {
                 return;
@@ -852,7 +895,7 @@ namespace Services
                     //const string NewValue = "\/";
                     string destination = string.Format("{0}={1}", item.Key, item.Value).Replace("/", @"\/");
                     runCMDRoot($"shell \"sed -i 's|{source}|{destination}|g' {tmpPath}\" ", deviceId);
-                } 
+                }
                 else
                 {
                     runCMDRoot($"shell \"echo '{item.Key}={item.Value}' >> {tmpPath}\"", deviceId);
