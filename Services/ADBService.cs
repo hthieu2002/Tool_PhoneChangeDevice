@@ -833,13 +833,10 @@ namespace Services
                 return;
             }
 
-            string sedType = "sed -i";
-            string checkSedType = runCMDRoot($"shell \"{sedType} '/end of file/d' {androidFilePath}\"", deviceId);
-            if(checkSedType.Equals("sed: no temp file"))
-            {
-                sedType = "toybox sed";
-                runCMDRoot($"shell \"{sedType} '/end of file/d' {androidFilePath}\"", deviceId);
-            }
+            string tmpPath = "/data/local/tmp/build.prop";
+
+            runCMDRoot($"shell cp {androidFilePath} {tmpPath}", deviceId);
+            runCMDRoot($"shell \"sed -i '/end of file/d' {tmpPath}\"", deviceId);
 
             foreach (var item in newSettingValues)
             {
@@ -854,14 +851,33 @@ namespace Services
                     string source = buildPropContent.Substring(startIndex, endIndex - startIndex - 1);
                     //const string NewValue = "\/";
                     string destination = string.Format("{0}={1}", item.Key, item.Value).Replace("/", @"\/");
-                    runCMDRoot($"shell \"{sedType} 's|{source}|{destination}|g' {androidFilePath}\" ", deviceId);
+                    runCMDRoot($"shell \"sed -i 's|{source}|{destination}|g' {tmpPath}\" ", deviceId);
                 } 
                 else
                 {
-                    runCMDRoot($"shell \"echo '{item.Key}={item.Value}' >> {androidFilePath}\"", deviceId);
+                    runCMDRoot($"shell \"echo '{item.Key}={item.Value}' >> {tmpPath}\"", deviceId);
                 }
             }
-            runCMDRoot($"shell \"echo '# end of file' >> {androidFilePath}\"", deviceId);
+
+            string[] is600Permission =
+            {
+                "system/build.prop",
+                "system/etc/build.prop",
+                "vendor/build.prop",
+                "vendor/etc/build.prop",
+                "odm/build.prop",
+                "odm/etc/build.prop"
+            };
+
+            string permission = is600Permission.Any(p => p == androidFilePath.TrimStart('/'))
+                                                ? "600"
+                                                : "644";
+
+            runCMDRoot($"shell \"echo '# end of file' >> {tmpPath}\"", deviceId);
+            runCMDRoot($"shell cp {tmpPath} {androidFilePath}", deviceId);
+            runCMDRoot($"shell chmod {permission} {androidFilePath}", deviceId);
+            runCMDRoot($"shell chown root:root {androidFilePath}", deviceId);
+            runCMDRoot($"shell rm -rf {tmpPath}", deviceId);
         }
 
         //public static bool writeSettingToFileBuildProp(string settingDesktopPath, Dictionary<string, string> newSettingValues)
