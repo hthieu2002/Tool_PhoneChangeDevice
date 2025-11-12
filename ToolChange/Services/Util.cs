@@ -160,6 +160,10 @@ namespace ToolChange.Services
                         changedSystemInfo.Add("org.pixelexperience.build_type", "unknown");
                         changedSystemInfo.Add("org.pixelexperience.build_security_patch", "unknown");
                     }
+                    else
+                    {
+                        changedSystemInfo.Add("ro.lineage.device", tempDevice.Code);
+                    }
 
                     Models.DeviceUpdater.UpdateProgress(deviceS, deviceId, "45%", "save information ");
                     ADBService.replaceBuildProp("/system/build.prop", changedSystemInfo, deviceId);

@@ -833,35 +833,36 @@ namespace Services
                 return;
             }
 
-            string canWriteToFile = runCMDRoot($"shell \"sed -i '/end of file/d' {androidFilePath}\"", deviceId);
+            string cantWriteToFile = runCMDRootEx($"shell \"sed -i '/end of file/d' {androidFilePath}\"", deviceId);
 
-            if(canWriteToFile.Contains("sed: no temp file"))
+            if (cantWriteToFile.Contains("sed: no temp file"))
             {
                 replaceBuildProp2(androidFilePath, newSettingValues, deviceId);
             }
-
-            foreach (var item in newSettingValues)
+            else
             {
-                int startIndex = buildPropContent.IndexOf(item.Key);
-                if (item.Key == "ro.build.product")
+                foreach (var item in newSettingValues)
                 {
-                    startIndex = buildPropContent.LastIndexOf(item.Key);
+                    int startIndex = buildPropContent.IndexOf(item.Key);
+                    if (item.Key == "ro.build.product")
+                    {
+                        startIndex = buildPropContent.LastIndexOf(item.Key);
+                    }
+                    if (startIndex >= 0)
+                    {
+                        int endIndex = buildPropContent.IndexOf('\n', startIndex);
+                        string source = buildPropContent.Substring(startIndex, endIndex - startIndex - 1);
+                        //const string NewValue = "\/";
+                        string destination = string.Format("{0}={1}", item.Key, item.Value).Replace("/", @"\/");
+                        runCMDRoot(string.Format("shell \"sed -i 's|{0}|{1}|g' {2}\" ", source, destination, androidFilePath), deviceId);
+                    }
+                    else
+                    {
+                        runCMDRoot($"shell \"echo '{item.Key}={item.Value}' >> {androidFilePath}\"", deviceId);
+                    }
                 }
-                if (startIndex >= 0)
-                {
-                    int endIndex = buildPropContent.IndexOf('\n', startIndex);
-                    string source = buildPropContent.Substring(startIndex, endIndex - startIndex - 1);
-                    //const string NewValue = "\/";
-                    string destination = string.Format("{0}={1}", item.Key, item.Value).Replace("/", @"\/");
-                    runCMDRoot(string.Format("shell \"sed -i 's|{0}|{1}|g' {2}\" ", source, destination, androidFilePath), deviceId);
-                }
-                else
-                {
-                    runCMDRoot($"shell \"echo '{item.Key}={item.Value}' >> {androidFilePath}\"", deviceId);
-                }
+                runCMDRoot($"shell \"echo '# end of file' >> {androidFilePath}\"", deviceId);
             }
-
-            runCMDRoot($"shell \"echo '# end of file' >> {androidFilePath}\"", deviceId);
         }
 
         public static void replaceBuildProp2(string androidFilePath, Dictionary<string, string> newSettingValues, string deviceId)
