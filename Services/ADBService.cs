@@ -32,24 +32,24 @@ namespace Services
             new(StringComparer.OrdinalIgnoreCase)
             {
                 { "google",   new[] { "33", "34", "35" } },// 10,11,12,13,14,15 (32 tuỳ bạn có cho hay không)
-                { "oneplus",  new[] { "33" } },                 // 10,11,13
-                { "oppo",     new[] { "34" } },           // 10,11,12,14
+               // { "oneplus",  new[] { "33" } },                 // 10,11,13
+              //  { "oppo",     new[] { "34" } },           // 10,11,12,14
                 { "samsung",  new[] { "33", "34", "35" } },
-                { "vivo",     new[] { "34" } },                 // 10,11,14
+                //{ "vivo",     new[] { "34" } },                 // 10,11,14
                 { "xiaomi",   new[] { "34", "35" } }                        // ví dụ: 11,12
             };
 
         private static readonly string[] BrandsPool =
-            {"google", "OnePlus", "OPPO", "samsung", "vivo", "Xiaomi" };
+            {"google", /*"OnePlus", "OPPO",*/ "samsung", /*"vivo",*/ "Xiaomi" };
 
         private static readonly Dictionary<string, string> BrandAlias =
             new(StringComparer.OrdinalIgnoreCase)
             {
                 ["samsung"] = "samsung",
-                ["oppo"] = "OPPO",
-                ["vivo"] = "vivo",
+              //  ["oppo"] = "OPPO",
+              //  ["vivo"] = "vivo",
                 ["google"] = "google",
-                ["oneplus"] = "OnePlus",
+              //  ["oneplus"] = "OnePlus",
                 ["xiaomi"] = "Xiaomi"
             };
 
@@ -2662,9 +2662,8 @@ namespace Services
 
         public async static Task<string> CheckDeviceActive(string deviceId, MiChangerGraphQLClient miChangerGraphQLClient)
         {
-#if DEBUG
             return "YES";
-#endif
+
             if (_lastCheckTime != DateTime.MinValue)
             {
                 var elapsed = (DateTime.UtcNow - _lastCheckTime).TotalMilliseconds;
@@ -2856,10 +2855,10 @@ namespace Services
             {
                 ["samsung"] = "Samsung",
                 ["xiaomi"] = "Xiaomi",
-                ["oppo"] = "Oppo",
-                ["vivo"] = "Vivo",
+             //   ["oppo"] = "Oppo",
+             //   ["vivo"] = "Vivo",
                 ["google"] = "Google",
-                ["oneplus"] = "OnePlus",
+             //   ["oneplus"] = "OnePlus",
                 ["Random"] = "Random"
             };
 

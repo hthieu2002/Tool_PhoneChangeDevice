@@ -65,9 +65,9 @@ namespace ToolChange.ViewModels
         private string _fakeProxyData;
 
         private static readonly string[] OsFull = { "Android 13", "Android 14", "Android 15" };
-        private static readonly string[] OsOppo = {"Android 14" };
-        private static readonly string[] OsVivo = { "Android 14" };
-        private static readonly string[] OsOnePlus = { "Android 13" };
+    //    private static readonly string[] OsOppo = {"Android 14" };
+    //    private static readonly string[] OsVivo = { "Android 14" };
+      //  private static readonly string[] OsOnePlus = { "Android 13" };
 
         private SimCarrier _selectedCountry;
         public SimCarrier SelectedCountry
@@ -232,9 +232,9 @@ namespace ToolChange.ViewModels
         private static readonly List<string> AvailableBrands = new List<string>
 {
     "samsung",
-    "OPPO",
-    "vivo",
-    "realme",
+  //  "OPPO",
+ //   "vivo",
+  //  "realme",
     "Google",
     "Xiaomi"
 };
@@ -266,10 +266,10 @@ namespace ToolChange.ViewModels
           {
             "Samsung",
             "Xiaomi",
-            "Oppo",
-            "Vivo",
+          //  "Oppo",
+          //  "Vivo",
             "Google",
-            "OnePlus",
+          //  "OnePlus",
           }
           .OrderBy(x => x)               // sắp xếp A-Z
           .Prepend("Random")             // đưa Random lên đầu
@@ -695,9 +695,9 @@ namespace ToolChange.ViewModels
             ["Samsung"] = OsFull,
             ["Xiaomi"] = OsFull,
             ["Google"] = OsFull,
-            ["Oppo"] = OsOppo,
-            ["Vivo"] = OsVivo,
-            ["OnePlus"] = OsOnePlus,
+       //     ["Oppo"] = OsOppo,
+       //     ["Vivo"] = OsVivo,
+       //     ["OnePlus"] = OsOnePlus,
             // fallback cho brand khác nếu cần có thể thêm ở đây
         };
 
