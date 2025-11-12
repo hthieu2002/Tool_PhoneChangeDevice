@@ -25,41 +25,6 @@ namespace ToolChange.Services
         {
             try
             {
-                //tempDevice.Brand = "google";
-                //tempDevice.Manufacturer = "Google";
-                //tempDevice.Name = "comet";
-                //tempDevice.Fingerprint = "google/comet_beta/comet:16/BP41.250916.010.A1/14281945:user/release-keys";
-                //tempDevice.Manufacturer = "Google";
-                //tempDevice.Model = "Pixel 9 Pro Fold";
-                //tempDevice.Code = "comet";
-                //tempDevice.Release = "16";
-                //tempDevice.BuildId = "BP41.250916.010.A1";
-                //tempDevice.BuildIncremental = "14281945";
-                //tempDevice.Product = "comet_beta";
-                //tempDevice.SecurityPath = "2025-10-05";
-
-                //tempDevice.Manufacturer = "Google";
-                //tempDevice.Brand = "google";
-                //tempDevice.Model = "Pixel 3a";
-                //tempDevice.Fingerprint = "google/sargo/sargo:12/SP2A.220505.008/8782922:user/release-keys";
-                //tempDevice.Product = "sargo";
-                //tempDevice.Code = "sargo";
-                //tempDevice.Release = "12";
-                //tempDevice.BuildId = "SP2A.220505.008";
-                //tempDevice.BuildDisplayId = "SP2A.220505.008";
-                //tempDevice.BuildIncremental = "8782922";
-                //tempDevice.BuildDescription = "sargo-user 12 SP2A.220505.008 8782922 release-keys";
-                //tempDevice.BuildFlavor = "sargo-user";
-                //tempDevice.BuildHost = "abfarm801";
-                //tempDevice.BuildDate = "Wed Jun 29 18:10:44 UTC 2022";
-                //tempDevice.BuildDateUtc = "1656526244";
-                //tempDevice.SecurityPath = "2022-05-05";
-                //tempDevice.Platform = "sdm710";
-                //tempDevice.SDK = "32";
-                //tempDevice.Hardware = "sargo";
-                //tempDevice.Board = "sargo";
-                //tempDevice.Bootloader = "b4s4-0.4-8048689";
-
                 ADBService.runCMDRoot($"shell setprop persist.sys.pixelexperience.sdk {isFakeSdk.ToString().ToLower()}", deviceId);
 
                 if (keepBrand)
@@ -202,7 +167,7 @@ namespace ToolChange.Services
                     //// generate android ID
                     ADBService.putSetting(GlobalAndroidSettings.ANDROID_ID, tempDevice.AndroidId, deviceId);
                     //ADBService.putSetting("mi_bluetooth_mac_address", tempDevice.BlueToothMacAddress, deviceId);
-                    //ADBService.putSetting("mi_wifi_mac_address", tempDevice.WifiMacAddress, deviceId);
+                    ADBService.putSetting("mi_wifi_mac_address", tempDevice.WifiMacAddress, deviceId);
                     ADBService.putSetting("android_id", tempDevice.AndroidId, deviceId, "secure");
 
                     //ADBService.updateInitRc(tempDevice, randomUser, deviceId);
@@ -433,13 +398,13 @@ namespace ToolChange.Services
                     [$"ro.product.{partition.Key}.manufacturer"] = tempDevice.Manufacturer,
                     [$"ro.product.{partition.Key}.model"] = tempDevice.Model,
                     [$"ro.product.{partition.Key}.name"] = tempDevice.Code,
-                    [$"ro.{partition.Key}.build.date"] = tempDevice.BuildDate,
-                    [$"ro.{partition.Key}.build.date.utc"] = tempDevice.BuildDateUtc,
+                    //[$"ro.{partition.Key}.build.date"] = tempDevice.BuildDate,
+                    //[$"ro.{partition.Key}.build.date.utc"] = tempDevice.BuildDateUtc,
                     [$"ro.{partition.Key}.build.fingerprint"] = tempDevice.Fingerprint,
-                    [$"ro.{partition.Key}.build.id"] = tempDevice.BuildId,
+                    //[$"ro.{partition.Key}.build.id"] = tempDevice.BuildId,
                     [$"ro.{partition.Key}.build.tags"] = tempDevice.Tags,
                     [$"ro.{partition.Key}.build.type"] = "user",
-                    [$"ro.{partition.Key}.build.version.incremental"] = tempDevice.BuildIncremental
+                    //[$"ro.{partition.Key}.build.version.incremental"] = tempDevice.BuildIncremental
                     // [$"ro.{partition.Key}.build.version.release"] = tempDevice.Release,
                     // [$"ro.{partition.Key}.build.version.release_or_codename"] = tempDevice.Release,
                     // [$"ro.{partition.Key}.build.version.sdk"] = tempDevice.BuildDate,
