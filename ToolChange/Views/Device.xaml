@@ -572,7 +572,7 @@
                                 </Grid.ColumnDefinitions>
                                 <Label Content="Fake sdk"
                                        Grid.Column="0"
-                                       Margin="10,0,10,0"
+                                       Margin="0,0,0,0"
                                        HorizontalAlignment="Left"
                                        VerticalAlignment="Center"
                                        FontWeight="Bold" />
@@ -589,7 +589,7 @@
                                 </Grid.ColumnDefinitions>
                                 <Label Content="Change Sim"
                                        Grid.Column="0"
-                                       Margin="10,0,10,0"
+                                       Margin="0,0,0,0"
                                        HorizontalAlignment="Left"
                                        VerticalAlignment="Center"
                                        FontWeight="Bold" />
@@ -599,14 +599,14 @@
                             </Grid>
                             <Grid Width="200"
                                   Height="35"
-                                  Margin="5,5,5,10">
+                                  Margin="0,0,0,0">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="Auto" />
                                     <ColumnDefinition Width="130" />
                                 </Grid.ColumnDefinitions>
-                                <Label Content="Fix intergefix"
+                                <Label Content="Update PlayIntegrityFix"
                                        Grid.Column="0"
-                                       Margin="10,0,10,0"
+                                       Margin="0,0,0,0"
                                        HorizontalAlignment="Left"
                                        VerticalAlignment="Center"
                                        FontWeight="Bold" />
