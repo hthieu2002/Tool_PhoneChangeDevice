@@ -2694,9 +2694,9 @@ namespace Services
 
         public async static Task<bool> CheckDeviceActiveBool(string deviceId, MiChangerGraphQLClient miChangerGraphQLClient)
         {
-#if DEBUG
+
             return true;
-#endif
+
             try
             {
                 // Lấy license của thiết bị theo serial
