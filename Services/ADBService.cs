@@ -585,43 +585,18 @@ namespace Services
                 runCMDRoot("root", deviceId);
                 runCMDRoot("remount", deviceId);
             }
-            //runCMD("shell \"mount -o rw,remount rootfs\"  ", deviceId);
-            // run clean package
-            runCMDRoot(String.Format("shell pm clear {0}", "com.android.chrome"), deviceId);
-            runCMDRoot(String.Format("shell pm clear {0}", "com.android.vending"), deviceId);
-            runCMDRoot(String.Format("shell pm clear {0}", "com.android.providers.contacts"), deviceId);
-            runCMDRoot(String.Format("shell pm clear {0}", "com.android.htmlviewer"), deviceId);
-            runCMDRoot(String.Format("shell pm clear {0}", "com.android.location.fused"), deviceId);
-            runCMDRoot(String.Format("shell pm clear {0}", "com.android.providers.media"), deviceId);
-            runCMDRoot(String.Format("shell pm clear {0}", "com.android.providers.downloads"), deviceId);
-            runCMDRoot(String.Format("shell pm clear {0}", "com.android.providers.downloads.ui"), deviceId);
-            runCMDRoot(String.Format("shell pm clear {0}", "org.lineageos.jelly"), deviceId);
-            runCMDRoot(String.Format("shell pm clear {0}", "com.android.webview"), deviceId);
-            runCMDRoot(String.Format("shell pm clear {0}", "com.google.android.webview"), deviceId);
-            runCMDRoot(String.Format("shell pm clear {0}", "com.google.android.gsf"), deviceId);
-            runCMDRoot(String.Format("shell pm clear {0}", "com.google.android.ims"), deviceId);
-            runCMDRoot(String.Format("shell pm clear {0}", "com.google.android.gm"), deviceId);
-            runCMDRoot(String.Format("shell pm clear {0}", "com.google.android.calendar"), deviceId);
-            runCMDRoot(String.Format("shell pm clear {0}", "com.google.android.play.games"), deviceId);
-            runCMDRoot(String.Format("shell pm clear {0}", "com.google.android.gsf.login"), deviceId);
-            runCMDRoot(String.Format("shell pm clear {0}", "com.google.android.youtube"), deviceId);
-            runCMDRoot(String.Format("shell pm clear {0}", "com.google.android.apps.magazines"), deviceId);
-            runCMDRoot(String.Format("shell pm clear {0}", "com.google.android.apps.docs"), deviceId);
-            //runCMD(String.Format("shell pm clear {0}", "tugapower.codeaurora.browser"), deviceId);
-            runCMDRoot(String.Format("shell pm clear {0}", "com.google.android.configupdater"), deviceId);
-            runCMDRoot(String.Format("shell pm clear {0}", "com.google.android.onetimeinitializer"), deviceId);
-            runCMDRoot(String.Format("shell pm clear {0}", "com.google.android.setupwizard"), deviceId);
-            runCMDRoot(String.Format("shell pm clear {0}", "com.google.android.tts"), deviceId);
-            runCMDRoot(String.Format("shell pm clear {0}", "com.google.android.apps.restore"), deviceId);
-            runCMDRoot(String.Format("shell pm clear {0}", "com.google.android.backuptransport"), deviceId);
-            runCMDRoot(String.Format("shell pm clear {0}", "com.google.android.carriersetup"), deviceId);
-            runCMDRoot(String.Format("shell pm clear {0}", "com.google.android.ext.services"), deviceId);
-            runCMDRoot(String.Format("shell pm clear {0}", "com.google.android.feedback"), deviceId);
-            runCMDRoot(String.Format("shell pm clear {0}", "com.google.android.partnersetup"), deviceId);
-            runCMDRoot(String.Format("shell pm clear {0}", "com.google.android.syncadapters.calendar"), deviceId);
-            runCMDRoot(String.Format("shell pm clear {0}", "com.google.android.syncadapters.contacts"), deviceId);
-            runCMDRoot(String.Format("shell pm clear {0}", "com.google.android.gms"), deviceId);
 
+            string packageData = runCMDRoot("shell ls data/data/", deviceId);
+            List<string> packageDataFormat = new List<string>();
+            foreach (var line in packageData.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries))
+            {
+                packageDataFormat.Add(line.Trim());
+            }
+
+            foreach (var packageName in packageDataFormat)
+            {
+                runCMDRoot(String.Format("shell pm clear {0}", packageName), deviceId);
+            }
 
             runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/data/*/*"), deviceId);
             runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/user/*/*/*"), deviceId);
