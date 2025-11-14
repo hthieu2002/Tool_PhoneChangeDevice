@@ -71,14 +71,14 @@ namespace Services
 
         private static void setUpTun2socksInterface(string deviceId, string ipProxyV4, string tun2socksTableId, string tun2socksInterface)
         {
-            var subnet = RandomService.generateSubnetMask();
             ADBService.runCMDRoot("shell \"mkdir /dev/net\"", deviceId);
             ADBService.runCMDRoot("shell \"mknod /dev/net/tun c 10 200\"", deviceId);
             ADBService.runCMDRoot("shell \"chmod 0666 /dev/net/tun\"", deviceId);
             ADBService.runCMDRoot($"shell \"ip tuntap add dev {tun2socksInterface} mode tun\"", deviceId);
             ADBService.runCMDRoot($"shell \"echo '{tun2socksTableId} {tun2socksInterface}' >> /data/misc/net/rt_tables\"", deviceId);
             Thread.Sleep(1000);
-            ADBService.runCMDRoot($"shell \"ifconfig {tun2socksInterface} {ipProxyV4} pointopoint {randomLocalIPv4ForTun2socks()} netmask {subnet["mask"]} up\"", deviceId);
+            //ADBService.runCMDRoot($"shell \"ifconfig {tun2socksInterface} {ipProxyV4} pointopoint {randomLocalIPv4ForTun2socks()} netmask 255.255.0.0 up\"", deviceId);
+            ADBService.runCMDRoot($"shell \"ip addr add {ipProxyV4}/16 peer {randomLocalIPv4ForTun2socks()} dev {tun2socksInterface}\"", deviceId);
             Thread.Sleep(1000);
             ADBService.runCMDRoot($"shell \"ip route add default dev {tun2socksInterface} table {tun2socksTableId}\"", deviceId);
             ADBService.runCMDRoot($"shell \"ip rule add from all lookup {tun2socksTableId} pref 100\"", deviceId);
@@ -157,18 +157,20 @@ namespace Services
                 {
                     var commandline = $"curl --socks5 {proxyParts[0]}:{proxyParts[1]} --proxy-user {proxyParts[2]}:{proxyParts[3]} \"{url}\"";
                     var str = CmdProcess.ExecuteCommand(string.Format("/C {0}", commandline));
-                    if (!string.IsNullOrEmpty(getIpv4(commandline)))
+                    string ipV4 = getIpv4(commandline); 
+                    if (!string.IsNullOrEmpty(ipV4))
                     {
-                        return getIpv4(commandline);
+                        return ipV4;
                     }
                 }
                 else if (proxyParts.Length == 2)
                 {
                     var commandline = $"curl --socks5 {proxyParts[0]}:{proxyParts[1]} \"{url}\"";
                     var str = CmdProcess.ExecuteCommand(string.Format("/C {0}", commandline));
-                    if (!string.IsNullOrEmpty(getIpv4(commandline)))
+                    string ipV4 = getIpv4(commandline);
+                    if (!string.IsNullOrEmpty(ipV4))
                     {
-                        return getIpv4(commandline);
+                        return ipV4;
                     }
                 }
                 return "";
@@ -195,17 +197,19 @@ namespace Services
                 {
                     commandline = $"curl --proxy http://{proxyParts[2]}:{proxyParts[3]}@{proxyParts[0]}:{proxyParts[1]} \"{url}\"";
                     str = CmdProcess.ExecuteCommand(string.Format("/C {0}", commandline));
-                    if (!string.IsNullOrEmpty(getIpv4(commandline)))
+                    string ipV4 = getIpv4(commandline);
+                    if (!string.IsNullOrEmpty(ipV4))
                     {
-                        return getIpv4(commandline);
+                        return ipV4;
                     }
                 }
                 else if (proxyParts.Length == 2)
                 {
                     commandline = $"curl --proxy http://{proxyParts[0]}:{proxyParts[1]} \"{url}\"";
-                    if (!string.IsNullOrEmpty(getIpv4(commandline)))
+                    string ipV4 = getIpv4(commandline);
+                    if (!string.IsNullOrEmpty(ipV4))
                     {
-                        return getIpv4(commandline);
+                        return ipV4;
                     }
                 }
                 return "";
