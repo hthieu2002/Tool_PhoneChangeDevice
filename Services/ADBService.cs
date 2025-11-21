@@ -605,7 +605,16 @@ namespace Services
             runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/system/sync/*"), deviceId);
             runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/system/slice/*"), deviceId);
             runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/system/graphicsstats/*/*/*"), deviceId);
+            runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/system/package_cache/*"), deviceId);
+            runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/system/device_config/*"), deviceId);
+            runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/system/deviceidle/*"), deviceId);
+            runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/system/storage/*"), deviceId);
+            runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/system/stats-service/*"), deviceId);
+            runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/system/users/*/settings_ssaid.xml"), deviceId);
+            runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/system/dropbox/*"), deviceId);
+
             runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/system_ce/*/*"), deviceId);
+
             //runCMD(String.Format("shell \"rm -rf {0} \"", Package_Data.SYSTEM_DE), deviceId); // Pixel is starting...
             runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/system_de/*/accounts_de.db"), deviceId);
             runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/system_de/*/accounts_de.db-journal"), deviceId);
@@ -616,12 +625,16 @@ namespace Services
             runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/system_de/*/powerstats/*"), deviceId);
             runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/system_de/*/ringtones/*"), deviceId);
             runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/system_de/*/system/*"), deviceId);
-            runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/system/users/*/settings_ssaid.xml"), deviceId);
-            runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/system/dropbox/*"), deviceId);
+            
             runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/misc/profiles/*"), deviceId);
             runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/misc/gatekeeper/*"), deviceId);
+            runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/misc/logd/*"), deviceId);
+            runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/misc/update_engine/*"), deviceId);
+            runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/misc/update_engine_log/*"), deviceId);
+
             runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/misc_de/*/*"), deviceId);
             runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/misc_ce/*/*"), deviceId);
+
             runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/media/*"), deviceId);
             runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/mediadrm/*"), deviceId);
             runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/per_boot/*"), deviceId);
@@ -665,9 +678,19 @@ namespace Services
             runCMDRoot(String.Format("shell \"find /data/local -mindepth 1 -maxdepth 1 -type d -not -path '/data/local/tmp' -exec rm -rf {{}} +\""), deviceId);
             runCMDRoot(String.Format("shell \"rm -rf {0} \"", "./etc/security/otacerts.zip"), deviceId);
 
-            runCMDRoot("remount", deviceId);
+            updateFileDateTimeModification("./system/priv-app", deviceId);
+            updateFileDateTimeModification("./system/app", deviceId);
             updateFileDateTimeModification("./system/product/priv-app", deviceId);
             updateFileDateTimeModification("./system/product/app", deviceId);
+            updateFileDateTimeModification("./system/system_ext/priv-app", deviceId);
+            updateFileDateTimeModification("./system/system_ext/app", deviceId);
+            updateFileDateTimeModification("./system/vendor/app", deviceId);
+            updateFileDateTimeModification("./product/priv-app", deviceId);
+            updateFileDateTimeModification("./product/app", deviceId);
+            updateFileDateTimeModification("./system_ext/priv-app", deviceId);
+            updateFileDateTimeModification("./system_ext/app", deviceId);
+            updateFileDateTimeModification("./vendor/app", deviceId);
+            updateFileDateTimeModification("./data/app", deviceId);
         }
 
         public static void cleanFacebookData(string deviceId)
