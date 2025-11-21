@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Data;
 using System.Diagnostics;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -91,7 +92,12 @@ namespace ToolChange.Services
                     return false;
                 }
 
-                VbMeta vbMeta = new VbMeta(deviceId);
+                string securityPatchProp = ADBService.getProp("persist.sys.pihooks_SECURITY_PATCH", deviceId);
+                string roBuildDate = RandomService.generateBuildDate(securityPatchProp);
+                string roBuildDateUtc = RandomService.generateBuildDateUTC(securityPatchProp);
+
+                tempDevice.BuildDate = roBuildDate;
+                tempDevice.BuildDateUtc = roBuildDateUtc;
 
                 if (ADBService.getDeviceStatus(deviceId) == DeviceStatus.ReadyToChange)
                 {
@@ -100,55 +106,73 @@ namespace ToolChange.Services
 
                     ADBService.shellRemoveIfContainSpecificText("/system/build.prop", "product is obsolete", deviceId);
                     var changedSystemInfo = new Dictionary<string, string>();
-                    var changedDefaultInfo = new Dictionary<string, string>();
                     var tempBaseband = string.IsNullOrEmpty(tempDevice.Baseband) ? tempDevice.BuildIncremental : tempDevice.Baseband;
                     Models.DeviceUpdater.UpdateProgress(deviceS, deviceId, "25%", "Change information ");
                     var lineageVersion = RandomService.generateLineageOsVersion(tempDevice.Release) + "-" + tempDevice.Code;
                     var randomUser = RandomService.generateUser();
                     changedSystemInfo.Add("ro.build.type", "user");
-                    changedSystemInfo.Add("ro.build.tags", tempDevice.Tags);
+                    changedSystemInfo.Add("ro.build.tags", "release-keys");
                     changedSystemInfo.Add("ro.build.use", randomUser);
-                    changedSystemInfo.Add("ro.build.product", tempDevice.Code);
-                    changedSystemInfo.Add("ro.build.fingerprint", tempDevice.Fingerprint);
-                    changedSystemInfo.Add("ro.build.display.id", tempDevice.BuildDisplayId);
-                    changedSystemInfo.Add("ro.build.host", tempDevice.BuildHost);
-                    changedSystemInfo.Add("ro.build.version.incremental", tempDevice.BuildIncremental);
-                    changedSystemInfo.Add("ro.build.description", tempDevice.BuildDescription);
+                    //changedSystemInfo.Add("ro.build.product", tempDevice.Code);
+                    //changedSystemInfo.Add("ro.build.fingerprint", tempDevice.Fingerprint);
+                    //changedSystemInfo.Add("ro.build.display.id", tempDevice.BuildDisplayId);
+                    changedSystemInfo.Add("ro.build.host", randomUser);
+                    //changedSystemInfo.Add("ro.build.version.incremental", tempDevice.BuildIncremental);
+                    //changedSystemInfo.Add("ro.build.description", tempDevice.BuildDescription);
                     changedSystemInfo.Add("ro.build.date", tempDevice.BuildDate);
                     changedSystemInfo.Add("ro.build.date.utc", tempDevice.BuildDateUtc);
-                    changedSystemInfo.Add("ro.build.flavor", tempDevice.BuildFlavor);
-                    changedSystemInfo.Add("ro.build.id", tempDevice.BuildId);
+                    //changedSystemInfo.Add("ro.build.flavor", tempDevice.BuildFlavor);
+                    //changedSystemInfo.Add("ro.build.id", tempDevice.BuildId);
 
-                    changedSystemInfo.Add("ro.product.name", tempDevice.Product);
-                    changedSystemInfo.Add("ro.product.brand", tempDevice.Brand);
-                    changedSystemInfo.Add("ro.product.manufacturer", tempDevice.Manufacturer);
-                    changedSystemInfo.Add("ro.product.model", tempDevice.Model);
-                    changedSystemInfo.Add("ro.product.device", tempDevice.Code);
+                    //changedSystemInfo.Add("ro.product.name", tempDevice.Product);
+                    //changedSystemInfo.Add("ro.product.brand", tempDevice.Brand);
+                    //changedSystemInfo.Add("ro.product.manufacturer", tempDevice.Manufacturer);
+                    //changedSystemInfo.Add("ro.product.model", tempDevice.Model);
+                    //changedSystemInfo.Add("ro.product.device", tempDevice.Code);
 
-                    changedSystemInfo.Add("ro.android.wifi", tempDevice.WifiMacAddress);
-                    changedSystemInfo.Add("ro.android.bluetooth", tempDevice.BlueToothMacAddress);
-                    changedSystemInfo.Add("ro.android.bootloader", tempDevice.Bootloader);
-                    changedSystemInfo.Add("ro.android.hardware", tempDevice.Hardware);
-                    changedSystemInfo.Add("ro.android.platform", tempDevice.Platform);
-                    changedSystemInfo.Add("ro.android.board", tempDevice.Board);
+                    //changedSystemInfo.Add("ro.android.wifi", tempDevice.WifiMacAddress);
+                    //changedSystemInfo.Add("ro.android.bluetooth", tempDevice.BlueToothMacAddress);
+                    changedSystemInfo.Add("ro.android.serialno", tempDevice.SerialNo);
+                    changedSystemInfo.Add("ro.android.imei", tempDevice.Imei);
+                    changedSystemInfo.Add("ro.android.imei1", tempDevice.Imei1);
+                    //changedSystemInfo.Add("ro.android.bootloader", tempDevice.Bootloader);
+                    //changedSystemInfo.Add("ro.android.hardware", tempDevice.Hardware);
+                    //changedSystemInfo.Add("ro.android.platform", tempDevice.Platform);
+                    //changedSystemInfo.Add("ro.android.board", tempDevice.Board);
 
-                    changedSystemInfo.Add("ro.android.SSID", RandomService.generateSSID());
-                    changedSystemInfo.Add("ro.android.BSSID", RandomService.generateMacAddress());
-                    changedSystemInfo.Add("ro.android.soc.manufacturer", tempDevice.Manufacturer);
-                    changedSystemInfo.Add("ro.android.soc.model", tempDevice.Hardware);
-                    changedSystemInfo.Add("ro.android.build.version.security_patch", tempDevice.SecurityPath);
-                    changedSystemInfo.Add("ro.android.build.version.release", tempDevice.Release);
-                    changedSystemInfo.Add("ro.android.build.version.sdk", tempDevice.SDK);
+                    //changedSystemInfo.Add("ro.android.SSID", RandomService.generateSSID());
+                    //changedSystemInfo.Add("ro.android.BSSID", RandomService.generateMacAddress());
+                    //changedSystemInfo.Add("ro.android.soc.manufacturer", tempDevice.Manufacturer);
+                    //changedSystemInfo.Add("ro.android.soc.model", tempDevice.Hardware);
+                    changedSystemInfo.Add("ro.android.build.version.security_patch", securityPatchProp);
+                    //changedSystemInfo.Add("ro.android.build.version.release", tempDevice.Release);
+                    //changedSystemInfo.Add("ro.android.build.version.sdk", tempDevice.SDK);
 
-                    changedSystemInfo.Add("ro.android.gsm.version.baseband", tempBaseband);
-                    changedSystemInfo.Add("gsm.version.baseband", tempBaseband);
-                    changedSystemInfo.Add("ro.com.google.clientidbase", $"android-{tempDevice.Brand}");
+                    //changedSystemInfo.Add("ro.android.gsm.version.baseband", tempBaseband);
+                    //changedSystemInfo.Add("gsm.version.baseband", tempBaseband);
+                    //changedSystemInfo.Add("ro.com.google.clientidbase", $"android-{tempDevice.Brand}");
                     changedSystemInfo.Add("ro.debuggable", "0");
 
-                    changedSystemInfo.Add("ro.boot.vbmeta.avb_version", vbMeta.VbmetaVersion);
-                    changedSystemInfo.Add("ro.boot.vbmeta.hash_alg", vbMeta.VbmetaAlgorithm);
-                    changedSystemInfo.Add("ro.boot.vbmeta.size", vbMeta.VbmetaSize);
-                    changedSystemInfo.Add("ro.boot.vbmeta.digest", vbMeta.VbmetaDigest);
+                    string isRadioImeiAvailable = ADBService.getProp("persist.radio.imei1", deviceId);
+                    if (!string.IsNullOrEmpty(isRadioImeiAvailable))
+                    {
+                        changedSystemInfo.Add("persist.radio.imei1", tempDevice.Imei);
+                        changedSystemInfo.Add("persist.radio.imei2", tempDevice.Imei1);
+                    }
+
+                    string checkRilImeiAvailable = ADBService.getProp("ro.ril.imei0", deviceId);
+                    if (!string.IsNullOrEmpty(checkRilImeiAvailable))
+                    {
+                        changedSystemInfo.Add("ro.ril.imei0", tempDevice.Imei);
+                        changedSystemInfo.Add("ro.ril.imei1", tempDevice.Imei1);
+                    }
+
+                    string checkRilMiuiImeiAvailable = ADBService.getProp("ro.ril.miui.imei0", deviceId);
+                    if (!string.IsNullOrEmpty(checkRilMiuiImeiAvailable))
+                    {
+                        changedSystemInfo.Add("ro.ril.miui.imei0", tempDevice.Imei);
+                        changedSystemInfo.Add("ro.ril.miui.imei1", tempDevice.Imei1);
+                    }
 
                     string isRomPixelExperience = ADBService.getProp("org.pixelexperience.device", deviceId);
                     if(!string.IsNullOrEmpty(isRomPixelExperience))
@@ -160,55 +184,50 @@ namespace ToolChange.Services
                         changedSystemInfo.Add("org.pixelexperience.build_type", "unknown");
                         changedSystemInfo.Add("org.pixelexperience.build_security_patch", "unknown");
                     }
-                    else
-                    {
-                        changedSystemInfo.Add("ro.lineage.device", tempDevice.Code);
-                    }
 
                     Models.DeviceUpdater.UpdateProgress(deviceS, deviceId, "45%", "save information ");
                     ADBService.replaceBuildProp("/system/build.prop", changedSystemInfo, deviceId);
-                    ADBService.replaceBuildProp("/system/etc/build.prop", changedSystemInfo, deviceId);
 
                     var changedProductInfo = new Dictionary<string, string>();
                     changedProductInfo.Add("ro.com.google.clientidbase", $"android-{tempDevice.Brand}");
-                    ADBService.replaceBuildProp("product/build.prop", changedProductInfo, deviceId);
-                    ADBService.replaceBuildProp("product/etc/build.prop", changedProductInfo, deviceId);
+                    //ADBService.replaceBuildProp("product/build.prop", changedProductInfo, deviceId);
+                    //ADBService.replaceBuildProp("product/etc/build.prop", changedProductInfo, deviceId);
 
                     var changedVendorInfo = new Dictionary<string, string>();
                     changedVendorInfo.Add("ro.soc.manufacturer", tempDevice.Manufacturer);
                     changedVendorInfo.Add("ro.soc.model", tempDevice.Hardware);
                     changedVendorInfo.Add("ro.product.board", tempDevice.Board);
                     changedVendorInfo.Add("bluetooth.device.default_name", tempDevice.Manufacturer);
-                    ADBService.replaceBuildProp("vendor/build.prop", changedVendorInfo, deviceId);
-                    ADBService.replaceBuildProp("vendor/etc/build.prop", changedVendorInfo, deviceId);
-                    ADBService.replaceBuildProp("mnt/scratch/overlay/vendor/upper/build.prop", changedVendorInfo, deviceId);
+                    //ADBService.replaceBuildProp("vendor/build.prop", changedVendorInfo, deviceId);
+                    //ADBService.replaceBuildProp("mnt/scratch/overlay/vendor/upper/build.prop", changedVendorInfo, deviceId);
 
                     Dictionary<string, List<string>> partitionList = new Dictionary<string, List<string>>();
-                    partitionList.Add("system", new List<string> { "/system/build.prop", "/system/etc/build.prop" });
-                    partitionList.Add("bootimage", new List<string> { "/system/build.prop", "/system/etc/build.prop" });
-                    partitionList.Add("vendor", new List<string> { "/vendor/build.prop", "/vendor/etc/build.prop" });
+                    partitionList.Add("system", new List<string> { "/system/build.prop"});
+                    partitionList.Add("bootimage", new List<string> { "/system/build.prop"});
+                    partitionList.Add("vendor", new List<string> { "/vendor/build.prop"});
                     partitionList.Add("product", new List<string> { "/product/build.prop", "/product/etc/build.prop" });
-                    partitionList.Add("odm", new List<string> { "/odm/build.prop", "/odm/etc/build.prop" });
-                    partitionList.Add("odm_dlkm", new List<string> { "/vendor/odm_dlkm/build.prop", "/vendor/odm_dlkm/etc/build.prop" });
-                    partitionList.Add("vendor_dlkm", new List<string> { "/vendor_dlkm/build.prop", "/vendor_dlkm/etc/build.prop" });
-                    partitionList.Add("system_dlkm", new List<string> { "/system_dlkm/build.prop", "/system_dlkm/etc/build.prop", "/system/system_dlkm/build.prop", "/system/system_dlkm/etc/build.prop" });
-                    partitionList.Add("system_ext", new List<string> { "/system_ext/build.prop", "/system_ext/etc/build.prop", "/system/system_ext/build.prop", "/system/system_ext/etc/build.prop" });
+                    partitionList.Add("odm", new List<string> { "/odm/etc/build.prop" });
+                    partitionList.Add("odm_dlkm", new List<string> { "/vendor/odm_dlkm/etc/build.prop" });
+                    partitionList.Add("vendor_dlkm", new List<string> { "/vendor_dlkm/etc/build.prop" });
+                    partitionList.Add("system_dlkm", new List<string> { "/system_dlkm/etc/build.prop", "/system/system_dlkm/etc/build.prop" });
+                    partitionList.Add("system_ext", new List<string> { "/system_ext/etc/build.prop", "/system/system_ext/etc/build.prop" });
                     RepleacePropertiesForPartition(tempDevice, partitionList, deviceId);
 
-                    ADBService.putSetting("bluetooth_address", tempDevice.BlueToothMacAddress, deviceId, "secure");
-                    ADBService.putSetting("bluetooth_name", RandomService.generateName(), deviceId, "secure");
-                    ADBService.putSetting("device_name", RandomService.generateName(), deviceId);
+                    //ADBService.putSetting("bluetooth_address", tempDevice.BlueToothMacAddress, deviceId, "secure");
+                    //ADBService.putSetting("bluetooth_name", RandomService.generateName(), deviceId, "secure");
+                    //ADBService.putSetting("device_name", RandomService.generateName(), deviceId);
+                    ADBService.putSetting("android_id", tempDevice.AndroidId, deviceId, "secure");
+                    //ADBService.putSetting("mi_bluetooth_mac_address", tempDevice.BlueToothMacAddress, deviceId);
+                    //ADBService.putSetting("mi_wifi_mac_address", tempDevice.WifiMacAddress, deviceId);
+                    ADBService.putSetting("mi_android_id", tempDevice.AndroidId, deviceId);
+                    ADBService.putSetting("non_persistent_mac_randomization_force_enabled", "1", deviceId);
+                    ADBService.putSetting("screen_off_timeout", "1800000", deviceId, "system");
+                    ADBService.runCMDRoot("shell locksettings set-disabled true", deviceId);
 
                     ADBService.putSetting(GlobalAndroidSettings.IMEI0, tempDevice.Imei, deviceId);
                     ADBService.putSetting(GlobalAndroidSettings.IMEI1, tempDevice.Imei1, deviceId);
-                    // generate 48 bit random number for hardware serial no
                     ADBService.putSetting(GlobalAndroidSettings.HARDWARE_SERIALNO, tempDevice.SerialNo, deviceId);
-                    //// generate android ID
-                    ADBService.putSetting(GlobalAndroidSettings.ANDROID_ID, tempDevice.AndroidId, deviceId);
-                    ADBService.putSetting("mi_bluetooth_mac_address", tempDevice.BlueToothMacAddress, deviceId);
-                    ADBService.putSetting("mi_wifi_mac_address", tempDevice.WifiMacAddress, deviceId);
-                    ADBService.putSetting("android_id", tempDevice.AndroidId, deviceId, "secure");
-
+                    
                     ADBService.updateInitRc(tempDevice, randomUser, deviceId);
                     ADBService.fakeLocalHostNameV6(deviceId);
 
@@ -357,7 +376,7 @@ namespace ToolChange.Services
              
                 ADBService.putSetting(GlobalAndroidSettings.NETWORK_TYPE, "13", deviceId);
            
-                //                        public static readonly string DATA_ACTIVITY = string.Concat(MI_PREFIX, "data_activity");
+                //public static readonly string DATA_ACTIVITY = string.Concat(MI_PREFIX, "data_activity");
                 //public static readonly string DATA_STATE = string.Concat(MI_PREFIX, "data_state");
                 //public static readonly string DATA_NETWORK_TYPE = string.Concat(MI_PREFIX, "data_network_type");
                 ADBService.putSetting(GlobalAndroidSettings.DATA_NETWORK_TYPE, "13", deviceId);
@@ -432,22 +451,22 @@ namespace ToolChange.Services
 
                 var changedDeviceInfo = new Dictionary<string, string>
                 {
-                    [$"ro.product.{partition.Key}.brand"] = tempDevice.Brand,
-                    [$"ro.product.{partition.Key}.device"] = tempDevice.Code,
-                    [$"ro.product.{partition.Key}.manufacturer"] = tempDevice.Manufacturer,
-                    [$"ro.product.{partition.Key}.model"] = tempDevice.Model,
-                    [$"ro.product.{partition.Key}.name"] = tempDevice.Code,
-                    [$"ro.{partition.Key}.build.date"] = tempDevice.BuildDate,
-                    [$"ro.{partition.Key}.build.date.utc"] = tempDevice.BuildDateUtc,
-                    [$"ro.{partition.Key}.build.fingerprint"] = tempDevice.Fingerprint,
-                    [$"ro.{partition.Key}.build.id"] = tempDevice.BuildId,
-                    [$"ro.{partition.Key}.build.tags"] = tempDevice.Tags,
+                    //[$"ro.product.{partition.Key}.brand"] = tempDevice.Brand,
+                    //[$"ro.product.{partition.Key}.device"] = tempDevice.Code,
+                    //[$"ro.product.{partition.Key}.manufacturer"] = tempDevice.Manufacturer,
+                    //[$"ro.product.{partition.Key}.model"] = tempDevice.Model,
+                    //[$"ro.product.{partition.Key}.name"] = tempDevice.Code,
+                    //[$"ro.{partition.Key}.build.date"] = tempDevice.BuildDate,
+                    //[$"ro.{partition.Key}.build.date.utc"] = tempDevice.BuildDateUtc,
+                    //[$"ro.{partition.Key}.build.fingerprint"] = tempDevice.Fingerprint,
+                    //[$"ro.{partition.Key}.build.id"] = tempDevice.BuildId,
+                    [$"ro.{partition.Key}.build.tags"] = "release-keys",
                     [$"ro.{partition.Key}.build.type"] = "user",
-                    [$"ro.{partition.Key}.build.version.incremental"] = tempDevice.BuildIncremental
+                    //[$"ro.{partition.Key}.build.version.incremental"] = tempDevice.BuildIncremental
                     // [$"ro.{partition.Key}.build.version.release"] = tempDevice.Release,
                     // [$"ro.{partition.Key}.build.version.release_or_codename"] = tempDevice.Release,
-                    // [$"ro.{partition.Key}.build.version.sdk"] = tempDevice.BuildDate,
-                    
+                    // [$"ro.{partition.Key}.build.version.sdk"] = tempDevice.SDK
+
                 };
 
                 foreach (var path in partition.Value)

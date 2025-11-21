@@ -1,6 +1,7 @@
 ﻿using POCO.Models;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -460,5 +461,46 @@ namespace Services
                 throw;
             }
         }
+
+        public static string generateBuildDate(string securityPatchProp)
+        {
+            DateTime randomUtc = generateRandomUtc(securityPatchProp);
+            return randomUtc.ToString("ddd MMM dd HH:mm:ss 'UTC' yyyy", CultureInfo.InvariantCulture);
+        }
+
+        public static string generateBuildDateUTC(string securityPatchProp)
+        {
+            DateTime randomUtc = generateRandomUtc(securityPatchProp);
+            return new DateTimeOffset(randomUtc).ToUnixTimeSeconds().ToString();
+        }
+
+        private static DateTime generateRandomUtc(string securityPatchProp)
+        {
+            DateTime baseStart = new DateTime(2025, 10, 5, 0, 0, 0, DateTimeKind.Utc);
+
+            DateTime secPatchDate;
+            DateTime start;
+
+            if (DateTime.TryParseExact(securityPatchProp, "yyyy-MM-dd",
+                CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal, out secPatchDate))
+            {
+                secPatchDate = secPatchDate.ToUniversalTime();
+                DateTime secPatchPlusOne = secPatchDate.AddDays(1);
+                start = secPatchPlusOne > baseStart ? secPatchPlusOne : baseStart;
+            }
+            else
+            {
+                start = baseStart;
+            }
+
+            DateTime end = DateTime.UtcNow.AddHours(-3);
+
+            long totalSeconds = (long)(end - start).TotalSeconds;
+            if (totalSeconds < 0) totalSeconds = 0;
+
+            long randomOffset = (long)(rand.NextDouble() * totalSeconds);
+            return start.AddSeconds(randomOffset);
+        }
+
     }
 }
