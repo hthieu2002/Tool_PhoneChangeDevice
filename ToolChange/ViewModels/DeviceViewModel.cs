@@ -1411,8 +1411,8 @@ namespace ToolChange.ViewModels
                                                                 ? currentSelectedCarrier.Name.Substring(0, currentSelectedCarrier.Name.LastIndexOf('-')) 
                                                                 : currentSelectedCarrier.Name;
                 tempDevice.AndroidId = RandomService.getRandomStringHex16Digit();
-                tempDevice.WifiMacAddress = RandomService.generateWifiMacAddress();
-                tempDevice.BlueToothMacAddress = RandomService.generateMacAddress();
+                tempDevice.WifiMacAddress = RandomService.generateWifiMacAddress(tempDevice.Manufacturer.ToLower());
+                tempDevice.BlueToothMacAddress = RandomService.generateWifiMacAddress(tempDevice.Manufacturer.ToLower());
             }
             catch (Exception ex)
             {
@@ -1475,8 +1475,8 @@ namespace ToolChange.ViewModels
                                                                 ? currentSelectedCarrier.Name.Substring(0, currentSelectedCarrier.Name.LastIndexOf('-'))
                                                                 : currentSelectedCarrier.Name;
                 tempDeviceAll.AndroidId = RandomService.getRandomStringHex16Digit();
-                Mac = tempDeviceAll.WifiMacAddress = RandomService.generateWifiMacAddress();
-                tempDeviceAll.BlueToothMacAddress = RandomService.generateMacAddress();
+                Mac = tempDeviceAll.WifiMacAddress = RandomService. generateWifiMacAddress(tempDeviceAll.Manufacturer.ToLower());
+                tempDeviceAll.BlueToothMacAddress = RandomService.generateWifiMacAddress(tempDeviceAll.Manufacturer.ToLower());
 
                 Gpu = tempDeviceAll.Gpu;
                 IsButtonChangeDevice = true;

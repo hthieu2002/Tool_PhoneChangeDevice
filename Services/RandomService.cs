@@ -106,22 +106,41 @@ namespace Services
 
             return iccid + checksum_digit;
         }
-        public static string generateWifiMacAddress()
+        public static string generateWifiMacAddress(string typeDevice = "google", string prefixMac = null)
         {
             var listStr = new List<string>();
             try
             {
-                string exePath = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
-                var preparedList = File.ReadAllLines(Path.Combine(exePath, "Resources/mac.txt")).ToList();
-                var prefixMac = preparedList[rand.Next(preparedList.Count)].ToLower();
+                if (string.IsNullOrEmpty(prefixMac))
+                {
+                    string exePath = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
+                    var preparedList = File.ReadAllLines(Path.Combine(exePath, $"Resources/mac_{typeDevice}.txt")).ToList();
+                    prefixMac = preparedList[rand.Next(preparedList.Count)].ToLower();
+                }
                 listStr.AddRange(prefixMac.Split(':').ToList());
             }
             catch (Exception ex)
             {
                 Console.WriteLine("Exception at random mac: {0}", ex);
-                listStr.Add("38");
-                listStr.Add("e6");
-                listStr.Add("a0");
+                string[] listMacPrefix = {
+                    "48:d6:d5",
+                    "54:60:09",
+                    "54:67:49",
+                    "58:24:29",
+                    "58:cb:52",
+                    "f8:84:f2",
+                    "f8:8f:07",
+                    "f8:d0:bd",
+                    "f8:e6:1a",
+                    "f8:f1:e6",
+                    "00:c3:0a",
+                    "00:ec:0a",
+                    "0c:98:38",
+                    "0c:c6:fd",
+                    "0c:ed:c8"
+                };
+                prefixMac = listMacPrefix[rand.Next(listMacPrefix.Length)].ToLower();
+                listStr.AddRange(prefixMac.Split(':').ToList());
             }
             finally
             {
@@ -485,7 +504,7 @@ namespace Services
                 CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal, out secPatchDate))
             {
                 secPatchDate = secPatchDate.ToUniversalTime();
-                DateTime secPatchPlusOne = secPatchDate.AddDays(1);
+                DateTime secPatchPlusOne = secPatchDate.AddDays(3);
                 start = secPatchPlusOne > baseStart ? secPatchPlusOne : baseStart;
             }
             else
