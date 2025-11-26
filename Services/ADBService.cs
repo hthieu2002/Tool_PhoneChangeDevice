@@ -993,9 +993,9 @@ namespace Services
             }
         }
 
-        public static void deleteSetting(string key, string deviceId)
+        public static void deleteSetting(string key, string deviceId, string settingType = "global")
         {
-            runCMDRoot(String.Format("shell settings delete global {0}", key), deviceId);
+            runCMDRoot($"shell settings delete {settingType} {key}", deviceId);
         }
         private static string convertFromResultParcel(string resultParcel)
         {

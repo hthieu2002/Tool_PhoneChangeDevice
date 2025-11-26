@@ -1,4 +1,5 @@
-﻿using DeepDroid.Models;
+﻿using Amazon.Runtime.Internal.Transform;
+using DeepDroid.Models;
 using Microsoft.VisualBasic.ApplicationServices;
 using POCO.Models;
 using Services;
@@ -99,6 +100,28 @@ namespace ToolChange.Services
                 tempDevice.BuildDate = roBuildDate;
                 tempDevice.BuildDateUtc = roBuildDateUtc;
 
+                /**
+                 * Keep OUI of wifi mac address
+                 */
+
+                //string prefixMac = ADBService.runCMDRoot($"shell cat /sys/class/net/wlan0/address", deviceId);
+
+                //if (!string.IsNullOrEmpty(prefixMac))
+                //{
+                //    prefixMac = prefixMac.Trim();
+                //    prefixMac = prefixMac.Substring(0, 8);
+
+                //    tempDevice.WifiMacAddress = RandomService.generateWifiMacAddress(
+                //        tempDevice.Manufacturer.ToLower(),
+                //        prefixMac
+                //    );
+
+                //    tempDevice.BlueToothMacAddress = RandomService.generateWifiMacAddress(
+                //        tempDevice.Manufacturer.ToLower(),
+                //        prefixMac
+                //    );
+                //}
+
                 if (ADBService.getDeviceStatus(deviceId) == DeviceStatus.ReadyToChange)
                 {
                     Models.DeviceUpdater.UpdateProgress(deviceS, deviceId, "15%", "Change device ...");
@@ -121,7 +144,7 @@ namespace ToolChange.Services
                     //changedSystemInfo.Add("ro.build.description", tempDevice.BuildDescription);
                     changedSystemInfo.Add("ro.build.date", tempDevice.BuildDate);
                     changedSystemInfo.Add("ro.build.date.utc", tempDevice.BuildDateUtc);
-                    //changedSystemInfo.Add("ro.build.flavor", tempDevice.BuildFlavor);
+                    changedSystemInfo.Add("ro.build.flavor", tempDevice.BuildFlavor);
                     //changedSystemInfo.Add("ro.build.id", tempDevice.BuildId);
 
                     //changedSystemInfo.Add("ro.product.name", tempDevice.Product);
@@ -130,8 +153,13 @@ namespace ToolChange.Services
                     //changedSystemInfo.Add("ro.product.model", tempDevice.Model);
                     //changedSystemInfo.Add("ro.product.device", tempDevice.Code);
 
-                    //changedSystemInfo.Add("ro.android.wifi", tempDevice.WifiMacAddress);
-                    //changedSystemInfo.Add("ro.android.bluetooth", tempDevice.BlueToothMacAddress);
+                    changedSystemInfo.Add("ro.android.device.mac", tempDevice.WifiMacAddress);
+                    changedSystemInfo.Add("ro.android.bssid", RandomService.generateWifiMacAddress(tempDevice.Manufacturer.ToLower()));
+                    changedSystemInfo.Add("ro.android.ssid", RandomService.generateSSID());
+                    changedSystemInfo.Add("ro.android.bluetooth.mac", tempDevice.BlueToothMacAddress);
+                    changedSystemInfo.Add("ro.android.bluetooth.name", RandomService.generateName());
+                    changedSystemInfo.Add("ro.android.device.name", RandomService.generateName());
+                    changedSystemInfo.Add("ro.android.id", tempDevice.AndroidId);
                     changedSystemInfo.Add("ro.android.serialno", tempDevice.SerialNo);
                     changedSystemInfo.Add("ro.android.imei", tempDevice.Imei);
                     changedSystemInfo.Add("ro.android.imei1", tempDevice.Imei1);
@@ -140,11 +168,9 @@ namespace ToolChange.Services
                     //changedSystemInfo.Add("ro.android.platform", tempDevice.Platform);
                     //changedSystemInfo.Add("ro.android.board", tempDevice.Board);
 
-                    //changedSystemInfo.Add("ro.android.SSID", RandomService.generateSSID());
-                    //changedSystemInfo.Add("ro.android.BSSID", RandomService.generateMacAddress());
                     //changedSystemInfo.Add("ro.android.soc.manufacturer", tempDevice.Manufacturer);
                     //changedSystemInfo.Add("ro.android.soc.model", tempDevice.Hardware);
-                    changedSystemInfo.Add("ro.android.build.version.security_patch", securityPatchProp);
+                    //changedSystemInfo.Add("ro.android.build.version.security_patch", securityPatchProp);
                     //changedSystemInfo.Add("ro.android.build.version.release", tempDevice.Release);
                     //changedSystemInfo.Add("ro.android.build.version.sdk", tempDevice.SDK);
 
@@ -213,14 +239,10 @@ namespace ToolChange.Services
                     partitionList.Add("system_ext", new List<string> { "/system_ext/etc/build.prop", "/system/system_ext/etc/build.prop" });
                     RepleacePropertiesForPartition(tempDevice, partitionList, deviceId);
 
-                    //ADBService.putSetting("bluetooth_address", tempDevice.BlueToothMacAddress, deviceId, "secure");
-                    //ADBService.putSetting("bluetooth_name", RandomService.generateName(), deviceId, "secure");
-                    //ADBService.putSetting("device_name", RandomService.generateName(), deviceId);
-                    ADBService.putSetting("android_id", tempDevice.AndroidId, deviceId, "secure");
-                    //ADBService.putSetting("mi_bluetooth_mac_address", tempDevice.BlueToothMacAddress, deviceId);
-                    //ADBService.putSetting("mi_wifi_mac_address", tempDevice.WifiMacAddress, deviceId);
-                    ADBService.putSetting("mi_android_id", tempDevice.AndroidId, deviceId);
-                    ADBService.putSetting("non_persistent_mac_randomization_force_enabled", "1", deviceId);
+                    ADBService.deleteSetting("bluetooth_address", deviceId, "secure");
+                    ADBService.deleteSetting("bluetooth_name", deviceId, "secure");
+                    ADBService.deleteSetting("device_name", deviceId);
+                    //ADBService.putSetting("non_persistent_mac_randomization_force_enabled", "1", deviceId);
                     ADBService.putSetting("screen_off_timeout", "1800000", deviceId, "system");
                     ADBService.runCMDRoot("shell locksettings set-disabled true", deviceId);
 
@@ -229,10 +251,10 @@ namespace ToolChange.Services
                     ADBService.putSetting(GlobalAndroidSettings.HARDWARE_SERIALNO, tempDevice.SerialNo, deviceId);
                     
                     ADBService.updateInitRc(tempDevice, randomUser, deviceId);
-                    ADBService.fakeLocalHostNameV6(deviceId);
+                    //ADBService.fakeLocalHostNameV6(deviceId);
 
                     // fake wifi mac address
-                    ADBService.fakeWifiMacAddress(tempDevice.WifiMacAddress, deviceId);
+                    //ADBService.fakeWifiMacAddress(tempDevice.WifiMacAddress, deviceId);
 
                     if (isFakeSim)
                     {
@@ -456,8 +478,8 @@ namespace ToolChange.Services
                     //[$"ro.product.{partition.Key}.manufacturer"] = tempDevice.Manufacturer,
                     //[$"ro.product.{partition.Key}.model"] = tempDevice.Model,
                     //[$"ro.product.{partition.Key}.name"] = tempDevice.Code,
-                    //[$"ro.{partition.Key}.build.date"] = tempDevice.BuildDate,
-                    //[$"ro.{partition.Key}.build.date.utc"] = tempDevice.BuildDateUtc,
+                    [$"ro.{partition.Key}.build.date"] = tempDevice.BuildDate,
+                    [$"ro.{partition.Key}.build.date.utc"] = tempDevice.BuildDateUtc,
                     //[$"ro.{partition.Key}.build.fingerprint"] = tempDevice.Fingerprint,
                     //[$"ro.{partition.Key}.build.id"] = tempDevice.BuildId,
                     [$"ro.{partition.Key}.build.tags"] = "release-keys",
