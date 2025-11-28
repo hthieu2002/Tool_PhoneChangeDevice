@@ -100,6 +100,9 @@ namespace ToolChange.Services
                 tempDevice.BuildDate = roBuildDate;
                 tempDevice.BuildDateUtc = roBuildDateUtc;
 
+                string bluetoothName = RandomService.generateName();
+                string deviceName = RandomService.generateName();
+
                 /**
                  * Keep OUI of wifi mac address
                  */
@@ -157,8 +160,8 @@ namespace ToolChange.Services
                     changedSystemInfo.Add("ro.android.bssid", RandomService.generateWifiMacAddress(tempDevice.Manufacturer.ToLower()));
                     changedSystemInfo.Add("ro.android.ssid", RandomService.generateSSID());
                     changedSystemInfo.Add("ro.android.bluetooth.mac", tempDevice.BlueToothMacAddress);
-                    changedSystemInfo.Add("ro.android.bluetooth.name", RandomService.generateName());
-                    changedSystemInfo.Add("ro.android.device.name", RandomService.generateName());
+                    changedSystemInfo.Add("ro.android.bluetooth.name", bluetoothName);
+                    changedSystemInfo.Add("ro.android.device.name", deviceName);
                     changedSystemInfo.Add("ro.android.id", tempDevice.AndroidId);
                     changedSystemInfo.Add("ro.android.serialno", tempDevice.SerialNo);
                     changedSystemInfo.Add("ro.android.imei", tempDevice.Imei);
@@ -223,7 +226,7 @@ namespace ToolChange.Services
                     changedVendorInfo.Add("ro.soc.manufacturer", tempDevice.Manufacturer);
                     changedVendorInfo.Add("ro.soc.model", tempDevice.Hardware);
                     changedVendorInfo.Add("ro.product.board", tempDevice.Board);
-                    changedVendorInfo.Add("bluetooth.device.default_name", tempDevice.Manufacturer);
+                    changedVendorInfo.Add("bluetooth.device.default_name", bluetoothName);
                     //ADBService.replaceBuildProp("vendor/build.prop", changedVendorInfo, deviceId);
                     //ADBService.replaceBuildProp("mnt/scratch/overlay/vendor/upper/build.prop", changedVendorInfo, deviceId);
 
@@ -239,6 +242,7 @@ namespace ToolChange.Services
                     partitionList.Add("system_ext", new List<string> { "/system_ext/etc/build.prop", "/system/system_ext/etc/build.prop" });
                     RepleacePropertiesForPartition(tempDevice, partitionList, deviceId);
 
+                    ADBService.deleteSetting("android_id", deviceId, "secure");
                     ADBService.deleteSetting("bluetooth_address", deviceId, "secure");
                     ADBService.deleteSetting("bluetooth_name", deviceId, "secure");
                     ADBService.deleteSetting("device_name", deviceId);
