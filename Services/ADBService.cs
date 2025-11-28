@@ -1,5 +1,6 @@
 ﻿using MiHttpClient;
 using Newtonsoft.Json.Linq;
+using Org.BouncyCastle.Asn1.IsisMtt.X509;
 using Org.BouncyCastle.Math.Field;
 using POCO.Models;
 using System;
@@ -8,6 +9,7 @@ using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.IO.Compression;
+using System.IO.Packaging;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -611,6 +613,11 @@ namespace Services
             runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/system/storage/*"), deviceId);
             runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/system/stats-service/*"), deviceId);
             runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/system/users/*/settings_ssaid.xml"), deviceId);
+            runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/system/users/*/settings_ssaid.xml.fallback"), deviceId);
+            runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/system/users/*/package-restrictions.xml"), deviceId);
+            runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/system/users/*/package-restrictions.xml.reservecopy"), deviceId);
+            runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/system/users/*/package-restrictions.xml.reservecopy"), deviceId);
+            runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/system/users/*/registered_services/*"), deviceId);
             runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/system/dropbox/*"), deviceId);
 
             runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/system_ce/*/*"), deviceId);
