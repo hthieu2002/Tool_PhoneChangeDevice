@@ -62,7 +62,7 @@ namespace ToolChange.Services
                 //tempDevice.Board = "sargo";
                 //tempDevice.Bootloader = "b4s4-0.4-8048689";
 
-                ADBService.runCMDRoot($"shell setprop persist.sys.pixelexperience.sdk {isFakeSdk.ToString().ToLower()}", deviceId);
+                ADBService.runCMDRoot($"shell setprop persist.sys.deepdroid.sdk {isFakeSdk.ToString().ToLower()}", deviceId);
 
                 if (keepBrand)
                 {   
