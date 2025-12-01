@@ -139,22 +139,22 @@ namespace ToolChange.Services
                     changedSystemInfo.Add("ro.build.type", "user");
                     changedSystemInfo.Add("ro.build.tags", "release-keys");
                     changedSystemInfo.Add("ro.build.use", randomUser);
-                    //changedSystemInfo.Add("ro.build.product", tempDevice.Code);
-                    //changedSystemInfo.Add("ro.build.fingerprint", tempDevice.Fingerprint);
-                    //changedSystemInfo.Add("ro.build.display.id", tempDevice.BuildDisplayId);
+                    changedSystemInfo.Add("ro.build.product", tempDevice.Code);
+                    changedSystemInfo.Add("ro.build.fingerprint", tempDevice.Fingerprint);
+                    changedSystemInfo.Add("ro.build.display.id", tempDevice.BuildDisplayId);
                     changedSystemInfo.Add("ro.build.host", randomUser);
-                    //changedSystemInfo.Add("ro.build.version.incremental", tempDevice.BuildIncremental);
-                    //changedSystemInfo.Add("ro.build.description", tempDevice.BuildDescription);
+                    changedSystemInfo.Add("ro.build.version.incremental", tempDevice.BuildIncremental);
+                    changedSystemInfo.Add("ro.build.description", tempDevice.BuildDescription);
                     changedSystemInfo.Add("ro.build.date", tempDevice.BuildDate);
                     changedSystemInfo.Add("ro.build.date.utc", tempDevice.BuildDateUtc);
                     changedSystemInfo.Add("ro.build.flavor", tempDevice.BuildFlavor);
-                    //changedSystemInfo.Add("ro.build.id", tempDevice.BuildId);
+                    changedSystemInfo.Add("ro.build.id", tempDevice.BuildId);
 
-                    //changedSystemInfo.Add("ro.product.name", tempDevice.Product);
-                    //changedSystemInfo.Add("ro.product.brand", tempDevice.Brand);
-                    //changedSystemInfo.Add("ro.product.manufacturer", tempDevice.Manufacturer);
-                    //changedSystemInfo.Add("ro.product.model", tempDevice.Model);
-                    //changedSystemInfo.Add("ro.product.device", tempDevice.Code);
+                    changedSystemInfo.Add("ro.product.name", tempDevice.Product);
+                    changedSystemInfo.Add("ro.product.brand", tempDevice.Brand);
+                    changedSystemInfo.Add("ro.product.manufacturer", tempDevice.Manufacturer);
+                    changedSystemInfo.Add("ro.product.model", tempDevice.Model);
+                    changedSystemInfo.Add("ro.product.device", tempDevice.Code);
 
                     changedSystemInfo.Add("ro.android.device.mac", tempDevice.WifiMacAddress);
                     changedSystemInfo.Add("ro.android.bssid", RandomService.generateWifiMacAddress(tempDevice.Manufacturer.ToLower()));
@@ -166,20 +166,20 @@ namespace ToolChange.Services
                     changedSystemInfo.Add("ro.android.serialno", tempDevice.SerialNo);
                     changedSystemInfo.Add("ro.android.imei", tempDevice.Imei);
                     changedSystemInfo.Add("ro.android.imei1", tempDevice.Imei1);
-                    //changedSystemInfo.Add("ro.android.bootloader", tempDevice.Bootloader);
-                    //changedSystemInfo.Add("ro.android.hardware", tempDevice.Hardware);
-                    //changedSystemInfo.Add("ro.android.platform", tempDevice.Platform);
-                    //changedSystemInfo.Add("ro.android.board", tempDevice.Board);
+                    changedSystemInfo.Add("ro.android.bootloader", tempDevice.Bootloader);
+                    changedSystemInfo.Add("ro.android.hardware", tempDevice.Hardware);
+                    changedSystemInfo.Add("ro.android.platform", tempDevice.Platform);
+                    changedSystemInfo.Add("ro.android.board", tempDevice.Board);
 
-                    //changedSystemInfo.Add("ro.android.soc.manufacturer", tempDevice.Manufacturer);
-                    //changedSystemInfo.Add("ro.android.soc.model", tempDevice.Hardware);
-                    //changedSystemInfo.Add("ro.android.build.version.security_patch", securityPatchProp);
-                    //changedSystemInfo.Add("ro.android.build.version.release", tempDevice.Release);
-                    //changedSystemInfo.Add("ro.android.build.version.sdk", tempDevice.SDK);
+                    changedSystemInfo.Add("ro.android.soc.manufacturer", tempDevice.Manufacturer);
+                    changedSystemInfo.Add("ro.android.soc.model", tempDevice.Hardware);
+                    changedSystemInfo.Add("ro.android.build.version.security_patch", securityPatchProp);
+                    changedSystemInfo.Add("ro.android.build.version.release", tempDevice.Release);
+                    changedSystemInfo.Add("ro.android.build.version.sdk", tempDevice.SDK);
 
-                    //changedSystemInfo.Add("ro.android.gsm.version.baseband", tempBaseband);
-                    //changedSystemInfo.Add("gsm.version.baseband", tempBaseband);
-                    //changedSystemInfo.Add("ro.com.google.clientidbase", $"android-{tempDevice.Brand}");
+                    changedSystemInfo.Add("ro.android.gsm.version.baseband", tempBaseband);
+                    changedSystemInfo.Add("gsm.version.baseband", tempBaseband);
+                    changedSystemInfo.Add("ro.com.google.clientidbase", $"android-{tempDevice.Brand}");
                     changedSystemInfo.Add("ro.debuggable", "0");
 
                     string isRadioImeiAvailable = ADBService.getProp("persist.radio.imei1", deviceId);
@@ -219,16 +219,16 @@ namespace ToolChange.Services
 
                     var changedProductInfo = new Dictionary<string, string>();
                     changedProductInfo.Add("ro.com.google.clientidbase", $"android-{tempDevice.Brand}");
-                    //ADBService.replaceBuildProp("product/build.prop", changedProductInfo, deviceId);
-                    //ADBService.replaceBuildProp("product/etc/build.prop", changedProductInfo, deviceId);
+                    ADBService.replaceBuildProp("product/build.prop", changedProductInfo, deviceId);
+                    ADBService.replaceBuildProp("product/etc/build.prop", changedProductInfo, deviceId);
 
                     var changedVendorInfo = new Dictionary<string, string>();
                     changedVendorInfo.Add("ro.soc.manufacturer", tempDevice.Manufacturer);
                     changedVendorInfo.Add("ro.soc.model", tempDevice.Hardware);
                     changedVendorInfo.Add("ro.product.board", tempDevice.Board);
                     changedVendorInfo.Add("bluetooth.device.default_name", bluetoothName);
-                    //ADBService.replaceBuildProp("vendor/build.prop", changedVendorInfo, deviceId);
-                    //ADBService.replaceBuildProp("mnt/scratch/overlay/vendor/upper/build.prop", changedVendorInfo, deviceId);
+                    ADBService.replaceBuildProp("vendor/build.prop", changedVendorInfo, deviceId);
+                    ADBService.replaceBuildProp("mnt/scratch/overlay/vendor/upper/build.prop", changedVendorInfo, deviceId);
 
                     Dictionary<string, List<string>> partitionList = new Dictionary<string, List<string>>();
                     partitionList.Add("system", new List<string> { "/system/build.prop"});
@@ -246,7 +246,7 @@ namespace ToolChange.Services
                     ADBService.deleteSetting("bluetooth_address", deviceId, "secure");
                     ADBService.deleteSetting("bluetooth_name", deviceId, "secure");
                     ADBService.deleteSetting("device_name", deviceId);
-                    //ADBService.putSetting("non_persistent_mac_randomization_force_enabled", "1", deviceId);
+                    ADBService.putSetting("non_persistent_mac_randomization_force_enabled", "1", deviceId);
                     ADBService.putSetting("screen_off_timeout", "1800000", deviceId, "system");
                     ADBService.runCMDRoot("shell locksettings set-disabled true", deviceId);
 
@@ -255,10 +255,10 @@ namespace ToolChange.Services
                     ADBService.putSetting(GlobalAndroidSettings.HARDWARE_SERIALNO, tempDevice.SerialNo, deviceId);
                     
                     ADBService.updateInitRc(tempDevice, randomUser, deviceId);
-                    //ADBService.fakeLocalHostNameV6(deviceId);
+                    ADBService.fakeLocalHostNameV6(deviceId);
 
                     // fake wifi mac address
-                    //ADBService.fakeWifiMacAddress(tempDevice.WifiMacAddress, deviceId);
+                    ADBService.fakeWifiMacAddress(tempDevice.WifiMacAddress, deviceId);
 
                     if (isFakeSim)
                     {
