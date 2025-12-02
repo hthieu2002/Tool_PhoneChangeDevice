@@ -71,14 +71,17 @@ namespace Services
 
         private static void setUpTun2socksInterface(string deviceId, string ipProxyV4, string tun2socksTableId, string tun2socksInterface)
         {
+            var randomSubnet = RandomService.generateSubnetMask();
+            string subnet = randomSubnet["mask"];
+            string localIP = randomLocalIPv4ForTun2socks();
             ADBService.runCMDRoot("shell \"mkdir /dev/net\"", deviceId);
             ADBService.runCMDRoot("shell \"mknod /dev/net/tun c 10 200\"", deviceId);
             ADBService.runCMDRoot("shell \"chmod 0666 /dev/net/tun\"", deviceId);
             ADBService.runCMDRoot($"shell \"ip tuntap add dev {tun2socksInterface} mode tun\"", deviceId);
             ADBService.runCMDRoot($"shell \"echo '{tun2socksTableId} {tun2socksInterface}' >> /data/misc/net/rt_tables\"", deviceId);
             Thread.Sleep(1000);
-            //ADBService.runCMDRoot($"shell \"ifconfig {tun2socksInterface} {ipProxyV4} pointopoint {randomLocalIPv4ForTun2socks()} netmask 255.255.0.0 up\"", deviceId);
-            ADBService.runCMDRoot($"shell \"ip addr add {ipProxyV4}/16 peer {randomLocalIPv4ForTun2socks()} dev {tun2socksInterface}\"", deviceId);
+            ADBService.runCMDRoot($"shell \"ifconfig {tun2socksInterface} {ipProxyV4} pointopoint {localIP} netmask {subnet} up\"", deviceId);
+            //ADBService.runCMDRoot($"shell \"ip addr add {ipProxyV4}/16 peer {randomLocalIPv4ForTun2socks()} dev {tun2socksInterface}\"", deviceId);
             Thread.Sleep(1000);
             ADBService.runCMDRoot($"shell \"ip route add default dev {tun2socksInterface} table {tun2socksTableId}\"", deviceId);
             ADBService.runCMDRoot($"shell \"ip rule add from all lookup {tun2socksTableId} pref 100\"", deviceId);
