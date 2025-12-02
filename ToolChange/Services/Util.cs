@@ -143,10 +143,10 @@ namespace ToolChange.Services
                     changedSystemInfo.Add("ro.build.fingerprint", tempDevice.Fingerprint);
                     changedSystemInfo.Add("ro.build.display.id", tempDevice.BuildDisplayId);
                     changedSystemInfo.Add("ro.build.host", randomUser);
-                    changedSystemInfo.Add("ro.build.version.incremental", tempDevice.BuildIncremental);
+                    //changedSystemInfo.Add("ro.build.version.incremental", tempDevice.BuildIncremental);
                     changedSystemInfo.Add("ro.build.description", tempDevice.BuildDescription);
-                    changedSystemInfo.Add("ro.build.date", tempDevice.BuildDate);
-                    changedSystemInfo.Add("ro.build.date.utc", tempDevice.BuildDateUtc);
+                    //changedSystemInfo.Add("ro.build.date", tempDevice.BuildDate);
+                    //changedSystemInfo.Add("ro.build.date.utc", tempDevice.BuildDateUtc);
                     changedSystemInfo.Add("ro.build.flavor", tempDevice.BuildFlavor);
                     changedSystemInfo.Add("ro.build.id", tempDevice.BuildId);
 
@@ -159,8 +159,8 @@ namespace ToolChange.Services
                     changedSystemInfo.Add("ro.android.device.mac", tempDevice.WifiMacAddress);
                     changedSystemInfo.Add("ro.android.bssid", RandomService.generateWifiMacAddress(tempDevice.Manufacturer.ToLower()));
                     changedSystemInfo.Add("ro.android.ssid", RandomService.generateSSID());
-                    changedSystemInfo.Add("ro.android.bluetooth.mac", tempDevice.BlueToothMacAddress);
-                    changedSystemInfo.Add("ro.android.bluetooth.name", bluetoothName);
+                    //changedSystemInfo.Add("ro.android.bluetooth.mac", tempDevice.BlueToothMacAddress);
+                    //changedSystemInfo.Add("ro.android.bluetooth.name", bluetoothName);
                     changedSystemInfo.Add("ro.android.device.name", deviceName);
                     changedSystemInfo.Add("ro.android.id", tempDevice.AndroidId);
                     changedSystemInfo.Add("ro.android.serialno", tempDevice.SerialNo);
@@ -228,7 +228,7 @@ namespace ToolChange.Services
                     changedVendorInfo.Add("ro.product.board", tempDevice.Board);
                     changedVendorInfo.Add("bluetooth.device.default_name", bluetoothName);
                     ADBService.replaceBuildProp("vendor/build.prop", changedVendorInfo, deviceId);
-                    ADBService.replaceBuildProp("mnt/scratch/overlay/vendor/upper/build.prop", changedVendorInfo, deviceId);
+                    //ADBService.replaceBuildProp("mnt/scratch/overlay/vendor/upper/build.prop", changedVendorInfo, deviceId);
 
                     Dictionary<string, List<string>> partitionList = new Dictionary<string, List<string>>();
                     partitionList.Add("system", new List<string> { "/system/build.prop"});
@@ -242,10 +242,10 @@ namespace ToolChange.Services
                     partitionList.Add("system_ext", new List<string> { "/system_ext/etc/build.prop", "/system/system_ext/etc/build.prop" });
                     RepleacePropertiesForPartition(tempDevice, partitionList, deviceId);
 
-                    ADBService.deleteSetting("android_id", deviceId, "secure");
-                    ADBService.deleteSetting("bluetooth_address", deviceId, "secure");
-                    ADBService.deleteSetting("bluetooth_name", deviceId, "secure");
-                    ADBService.deleteSetting("device_name", deviceId);
+                    //ADBService.deleteSetting("android_id", deviceId, "secure");
+                    //ADBService.deleteSetting("bluetooth_address", deviceId, "secure");
+                    //ADBService.deleteSetting("bluetooth_name", deviceId, "secure");
+                    //ADBService.deleteSetting("device_name", deviceId);
                     ADBService.putSetting("non_persistent_mac_randomization_force_enabled", "1", deviceId);
                     ADBService.putSetting("screen_off_timeout", "1800000", deviceId, "system");
                     ADBService.runCMDRoot("shell locksettings set-disabled true", deviceId);
@@ -254,7 +254,7 @@ namespace ToolChange.Services
                     ADBService.putSetting(GlobalAndroidSettings.IMEI1, tempDevice.Imei1, deviceId);
                     ADBService.putSetting(GlobalAndroidSettings.HARDWARE_SERIALNO, tempDevice.SerialNo, deviceId);
                     
-                    ADBService.updateInitRc(tempDevice, randomUser, deviceId);
+                    //ADBService.updateInitRc(tempDevice, randomUser, deviceId);
                     ADBService.fakeLocalHostNameV6(deviceId);
 
                     // fake wifi mac address
@@ -477,15 +477,15 @@ namespace ToolChange.Services
 
                 var changedDeviceInfo = new Dictionary<string, string>
                 {
-                    //[$"ro.product.{partition.Key}.brand"] = tempDevice.Brand,
-                    //[$"ro.product.{partition.Key}.device"] = tempDevice.Code,
-                    //[$"ro.product.{partition.Key}.manufacturer"] = tempDevice.Manufacturer,
-                    //[$"ro.product.{partition.Key}.model"] = tempDevice.Model,
-                    //[$"ro.product.{partition.Key}.name"] = tempDevice.Code,
-                    [$"ro.{partition.Key}.build.date"] = tempDevice.BuildDate,
-                    [$"ro.{partition.Key}.build.date.utc"] = tempDevice.BuildDateUtc,
-                    //[$"ro.{partition.Key}.build.fingerprint"] = tempDevice.Fingerprint,
-                    //[$"ro.{partition.Key}.build.id"] = tempDevice.BuildId,
+                    [$"ro.product.{partition.Key}.brand"] = tempDevice.Brand,
+                    [$"ro.product.{partition.Key}.device"] = tempDevice.Code,
+                    [$"ro.product.{partition.Key}.manufacturer"] = tempDevice.Manufacturer,
+                    [$"ro.product.{partition.Key}.model"] = tempDevice.Model,
+                    [$"ro.product.{partition.Key}.name"] = tempDevice.Code,
+                    //[$"ro.{partition.Key}.build.date"] = tempDevice.BuildDate,
+                    //[$"ro.{partition.Key}.build.date.utc"] = tempDevice.BuildDateUtc,
+                    [$"ro.{partition.Key}.build.fingerprint"] = tempDevice.Fingerprint,
+                    [$"ro.{partition.Key}.build.id"] = tempDevice.BuildId,
                     [$"ro.{partition.Key}.build.tags"] = "release-keys",
                     [$"ro.{partition.Key}.build.type"] = "user",
                     //[$"ro.{partition.Key}.build.version.incremental"] = tempDevice.BuildIncremental

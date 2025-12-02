@@ -601,8 +601,8 @@ namespace Services
             }
 
             runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/data/*/*"), deviceId);
-            runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/user/*/*/*"), deviceId);
-            runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/user_de/*/*/*"), deviceId);
+            //runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/user/*/*/*"), deviceId);
+            //runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/user_de/*/*/*"), deviceId);
 
             runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/system/sync/*"), deviceId);
             runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/system/slice/*"), deviceId);
