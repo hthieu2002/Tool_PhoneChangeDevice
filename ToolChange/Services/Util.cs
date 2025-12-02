@@ -93,7 +93,7 @@ namespace ToolChange.Services
                     return false;
                 }
 
-                string securityPatchProp = ADBService.getProp("persist.sys.pihooks_SECURITY_PATCH", deviceId);
+                string securityPatchProp = ADBService.getProp("persist.sys.deepdroid.pihooks_SECURITY_PATCH", deviceId);
                 string roBuildDate = RandomService.generateBuildDate(securityPatchProp);
                 string roBuildDateUtc = RandomService.generateBuildDateUTC(securityPatchProp);
 
