@@ -68,7 +68,6 @@ namespace Services
 
             props +=
                 $"{leftPadding}setprop bluetooth.device.default_name \"{tempDevice.Manufacturer}\"\r\n" +
-                $"{leftPadding}setprop init.svc.adbd \"stopped\"\r\n" +
                 $"{leftPadding}setprop ro.bootloader \"{tempDevice.Bootloader}\"\r\n" +
                 $"{leftPadding}setprop ro.boot.bootloader \"{tempDevice.Bootloader}\"\r\n" +
                 $"{leftPadding}setprop ril.product_code \"{tempDevice.Bootloader}\"\r\n" +

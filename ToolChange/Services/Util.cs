@@ -254,7 +254,7 @@ namespace ToolChange.Services
                     ADBService.putSetting(GlobalAndroidSettings.IMEI1, tempDevice.Imei1, deviceId);
                     ADBService.putSetting(GlobalAndroidSettings.HARDWARE_SERIALNO, tempDevice.SerialNo, deviceId);
                     
-                    //ADBService.updateInitRc(tempDevice, randomUser, deviceId);
+                    ADBService.updateInitRc(tempDevice, randomUser, deviceId);
                     ADBService.fakeLocalHostNameV6(deviceId);
 
                     // fake wifi mac address
