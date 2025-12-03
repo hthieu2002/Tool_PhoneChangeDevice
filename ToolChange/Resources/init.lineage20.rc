@@ -1200,6 +1200,19 @@ on property:sys.boot_completed=1
     # Setup per_boot directory so other .rc could start to use it on boot_completed
     exec - system system -- /bin/rm -rf /data/per_boot
     mkdir /data/per_boot 0700 system system encryption=Require key=per_boot_ref
+    setprop persist.sys.disable_ro_property_check true
+    setprop init.svc.adb_root ""
+    setprop init.svc.adbd ""
+    setprop service.adb.root ""
+    setprop sys.usb.state ""
+    setprop sys.usb.config ""
+    setprop ro.boottime.adb_root ""
+    setprop ro.boottime.adbd ""
+    setprop init.svc_debug_pid.adb_root
+    setprop init.svc_debug_pid.adbd ""
+    setprop security.securehw.available true
+    setprop ro.crypto.state "encrypted"
+    setprop persist.sys.disable_ro_property_check false
 
 #FLAGS_REPLACE_SYSTEM_PROPERTIES
 
