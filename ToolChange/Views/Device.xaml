@@ -563,23 +563,7 @@
                                          VerticalAlignment="Center"
                                          HorizontalAlignment="Stretch" />
                             </Grid>
-                            <Grid Width="200"
-                                  Height="35"
-                                  Margin="5,5,5,10">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto" />
-                                    <ColumnDefinition Width="130" />
-                                </Grid.ColumnDefinitions>
-                                <Label Content="Fake sdk"
-                                       Grid.Column="0"
-                                       Margin="0,0,0,0"
-                                       HorizontalAlignment="Left"
-                                       VerticalAlignment="Center"
-                                       FontWeight="Bold" />
-                                <CheckBox IsChecked="{Binding DeviceListVM.IsFakeSdk, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                          HorizontalAlignment="Left"
-                                          Grid.Column="1" />
-                            </Grid>
+                           
                             <Grid Width="200"
                                   Height="35"
                                   Margin="5,5,5,10">
@@ -597,25 +581,7 @@
                                           HorizontalAlignment="Left"
                                           Grid.Column="1" />
                             </Grid>
-                            <Grid Width="200"
-                                  Height="35"
-                                  Margin="0,0,0,0">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto" />
-                                    <ColumnDefinition Width="130" />
-                                </Grid.ColumnDefinitions>
-                                <Label Content="Update PlayIntegrityFix"
-                                       Grid.Column="0"
-                                       Margin="0,0,0,0"
-                                       HorizontalAlignment="Left"
-                                       VerticalAlignment="Center"
-                                       FontWeight="Bold" />
-                                <CheckBox IsChecked="{Binding DeviceListVM.IsCheckedKeyBox, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                          HorizontalAlignment="Left"
-                                          Grid.Column="1" />
-                            </Grid>
                            
-                         
                         </UniformGrid>
                     </ScrollViewer>
 
@@ -820,8 +786,13 @@
                                     Padding="0"
                                     Command="{Binding DeviceListVM.ScreenshotCommand}"
                                     CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=ContextMenu}, Path=PlacementTarget.SelectedItem}" />
-                            
-                            
+                            <Button Content="Update PlayIntegrityFix"
+                                    Width="180"
+                                    Margin="5,5,0,0"
+                                    Padding="0"
+                                    Command="{Binding DeviceListVM.PlayIntegrityFix}"
+                                    CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=ContextMenu}, Path=PlacementTarget.SelectedItem}" />
+                         
 
                         </WrapPanel>
                     </ScrollViewer>
