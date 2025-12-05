@@ -93,7 +93,7 @@ namespace ToolChange.ViewModels
             }
         }
         private POCO.Models.ComboBoxItem _selectedSim;
-        private bool _fakeSdk = false;
+        private bool _fakeSdk = true;
         public bool IsFakeSdk
         {
             get => _fakeSdk;
@@ -574,6 +574,7 @@ namespace ToolChange.ViewModels
         public ICommand ChangeSimCommand { get; private set; }
         public ICommand AutoChangeSimCommand { get; private set; }
         public ICommand ScreenshotCommand { get; private set; }
+        public ICommand PlayIntegrityFix { get; private set; }
         public ICommand FakeLocationCommand { get; private set; }
         public ICommand FakeTimeZoneCommand { get; private set; }
         public ICommand DetailsDeviceIdCommand { get; private set; }
@@ -616,6 +617,7 @@ namespace ToolChange.ViewModels
             ChangeSimCommand = new RelayCommand(async () => await ChangeSim());
             AutoChangeSimCommand = new RelayCommand(async () => await AutoChangeSim());
             ScreenshotCommand = new RelayCommand(async () => await Screenshot());
+            PlayIntegrityFix = new RelayCommand(async () => await PlayIntegrity());
             FakeLocationCommand = new RelayCommand(async () => await FakeLocation());
             FakeTimeZoneCommand = new RelayCommand(async () => await FakeTimeZone());
             OpenUrlCommand = new RelayCommand(async () => await OpenUrl());
@@ -1668,12 +1670,12 @@ namespace ToolChange.ViewModels
                             continue;
 
                         }
-                        /*if (!await ADBService.CheckDeviceActiveBool(device.DeviceId, miChangerGraphQLClient))
+                        if (!await ADBService.CheckDeviceActiveBool(device.DeviceId, miChangerGraphQLClient))
                         {
                             UpdateDeviceStatus(device.DeviceId, "0%", "⚠ Device not active");
                             continue;
 
-                        }*/
+                        }
                         if (_processingDeviceIds.Contains(device.DeviceId))
                         {
                             UpdateDeviceStatus(device.DeviceId, "%", "⏳ Device running...");
@@ -1683,7 +1685,7 @@ namespace ToolChange.ViewModels
 
 
                         _processingDeviceIds.Add(device.DeviceId);
-                        if (messageBoxPushFile == MessageBoxResult.Yes && selectedFilePath != null)
+                        if (false)
                         {
                             DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "0%", "In progress push file keybox.xml to phone");
                             await Task.Delay(1000);
@@ -1695,7 +1697,7 @@ namespace ToolChange.ViewModels
                             DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "0%", "Push file keybox.xml to phone success");
                             await Task.Delay(1000);
                         }
-                        if (messageBoxPushFileJson == MessageBoxResult.Yes && selectedFilePathJson != null)
+                        if (false)
                         {
                             DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "0%", "In progress push file pif.json to phone");
                             await Task.Delay(1000);
@@ -1941,14 +1943,14 @@ namespace ToolChange.ViewModels
                         }
 
                         _processingDeviceIds.Add(device.DeviceId);
-                        if (messageBoxPushFile == MessageBoxResult.Yes && selectedFilePath != null)
+                        if (false)
                         {
                             ADBService.ExecuteAdbCommand(
                                 $"push {selectedFilePath} /data/local/tmp/",
                                 device.DeviceId
                             );
                         }
-                        if (messageBoxPushFileJson == MessageBoxResult.Yes && selectedFilePathJson != null)
+                        if (false)
                         {
                             DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "0%", "In progress push file pif.json to phone");
                             await Task.Delay(1000);
@@ -2321,6 +2323,57 @@ namespace ToolChange.ViewModels
             }, uiThreadScheduler);
             _processingDeviceIds.Remove(device.DeviceId);
         }
+        private async Task PlayIntegrity()
+        {
+            try
+            {
+                var selectedDevices = Devices.Where(device => device.IsChecked).ToList();
+                int selectedCount = selectedDevices.Count;
+
+                if (selectedCount == 0)
+                {
+                    System.Windows.MessageBox.Show(DevicesLang.logSelectDeviceChange, Lang.LogInfomation, MessageBoxButton.OK, MessageBoxImage.Information);
+                    return;
+                }
+                var tasks = new List<Task>();
+                foreach (var device in selectedDevices)
+                {
+                    if (device.Status == "Offline")
+                    {
+                        UpdateDeviceStatus(device.DeviceId, "0%", "⚠ Device offline");
+                        continue;
+
+                    }
+                    if (!await ADBService.CheckDeviceActiveBool(device.DeviceId, miChangerGraphQLClient))
+                    {
+                        UpdateDeviceStatus(device.DeviceId, "0%", "⚠ Device not active");
+                        continue;
+
+                    }
+                    if (_processingDeviceIds.Contains(device.DeviceId))
+                    {
+                        UpdateDeviceStatus(device.DeviceId, "%", "⏳ Device running...");
+                        continue;
+
+                    }
+
+                    _processingDeviceIds.Add(device.DeviceId);
+
+                    tasks.Add(ProcessPlayIntegrityAsync(device));
+
+                }
+                await Task.WhenAll(tasks);
+            }
+            catch (Exception ex)
+            {
+                System.Windows.MessageBox.Show($"Error in ChangeDevice: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+            finally
+            {
+                _processingDeviceIds.Clear();
+
+            }
+        }
         private async Task Screenshot()
         {
             try
@@ -2371,6 +2424,173 @@ namespace ToolChange.ViewModels
                 _processingDeviceIds.Clear();
 
             }
+        }
+        private async Task ProcessPlayIntegrityAsync(Models.DeviceModel device)
+        {
+            bool validFileSelected = false;
+            while (!validFileSelected)
+            {
+                var openFileDialog = new Microsoft.Win32.OpenFileDialog
+                {
+                    Filter = "XML files (*.xml)|*.xml",
+                    Title = "Select keybox.xml file"
+                };
+                bool? dialogResult = await System.Windows.Application.Current.Dispatcher.InvokeAsync(() => openFileDialog.ShowDialog());
+                if (dialogResult == true)
+                {
+                    var fileName = Path.GetFileName(openFileDialog.FileName);
+                    if (string.Equals(fileName, "keybox.xml", StringComparison.OrdinalIgnoreCase))
+                    {
+                        selectedFilePath = openFileDialog.FileName;
+                        validFileSelected = true;
+                    }
+                    else
+                    {
+                        await System.Windows.Application.Current.Dispatcher.InvokeAsync(() =>
+                        {
+                            System.Windows.MessageBox.Show(Lang.LogError, Lang.LogError, MessageBoxButton.OK, MessageBoxImage.Error);
+                        });
+                    }
+                }
+                else
+                {
+                    validFileSelected = true;
+                }
+            }
+            //
+
+            bool validFileSelectedPif = false;
+            while (!validFileSelectedPif)
+            {
+                var openFileDialog = new Microsoft.Win32.OpenFileDialog
+                {
+                    Filter = "JSON files (*.json)|*.json",
+                    Title = "Select pif.json file"
+                };
+                bool? dialogResult = await System.Windows.Application.Current.Dispatcher.InvokeAsync(() => openFileDialog.ShowDialog());
+                if (dialogResult == true)
+                {
+                    var fileName = Path.GetFileName(openFileDialog.FileName);
+                    if (string.Equals(fileName, "pif.json", StringComparison.OrdinalIgnoreCase))
+                    {
+                        selectedFilePathJson = openFileDialog.FileName;
+                        validFileSelectedPif = true;
+                    }
+                    else
+                    {
+                        await System.Windows.Application.Current.Dispatcher.InvokeAsync(() =>
+                        {
+                            System.Windows.MessageBox.Show(Lang.LogError, Lang.LogError, MessageBoxButton.OK, MessageBoxImage.Error);
+                        });
+                    }
+                }
+                else
+                {
+                    validFileSelectedPif = true;
+                }
+            }
+
+            //
+            if (selectedFilePath != null)
+            {
+                DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "5%", "In progress push file keybox.xml to phone");
+                await Task.Delay(1000);
+                ADBService.ExecuteAdbCommand(
+                    $"push {selectedFilePath} /data/local/tmp/",
+                    device.DeviceId
+                );
+
+                DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "10%", "Push file keybox.xml to phone success");
+                await Task.Delay(1000);
+            }
+            if (selectedFilePathJson != null)
+            {
+                DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "20%", "In progress push file pif.json to phone");
+                await Task.Delay(1000);
+                ADBService.ExecuteAdbCommand(
+                    $"push {selectedFilePathJson} /data/local/tmp/",
+                    device.DeviceId
+                );
+
+                DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "30%", "Push file pif.json to phone success");
+                await Task.Delay(1000);
+
+
+                DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "40%", "In progress setprop pihooks to phone");
+                string jsonContent = File.ReadAllText(selectedFilePathJson);
+                await Task.Delay(1000);
+                PifData pifData = JsonConvert.DeserializeObject<PifData>(jsonContent);
+
+                if (pifData == null)
+                {
+                    DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "40%", "File PIF data null");
+                }
+                else
+                {
+                    var props = typeof(PifData).GetProperties()
+                                                .Where(p => p.PropertyType == typeof(string))
+                                                .Select(p => new { Name = p.Name, Value = p.GetValue(pifData) as string })
+                                                .Where(p => string.IsNullOrEmpty(p.Value) && p.Name != "RELEASE")
+                                                .ToList();
+
+                    if (props.Any())
+                    {
+                        string missing = string.Join(", ", props.Select(p => p.Name));
+                        DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "50%", $"Missing or empty fields: {missing}");
+                    }
+                    else
+                    {
+                        if (!string.IsNullOrEmpty(pifData.FINGERPRINT))
+                        {
+                            string[] parts = pifData.FINGERPRINT.Split("/");
+                            List<string> splitFingerprint = new List<string>();
+                            foreach (string part in parts)
+                            {
+                                string[] subParts = part.Split(':');
+                                splitFingerprint.AddRange(subParts);
+                            }
+
+                            if (splitFingerprint.Count == 8)
+                            {
+                                var changePifInfo = new Dictionary<string, string>();
+                                changePifInfo.Add("persist.sys.pihooks_BRAND", splitFingerprint[0]);
+                                changePifInfo.Add("persist.sys.pihooks_PRODUCT", splitFingerprint[1]);
+                                changePifInfo.Add("persist.sys.pihooks_DEVICE", splitFingerprint[2]);
+                                changePifInfo.Add("persist.sys.pihooks_BOARD", splitFingerprint[2]);
+                                changePifInfo.Add("persist.sys.pihooks_HARDWARE", splitFingerprint[2]);
+                                changePifInfo.Add("persist.sys.pihooks_ID", splitFingerprint[4]);
+                                changePifInfo.Add("persist.sys.pihooks_INCREMENTAL", splitFingerprint[5]);
+                                changePifInfo.Add("persist.sys.pihooks_FINGERPRINT", pifData.FINGERPRINT);
+                                changePifInfo.Add("persist.sys.pihooks_MANUFACTURER", pifData.MANUFACTURER);
+                                changePifInfo.Add("persist.sys.pihooks_MODEL", $"\"{pifData.MODEL}\"");
+                                changePifInfo.Add("persist.sys.pihooks_SECURITY_PATCH", pifData.SECURITY_PATCH);
+                                changePifInfo.Add("persist.sys.pihooks_DEVICE_INITIAL_SDK_INT", pifData.DEVICE_INITIAL_SDK_INT);
+                                changePifInfo.Add("persist.sys.pihooks_SDK_INT", pifData.SDK_INT);
+                                if (!string.IsNullOrEmpty(pifData.RELEASE))
+                                    changePifInfo.Add("persist.sys.pihooks_RELEASE", pifData.RELEASE);
+                                else
+                                {
+                                    changePifInfo.Add("persist.sys.pihooks_RELEASE", splitFingerprint[3]);
+                                }
+
+                                ADBService.replaceBuildProp("/product/etc/build.prop", changePifInfo, device.DeviceId);
+
+                                DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "90%", "Setprop pihooks to phone success");
+                                await Task.Delay(1000);
+                            }
+                            else
+                            {
+                                DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "100%", "Invalid FINGERPRINT format");
+                            }
+                        }
+                        else
+                        {
+                            DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "100%", "FINGERPRINT is null or empty");
+                        }
+                    }
+                }
+            }
+            DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "100%", "success");
         }
         private async Task ProcessScreenshotAsync(Models.DeviceModel device)
         {
