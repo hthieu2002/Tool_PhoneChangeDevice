@@ -26,7 +26,6 @@ using ToolChange.Services;
 using ToolChange.Views;
 using ToolChange.Views.ControlScriptPage;
 using WindowsFormsApp.Script.RoslynScript;
-using Xamarin.Forms;
 
 namespace ToolChange.ViewModels
 {

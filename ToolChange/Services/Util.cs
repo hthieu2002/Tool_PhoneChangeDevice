@@ -1,21 +1,10 @@
-﻿using Amazon.Runtime.Internal.Transform;
-using DeepDroid.Models;
-using Microsoft.VisualBasic.ApplicationServices;
+﻿
 using POCO.Models;
 using Services;
-using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Data;
 using System.Diagnostics;
-using System.Globalization;
-using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using ToolChange.ViewModels;
-using ToolChange.ViewModels.Constants;
-using ToolChange.Views;
 
 namespace ToolChange.Services
 {
