@@ -1,24 +1,16 @@
 ﻿using AuthenticationService;
 using MiHttpClient;
 using Services;
-using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
 using System.Xml;
 using ToolChange.Services;
 using ToolChange.Views;
-using ToolChange.Views.ControlScriptPage;
-using Xamarin.Forms;
 
 namespace ToolChange.ViewModels
 {

@@ -1,44 +1,25 @@
-﻿using Amazon.Extensions.CognitoAuthentication;
-using AuthenticationService;
+﻿using AuthenticationService;
 using DeepDroid.Models;
-using Dynamitey.Internal.Optimization;
-using Microsoft.VisualBasic.ApplicationServices;
-using Microsoft.Win32;
 using MiHttpClient;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using OpenPop.Mime;
 using POCO.Models;
 using Services;
-using System;
-using System.Collections.Concurrent;
 using System.Collections.ObjectModel;
-using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Data;
 using System.Diagnostics;
 using System.IdentityModel.Tokens.Jwt;
 using System.IO;
-using System.Linq;
-using System.Net.Http;
 using System.Runtime.InteropServices;
-using System.Runtime.Intrinsics.Arm;
 using System.Text.Json;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Input;
-using System.Windows.Threading;
-using System.Xml.Linq;
-using Tesseract;
 using ToolChange.Language;
 using ToolChange.Models;
 using ToolChange.Services;
 using ToolChange.ViewModels.Constants;
-using ToolChange.Views;
 using ToolChange.Views.ControlScriptPage;
-using Xamarin.Forms;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement.StartPanel;
 
 namespace ToolChange.ViewModels
 {
