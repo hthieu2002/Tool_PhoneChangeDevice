@@ -1747,24 +1747,24 @@ namespace ToolChange.ViewModels
                                         if (splitFingerprint.Count == 8)
                                         {
                                             var changePifInfo = new Dictionary<string, string>();
-                                            changePifInfo.Add("persist.sys.pihooks_BRAND", splitFingerprint[0]);
-                                            changePifInfo.Add("persist.sys.pihooks_PRODUCT", splitFingerprint[1]);
-                                            changePifInfo.Add("persist.sys.pihooks_DEVICE", splitFingerprint[2]);
-                                            changePifInfo.Add("persist.sys.pihooks_BOARD", splitFingerprint[2]);
-                                            changePifInfo.Add("persist.sys.pihooks_HARDWARE", splitFingerprint[2]);
-                                            changePifInfo.Add("persist.sys.pihooks_ID",splitFingerprint[4]);
-                                            changePifInfo.Add("persist.sys.pihooks_INCREMENTAL", splitFingerprint[5]);
-                                            changePifInfo.Add("persist.sys.pihooks_FINGERPRINT", pifData.FINGERPRINT);
-                                            changePifInfo.Add("persist.sys.pihooks_MANUFACTURER", pifData.MANUFACTURER);
-                                            changePifInfo.Add("persist.sys.pihooks_MODEL", $"\"{pifData.MODEL}\"");
-                                            changePifInfo.Add("persist.sys.pihooks_SECURITY_PATCH", pifData.SECURITY_PATCH);
-                                            changePifInfo.Add("persist.sys.pihooks_DEVICE_INITIAL_SDK_INT", pifData.DEVICE_INITIAL_SDK_INT);
-                                            changePifInfo.Add("persist.sys.pihooks_SDK_INT", pifData.SDK_INT);
+                                            changePifInfo.Add("persist.sys.deepdroid.pihooks_BRAND", splitFingerprint[0]);
+                                            changePifInfo.Add("persist.sys.deepdroid.pihooks_PRODUCT", splitFingerprint[1]);
+                                            changePifInfo.Add("persist.sys.deepdroid.pihooks_DEVICE", splitFingerprint[2]);
+                                            changePifInfo.Add("persist.sys.deepdroid.pihooks_BOARD", splitFingerprint[2]);
+                                            changePifInfo.Add("persist.sys.deepdroid.pihooks_HARDWARE", splitFingerprint[2]);
+                                            changePifInfo.Add("persist.sys.deepdroid.pihooks_ID",splitFingerprint[4]);
+                                            changePifInfo.Add("persist.sys.deepdroid.pihooks_INCREMENTAL", splitFingerprint[5]);
+                                            changePifInfo.Add("persist.sys.deepdroid.pihooks_FINGERPRINT", pifData.FINGERPRINT);
+                                            changePifInfo.Add("persist.sys.deepdroid.pihooks_MANUFACTURER", pifData.MANUFACTURER);
+                                            changePifInfo.Add("persist.sys.deepdroid.pihooks_MODEL", $"\"{pifData.MODEL}\"");
+                                            changePifInfo.Add("persist.sys.deepdroid.pihooks_SECURITY_PATCH", pifData.SECURITY_PATCH);
+                                            changePifInfo.Add("persist.sys.deepdroid.pihooks_DEVICE_INITIAL_SDK_INT", pifData.DEVICE_INITIAL_SDK_INT);
+                                            changePifInfo.Add("persist.sys.deepdroid.pihooks_SDK_INT", pifData.SDK_INT);
                                             if(!string.IsNullOrEmpty(pifData.RELEASE))
-                                                changePifInfo.Add("persist.sys.pihooks_RELEASE", pifData.RELEASE);
+                                                changePifInfo.Add("persist.sys.deepdroid.pihooks_RELEASE", pifData.RELEASE);
                                             else
                                             {
-                                                changePifInfo.Add("persist.sys.pihooks_RELEASE", splitFingerprint[3]);
+                                                changePifInfo.Add("persist.sys.deepdroid.pihooks_RELEASE", splitFingerprint[3]);
                                             }
 
                                             ADBService.replaceBuildProp("/product/etc/build.prop", changePifInfo, device.DeviceId);
@@ -2000,24 +2000,24 @@ namespace ToolChange.ViewModels
                                         if (splitFingerprint.Count == 8)
                                         {
                                             var changePifInfo = new Dictionary<string, string>();
-                                            changePifInfo.Add("persist.sys.pihooks_BRAND", splitFingerprint[0]);
-                                            changePifInfo.Add("persist.sys.pihooks_PRODUCT", splitFingerprint[1]);
-                                            changePifInfo.Add("persist.sys.pihooks_DEVICE", splitFingerprint[2]);
-                                            changePifInfo.Add("persist.sys.pihooks_BOARD", splitFingerprint[2]);
-                                            changePifInfo.Add("persist.sys.pihooks_HARDWARE", splitFingerprint[2]);
-                                            changePifInfo.Add("persist.sys.pihooks_ID", splitFingerprint[4]);
-                                            changePifInfo.Add("persist.sys.pihooks_INCREMENTAL", splitFingerprint[5]);
-                                            changePifInfo.Add("persist.sys.pihooks_FINGERPRINT", pifData.FINGERPRINT);
-                                            changePifInfo.Add("persist.sys.pihooks_MANUFACTURER", pifData.MANUFACTURER);
-                                            changePifInfo.Add("persist.sys.pihooks_MODEL", $"\"{pifData.MODEL}\"");
-                                            changePifInfo.Add("persist.sys.pihooks_SECURITY_PATCH", pifData.SECURITY_PATCH);
-                                            changePifInfo.Add("persist.sys.pihooks_DEVICE_INITIAL_SDK_INT", pifData.DEVICE_INITIAL_SDK_INT);
-                                            changePifInfo.Add("persist.sys.pihooks_SDK_INT", pifData.SDK_INT);
+                                            changePifInfo.Add("persist.sys.deepdroid.pihooks_BRAND", splitFingerprint[0]);
+                                            changePifInfo.Add("persist.sys.deepdroid.pihooks_PRODUCT", splitFingerprint[1]);
+                                            changePifInfo.Add("persist.sys.deepdroid.pihooks_DEVICE", splitFingerprint[2]);
+                                            changePifInfo.Add("persist.sys.deepdroid.pihooks_BOARD", splitFingerprint[2]);
+                                            changePifInfo.Add("persist.sys.deepdroid.pihooks_HARDWARE", splitFingerprint[2]);
+                                            changePifInfo.Add("persist.sys.deepdroid.pihooks_ID", splitFingerprint[4]);
+                                            changePifInfo.Add("persist.sys.deepdroid.pihooks_INCREMENTAL", splitFingerprint[5]);
+                                            changePifInfo.Add("persist.sys.deepdroid.pihooks_FINGERPRINT", pifData.FINGERPRINT);
+                                            changePifInfo.Add("persist.sys.deepdroid.pihooks_MANUFACTURER", pifData.MANUFACTURER);
+                                            changePifInfo.Add("persist.sys.deepdroid.pihooks_MODEL", $"\"{pifData.MODEL}\"");
+                                            changePifInfo.Add("persist.sys.deepdroid.pihooks_SECURITY_PATCH", pifData.SECURITY_PATCH);
+                                            changePifInfo.Add("persist.sys.deepdroid.pihooks_DEVICE_INITIAL_SDK_INT", pifData.DEVICE_INITIAL_SDK_INT);
+                                            changePifInfo.Add("persist.sys.deepdroid.pihooks_SDK_INT", pifData.SDK_INT);
                                             if (!string.IsNullOrEmpty(pifData.RELEASE))
-                                                changePifInfo.Add("persist.sys.pihooks_RELEASE", pifData.RELEASE);
+                                                changePifInfo.Add("persist.sys.deepdroid.pihooks_RELEASE", pifData.RELEASE);
                                             else
                                             {
-                                                changePifInfo.Add("persist.sys.pihooks_RELEASE", splitFingerprint[3]);
+                                                changePifInfo.Add("persist.sys.deepdroid.pihooks_RELEASE", splitFingerprint[3]);
                                             }
 
                                             ADBService.replaceBuildProp("/product/etc/build.prop", changePifInfo, device.DeviceId);
@@ -2561,24 +2561,24 @@ namespace ToolChange.ViewModels
                             if (splitFingerprint.Count == 8)
                             {
                                 var changePifInfo = new Dictionary<string, string>();
-                                changePifInfo.Add("persist.sys.pihooks_BRAND", splitFingerprint[0]);
-                                changePifInfo.Add("persist.sys.pihooks_PRODUCT", splitFingerprint[1]);
-                                changePifInfo.Add("persist.sys.pihooks_DEVICE", splitFingerprint[2]);
-                                changePifInfo.Add("persist.sys.pihooks_BOARD", splitFingerprint[2]);
-                                changePifInfo.Add("persist.sys.pihooks_HARDWARE", splitFingerprint[2]);
-                                changePifInfo.Add("persist.sys.pihooks_ID", splitFingerprint[4]);
-                                changePifInfo.Add("persist.sys.pihooks_INCREMENTAL", splitFingerprint[5]);
-                                changePifInfo.Add("persist.sys.pihooks_FINGERPRINT", pifData.FINGERPRINT);
-                                changePifInfo.Add("persist.sys.pihooks_MANUFACTURER", pifData.MANUFACTURER);
-                                changePifInfo.Add("persist.sys.pihooks_MODEL", $"\"{pifData.MODEL}\"");
-                                changePifInfo.Add("persist.sys.pihooks_SECURITY_PATCH", pifData.SECURITY_PATCH);
-                                changePifInfo.Add("persist.sys.pihooks_DEVICE_INITIAL_SDK_INT", pifData.DEVICE_INITIAL_SDK_INT);
-                                changePifInfo.Add("persist.sys.pihooks_SDK_INT", pifData.SDK_INT);
+                                changePifInfo.Add("persist.sys.deepdroid.pihooks_BRAND", splitFingerprint[0]);
+                                changePifInfo.Add("persist.sys.deepdroid.pihooks_PRODUCT", splitFingerprint[1]);
+                                changePifInfo.Add("persist.sys.deepdroid.pihooks_DEVICE", splitFingerprint[2]);
+                                changePifInfo.Add("persist.sys.deepdroid.pihooks_BOARD", splitFingerprint[2]);
+                                changePifInfo.Add("persist.sys.deepdroid.pihooks_HARDWARE", splitFingerprint[2]);
+                                changePifInfo.Add("persist.sys.deepdroid.pihooks_ID", splitFingerprint[4]);
+                                changePifInfo.Add("persist.sys.deepdroid.pihooks_INCREMENTAL", splitFingerprint[5]);
+                                changePifInfo.Add("persist.sys.deepdroid.pihooks_FINGERPRINT", pifData.FINGERPRINT);
+                                changePifInfo.Add("persist.sys.deepdroid.pihooks_MANUFACTURER", pifData.MANUFACTURER);
+                                changePifInfo.Add("persist.sys.deepdroid.pihooks_MODEL", $"\"{pifData.MODEL}\"");
+                                changePifInfo.Add("persist.sys.deepdroid.pihooks_SECURITY_PATCH", pifData.SECURITY_PATCH);
+                                changePifInfo.Add("persist.sys.deepdroid.pihooks_DEVICE_INITIAL_SDK_INT", pifData.DEVICE_INITIAL_SDK_INT);
+                                changePifInfo.Add("persist.sys.deepdroid.pihooks_SDK_INT", pifData.SDK_INT);
                                 if (!string.IsNullOrEmpty(pifData.RELEASE))
-                                    changePifInfo.Add("persist.sys.pihooks_RELEASE", pifData.RELEASE);
+                                    changePifInfo.Add("persist.sys.deepdroid.pihooks_RELEASE", pifData.RELEASE);
                                 else
                                 {
-                                    changePifInfo.Add("persist.sys.pihooks_RELEASE", splitFingerprint[3]);
+                                    changePifInfo.Add("persist.sys.deepdroid.pihooks_RELEASE", splitFingerprint[3]);
                                 }
 
                                 ADBService.replaceBuildProp("/product/etc/build.prop", changePifInfo, device.DeviceId);
