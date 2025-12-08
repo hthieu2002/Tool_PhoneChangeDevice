@@ -2335,6 +2335,69 @@ namespace ToolChange.ViewModels
                     System.Windows.MessageBox.Show(DevicesLang.logSelectDeviceChange, Lang.LogInfomation, MessageBoxButton.OK, MessageBoxImage.Information);
                     return;
                 }
+                bool validFileSelected = false;
+                while (!validFileSelected)
+                {
+                    var openFileDialog = new Microsoft.Win32.OpenFileDialog
+                    {
+                        Filter = "XML files (*.xml)|*.xml",
+                        Title = "Select keybox.xml file"
+                    };
+                    bool? dialogResult = await System.Windows.Application.Current.Dispatcher.InvokeAsync(() => openFileDialog.ShowDialog());
+                    if (dialogResult == true)
+                    {
+                        var fileName = Path.GetFileName(openFileDialog.FileName);
+                        if (string.Equals(fileName, "keybox.xml", StringComparison.OrdinalIgnoreCase))
+                        {
+                            selectedFilePath = openFileDialog.FileName;
+                            validFileSelected = true;
+                        }
+                        else
+                        {
+                            await System.Windows.Application.Current.Dispatcher.InvokeAsync(() =>
+                            {
+                                System.Windows.MessageBox.Show(Lang.LogError, Lang.LogError, MessageBoxButton.OK, MessageBoxImage.Error);
+                            });
+                        }
+                    }
+                    else
+                    {
+                        validFileSelected = true;
+                    }
+                }
+                //
+
+                bool validFileSelectedPif = false;
+                while (!validFileSelectedPif)
+                {
+                    var openFileDialog = new Microsoft.Win32.OpenFileDialog
+                    {
+                        Filter = "JSON files (*.json)|*.json",
+                        Title = "Select pif.json file"
+                    };
+                    bool? dialogResult = await System.Windows.Application.Current.Dispatcher.InvokeAsync(() => openFileDialog.ShowDialog());
+                    if (dialogResult == true)
+                    {
+                        var fileName = Path.GetFileName(openFileDialog.FileName);
+                        if (string.Equals(fileName, "pif.json", StringComparison.OrdinalIgnoreCase))
+                        {
+                            selectedFilePathJson = openFileDialog.FileName;
+                            validFileSelectedPif = true;
+                        }
+                        else
+                        {
+                            await System.Windows.Application.Current.Dispatcher.InvokeAsync(() =>
+                            {
+                                System.Windows.MessageBox.Show(Lang.LogError, Lang.LogError, MessageBoxButton.OK, MessageBoxImage.Error);
+                            });
+                        }
+                    }
+                    else
+                    {
+                        validFileSelectedPif = true;
+                    }
+                }
+
                 var tasks = new List<Task>();
                 foreach (var device in selectedDevices)
                 {
@@ -2427,68 +2490,13 @@ namespace ToolChange.ViewModels
         }
         private async Task ProcessPlayIntegrityAsync(Models.DeviceModel device)
         {
-            bool validFileSelected = false;
-            while (!validFileSelected)
-            {
-                var openFileDialog = new Microsoft.Win32.OpenFileDialog
-                {
-                    Filter = "XML files (*.xml)|*.xml",
-                    Title = "Select keybox.xml file"
-                };
-                bool? dialogResult = await System.Windows.Application.Current.Dispatcher.InvokeAsync(() => openFileDialog.ShowDialog());
-                if (dialogResult == true)
-                {
-                    var fileName = Path.GetFileName(openFileDialog.FileName);
-                    if (string.Equals(fileName, "keybox.xml", StringComparison.OrdinalIgnoreCase))
-                    {
-                        selectedFilePath = openFileDialog.FileName;
-                        validFileSelected = true;
-                    }
-                    else
-                    {
-                        await System.Windows.Application.Current.Dispatcher.InvokeAsync(() =>
-                        {
-                            System.Windows.MessageBox.Show(Lang.LogError, Lang.LogError, MessageBoxButton.OK, MessageBoxImage.Error);
-                        });
-                    }
-                }
-                else
-                {
-                    validFileSelected = true;
-                }
-            }
-            //
+            //ADBService.runCMDRoot($"shell am force-stop com.android.vending", device.DeviceId);
+            //await Task.Delay(1000);
+            //ADBService.runCMDRoot($"shell am force-stop com.google.android.gms", device.DeviceId);
+            //await Task.Delay(1000);
+            //ADBService.runCMDRoot($"shell am force-stop com.google.android.gsf", device.DeviceId);
 
-            bool validFileSelectedPif = false;
-            while (!validFileSelectedPif)
-            {
-                var openFileDialog = new Microsoft.Win32.OpenFileDialog
-                {
-                    Filter = "JSON files (*.json)|*.json",
-                    Title = "Select pif.json file"
-                };
-                bool? dialogResult = await System.Windows.Application.Current.Dispatcher.InvokeAsync(() => openFileDialog.ShowDialog());
-                if (dialogResult == true)
-                {
-                    var fileName = Path.GetFileName(openFileDialog.FileName);
-                    if (string.Equals(fileName, "pif.json", StringComparison.OrdinalIgnoreCase))
-                    {
-                        selectedFilePathJson = openFileDialog.FileName;
-                        validFileSelectedPif = true;
-                    }
-                    else
-                    {
-                        await System.Windows.Application.Current.Dispatcher.InvokeAsync(() =>
-                        {
-                            System.Windows.MessageBox.Show(Lang.LogError, Lang.LogError, MessageBoxButton.OK, MessageBoxImage.Error);
-                        });
-                    }
-                }
-                else
-                {
-                    validFileSelectedPif = true;
-                }
-            }
+            
 
             //
             if (selectedFilePath != null)
@@ -2591,6 +2599,12 @@ namespace ToolChange.ViewModels
                 }
             }
             DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "100%", "success");
+            //ADBService.runCMDRoot($"shell am force-stop com.android.vending", device.DeviceId);
+            //await Task.Delay(1000);
+            //ADBService.runCMDRoot($"shell am force-stop com.google.android.gms", device.DeviceId);
+            //await Task.Delay(1000);
+            //ADBService.runCMDRoot($"shell am force-stop com.google.android.gsf", device.DeviceId);
+            ADBService.runCMDRoot($"reboot", device.DeviceId);
         }
         private async Task ProcessScreenshotAsync(Models.DeviceModel device)
         {
