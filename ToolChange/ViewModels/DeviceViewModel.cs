@@ -2367,36 +2367,36 @@ namespace ToolChange.ViewModels
                 }
                 //
 
-                bool validFileSelectedPif = false;
-                while (!validFileSelectedPif)
-                {
-                    var openFileDialog = new Microsoft.Win32.OpenFileDialog
-                    {
-                        Filter = "JSON files (*.json)|*.json",
-                        Title = "Select pif.json file"
-                    };
-                    bool? dialogResult = await System.Windows.Application.Current.Dispatcher.InvokeAsync(() => openFileDialog.ShowDialog());
-                    if (dialogResult == true)
-                    {
-                        var fileName = Path.GetFileName(openFileDialog.FileName);
-                        if (string.Equals(fileName, "pif.json", StringComparison.OrdinalIgnoreCase))
-                        {
-                            selectedFilePathJson = openFileDialog.FileName;
-                            validFileSelectedPif = true;
-                        }
-                        else
-                        {
-                            await System.Windows.Application.Current.Dispatcher.InvokeAsync(() =>
-                            {
-                                System.Windows.MessageBox.Show(Lang.LogError, Lang.LogError, MessageBoxButton.OK, MessageBoxImage.Error);
-                            });
-                        }
-                    }
-                    else
-                    {
-                        validFileSelectedPif = true;
-                    }
-                }
+                //bool validFileSelectedPif = false;
+                //while (!validFileSelectedPif)
+                //{
+                //    var openFileDialog = new Microsoft.Win32.OpenFileDialog
+                //    {
+                //        Filter = "JSON files (*.json)|*.json",
+                //        Title = "Select pif.json file"
+                //    };
+                //    bool? dialogResult = await System.Windows.Application.Current.Dispatcher.InvokeAsync(() => openFileDialog.ShowDialog());
+                //    if (dialogResult == true)
+                //    {
+                //        var fileName = Path.GetFileName(openFileDialog.FileName);
+                //        if (string.Equals(fileName, "pif.json", StringComparison.OrdinalIgnoreCase))
+                //        {
+                //            selectedFilePathJson = openFileDialog.FileName;
+                //            validFileSelectedPif = true;
+                //        }
+                //        else
+                //        {
+                //            await System.Windows.Application.Current.Dispatcher.InvokeAsync(() =>
+                //            {
+                //                System.Windows.MessageBox.Show(Lang.LogError, Lang.LogError, MessageBoxButton.OK, MessageBoxImage.Error);
+                //            });
+                //        }
+                //    }
+                //    else
+                //    {
+                //        validFileSelectedPif = true;
+                //    }
+                //}
 
                 var tasks = new List<Task>();
                 foreach (var device in selectedDevices)
