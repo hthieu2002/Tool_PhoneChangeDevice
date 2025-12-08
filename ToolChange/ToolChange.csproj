@@ -10,7 +10,7 @@
   <PackageIcon>img_1204_720.jpg</PackageIcon>
   <ApplicationIcon>logo.ico</ApplicationIcon>
 <RuntimeIdentifiers>win-x64</RuntimeIdentifiers>
-<PublishSingleFile>true</PublishSingleFile>
+<PublishSingleFile>false</PublishSingleFile>
  <IncludeAllContentForSelfExtract>false</IncludeAllContentForSelfExtract>
 <PublishTrimmed>false</PublishTrimmed>
 <AssemblyName>DeepDroid</AssemblyName>
@@ -106,54 +106,52 @@
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="Resources\adb.exe">
+    <Content  Include="Resources\adb.exe">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Resources\AdbWinApi.dll">
+    </Content >
+    <Content  Include="Resources\AdbWinApi.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Resources\AdbWinUsbApi.dll">
+    </Content >
+    <Content  Include="Resources\AdbWinUsbApi.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Resources\avcodec-61.dll">
+    </Content >
+    <Content  Include="Resources\avcodec-61.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Resources\avformat-61.dll">
+    </Content >
+    <Content  Include="Resources\avformat-61.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Resources\avutil-59.dll">
+    </Content >
+    <Content  Include="Resources\avutil-59.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Resources\carriers.json">
+    </Content >
+    <Content  Include="Resources\carriers.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Resources\checkPython.py">
+    </Content >
+    <Content  Include="Resources\checkPython.py">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Resources\curl">
+    </Content >
+    <Content  Include="Resources\curl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Resources\init.lineage20.rc">
+    </Content >
+    <Content  Include="Resources\init.lineage20.rc">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Resources\init.lineage21.rc">
+    </Content >
+    <Content  Include="Resources\init.lineage21.rc">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Resources\init.lineage22.rc">
+    </Content >
+    <Content  Include="Resources\init.lineage22.rc">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Resources\tun2socks">
+    </Content >
+    <Content  Include="Resources\tun2socks">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </EmbeddedResource>
+    </Content >
     <Resource Include="Resources\icon.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Resource>
     <Resource Include="Resources\Icons\automationview.jpg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Resource>
-    <EmbeddedResource Include="Resources\tessdata\eng.traineddata">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </EmbeddedResource>
+
     <Resource Include="Resources\Icons\en.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Resource>
@@ -246,12 +244,7 @@
 
   <ItemGroup>
     <PackageReference Include="EPPlus" Version="6.2.4" />
-    <PackageReference Include="FFmpeg.AutoGen" Version="7.1.1" />
     <PackageReference Include="HttpToSocks5Proxy" Version="1.4.0" />
-    <PackageReference Include="LibVLCSharp" Version="3.9.3" />
-    <PackageReference Include="LibVLCSharp.Forms" Version="3.9.3" />
-    <PackageReference Include="LibVLCSharp.WinForms" Version="3.9.3" />
-    <PackageReference Include="LibVLCSharp.WPF" Version="3.9.3" />
     <PackageReference Include="MaterialDesignInXamlToolkitAddOns" Version="0.0.63" />
     <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="4.14.0">
       <PrivateAssets>all</PrivateAssets>
@@ -270,7 +263,6 @@
     <PackageReference Include="System.Drawing.Common" Version="9.0.6" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.12.1" />
     <PackageReference Include="Tesseract" Version="5.2.0" />
-    <PackageReference Include="VideoLAN.LibVLC.Windows" Version="3.0.21" />
   </ItemGroup>
 
   <ItemGroup>
