@@ -1288,8 +1288,6 @@ on property:sys.boot_completed=1
     setprop init.svc.adb_root ""
     setprop init.svc.adbd ""
     setprop service.adb.root ""
-    setprop sys.usb.state ""
-    setprop sys.usb.config ""
     setprop ro.boottime.adb_root ""
 	setprop ro.boottime.adbd ""
     setprop init.svc_debug_pid.adb_root 
