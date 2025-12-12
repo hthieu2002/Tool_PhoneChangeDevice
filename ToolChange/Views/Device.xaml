@@ -130,6 +130,9 @@
                         <MenuItem Header="{Binding LanguageVM.ControlDeviceMenuDropBox4_1}"
                                   Command="{Binding DeviceListVM.FakeProxyDeviceIdCommand}"
                                   CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=ContextMenu}, Path=PlacementTarget.SelectedItem}" />
+                        <MenuItem Header="{Binding LanguageVM.ControlDeviceMenuDropBox6}"
+                                  Command="{Binding DeviceListVM.InstallApkSingle}"
+                                  CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=ContextMenu}, Path=PlacementTarget.SelectedItem}" />
                         <MenuItem Header="{Binding LanguageVM.ControlDeviceMenuDropBox5}"
                                   Command="{Binding DeviceListVM.DeleteDeviceCommand}"
                                   CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=ContextMenu}, Path=PlacementTarget.SelectedItem}" />
@@ -792,7 +795,12 @@
                                     Padding="0"
                                     Command="{Binding DeviceListVM.PlayIntegrityFix}"
                                     CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=ContextMenu}, Path=PlacementTarget.SelectedItem}" />
-                         
+                            <Button Content="Install APK"
+                                    Width="180"
+                                    Margin="5,5,0,0"
+                                    Padding="0"
+                                    Command="{Binding DeviceListVM.InstallAPKAll}"
+                                    CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=ContextMenu}, Path=PlacementTarget.SelectedItem}" />
 
                         </WrapPanel>
                     </ScrollViewer>

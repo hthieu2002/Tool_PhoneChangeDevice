@@ -556,12 +556,14 @@ namespace ToolChange.ViewModels
         public ICommand AutoChangeSimCommand { get; private set; }
         public ICommand ScreenshotCommand { get; private set; }
         public ICommand PlayIntegrityFix { get; private set; }
+        public ICommand InstallAPKAll { get; private set; }
         public ICommand FakeLocationCommand { get; private set; }
         public ICommand FakeTimeZoneCommand { get; private set; }
         public ICommand DetailsDeviceIdCommand { get; private set; }
         public ICommand ViewDevicesCommand { get; private set; }
         public ICommand FakeProxyDeviceIdCommand { get; private set; }
         public ICommand FakeProxyDeviceIdHttpCommand { get; private set; }
+        public ICommand InstallApkSingle { get; private set; }
         public ICommand OpenUrlCommand { get; private set; }
         public ICommand FakeProxyAllCommand { get; private set; }
 
@@ -590,6 +592,7 @@ namespace ToolChange.ViewModels
             ViewDevicesCommand = new RelayCommand<Models.DeviceModel>(async (device) => await ViewDevicesIC(device));
 
             FakeProxyDeviceIdCommand = new RelayCommand<Models.DeviceModel>(FakeProxyDeviceId);
+            InstallApkSingle = new RelayCommand<Models.DeviceModel>(InstallApk);
             FakeProxyDeviceIdHttpCommand = new RelayCommand<Models.DeviceModel>(FakeProxyDeviceIdHttp);
             RandomDeviceCommand = new RelayCommand(async () => await RandomDevice());
             RandomSimCommand = new RelayCommand(async () => await RandomSim());
@@ -599,6 +602,7 @@ namespace ToolChange.ViewModels
             AutoChangeSimCommand = new RelayCommand(async () => await AutoChangeSim());
             ScreenshotCommand = new RelayCommand(async () => await Screenshot());
             PlayIntegrityFix = new RelayCommand(async () => await PlayIntegrity());
+            InstallAPKAll = new RelayCommand(async () => await InstallAPK());
             FakeLocationCommand = new RelayCommand(async () => await FakeLocation());
             FakeTimeZoneCommand = new RelayCommand(async () => await FakeTimeZone());
             OpenUrlCommand = new RelayCommand(async () => await OpenUrl());
@@ -1057,6 +1061,85 @@ namespace ToolChange.ViewModels
 
             // 4️⃣  Hiển thị dialog
             dialog.ShowDialog();
+        }
+        private async void InstallApk(Models.DeviceModel device)
+        {
+            if (device.Status == "Offline")
+            {
+                UpdateDeviceStatus(device.DeviceId, "0%", "⚠ Device offline");
+                return;
+            }
+
+            if (!await ADBService.CheckDeviceActiveBool(device.DeviceId, miChangerGraphQLClient))
+            {
+                UpdateDeviceStatus(device.DeviceId, "0%", "⚠ Device not active");
+                return;
+            }
+
+            if (_processingDeviceIds.Contains(device.DeviceId))
+            {
+                UpdateDeviceStatus(device.DeviceId, "%", "⏳ Device running...");
+                return;
+            }
+
+            List<string> selectedApkFiles = new List<string>();
+            bool validFileSelected = false;
+
+            while (!validFileSelected)
+            {
+                var openFileDialog = new Microsoft.Win32.OpenFileDialog
+                {
+                    Filter = "APK files (*.apk)|*.apk",
+                    Title = "Select APK files",
+                    Multiselect = true
+                };
+
+                // Đang ở UI thread rồi nên gọi trực tiếp
+                bool? dialogResult = openFileDialog.ShowDialog();
+
+                if (dialogResult == true)
+                {
+                    var apkFiles = openFileDialog.FileNames
+                        .Where(f => string.Equals(Path.GetExtension(f), ".apk", StringComparison.OrdinalIgnoreCase))
+                        .ToList();
+
+                    if (apkFiles.Count > 0)
+                    {
+                        selectedApkFiles = apkFiles;
+                        validFileSelected = true;
+                    }
+                    else
+                    {
+                        System.Windows.MessageBox.Show(
+                            "Vui lòng chọn ít nhất một file .apk",
+                            "Lỗi",
+                            MessageBoxButton.OK,
+                            MessageBoxImage.Error
+                        );
+                    }
+                }
+                else
+                {
+                    // Cancel → thoát luôn
+                    validFileSelected = true;
+                }
+            }
+
+            if (selectedApkFiles.Count == 0)
+                return;
+
+            _processingDeviceIds.Add(device.DeviceId);
+            try
+            {
+                await Task.Run(async () =>
+                {
+                    await ProcessInstallApkAsync(device, selectedApkFiles);
+                });
+            }
+            finally
+            {
+                _processingDeviceIds.Remove(device.DeviceId);
+            }
         }
 
         private async void FakeProxyDeviceId(Models.DeviceModel device)
@@ -2304,6 +2387,107 @@ namespace ToolChange.ViewModels
             }, uiThreadScheduler);
             _processingDeviceIds.Remove(device.DeviceId);
         }
+        private async Task InstallAPK()
+        {
+            try
+            {
+                var selectedDevices = Devices.Where(device => device.IsChecked).ToList();
+                int selectedCount = selectedDevices.Count;
+
+                if (selectedCount == 0)
+                {
+                    System.Windows.MessageBox.Show(DevicesLang.logSelectDeviceChange, Lang.LogInfomation, MessageBoxButton.OK, MessageBoxImage.Information);
+                    return;
+                }
+                List<string> selectedApkFiles = new List<string>();
+                bool validFileSelected = false;
+
+                while (!validFileSelected)
+                {
+                    var openFileDialog = new Microsoft.Win32.OpenFileDialog
+                    {
+                        Filter = "APK files (*.apk)|*.apk",
+                        Title = "Select APK files",
+                        Multiselect = true
+                    };
+
+                    bool? dialogResult = await System.Windows.Application.Current
+                        .Dispatcher.InvokeAsync(() => openFileDialog.ShowDialog());
+
+                    if (dialogResult == true)
+                    {
+                        // Lọc chắc chắn chỉ lấy file .apk
+                        var apkFiles = openFileDialog.FileNames
+                            .Where(f => string.Equals(Path.GetExtension(f), ".apk", StringComparison.OrdinalIgnoreCase))
+                            .ToList();
+
+                        if (apkFiles.Count > 0)
+                        {
+                            selectedApkFiles = apkFiles;
+                            validFileSelected = true;
+                        }
+                        else
+                        {
+                            await System.Windows.Application.Current.Dispatcher.InvokeAsync(() =>
+                            {
+                                System.Windows.MessageBox.Show(
+                                    "Vui lòng chọn ít nhất một file .apk",
+                                    "Lỗi",
+                                    MessageBoxButton.OK,
+                                    MessageBoxImage.Error
+                                );
+                            });
+                        }
+                    }
+                    else
+                    {
+                        // Người dùng bấm Cancel -> thoát vòng while (không chọn gì)
+                        validFileSelected = true;
+                    }
+                }
+                //
+
+
+
+                var tasks = new List<Task>();
+                foreach (var device in selectedDevices)
+                {
+                    if (device.Status == "Offline")
+                    {
+                        UpdateDeviceStatus(device.DeviceId, "0%", "⚠ Device offline");
+                        continue;
+
+                    }
+                    if (!await ADBService.CheckDeviceActiveBool(device.DeviceId, miChangerGraphQLClient))
+                    {
+                        UpdateDeviceStatus(device.DeviceId, "0%", "⚠ Device not active");
+                        continue;
+
+                    }
+                    if (_processingDeviceIds.Contains(device.DeviceId))
+                    {
+                        UpdateDeviceStatus(device.DeviceId, "%", "⏳ Device running...");
+                        continue;
+
+                    }
+
+                    _processingDeviceIds.Add(device.DeviceId);
+
+                    tasks.Add(ProcessInstallApkAsync(device, selectedApkFiles));
+
+                }
+                await Task.WhenAll(tasks);
+            }
+            catch (Exception ex)
+            {
+                System.Windows.MessageBox.Show($"Error in ChangeDevice: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+            finally
+            {
+                _processingDeviceIds.Clear();
+
+            }
+        }
         private async Task PlayIntegrity()
         {
             try
@@ -2471,15 +2655,6 @@ namespace ToolChange.ViewModels
         }
         private async Task ProcessPlayIntegrityAsync(Models.DeviceModel device)
         {
-            //ADBService.runCMDRoot($"shell am force-stop com.android.vending", device.DeviceId);
-            //await Task.Delay(1000);
-            //ADBService.runCMDRoot($"shell am force-stop com.google.android.gms", device.DeviceId);
-            //await Task.Delay(1000);
-            //ADBService.runCMDRoot($"shell am force-stop com.google.android.gsf", device.DeviceId);
-
-            
-
-            //
             if (selectedFilePath != null)
             {
                 DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "5%", "In progress push file keybox.xml to phone");
@@ -2599,6 +2774,22 @@ namespace ToolChange.ViewModels
             catch (Exception e)
             {
                 Console.WriteLine(e);
+            }
+        }
+        private async Task ProcessInstallApkAsync(Models.DeviceModel device, List<string> apk)
+        {
+            if (device == null || apk == null || apk.Count == 0)
+                return;
+            DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "0%", $"start install apk");
+            foreach (var apkPath in apk)
+            {
+                if (!File.Exists(apkPath))
+                    continue;
+                DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "10%", $"install {apkPath}");
+                ADBService.runCMDRoot($"install -r -g \"{apkPath}\"", device.DeviceId);
+
+                await Task.Delay(500);
+                DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "100%", $"install {apkPath} success");
             }
         }
         private async Task FakeLocation()
