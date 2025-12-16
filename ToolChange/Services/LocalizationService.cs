@@ -128,6 +128,7 @@ namespace ToolChange.Services
                 { "DocumentFunctionChangeSim" , "Change sim "},
                 { "DocumentFunctionFakeProxy" , "Fake proxy "},
                 { "DocumentFunctionFakeLocation" , "Fake location "},
+                { "DocumentFunctionUpdateLocation" , "Update PlayIntegrityFix "},
                 { "DocumentFunctionTitleRandomDevice" , "Chức năng random device: "},
                 { "DocumentContentFunctionRandomDevice" , "cho phép bạn lấy ngẫu nhiên các thông tin nhận dạng thiết bị Android, giúp giả lập một thiết bị hoàn toàn mới. Đây là một tính năng quan trọng trong các tình huống cần thay đổi danh tính thiết bị để kiểm thử hoặc tránh bị nhận dạng trùng lặp "},
                 { "DocumentFunctionTitleChangeDevice" , "Chức năng change device: "},
@@ -169,6 +170,8 @@ namespace ToolChange.Services
                 { "DocumentImageAutomationView2","/Resources/Icons/scriptAutomationview1.jpg"},
                 { "DocumentImageAutomationView3","/Resources/Icons/scriptAutomationview2.jpg"},
                 { "DocumentImageViewDevice","/Resources/Icons/viewdevice.jpg"},
+                { "DocumentFunctionUpdatePlayIntegrityFixTitle1", "Chức năng Update IntegrityFix: "},
+                { "DocumentFunctionUpdatePlayIntegrityFixTitle2", "là chức năng cho phép update keybox hoặc pif vào phone mà không bị thay đổi thông tin đã change từ đầu."},
                 { "WebViewUrl","https://docs.google.com/document/d/1fqKkwLtDm9Hdi1fYw1Got3grV3KsWvAdKtamO0hqI74/preview"}
             }
         },
@@ -286,6 +289,7 @@ namespace ToolChange.Services
                 { "DocumentFunctionChangeSim" , "Change SIM" },
                 { "DocumentFunctionFakeProxy" , "Fake proxy" },
                 { "DocumentFunctionFakeLocation" , "Fake location" },
+                { "DocumentFunctionUpdateLocation" , "Update PlayIntegrityFix" },
                 { "DocumentFunctionTitleRandomDevice" , "Random device function:" },
                 { "DocumentContentFunctionRandomDevice" , "Allows you to randomly generate Android device identification information, simulating a completely new device. This is important in situations requiring identity changes for testing or avoiding duplicate recognition." },
                 { "DocumentFunctionTitleChangeDevice" , "Change device function:" },
@@ -327,6 +331,8 @@ namespace ToolChange.Services
                 { "DocumentImageAutomationView2","/Resources/Icons/ENscriptAutomationview1.jpg"},
                 { "DocumentImageAutomationView3","/Resources/Icons/ENscriptAutomationview2.jpg"},
                 { "DocumentImageViewDevice","/Resources/Icons/ENviewdevice.jpg"},
+                { "DocumentFunctionUpdatePlayIntegrityFixTitle1", "Update IntegrityFix Function: "},
+                { "DocumentFunctionUpdatePlayIntegrityFixTitle2", "this function allows updating the keybox or PIF on the phone without altering the information that was modified from the beginning."},
                 { "WebViewUrl","https://docs.google.com/document/d/1UwrQ-j9-GBHLSnct0mJoZ5I4mBhcvHwN5Xe9ejSnjUc/preview"}
             }
         }

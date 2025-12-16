@@ -93,7 +93,12 @@
                                     <Run Text="        " />
                             <Run Text="{Binding DocumentFunctionFakeLocation, Mode=OneWay}"
                                     FontSize="14" />
+                            <LineBreak />
+                                    <Run Text="        " />
+                             <Run Text="{Binding DocumentFunctionUpdateLocation, Mode=OneWay}"
+                                   FontSize="14" />
                                 </TextBlock>
+
                                 <TextBlock Margin="10,5"
                                            TextWrapping="Wrap">
                             <Run Text="{Binding DocumentFunctionTitleRandomDevice, Mode=OneWay}"
@@ -162,6 +167,19 @@
                                      FontWeight="Bold" />
                                 <Run Text="{Binding DocumentContentFunctionFakeLocation, Mode=OneWay}"
                                      FontSize="14" />
+
+                                </TextBlock>
+                                <TextBlock Margin="10,5"
+                                           TextWrapping="Wrap">
+  <Run Text="{Binding DocumentFunctionUpdatePlayIntegrityFixTitle1,Mode=OneWay}"
+                                    FontSize="14" />
+  <Run Text="{Binding DocumentFunction, Mode=OneWay}"
+                                    FontSize="14" />
+  <Run Text="{Binding DocumentFunctionUpdateLocation, Mode=OneWay}"
+                                    FontSize="14"
+                                    FontWeight="Bold" />
+  <Run Text="{Binding DocumentFunctionUpdatePlayIntegrityFixTitle2, Mode=OneWay}"
+                                    FontSize="14" />
 
                                 </TextBlock>
                             </StackPanel>

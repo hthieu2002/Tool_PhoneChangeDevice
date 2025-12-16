@@ -92,6 +92,7 @@ namespace ToolChange.ViewModels
         private string _documentFunctionChangeSim;
         private string _documentFunctionFakeProxy;
         private string _documentFunctionFakeLocation;
+        private string _documentFunctionUpdateLocation;
         private string _documentFunctionTitleRandomDevice;
         private string _documentContentFunctionRandomDevice;
         private string _documentFunctionTitleChangeDevice;
@@ -122,6 +123,8 @@ namespace ToolChange.ViewModels
         private string _documentAutomationTitleFunctionRestoreContent;
         private string _documentAutomationTitleFunctionCodeScriptContent;
         private string _documentAutomationDetailHere;
+        private string _documentFunctionUpdatePlayIntegrityFixTitle1;
+        private string _documentFunctionUpdatePlayIntegrityFixTitle2;
         //DocumentTitleFunctionScreen
         private string _documentScreenTitleUIMain;
         private string _documentScreenTitleFunctionMain;
@@ -1185,6 +1188,18 @@ namespace ToolChange.ViewModels
                 }
             }
         }
+        public string DocumentFunctionUpdateLocation
+        {
+            get => _documentFunctionUpdateLocation;
+            private set
+            {
+                if (_documentFunctionUpdateLocation != value)
+                {
+                    _documentFunctionUpdateLocation = value;
+                    OnPropertyChanged(nameof(DocumentFunctionUpdateLocation));
+                }
+            }
+        }
 
         public string DocumentFunctionTitleRandomDevice
         {
@@ -1208,6 +1223,30 @@ namespace ToolChange.ViewModels
                 {
                     _documentContentFunctionRandomDevice = value;
                     OnPropertyChanged(nameof(DocumentContentFunctionRandomDevice));
+                }
+            }
+        }
+        public string DocumentFunctionUpdatePlayIntegrityFixTitle1
+        {
+            get => _documentFunctionUpdatePlayIntegrityFixTitle1;
+            private set
+            {
+                if (_documentFunctionUpdatePlayIntegrityFixTitle1 != value)
+                {
+                    _documentFunctionUpdatePlayIntegrityFixTitle1 = value;
+                    OnPropertyChanged(nameof(DocumentFunctionUpdatePlayIntegrityFixTitle1));
+                }
+            }
+        }
+        public string DocumentFunctionUpdatePlayIntegrityFixTitle2
+        {
+            get => _documentFunctionUpdatePlayIntegrityFixTitle2;
+            private set
+            {
+                if (_documentFunctionUpdatePlayIntegrityFixTitle2 != value)
+                {
+                    _documentFunctionUpdatePlayIntegrityFixTitle2 = value;
+                    OnPropertyChanged(nameof(DocumentFunctionUpdatePlayIntegrityFixTitle2));
                 }
             }
         }
@@ -1831,6 +1870,7 @@ namespace ToolChange.ViewModels
             DocumentFunctionChangeSim = LocalizationService.Get("DocumentFunctionChangeSim");
             DocumentFunctionFakeProxy = LocalizationService.Get("DocumentFunctionFakeProxy");
             DocumentFunctionFakeLocation = LocalizationService.Get("DocumentFunctionFakeLocation");
+            DocumentFunctionUpdateLocation = LocalizationService.Get("DocumentFunctionUpdateLocation");
             DocumentFunctionTitleRandomDevice = LocalizationService.Get("DocumentFunctionTitleRandomDevice");
             DocumentContentFunctionRandomDevice = LocalizationService.Get("DocumentContentFunctionRandomDevice");
             DocumentFunctionTitleChangeDevice = LocalizationService.Get("DocumentFunctionTitleChangeDevice");
@@ -1869,6 +1909,8 @@ namespace ToolChange.ViewModels
             DocumentScreenContentFunctionPushFile = LocalizationService.Get("DocumentScreenContentFunctionPushFile");
             DocumentScreenContentFunctionInstallAPK = LocalizationService.Get("DocumentScreenContentFunctionInstallAPK");
             DocumentScreenContentFunctionClickView = LocalizationService.Get("DocumentScreenContentFunctionClickView");
+            DocumentFunctionUpdatePlayIntegrityFixTitle1 = LocalizationService.Get("DocumentFunctionUpdatePlayIntegrityFixTitle1");
+            DocumentFunctionUpdatePlayIntegrityFixTitle2 = LocalizationService.Get("DocumentFunctionUpdatePlayIntegrityFixTitle2");
             // document image
 
             DocumentImageAutomationView = LocalizationService.Get("DocumentImageAutomationView");
