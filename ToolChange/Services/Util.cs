@@ -164,7 +164,7 @@ namespace ToolChange.Services
                     changedSystemInfo.Add("ro.android.soc.model", tempDevice.Hardware);
                     changedSystemInfo.Add("ro.android.build.version.security_patch", securityPatchProp);
                     changedSystemInfo.Add("ro.android.build.version.release", tempDevice.Release);
-                    changedSystemInfo.Add("ro.android.build.version.sdk", tempDevice.SDK);
+                    //changedSystemInfo.Add("ro.android.build.version.sdk", tempDevice.SDK);
 
                     changedSystemInfo.Add("ro.android.gsm.version.baseband", tempBaseband);
                     changedSystemInfo.Add("gsm.version.baseband", tempBaseband);
