@@ -466,18 +466,18 @@ namespace ToolChange.Services
 
                 var changedDeviceInfo = new Dictionary<string, string>
                 {
-                    //[$"ro.product.{partition.Key}.brand"] = tempDevice.Brand,
-                    //[$"ro.product.{partition.Key}.device"] = tempDevice.Code,
-                    //[$"ro.product.{partition.Key}.manufacturer"] = tempDevice.Manufacturer,
-                    //[$"ro.product.{partition.Key}.model"] = tempDevice.Model,
-                    //[$"ro.product.{partition.Key}.name"] = tempDevice.Code,
+                    [$"ro.product.{partition.Key}.brand"] = tempDevice.Brand,
+                    [$"ro.product.{partition.Key}.device"] = tempDevice.Code,
+                    [$"ro.product.{partition.Key}.manufacturer"] = tempDevice.Manufacturer,
+                    [$"ro.product.{partition.Key}.model"] = tempDevice.Model,
+                    [$"ro.product.{partition.Key}.name"] = tempDevice.Code,
                     [$"ro.{partition.Key}.build.date"] = tempDevice.BuildDate,
                     [$"ro.{partition.Key}.build.date.utc"] = tempDevice.BuildDateUtc,
-                    //[$"ro.{partition.Key}.build.fingerprint"] = tempDevice.Fingerprint,
-                    //[$"ro.{partition.Key}.build.id"] = tempDevice.BuildId,
+                    [$"ro.{partition.Key}.build.fingerprint"] = tempDevice.Fingerprint,
+                    [$"ro.{partition.Key}.build.id"] = tempDevice.BuildId,
                     [$"ro.{partition.Key}.build.tags"] = "release-keys",
                     [$"ro.{partition.Key}.build.type"] = "user",
-                    //[$"ro.{partition.Key}.build.version.incremental"] = tempDevice.BuildIncremental
+                    [$"ro.{partition.Key}.build.version.incremental"] = tempDevice.BuildIncremental
                     // [$"ro.{partition.Key}.build.version.release"] = tempDevice.Release,
                     // [$"ro.{partition.Key}.build.version.release_or_codename"] = tempDevice.Release,
                     // [$"ro.{partition.Key}.build.version.sdk"] = tempDevice.SDK
