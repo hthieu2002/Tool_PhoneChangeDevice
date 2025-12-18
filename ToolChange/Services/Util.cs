@@ -51,7 +51,7 @@ namespace ToolChange.Services
                 //tempDevice.Board = "sargo";
                 //tempDevice.Bootloader = "b4s4-0.4-8048689";
 
-                ADBService.runCMDRoot($"shell setprop persist.sys.deepdroid.sdk {isFakeSdk.ToString().ToLower()}", deviceId);
+                //ADBService.runCMDRoot($"shell setprop persist.sys.deepdroid.sdk {isFakeSdk.ToString().ToLower()}", deviceId);
 
                 if (keepBrand)
                 {   
@@ -164,7 +164,7 @@ namespace ToolChange.Services
                     changedSystemInfo.Add("ro.android.soc.model", tempDevice.Hardware);
                     changedSystemInfo.Add("ro.android.build.version.security_patch", securityPatchProp);
                     changedSystemInfo.Add("ro.android.build.version.release", tempDevice.Release);
-                    changedSystemInfo.Add("ro.android.build.version.sdk", tempDevice.SDK);
+                    //changedSystemInfo.Add("ro.android.build.version.sdk", tempDevice.SDK);
 
                     changedSystemInfo.Add("ro.android.gsm.version.baseband", tempBaseband);
                     changedSystemInfo.Add("gsm.version.baseband", tempBaseband);
