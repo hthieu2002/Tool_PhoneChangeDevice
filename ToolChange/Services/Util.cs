@@ -253,6 +253,7 @@ namespace ToolChange.Services
                     // fake wifi mac address
                     ADBService.fakeWifiMacAddress(tempDevice.WifiMacAddress, deviceId);
 
+                    ADBService.runCMDRoot($"shell setprop persist.sys.sim.ready {isFakeSim.ToString().ToLower()}", deviceId);
                     if (isFakeSim)
                     {
 
