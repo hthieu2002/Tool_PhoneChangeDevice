@@ -84,7 +84,7 @@ namespace ToolChange.ViewModels
                 OnPropertyChanged(nameof(IsFakeSdk));
             }
         }
-        private bool _checkSim = true;
+        private bool _checkSim = false;
         public bool IsCheckedSim
         {
             get => _checkSim;
@@ -114,6 +114,18 @@ namespace ToolChange.ViewModels
                 OnPropertyChanged(nameof(IsCheckedpif));
             }
         }
+
+        private bool _checkAutoUpdatePif = true;
+        public bool IsAutoUpdatePif
+        {
+            get => _checkAutoUpdatePif;
+            set
+            {
+                _checkAutoUpdatePif = value;
+                OnPropertyChanged(nameof(IsAutoUpdatePif));
+            }
+        }
+
         private List<SimCarrier> _telecomDataSource;
         private bool _isRandomButtonEnabled = true;
         private bool _isRandomButtonSimEnabled = true;
@@ -2064,24 +2076,24 @@ namespace ToolChange.ViewModels
                                         if (splitFingerprint.Count == 8)
                                         {
                                             var changePifInfo = new Dictionary<string, string>();
-                                            changePifInfo.Add("persist.sys.pihooks_BRAND", splitFingerprint[0]);
-                                            changePifInfo.Add("persist.sys.pihooks_PRODUCT", splitFingerprint[1]);
-                                            changePifInfo.Add("persist.sys.pihooks_DEVICE", splitFingerprint[2]);
-                                            changePifInfo.Add("persist.sys.pihooks_BOARD", splitFingerprint[2]);
-                                            changePifInfo.Add("persist.sys.pihooks_HARDWARE", splitFingerprint[2]);
-                                            changePifInfo.Add("persist.sys.pihooks_ID", splitFingerprint[4]);
-                                            changePifInfo.Add("persist.sys.pihooks_INCREMENTAL", splitFingerprint[5]);
-                                            changePifInfo.Add("persist.sys.pihooks_FINGERPRINT", pifData.FINGERPRINT);
-                                            changePifInfo.Add("persist.sys.pihooks_MANUFACTURER", pifData.MANUFACTURER);
-                                            changePifInfo.Add("persist.sys.pihooks_MODEL", $"\"{pifData.MODEL}\"");
-                                            changePifInfo.Add("persist.sys.pihooks_SECURITY_PATCH", pifData.SECURITY_PATCH);
-                                            changePifInfo.Add("persist.sys.pihooks_DEVICE_INITIAL_SDK_INT", pifData.DEVICE_INITIAL_SDK_INT);
-                                            changePifInfo.Add("persist.sys.pihooks_SDK_INT", pifData.SDK_INT);
+                                            changePifInfo.Add($"{PifKey.PIF_BRAND}", splitFingerprint[0]);
+                                            changePifInfo.Add($"{PifKey.PIF_PRODUCT}", splitFingerprint[1]);
+                                            changePifInfo.Add($"{PifKey.PIF_DEVICE}", splitFingerprint[2]);
+                                            changePifInfo.Add($"{PifKey.PIF_BOARD}", splitFingerprint[2]);
+                                            changePifInfo.Add($"{PifKey.PIF_HARDWARE}", splitFingerprint[2]);
+                                            changePifInfo.Add($"{PifKey.PIF_ID}", splitFingerprint[4]);
+                                            changePifInfo.Add($"{PifKey.PIF_INCREMENTAL}", splitFingerprint[5]);
+                                            changePifInfo.Add($"{PifKey.PIF_FINGERPRINT}", pifData.FINGERPRINT);
+                                            changePifInfo.Add($"{PifKey.PIF_MANUFACTURER}", pifData.MANUFACTURER);
+                                            changePifInfo.Add($"{PifKey.PIF_MODEL}", $"\"{pifData.MODEL}\"");
+                                            changePifInfo.Add($"{PifKey.PIF_SECURITY_PATCH}", pifData.SECURITY_PATCH);
+                                            changePifInfo.Add($"{PifKey.PIF_DEVICE_INITIAL_SDK_INT}", pifData.DEVICE_INITIAL_SDK_INT);
+                                            changePifInfo.Add($"persist.sys.pihooks_SDK_INT", pifData.SDK_INT);
                                             if (!string.IsNullOrEmpty(pifData.RELEASE))
-                                                changePifInfo.Add("persist.sys.pihooks_RELEASE", pifData.RELEASE);
+                                                changePifInfo.Add($"{PifKey.PIF_RELEASE}", pifData.RELEASE);
                                             else
                                             {
-                                                changePifInfo.Add("persist.sys.pihooks_RELEASE", splitFingerprint[3]);
+                                                changePifInfo.Add($"{PifKey.PIF_RELEASE}", splitFingerprint[3]);
                                             }
 
                                             ADBService.replaceBuildProp("/product/etc/build.prop", changePifInfo, device.DeviceId);
@@ -2171,7 +2183,7 @@ namespace ToolChange.ViewModels
                 await Task.Delay(1000);
                 DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "9%", "Start change device ...");
              
-                saveResult = Services.Util.SaveDeviceInfo(this, Devices, checkChange == 0 ? tempDeviceAll : deviceTemp, device.DeviceId, AppDomain.CurrentDomain.BaseDirectory, IsCheckedSim, IsCheckedpif, IsFakeSdk);
+                saveResult = Util.SaveDeviceInfo(this, Devices, checkChange == 0 ? tempDeviceAll : deviceTemp, device.DeviceId, AppDomain.CurrentDomain.BaseDirectory, IsCheckedSim, IsAutoUpdatePif);
 
                 //    UpdateDeviceStatus(device.DeviceId, "75%", "Change device ....");
                 DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "75%", "Change device check");
@@ -2719,24 +2731,24 @@ namespace ToolChange.ViewModels
                             if (splitFingerprint.Count == 8)
                             {
                                 var changePifInfo = new Dictionary<string, string>();
-                                changePifInfo.Add("persist.sys.pihooks_BRAND", splitFingerprint[0]);
-                                changePifInfo.Add("persist.sys.pihooks_PRODUCT", splitFingerprint[1]);
-                                changePifInfo.Add("persist.sys.pihooks_DEVICE", splitFingerprint[2]);
-                                changePifInfo.Add("persist.sys.pihooks_BOARD", splitFingerprint[2]);
-                                changePifInfo.Add("persist.sys.pihooks_HARDWARE", splitFingerprint[2]);
-                                changePifInfo.Add("persist.sys.pihooks_ID", splitFingerprint[4]);
-                                changePifInfo.Add("persist.sys.pihooks_INCREMENTAL", splitFingerprint[5]);
-                                changePifInfo.Add("persist.sys.pihooks_FINGERPRINT", pifData.FINGERPRINT);
-                                changePifInfo.Add("persist.sys.pihooks_MANUFACTURER", pifData.MANUFACTURER);
-                                changePifInfo.Add("persist.sys.pihooks_MODEL", $"\"{pifData.MODEL}\"");
-                                changePifInfo.Add("persist.sys.pihooks_SECURITY_PATCH", pifData.SECURITY_PATCH);
-                                changePifInfo.Add("persist.sys.pihooks_DEVICE_INITIAL_SDK_INT", pifData.DEVICE_INITIAL_SDK_INT);
-                                changePifInfo.Add("persist.sys.pihooks_SDK_INT", pifData.SDK_INT);
+                                changePifInfo.Add($"{PifKey.PIF_BRAND}", splitFingerprint[0]);
+                                changePifInfo.Add($"{PifKey.PIF_PRODUCT}", splitFingerprint[1]);
+                                changePifInfo.Add($"{PifKey.PIF_DEVICE}", splitFingerprint[2]);
+                                changePifInfo.Add($"{PifKey.PIF_BOARD}", splitFingerprint[2]);
+                                changePifInfo.Add($"{PifKey.PIF_HARDWARE}", splitFingerprint[2]);
+                                changePifInfo.Add($"{PifKey.PIF_ID}", splitFingerprint[4]);
+                                changePifInfo.Add($"{PifKey.PIF_INCREMENTAL}", splitFingerprint[5]);
+                                changePifInfo.Add($"{PifKey.PIF_FINGERPRINT}", pifData.FINGERPRINT);
+                                changePifInfo.Add($"{PifKey.PIF_MANUFACTURER}", pifData.MANUFACTURER);
+                                changePifInfo.Add($"{PifKey.PIF_MODEL}", $"\"{pifData.MODEL}\"");
+                                changePifInfo.Add($"{PifKey.PIF_SECURITY_PATCH}", pifData.SECURITY_PATCH);
+                                changePifInfo.Add($"{PifKey.PIF_DEVICE_INITIAL_SDK_INT}", pifData.DEVICE_INITIAL_SDK_INT);
+                                changePifInfo.Add($"{PifKey.PIF_SDK_INT}", pifData.SDK_INT);
                                 if (!string.IsNullOrEmpty(pifData.RELEASE))
-                                    changePifInfo.Add("persist.sys.pihooks_RELEASE", pifData.RELEASE);
+                                    changePifInfo.Add($"{PifKey.PIF_RELEASE}", pifData.RELEASE);
                                 else
                                 {
-                                    changePifInfo.Add("persist.sys.pihooks_RELEASE", splitFingerprint[3]);
+                                    changePifInfo.Add($"{PifKey.PIF_RELEASE}", splitFingerprint[3]);
                                 }
 
                                 ADBService.replaceBuildProp("/product/etc/build.prop", changePifInfo, device.DeviceId);

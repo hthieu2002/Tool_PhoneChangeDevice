@@ -3,8 +3,11 @@ using POCO.Models;
 using Services;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
+using System.Net.Http;
+using System.Text.Json;
 using System.Text.RegularExpressions;
 using ToolChange.ViewModels;
+using ToolChange.ViewModels.Constants;
 
 namespace ToolChange.Services
 {
@@ -12,7 +15,7 @@ namespace ToolChange.Services
     {
         public static bool checkSim;
 
-        public static bool SaveDeviceInfo(DeviceViewModel model, ObservableCollection<ToolChange.Models.DeviceModel> deviceS , POCO.Models.DeviceModel tempDevice, string deviceId, string applicationPath, bool isFakeSim = false, bool keepBrand = false, bool isFakeSdk = true)
+        public static bool SaveDeviceInfo(DeviceViewModel model, ObservableCollection<Models.DeviceModel> deviceS , DeviceModel tempDevice, string deviceId, string applicationPath, bool isFakeSim = false, bool isAutoUpdatePif = false, bool keepBrand = false, bool isFakeSdk = true)
         {
             try
             {
@@ -118,6 +121,11 @@ namespace ToolChange.Services
                 {
                     Models.DeviceUpdater.UpdateProgress(deviceS, deviceId, "15%", "Change device ...");
                     ADBService.rootAndRemount(deviceId);
+
+                    if (isAutoUpdatePif)
+                    {
+                        autoUpdatePif(deviceId);
+                    }
 
                     ADBService.shellRemoveIfContainSpecificText("/system/build.prop", "product is obsolete", deviceId);
                     var changedSystemInfo = new Dictionary<string, string>();
@@ -315,7 +323,7 @@ namespace ToolChange.Services
                     return false;
                 }
             }
-            catch
+            catch (Exception ex)
             {
                 model.UpdateDeviceStatus(deviceId, "0%", "Error change");
                 return false;
@@ -523,6 +531,72 @@ namespace ToolChange.Services
         //    var randomEmail = RandomService.generateRandomHostName();
         //    return $"CN=Android, OU=Android, O={listCitiesNewYork[randomCity1]} Inc., L={listCitiesNewYork[randomCity2]}, ST=New York, C=US, emailAddress={randomEmail}@yahoo.com";
         //}
+
+        public static void autoUpdatePif(string deviceId)
+        {
+            string pifUrl = "https://raw.githubusercontent.com/doanvtamhuynh/database/main/pif.json";
+            using HttpClient client = new HttpClient();
+            string pifJson = "";
+            try
+            {
+                pifJson = client.GetStringAsync(pifUrl)
+                                    .GetAwaiter()
+                                    .GetResult();
+
+                if (!string.IsNullOrWhiteSpace(pifJson))
+                {
+                    var pifDevices = JsonSerializer.Deserialize<JsonElement>(pifJson);
+
+                    if (pifDevices.ValueKind != JsonValueKind.Array || pifDevices.GetArrayLength() == 0)
+                        return;
+
+                    int index = RandomService.randomInRange(0, pifDevices.GetArrayLength());
+                    JsonElement pifElement = pifDevices[index];
+
+                    foreach (JsonProperty prop in pifElement.EnumerateObject())
+                    {
+                        if (prop.Value.ValueKind != JsonValueKind.Null)
+                        {
+                            ADBService.runCMDRoot(
+                                $"shell setprop {PifKey.PIF_PREFIX}{prop.Name} \"{prop.Value.ToString()}\"",
+                                deviceId
+                            );
+                        }
+                    }
+                    var device = pifElement.GetProperty("DEVICE").GetString();
+
+                    if (!string.IsNullOrEmpty(device))
+                    {
+                        ADBService.runCMDRoot(
+                            $"shell setprop {PifKey.PIF_BOARD} \"{device}\"",
+                            deviceId
+                        );
+
+                        ADBService.runCMDRoot(
+                            $"shell setprop {PifKey.PIF_HARDWARE} \"{device}\"",
+                            deviceId
+                        );
+                    }
+
+                    var fingerprint = pifElement.GetProperty("FINGERPRINT").GetString();
+
+                    if (!string.IsNullOrEmpty(fingerprint))
+                    {
+                        var fingerprintSplit = fingerprint.Split(':');
+                        var incremental = fingerprintSplit[1].Split("/")[2];
+                        ADBService.runCMDRoot(
+                            $"shell setprop {PifKey.PIF_INCREMENTAL} \"{incremental}\"",
+                            deviceId
+                        );
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error: " + ex.Message);
+                return;
+            }
+        }
 
     }
 }
