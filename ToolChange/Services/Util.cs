@@ -239,6 +239,7 @@ namespace ToolChange.Services
                     ADBService.putSetting("bluetooth_address", tempDevice.BlueToothMacAddress, deviceId, "secure");
                     ADBService.putSetting("bluetooth_name", bluetoothName, deviceId, "secure");
                     ADBService.putSetting("device_name", deviceName, deviceId);
+                    ADBService.putSetting("mi_mac_address", tempDevice.WifiMacAddress, deviceId);
                     ADBService.putSetting("non_persistent_mac_randomization_force_enabled", "1", deviceId);
                     ADBService.putSetting("screen_off_timeout", "1800000", deviceId, "system");
                     ADBService.runCMDRoot("shell locksettings set-disabled true", deviceId);
