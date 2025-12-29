@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 namespace ToolChange.Models
 {
     public class DeviceModel : INotifyPropertyChanged
@@ -68,7 +63,7 @@ namespace ToolChange.Models
             }
         }
 
-        public string Percentage 
+        public string Percentage
         {
             get => _percentage;
             set
@@ -122,7 +117,7 @@ namespace ToolChange.Models
                 }
             }
         }
-     
+
         public bool HasWarning => Progress?.Contains("⚠") == true; // đỏ
         public bool IsPending => Progress?.Contains("⏳") == true; // vàng
         public string DisplayLabel => $"{DeviceId} - {Name}";

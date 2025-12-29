@@ -1,21 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using System.Windows.Threading;
 using ToolChange.Services;
 using ToolChange.ViewModels;
 
@@ -26,7 +14,7 @@ namespace ToolChange.Views
     /// </summary>
     public partial class Document : Page
     {
-       
+
 
         private CancellationTokenSource _imageLoopCts;
         private int _imageIndex = 0;
@@ -48,7 +36,7 @@ namespace ToolChange.Views
             Load_On();
             _localizationViewModel.PropertyChanged += OnLocalizationPropertyChanged;
         }
-       
+
         private bool _isExpanded = false;
         private bool _isExpanded1 = false;
         private bool _isExpanded2 = false;
@@ -143,10 +131,10 @@ namespace ToolChange.Views
         }
         private async void Hyperlink_Click(object sender, RoutedEventArgs e)
         {
-           // string url = "https://docs.google.com/document/d/1fmuHbrPjCyIGiVeuv_q7bNrzSxefpeKTqjtbxucEEmc/preview";
+            // string url = "https://docs.google.com/document/d/1fmuHbrPjCyIGiVeuv_q7bNrzSxefpeKTqjtbxucEEmc/preview";
             WebViewContainer.Visibility = Visibility.Visible;
-          //  await WebViewDocs.EnsureCoreWebView2Async();
-           // WebViewDocs.CoreWebView2.Navigate(url);
+            //  await WebViewDocs.EnsureCoreWebView2Async();
+            // WebViewDocs.CoreWebView2.Navigate(url);
         }
         private void CloseWebView_Click(object sender, RoutedEventArgs e)
         {
@@ -156,7 +144,7 @@ namespace ToolChange.Views
 
         private void Document_Unloaded(object sender, RoutedEventArgs e)
         {
-            StopImageRotationBackground(); 
+            StopImageRotationBackground();
         }
         private void TogglePanel_Click(object sender, MouseButtonEventArgs e)
         {
@@ -177,7 +165,7 @@ namespace ToolChange.Views
         private void TogglePanelDocument2_Click(object sender, MouseButtonEventArgs e)
         {
             ToggleAnimatedPanel(AnimatedPanel2, ref _isExpanded2, 350);
-           
+
         }
     }
 }

@@ -1,9 +1,6 @@
 ﻿using POCO.Models;
-using System;
-using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
-using System.Linq;
 using System.Reflection;
 
 namespace Services
@@ -27,7 +24,7 @@ namespace Services
         }
         public static string generateIpv6()
         {
-            
+
             var ipClass = new List<string>();
             ipClass.Add("fe80");
             ipClass.Add("");
@@ -73,10 +70,10 @@ namespace Services
             return random.Next(length);
         }
 
-        public static T PickRandomFromEnumarable<T>(IEnumerable<T> enumerable) 
+        public static T PickRandomFromEnumarable<T>(IEnumerable<T> enumerable)
         {
             return enumerable.ElementAtOrDefault(randomFromArrayLength(enumerable.Count()));
-        } 
+        }
 
         public static string generateIMSI(string MCC, string MNC)
         {
@@ -341,8 +338,8 @@ namespace Services
         }
         public static Dictionary<string, string> generateSubnetMask()
         {
-            var dicts = new Dictionary<string, string>[] 
-            { 
+            var dicts = new Dictionary<string, string>[]
+            {
                 new Dictionary<string, string>{ { "mask", "255.255.255.255" }, { "length", "32" } },
                 new Dictionary<string, string>{ { "mask", "255.255.255.254" }, { "length", "31" } },
                 new Dictionary<string, string>{ { "mask", "255.255.255.252" }, { "length", "30" } },
@@ -354,7 +351,7 @@ namespace Services
                 new Dictionary<string, string>{ { "mask", "255.255.255.0" }, { "length", "24" } },
 
             };
-            
+
             return dicts[randomFromArrayLength(dicts.Length)];
         }
         public static string generateName(bool requireSingle = false)

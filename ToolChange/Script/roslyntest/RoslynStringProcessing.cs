@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
+﻿using System.Text.RegularExpressions;
 
 namespace ToolChange.Script.RoslynTest
 {
@@ -17,7 +12,7 @@ namespace ToolChange.Script.RoslynTest
         {
             return ParseSwipeCoordinates(input);
         }
-        public (int, int, int, int ) getParseRandomClickCoordinates(string input)
+        public (int, int, int, int) getParseRandomClickCoordinates(string input)
         {
             return ParseRandomClickCoordinates(input);
         }
@@ -59,7 +54,7 @@ namespace ToolChange.Script.RoslynTest
                 throw new FormatException("Chuỗi đầu vào không đúng định dạng.");
             }
         }
-        private (int , int , int , int ) ParseRandomClickCoordinates(string input)
+        private (int, int, int, int) ParseRandomClickCoordinates(string input)
         {
             MatchCollection matches = Regex.Matches(input, @"\d+");
             if (matches.Count < 4)

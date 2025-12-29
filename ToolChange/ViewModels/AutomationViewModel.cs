@@ -1,29 +1,17 @@
 ﻿using AuthenticationService;
 using MiHttpClient;
-using OfficeOpenXml.FormulaParsing.LexicalAnalysis;
-using POCO.Models;
 using Services;
-using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
-using System.IO.Packaging;
-using System.Linq;
-using System.Text;
 using System.Text.Json;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Forms;
 using System.Windows.Input;
-using System.Windows.Threading;
 using ToolChange.Language;
 using ToolChange.Models;
 using ToolChange.Services;
-using ToolChange.Views;
 using ToolChange.Views.ControlScriptPage;
 using WindowsFormsApp.Script.RoslynScript;
 
@@ -424,7 +412,7 @@ namespace ToolChange.ViewModels
         {
             try
             {
-                
+
                 ObservableCollection<Models.AppItem> ItemDevice = new ObservableCollection<Models.AppItem>();
                 var selectedDevices = Devices.Where(device => device.IsChecked && device.Status == "Online").ToList();
                 int selectedCount = selectedDevices.Count;
@@ -543,7 +531,7 @@ namespace ToolChange.ViewModels
                 var tasks = new List<Task>();
                 foreach (var device in selectedDevices)
                 {
-                   
+
 
                     if (device.Status == "Offline")
                     {
@@ -560,7 +548,7 @@ namespace ToolChange.ViewModels
                         UpdateDeviceStatus(device.DeviceId, "%", "⏳ Device running...");
                         continue;
                     }
-                       
+
 
                     _processingDeviceIds.Add(device.DeviceId);
                     UpdateDeviceStatus(device.DeviceId, "0%", "Start backup");
@@ -774,7 +762,7 @@ namespace ToolChange.ViewModels
 
         private async Task ProcessFixRebootAsync(Models.DeviceModel device)
         {
-            ADBService.runCMDRoot("reboot",device.DeviceId);
+            ADBService.runCMDRoot("reboot", device.DeviceId);
             UpdateDeviceStatus(device.DeviceId, "100%", "Fix Success");
 
             _processingDeviceIds.Remove(device.DeviceId);
@@ -872,21 +860,21 @@ namespace ToolChange.ViewModels
                     }
 
                     foreach (var pkg in packages.Distinct())
+                    {
+                        UpdateDeviceStatus(deviceId, "30%", $"copy {pkg}");
+
+                        androidPaths.Add($"/data/data/{pkg}");
+                        androidPaths.Add($"/data/data/{pkg}/lib");
+                        androidPaths.Add($"/data/user_de/0/{pkg}");
+                        androidPaths.Add($"/sdcard/Android/data/{pkg}");
+                        androidPaths.Add($"/sdcard/Android/data/{pkg}/files");
+
+                        if (pkg != "com.android.vending" && pkg != "com.google.android.gsf" && pkg != "com.google.android.gms")
                         {
-                            UpdateDeviceStatus(deviceId, "30%", $"copy {pkg}");
-
-                            androidPaths.Add($"/data/data/{pkg}");
-                            androidPaths.Add($"/data/data/{pkg}/lib");
-                            androidPaths.Add($"/data/user_de/0/{pkg}");
-                            androidPaths.Add($"/sdcard/Android/data/{pkg}");
-                            androidPaths.Add($"/sdcard/Android/data/{pkg}/files");
-
-                            if (pkg != "com.android.vending" && pkg != "com.google.android.gsf" && pkg != "com.google.android.gms")
-                            {
-                                androidPaths.Add($"/sdcard/Android/obb/{pkg}");
-                                androidPaths.Add($"/data/user/0/{pkg}");
-                            }
+                            androidPaths.Add($"/sdcard/Android/obb/{pkg}");
+                            androidPaths.Add($"/data/user/0/{pkg}");
                         }
+                    }
 
                     ADBService.runCMDRoot("root", deviceId);
                     ADBService.runCMDRoot("remount", deviceId);

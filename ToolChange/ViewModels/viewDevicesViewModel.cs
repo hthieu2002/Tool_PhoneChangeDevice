@@ -723,7 +723,7 @@ namespace ToolChange.ViewModels
                     };
 
                     _indexToDeviceMap[index] = vm;
-                    _ = Task.Run(() => StartMonitoringPublicIP(vm, tokenSource)) ;
+                    _ = Task.Run(() => StartMonitoringPublicIP(vm, tokenSource));
                     RefreshDeviceSlotsFromMap();
                     if (!ViewDevices.Any(d => d.Index == index))
                     {
@@ -933,7 +933,7 @@ namespace ToolChange.ViewModels
                             NativeMethods.SetWindowLong(vm.ScrcpyHwnd, -16, 0x40000000 | 0x10000000);
                             NativeMethods.SetParent(vm.ScrcpyHwnd, panelHandle);
                             NativeMethods.SetWindowPos(vm.ScrcpyHwnd, IntPtr.Zero, 0, 0, vm.Panel.Width, vm.Panel.Height, 0x0040);
-                         //   SetWindowPos(_scrcpyHwnd, IntPtr.Zero, 0, 0, _panel.Width, _panel.Height, 0x0040); // SWP_SHOWWINDOW
+                            //   SetWindowPos(_scrcpyHwnd, IntPtr.Zero, 0, 0, _panel.Width, _panel.Height, 0x0040); // SWP_SHOWWINDOW
                             vm.Panel.Resize += (_, __) =>
                             {
                                 NativeMethods.SetWindowPos(vm.ScrcpyHwnd, IntPtr.Zero, 0, 0,

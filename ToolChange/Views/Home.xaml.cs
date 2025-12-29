@@ -1,22 +1,8 @@
 ﻿using MaterialDesignThemes.Wpf;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
 using System.Diagnostics;
-using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Automation;
-using System.Windows.Controls;
-using System.Windows.Controls.Primitives;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 using ToolChange.ViewModels;
 using ToolChange.Views.ControlScriptPage;
 
@@ -40,7 +26,7 @@ namespace ToolChange.Views
             BtnDevice.Style = (Style)FindResource("MaterialDesignRaisedLightButton");
             HomeFrame.Content = new Device();
         }
-        
+
         [DllImport("user32.dll")]
         private static extern bool EnumWindows(EnumWindowsProc lpEnumFunc, IntPtr lParam);
 
@@ -131,7 +117,7 @@ namespace ToolChange.Views
             BtnScreen.Style = (Style)FindResource("MaterialDesignFlatDarkButton");
             BtnDocument.Style = (Style)FindResource("MaterialDesignFlatDarkButton");
 
-            Setiing setting= new Setiing();
+            Setiing setting = new Setiing();
             setting.ShowDialog();
 
 
@@ -158,7 +144,8 @@ namespace ToolChange.Views
                 BtnDevice.Style = (Style)FindResource("MaterialDesignFlatDarkButton");
                 BtnSetting.Style = (Style)FindResource("MaterialDesignFlatDarkButton");
                 BtnScreen.Style = (Style)FindResource("MaterialDesignFlatDarkButton");
-            }else if(HomeFrame.Content is ViewDevices viewDevices)
+            }
+            else if (HomeFrame.Content is ViewDevices viewDevices)
             {
                 BtnScreen.Style = (Style)FindResource("MaterialDesignRaisedLightButton");
                 BtnAutomation.Style = (Style)FindResource("MaterialDesignFlatDarkButton");
@@ -196,7 +183,7 @@ namespace ToolChange.Views
             e.Cancel = true;
 
             var result = await DialogHost.Show(new ConfirmDialog(), "RootDialog", ClosingEventHandler);
-           
+
             if (result?.ToString().ToLower() == "true")
             {
                 DeviceViewModel.StopLoop();

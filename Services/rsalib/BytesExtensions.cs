@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Services.RSALib
+﻿namespace Services.RSALib
 {
     static class BytesExtensions
     {

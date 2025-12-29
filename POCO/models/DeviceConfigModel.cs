@@ -1,5 +1,4 @@
 ﻿using Newtonsoft.Json;
-using System;
 
 namespace POCO.Models
 {
@@ -18,8 +17,9 @@ namespace POCO.Models
         [JsonProperty("is_check_reset_proxy")]
         public bool IsCheckResetProxy { get; set; }
         [JsonIgnore]
-        public AutoProxyInfo ProxyUsing {
-            get 
+        public AutoProxyInfo ProxyUsing
+        {
+            get
             {
                 return this.FixedProxy ?? this.DynamicProxy;
             }

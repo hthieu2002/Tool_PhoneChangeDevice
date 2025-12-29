@@ -1,10 +1,5 @@
-﻿using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis;
-using System.Collections.Generic;
-using System.IO.Ports;
-using System.Windows.Forms;
-using System.Linq;
+﻿using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace WindowsFormsApp.Script.RoslynScript
 {
@@ -108,7 +103,7 @@ namespace WindowsFormsApp.Script.RoslynScript
                     searchWaitClickMethod,
                     searchAndContinueMethod,
                     stopScriptMethod,
-                   // logMessageMethod,
+                    // logMessageMethod,
                     sendText,
                     randomTextAndSend,
                     sendTextRandomFromFile,

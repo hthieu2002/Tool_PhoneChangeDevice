@@ -7,7 +7,7 @@ using ToolChange.ViewModels;
 
 namespace ToolChange.Views
 {
-    
+
     public partial class ViewDevices : System.Windows.Controls.Page
     {
         private viewDevicesViewModel ViewModel => DataContext as viewDevicesViewModel;
@@ -16,14 +16,14 @@ namespace ToolChange.Views
         {
             InitializeComponent();
             DataContext = ViewModelLocator.ViewDevicesViewModel;
-          
+
         }
         private void Page_Loaded(object sender, RoutedEventArgs e)
         {
             ViewModel?.startViewDevice();
         }
         private void Page_Unloaded(object sender, RoutedEventArgs e)
-        { 
+        {
             ViewModel?.stopViewDevice();
         }
 
@@ -54,7 +54,7 @@ namespace ToolChange.Views
             }
         }
 
-        
+
         private void Slider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
             if (sender is Slider slider)

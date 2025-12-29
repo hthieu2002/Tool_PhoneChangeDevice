@@ -1,27 +1,13 @@
 ﻿using MiHttpClient;
-using Newtonsoft.Json.Linq;
-using Org.BouncyCastle.Asn1.IsisMtt.X509;
-using Org.BouncyCastle.Math.Field;
 using POCO.Models;
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Drawing;
 using System.IO;
 using System.IO.Compression;
-using System.IO.Packaging;
-using System.Linq;
-using System.Net;
-using System.Net.Http;
 using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Shell;
 using System.Xml.Linq;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace Services
 {
@@ -535,7 +521,7 @@ namespace Services
             runCMDRoot("shell rm -rf /storage/emulated/0/*", deviceId);
             runCMDRoot("shell \"cmd media rescan /storage/emulated/0 2>/dev/null || am broadcast -a android.intent.action.MEDIA_SCANNER_SCAN_FILE -d file:///storage/emulated/0\"", deviceId);
         }
-        
+
 
         public static void cleanNetworkInternet(string deviceId, bool isRootAndRemount = false)
         {
@@ -565,7 +551,7 @@ namespace Services
                 "shell rm -rf /data/user_de/0/com.android.networkstack*",
                 "shell rm -rf /data/user_de/0/com.google.android.networkstack*",
                 "shell rm -rf /data/user_de/0/com.google.android.apps.cbrsnetworkmonitor*",
-             
+
                 "shell pm clear com.android.providers.telephony",
                 "shell pm clear com.android.providers.downloads",
                 "shell chown system:system /data/system/netstats",

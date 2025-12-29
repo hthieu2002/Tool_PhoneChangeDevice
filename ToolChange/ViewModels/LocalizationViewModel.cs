@@ -1,11 +1,4 @@
-﻿using Org.BouncyCastle.Bcpg.OpenPgp;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
+﻿using System.ComponentModel;
 using ToolChange.Services;
 
 namespace ToolChange.ViewModels
@@ -138,7 +131,7 @@ namespace ToolChange.ViewModels
 
         private string _documentImageViewDevice;
         private string _webViewUrl;
-       
+
 
         public string Device
         {

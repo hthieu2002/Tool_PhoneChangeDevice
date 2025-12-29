@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.ComponentModel;
 using System.Windows.Input;
 using ToolChange.Services;
 
@@ -18,7 +13,7 @@ namespace ToolChange.ViewModels
             set
             {
                 _inputText = value;
-                OnPropertyChanged(nameof(InputText)); 
+                OnPropertyChanged(nameof(InputText));
             }
         }
         public ICommand OKCommand { get; }

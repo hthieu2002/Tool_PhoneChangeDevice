@@ -1,19 +1,4 @@
-﻿using OfficeOpenXml;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
+﻿using System.Windows;
 using ToolChange.Models;
 using ToolChange.ViewModels;
 
@@ -29,7 +14,7 @@ namespace ToolChange.Views.ControlScriptPage
         public FakeTimeZone(List<DeviceModel> allDevices)
         {
             InitializeComponent();
-           
+
             model = new FakeTimeZoneViewModel(allDevices);
             this.DataContext = model;
             this.Loaded += MainWindow_Loaded;

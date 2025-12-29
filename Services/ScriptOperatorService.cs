@@ -1,12 +1,7 @@
 ﻿using POCO.Models;
-using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Reflection;
 using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Services
 {
@@ -116,7 +111,8 @@ namespace Services
         }
         public void wait(int s, string log = "")
         {
-            if (token.IsCancellationRequested) { Console.WriteLine("Action {0} cancelled.", MethodBase.GetCurrentMethod().Name); token.ThrowIfCancellationRequested(); };
+            if (token.IsCancellationRequested) { Console.WriteLine("Action {0} cancelled.", MethodBase.GetCurrentMethod().Name); token.ThrowIfCancellationRequested(); }
+            ;
             ADBService.shellSleep(s, deviceIP);
             if (!string.IsNullOrEmpty(log)) callBack(log);
         }
@@ -219,7 +215,8 @@ namespace Services
         }
         public void openPackage(string package, string log = "")
         {
-            if (token.IsCancellationRequested) { Console.WriteLine("Action {0} cancelled.", MethodBase.GetCurrentMethod().Name); token.ThrowIfCancellationRequested(); };
+            if (token.IsCancellationRequested) { Console.WriteLine("Action {0} cancelled.", MethodBase.GetCurrentMethod().Name); token.ThrowIfCancellationRequested(); }
+            ;
             ADBService.openPackage(package, deviceIP);
             if (!string.IsNullOrEmpty(log)) callBack(log);
         }
@@ -254,7 +251,8 @@ namespace Services
         }
         public Dictionary<string, string> randomName(string log = "")
         {
-            if (token.IsCancellationRequested) { Console.WriteLine("Action {0} cancelled.", MethodBase.GetCurrentMethod().Name); token.ThrowIfCancellationRequested(); };
+            if (token.IsCancellationRequested) { Console.WriteLine("Action {0} cancelled.", MethodBase.GetCurrentMethod().Name); token.ThrowIfCancellationRequested(); }
+            ;
             var randomName = RandomService.randomNameFromResource();
             callBack(string.Format("Username: {0} {1}", randomName[BasicGmailInfo.FIRSTNAME_FLAG], randomName[BasicGmailInfo.LASTNAME_FLAG]));
             if (!string.IsNullOrEmpty(log)) callBack(log);
@@ -262,21 +260,24 @@ namespace Services
         }
         public Dictionary<string, string> randomBasicInfo(string log = "")
         {
-            if (token.IsCancellationRequested) { Console.WriteLine("Action {0} cancelled.", MethodBase.GetCurrentMethod().Name); token.ThrowIfCancellationRequested(); };
+            if (token.IsCancellationRequested) { Console.WriteLine("Action {0} cancelled.", MethodBase.GetCurrentMethod().Name); token.ThrowIfCancellationRequested(); }
+            ;
             var randomBasicInfo = RandomService.randomBirthdayAndGender();
             if (!string.IsNullOrEmpty(log)) callBack(log);
             return randomBasicInfo;
         }
         public string randomChars(int length = 1, string log = "")
         {
-            if (token.IsCancellationRequested) { Console.WriteLine("Action {0} cancelled.", MethodBase.GetCurrentMethod().Name); token.ThrowIfCancellationRequested(); };
+            if (token.IsCancellationRequested) { Console.WriteLine("Action {0} cancelled.", MethodBase.GetCurrentMethod().Name); token.ThrowIfCancellationRequested(); }
+            ;
             var str = RandomService.randomCharacters(length);
             if (!string.IsNullOrEmpty(log)) callBack(log);
             return str;
         }
         public string randomPassword(string firstname, string lastname, string log = "")
         {
-            if (token.IsCancellationRequested) { Console.WriteLine("Action {0} cancelled.", MethodBase.GetCurrentMethod().Name); token.ThrowIfCancellationRequested(); };
+            if (token.IsCancellationRequested) { Console.WriteLine("Action {0} cancelled.", MethodBase.GetCurrentMethod().Name); token.ThrowIfCancellationRequested(); }
+            ;
             var password = RandomService.randomPasswordByName(firstname, lastname);
             callBack("Password: " + password);
             if (!string.IsNullOrEmpty(log)) callBack(log);
@@ -285,7 +286,8 @@ namespace Services
         public int getAPIID(string log = "")
         {
             if (!string.IsNullOrEmpty(log)) callBack(log);
-            if (token.IsCancellationRequested) { Console.WriteLine("Action {0} cancelled.", MethodBase.GetCurrentMethod().Name); token.ThrowIfCancellationRequested(); };
+            if (token.IsCancellationRequested) { Console.WriteLine("Action {0} cancelled.", MethodBase.GetCurrentMethod().Name); token.ThrowIfCancellationRequested(); }
+            ;
             var apiId = 0;
             var taskSuccess = Task.Run(() =>
             {
@@ -298,7 +300,8 @@ namespace Services
         public string getPhoneNumber(int apiId, string log = "")
         {
             if (!string.IsNullOrEmpty(log)) callBack(log);
-            if (token.IsCancellationRequested) { Console.WriteLine("Action {0} cancelled.", MethodBase.GetCurrentMethod().Name); token.ThrowIfCancellationRequested(); };
+            if (token.IsCancellationRequested) { Console.WriteLine("Action {0} cancelled.", MethodBase.GetCurrentMethod().Name); token.ThrowIfCancellationRequested(); }
+            ;
             var phoneNumber = string.Empty;
             var cancelCallAPI = false;
             var taskGetPhoneNum = Task.Run(() =>
@@ -320,7 +323,8 @@ namespace Services
         public string getGoogleCode(int apiId, string log = "")
         {
             if (!string.IsNullOrEmpty(log)) callBack(log);
-            if (token.IsCancellationRequested) { Console.WriteLine("Action {0} cancelled.", MethodBase.GetCurrentMethod().Name); token.ThrowIfCancellationRequested(); };
+            if (token.IsCancellationRequested) { Console.WriteLine("Action {0} cancelled.", MethodBase.GetCurrentMethod().Name); token.ThrowIfCancellationRequested(); }
+            ;
             var gCode = string.Empty;
             var cancelCallAPI = false;
             var taskGetCode = Task.Run(() =>
@@ -521,21 +525,24 @@ namespace Services
         }
         public void saveText(string path, string text, string log = "")
         {
-            if (token.IsCancellationRequested) { Console.WriteLine("Action {0} cancelled.", MethodBase.GetCurrentMethod().Name); token.ThrowIfCancellationRequested(); };
+            if (token.IsCancellationRequested) { Console.WriteLine("Action {0} cancelled.", MethodBase.GetCurrentMethod().Name); token.ThrowIfCancellationRequested(); }
+            ;
             LocalFileService.writeTextFile(path, text, System.IO.FileMode.Append, true);
             callBack("Content saved to " + path);
             if (!string.IsNullOrEmpty(log)) callBack(log);
         }
         public void log(object obj)
         {
-            if (token.IsCancellationRequested) { Console.WriteLine("Action {0} cancelled.", MethodBase.GetCurrentMethod().Name); token.ThrowIfCancellationRequested(); };
+            if (token.IsCancellationRequested) { Console.WriteLine("Action {0} cancelled.", MethodBase.GetCurrentMethod().Name); token.ThrowIfCancellationRequested(); }
+            ;
             callBack(obj.ToString());
         }
         public void cleanDevice(string log = "")
         {
             if (!string.IsNullOrEmpty(log)) callBack(log);
             ADBService.cleanGMSPackagesAndAccounts(deviceIP);
-            if (token.IsCancellationRequested) { Console.WriteLine("Action {0} cancelled.", MethodBase.GetCurrentMethod().Name); token.ThrowIfCancellationRequested(); };
+            if (token.IsCancellationRequested) { Console.WriteLine("Action {0} cancelled.", MethodBase.GetCurrentMethod().Name); token.ThrowIfCancellationRequested(); }
+            ;
         }
         public static void roll(int begin, int end, string deviceIP)//, string log = "")
         {
@@ -547,14 +554,16 @@ namespace Services
         public void closePackage(string package, string log = "")
         {
             if (!string.IsNullOrEmpty(log)) callBack(log);
-            if (token.IsCancellationRequested) { Console.WriteLine("Action {0} cancelled.", MethodBase.GetCurrentMethod().Name); token.ThrowIfCancellationRequested(); };
+            if (token.IsCancellationRequested) { Console.WriteLine("Action {0} cancelled.", MethodBase.GetCurrentMethod().Name); token.ThrowIfCancellationRequested(); }
+            ;
             ADBService.forceStopPackage(package, deviceIP);
         }
 
         public void restart(string log = "")
         {
             if (!string.IsNullOrEmpty(log)) callBack(log);
-            if (token.IsCancellationRequested) { Console.WriteLine("Action {0} cancelled.", MethodBase.GetCurrentMethod().Name); token.ThrowIfCancellationRequested(); };
+            if (token.IsCancellationRequested) { Console.WriteLine("Action {0} cancelled.", MethodBase.GetCurrentMethod().Name); token.ThrowIfCancellationRequested(); }
+            ;
             throw new Exception("Restart");
         }
 

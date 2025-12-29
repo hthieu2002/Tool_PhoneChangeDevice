@@ -1,10 +1,4 @@
-﻿using Microsoft.CodeAnalysis.VisualBasic.Syntax;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
 using ToolChange.Models;
 using ToolChange.Services;
@@ -26,7 +20,7 @@ namespace ToolChange.Views
             DataContext = ViewModelLocator.DeviceVM;
             this.Unloaded += DevicePage_Unloaded;
             this.IsVisibleChanged += DevicePage_IsVisibleChanged;
-           
+
         }
         private void SelectAllCheckBox_Click(object sender, RoutedEventArgs e)
         {
@@ -35,7 +29,7 @@ namespace ToolChange.Views
                 var checkbox = sender as System.Windows.Controls.CheckBox;
                 if (checkbox?.IsChecked is bool value)
                 {
-                //   vm.DeviceListVM.OnSelectAllCheckboxClicked(value);
+                    //   vm.DeviceListVM.OnSelectAllCheckboxClicked(value);
                 }
             }
         }
@@ -63,7 +57,7 @@ namespace ToolChange.Views
                     vm.DeviceListVM.BrandRandom = false;
                 }
             }
-            
+
         }
         private void OsComboBox_DropDownClosed(object sender, EventArgs e)
         {
@@ -131,10 +125,10 @@ namespace ToolChange.Views
 
             var login = new Login();
             app.MainWindow = login;
-           
+
             if (Window.GetWindow(this) is Home home)
             {
-                home.SuppressClosePrompt = true; 
+                home.SuppressClosePrompt = true;
                 home.Close();
             }
             foreach (Window w in app.Windows)

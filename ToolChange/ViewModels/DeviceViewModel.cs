@@ -46,7 +46,7 @@ namespace ToolChange.ViewModels
         private string _fakeProxyData;
 
         private static readonly string[] OsFull = { "Android 13", "Android 14", "Android 15" };
-        private static readonly string[] OsOppo = {"Android 14" };
+        private static readonly string[] OsOppo = { "Android 14" };
         private static readonly string[] OsVivo = { "Android 14" };
         private static readonly string[] OsOnePlus = { "Android 13" };
 
@@ -258,7 +258,7 @@ namespace ToolChange.ViewModels
         }
 
         public ObservableCollection<string> DeviceTypes { get; } =
-            new ObservableCollection<string>( 
+            new ObservableCollection<string>(
                 new[]{
                     "Samsung",
                     "Xiaomi",
@@ -348,7 +348,7 @@ namespace ToolChange.ViewModels
                     RefreshOsByBrand(_brand, BrandRandom);
 
                     if ((string.IsNullOrWhiteSpace(_os) && DeviceTypesOs != null && DeviceTypesOs.Any()) || _os == "Random")
-                        Os = DeviceTypesOs.First();  
+                        Os = DeviceTypesOs.First();
 
                     Debug.WriteLine(Os);
                 }
@@ -1484,8 +1484,8 @@ namespace ToolChange.ViewModels
                 tempDevice.SimPhoneNumber = string.Format("+{0}{1}", currentSelectedCountry.CountryCode, RandomService.generatePhoneNumber());
                 tempDevice.SimOperatorNumeric = string.Concat(mcc, mnc);
                 tempDevice.SimOperatorCountry = currentSelectedCountry.CountryIso;
-                tempDevice.SimOperatorName = currentSelectedCarrier.Name.LastIndexOf('-') >= 0 
-                                                                ? currentSelectedCarrier.Name.Substring(0, currentSelectedCarrier.Name.LastIndexOf('-')) 
+                tempDevice.SimOperatorName = currentSelectedCarrier.Name.LastIndexOf('-') >= 0
+                                                                ? currentSelectedCarrier.Name.Substring(0, currentSelectedCarrier.Name.LastIndexOf('-'))
                                                                 : currentSelectedCarrier.Name;
                 tempDevice.AndroidId = RandomService.getRandomStringHex16Digit();
                 tempDevice.WifiMacAddress = RandomService.generateWifiMacAddress(tempDevice.Manufacturer.ToLower());
@@ -1552,7 +1552,7 @@ namespace ToolChange.ViewModels
                                                                 ? currentSelectedCarrier.Name.Substring(0, currentSelectedCarrier.Name.LastIndexOf('-'))
                                                                 : currentSelectedCarrier.Name;
                 tempDeviceAll.AndroidId = RandomService.getRandomStringHex16Digit();
-                Mac = tempDeviceAll.WifiMacAddress = RandomService. generateWifiMacAddress(tempDeviceAll.Manufacturer.ToLower());
+                Mac = tempDeviceAll.WifiMacAddress = RandomService.generateWifiMacAddress(tempDeviceAll.Manufacturer.ToLower());
                 tempDeviceAll.BlueToothMacAddress = RandomService.generateWifiMacAddress(tempDeviceAll.Manufacturer.ToLower());
 
                 Gpu = tempDeviceAll.Gpu;
@@ -1793,7 +1793,7 @@ namespace ToolChange.ViewModels
                             if (pifData == null)
                             {
                                 DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "0%", "File PIF data null");
-                            } 
+                            }
                             else
                             {
                                 var props = typeof(PifData).GetProperties()
@@ -1827,7 +1827,7 @@ namespace ToolChange.ViewModels
                                             changePifInfo.Add("persist.sys.pihooks_DEVICE", splitFingerprint[2]);
                                             changePifInfo.Add("persist.sys.pihooks_BOARD", splitFingerprint[2]);
                                             changePifInfo.Add("persist.sys.pihooks_HARDWARE", splitFingerprint[2]);
-                                            changePifInfo.Add("persist.sys.pihooks_ID",splitFingerprint[4]);
+                                            changePifInfo.Add("persist.sys.pihooks_ID", splitFingerprint[4]);
                                             changePifInfo.Add("persist.sys.pihooks_INCREMENTAL", splitFingerprint[5]);
                                             changePifInfo.Add("persist.sys.pihooks_FINGERPRINT", pifData.FINGERPRINT);
                                             changePifInfo.Add("persist.sys.pihooks_MANUFACTURER", pifData.MANUFACTURER);
@@ -1835,7 +1835,7 @@ namespace ToolChange.ViewModels
                                             changePifInfo.Add("persist.sys.pihooks_SECURITY_PATCH", pifData.SECURITY_PATCH);
                                             changePifInfo.Add("persist.sys.pihooks_DEVICE_INITIAL_SDK_INT", pifData.DEVICE_INITIAL_SDK_INT);
                                             changePifInfo.Add("persist.sys.pihooks_SDK_INT", pifData.SDK_INT);
-                                            if(!string.IsNullOrEmpty(pifData.RELEASE))
+                                            if (!string.IsNullOrEmpty(pifData.RELEASE))
                                                 changePifInfo.Add("persist.sys.pihooks_RELEASE", pifData.RELEASE);
                                             else
                                             {
@@ -2166,7 +2166,7 @@ namespace ToolChange.ViewModels
                 }
 
             }
-          
+
             var uiThreadScheduler = TaskScheduler.FromCurrentSynchronizationContext();
             var saveResult = true;
             //UpdateDeviceStatus(device.DeviceId, "5%", "Change device start");
@@ -2181,7 +2181,7 @@ namespace ToolChange.ViewModels
                 Console.WriteLine(IsCheckedSim);
                 await Task.Delay(1000);
                 DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "9%", "Start change device ...");
-             
+
                 saveResult = Util.SaveDeviceInfo(this, Devices, checkChange == 0 ? tempDeviceAll : deviceTemp, device.DeviceId, AppDomain.CurrentDomain.BaseDirectory, IsCheckedSim, IsAutoUpdatePif);
 
                 //    UpdateDeviceStatus(device.DeviceId, "75%", "Change device ....");
@@ -2197,8 +2197,8 @@ namespace ToolChange.ViewModels
                     ADBService.cleanGMSPackagesAndAccounts(device.DeviceId);
                     DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "90%", "Wipe network");
                     ADBService.cleanNetworkInternet(device.DeviceId);
-                //    DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "93%", "Wipe");
-              //      ADBService.cleanFolder(device.DeviceId);
+                    //    DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "93%", "Wipe");
+                    //      ADBService.cleanFolder(device.DeviceId);
                     DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "95%", "Reboot!");
                     _processingDeviceIds.Remove(device.DeviceId);
                     ADBService.restartDevice(device.DeviceId);
@@ -3304,7 +3304,7 @@ namespace ToolChange.ViewModels
                                 DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "99%", DevicesLang.logCheckProxy);
                                 await Task.Delay(2000);
                                 DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "100%", DevicesLang.logTitleProxySuccess);
-                            
+
                             }
                             else
                             {

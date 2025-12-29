@@ -1,11 +1,6 @@
 ﻿using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Scripting;
 using Microsoft.CodeAnalysis.Scripting;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using ToolChange.Models;
 
 namespace ToolChange.Script.Roslyn
@@ -25,7 +20,7 @@ namespace ToolChange.Script.Roslyn
 
             var globals = new Globals { eventRoslyn = eventRoslyn };
 
-            switch (command)    
+            switch (command)
             {
                 case "ClickXY":
                     string code = $"await eventRoslyn.HandleClickXY(\"{textRoslyn}\", \"{deviceId}\");";
@@ -51,7 +46,7 @@ namespace ToolChange.Script.Roslyn
             try
             {
                 var references = AppDomain.CurrentDomain.GetAssemblies()
-                    .Where(a => !a.IsDynamic && !string.IsNullOrEmpty(a.Location))  
+                    .Where(a => !a.IsDynamic && !string.IsNullOrEmpty(a.Location))
                     .Select(a => MetadataReference.CreateFromFile(a.Location));
 
                 if (!references.Any())
@@ -61,10 +56,10 @@ namespace ToolChange.Script.Roslyn
 
                 var result = await CSharpScript.EvaluateAsync<object>(
                     code,
-                    globals: globals,  
+                    globals: globals,
                     options: ScriptOptions.Default
-                        .WithReferences(references)  
-                        .WithImports("System", "System.IO", "System.Linq") 
+                        .WithReferences(references)
+                        .WithImports("System", "System.IO", "System.Linq")
                 );
 
                 Console.WriteLine($"Mã đã được thực thi: {result}");

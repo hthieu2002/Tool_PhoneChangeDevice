@@ -1,7 +1,4 @@
-﻿using OfficeOpenXml;
-using System.Configuration;
-using System.Data;
-using System.Reflection;
+﻿using System.Reflection;
 using System.Windows;
 using System.Windows.Interop;
 using System.Windows.Media;
@@ -15,7 +12,7 @@ namespace ToolChange
     {
         protected override void OnStartup(StartupEventArgs e)
         {
-           
+
 
             CheckFirstRunOfNewVersion();
             // Thử một trong hai giá trị dưới đây để xem Win10 còn lag không

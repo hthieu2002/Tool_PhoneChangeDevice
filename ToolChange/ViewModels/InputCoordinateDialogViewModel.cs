@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Text;
+﻿using System.ComponentModel;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using ToolChange.Services;
@@ -58,7 +53,7 @@ namespace ToolChange.ViewModels
             OKCommand = new RelayCommandCD(o => CloseAction?.Invoke(true));
             CancelCommand = new RelayCommandCD(o => CloseAction?.Invoke(false));
         }
-      
+
         private bool IsValidLongitude(string value)
         {
             if (value == "") return true;

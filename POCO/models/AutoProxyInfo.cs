@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
+﻿using System.Reflection;
 
 namespace POCO.Models
 {
@@ -108,7 +105,7 @@ namespace POCO.Models
                     prop.SetValue(this, prop.GetValue(proxyInfo));
                 }
             }
-                
+
 
             //this.Host = proxyInfo.Host;
             //this.Port = proxyInfo.Port;

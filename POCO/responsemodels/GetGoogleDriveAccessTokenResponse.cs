@@ -1,6 +1,4 @@
-﻿using Newtonsoft.Json;
-
-namespace POCO.ResponseModels
+﻿namespace POCO.ResponseModels
 
 {
     public class GetGoogleDriveAccessTokenResponse

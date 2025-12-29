@@ -50,7 +50,7 @@ namespace ToolChange.ViewModels
                 if (_mousePosition != value)
                 {
                     _mousePosition = value;
-                   
+
                     OnPropertyChanged(nameof(MousePosition));
                 }
             }
@@ -72,7 +72,7 @@ namespace ToolChange.ViewModels
             {
                 _clickedY = value;
                 OnPropertyChanged(nameof(ClickedY));
-               
+
             }
         }
         public string TitleTest
@@ -82,12 +82,12 @@ namespace ToolChange.ViewModels
             {
                 _titleTest = value;
                 OnPropertyChanged(nameof(TitleTest));
-               
+
             }
         }
         public void UpdateTextSendContext()
         {
-          //  ClickedPosition = $"[ CLICK: {ClickedX:0} : {ClickedY:0} ]";
+            //  ClickedPosition = $"[ CLICK: {ClickedX:0} : {ClickedY:0} ]";
 
             if (string.IsNullOrWhiteSpace(TextSendContext))
                 return;
@@ -102,20 +102,20 @@ namespace ToolChange.ViewModels
             else if (command == "Swipe")
             {
                 clickCount++;
-              //  System.Windows.MessageBox.Show(clickCount+"");
+                //  System.Windows.MessageBox.Show(clickCount+"");
                 if (clickCount % 2 == 0)
                 {
                     x2 = ClickedX;
                     y2 = ClickedY;
 
-                 //   System.Windows.MessageBox.Show("x2 :" + x2 +" \n y2:"+y2);
+                    //   System.Windows.MessageBox.Show("x2 :" + x2 +" \n y2:"+y2);
                 }
                 else
                 {
                     x1 = ClickedX;
                     y1 = ClickedY;
 
-                 //   System.Windows.MessageBox.Show("x1 :" + x1 + " \n y1:" + y1);
+                    //   System.Windows.MessageBox.Show("x1 :" + x1 + " \n y1:" + y1);
                 }
 
                 if (x2 == 0 && y2 == 0)
@@ -393,7 +393,7 @@ namespace ToolChange.ViewModels
         private void LoadDevices()
         {
             var devices = ADBService.GetDevices();
-           
+
             AdbDevices.Clear();
             foreach (var device in devices)
             {
@@ -723,64 +723,64 @@ namespace ToolChange.ViewModels
                 System.Windows.MessageBox.Show($"Lỗi không xác định khi load ảnh:\n{ex.Message}\nChi tiết: {ex.StackTrace}", "Lỗi Load Ảnh", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
-      private void LoadUiElements(string xmlPath)
-{
-    if (!File.Exists(xmlPath))
-    {
-        System.Windows.MessageBox.Show($"Không tìm thấy file: {xmlPath}");
-        return;
-    }
-
-    XmlDocument doc = new();
-    doc.Load(xmlPath);
-
-    XmlNodeList nodeList = doc.GetElementsByTagName("node");
-    if (nodeList == null || nodeList.Count == 0)
-    {
-        System.Windows.MessageBox.Show("Không có node nào trong XML.");
-        return;
-    }
-
-    _uiElements.Clear();
-    ElementDetailPairs.Clear();
-
-    foreach (XmlNode node in nodeList)
-    {
-        // Chỉ xử lý node có class
-        if (node.Attributes?["class"] == null)
-            continue;
-
-        // Lấy className nếu bạn muốn lọc nâng cao sau này
-        string className = node.Attributes["class"].Value;
-
-        // Bỏ qua nếu không có bounds
-        if (string.IsNullOrEmpty(node.Attributes["bounds"]?.Value))
-            continue;
-
-        var element = new UiElement
+        private void LoadUiElements(string xmlPath)
         {
-            Index = node.Attributes["index"]?.Value,
-            Text = node.Attributes["text"]?.Value,
-            ResourceId = node.Attributes["resource-id"]?.Value,
-            Class = node.Attributes["class"]?.Value,
-            Package = node.Attributes["package"]?.Value,
-            ContentDesc = node.Attributes["content-desc"]?.Value,
-            Checkable = node.Attributes["checkable"]?.Value,
-            Checked = node.Attributes["checked"]?.Value,
-            Clickable = node.Attributes["clickable"]?.Value,
-            Enabled = node.Attributes["enabled"]?.Value,
-            Focusable = node.Attributes["focusable"]?.Value,
-            Focused = node.Attributes["focused"]?.Value,
-            Scrollable = node.Attributes["scrollable"]?.Value,
-            LongClickable = node.Attributes["long-clickable"]?.Value,
-            Password = node.Attributes["password"]?.Value,
-            Selected = node.Attributes["selected"]?.Value,
-            Bounds = node.Attributes["bounds"]?.Value
-        };
+            if (!File.Exists(xmlPath))
+            {
+                System.Windows.MessageBox.Show($"Không tìm thấy file: {xmlPath}");
+                return;
+            }
 
-        _uiElements.Add(element);
-    }
-}
+            XmlDocument doc = new();
+            doc.Load(xmlPath);
+
+            XmlNodeList nodeList = doc.GetElementsByTagName("node");
+            if (nodeList == null || nodeList.Count == 0)
+            {
+                System.Windows.MessageBox.Show("Không có node nào trong XML.");
+                return;
+            }
+
+            _uiElements.Clear();
+            ElementDetailPairs.Clear();
+
+            foreach (XmlNode node in nodeList)
+            {
+                // Chỉ xử lý node có class
+                if (node.Attributes?["class"] == null)
+                    continue;
+
+                // Lấy className nếu bạn muốn lọc nâng cao sau này
+                string className = node.Attributes["class"].Value;
+
+                // Bỏ qua nếu không có bounds
+                if (string.IsNullOrEmpty(node.Attributes["bounds"]?.Value))
+                    continue;
+
+                var element = new UiElement
+                {
+                    Index = node.Attributes["index"]?.Value,
+                    Text = node.Attributes["text"]?.Value,
+                    ResourceId = node.Attributes["resource-id"]?.Value,
+                    Class = node.Attributes["class"]?.Value,
+                    Package = node.Attributes["package"]?.Value,
+                    ContentDesc = node.Attributes["content-desc"]?.Value,
+                    Checkable = node.Attributes["checkable"]?.Value,
+                    Checked = node.Attributes["checked"]?.Value,
+                    Clickable = node.Attributes["clickable"]?.Value,
+                    Enabled = node.Attributes["enabled"]?.Value,
+                    Focusable = node.Attributes["focusable"]?.Value,
+                    Focused = node.Attributes["focused"]?.Value,
+                    Scrollable = node.Attributes["scrollable"]?.Value,
+                    LongClickable = node.Attributes["long-clickable"]?.Value,
+                    Password = node.Attributes["password"]?.Value,
+                    Selected = node.Attributes["selected"]?.Value,
+                    Bounds = node.Attributes["bounds"]?.Value
+                };
+
+                _uiElements.Add(element);
+            }
+        }
 
         public UiElement FindElementAt(int x, int y)
         {

@@ -1,12 +1,4 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using ToolChange.ViewModels;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace ToolChange.ViewModels.Tests
+﻿namespace ToolChange.ViewModels.Tests
 {
     [TestClass()]
     public class viewDevicesViewModelTests

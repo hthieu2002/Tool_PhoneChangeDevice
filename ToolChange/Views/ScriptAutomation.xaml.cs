@@ -1,21 +1,9 @@
-﻿using Microsoft.CodeAnalysis.Scripting;
-using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
+﻿using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 using ToolChange.Services;
-using ToolChange.ViewModels;
 using ToolChange.Views.ControlScriptPage;
 
 namespace ToolChange.Views
@@ -27,8 +15,8 @@ namespace ToolChange.Views
     {
         private string _initialText = "";
         private int _selectedLine = -1;
-       
-        private double xCoord; 
+
+        private double xCoord;
         private double yCoord;
         public ObservableCollection<CustomKeyValuePair> ElementInfoList { get; set; } = new();
 
@@ -58,7 +46,7 @@ namespace ToolChange.Views
 
             this.CommandBindings.Add(saveCommandBinding);
             this.InputBindings.Add(new InputBinding(ApplicationCommands.Save, saveGesture));
-          //  _uiElements = new List<UiElement>();
+            //  _uiElements = new List<UiElement>();
             UpdateLineNumbers();
         }
         private void ImageContainer_MouseMove(object sender, System.Windows.Input.MouseEventArgs e)
@@ -101,11 +89,11 @@ namespace ToolChange.Views
             }
             else
             {
-              
+
             }
 
         }
-        
+
         private System.Windows.Point GetRealImageCoordinates(System.Windows.Controls.Image image, System.Windows.Point uiPosition)
         {
             if (image.Source is not BitmapSource bitmap)
@@ -189,7 +177,7 @@ namespace ToolChange.Views
                 lineNumbers.SelectedIndex = _selectedLine;
             }
         }
-      
+
 
         public void InsertTextAtCaret(string text)
         {
@@ -202,15 +190,15 @@ namespace ToolChange.Views
             editTextBox.CaretIndex = caretIndex + formatted.Length;
 
             ViewModelLocator.ScriptVM.TextBoxContent = editTextBox.Text;
-            
+
         }
         private void UpdateLineNumbers()
         {
             lineNumbers.Items.Clear();
-            string[] lines = editTextBox.Text.Split(new[] { '\r', '\n' }, StringSplitOptions.None); 
+            string[] lines = editTextBox.Text.Split(new[] { '\r', '\n' }, StringSplitOptions.None);
             for (int i = 0; i < lines.Length; i++)
             {
-                if (i < editTextBox.LineCount) 
+                if (i < editTextBox.LineCount)
                 {
                     string number = (i + 1).ToString();
                     if (i == _selectedLine && _selectedLine >= 0 && _selectedLine < lines.Length)
@@ -225,7 +213,7 @@ namespace ToolChange.Views
                 lineNumbers.SelectedIndex = _selectedLine;
             }
         }
-        
+
         private void Tab_Click(object sender, RoutedEventArgs e)
         {
             if (sender is TextBlock textBlock)
@@ -311,6 +299,6 @@ namespace ToolChange.Views
             }
         }
 
-       
+
     }
 }

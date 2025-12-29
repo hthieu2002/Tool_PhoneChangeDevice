@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace POCO.Models
+﻿namespace POCO.Models
 {
     public class LeadModel
     {
@@ -10,6 +8,6 @@ namespace POCO.Models
         public string Country { get; set; }
         public DateTime TransactionDate { get; set; }
 
-      
+
     }
 }

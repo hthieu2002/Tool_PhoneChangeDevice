@@ -1,16 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
+﻿using System.Windows;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 using ToolChange.ViewModels;
 
 namespace ToolChange.Views.ControlScriptPage
@@ -43,7 +32,7 @@ namespace ToolChange.Views.ControlScriptPage
                     if (!string.IsNullOrEmpty(pastedText) && pastedText.Contains(":"))
                     {
                         var parts = pastedText.Split(':');
-                        tb.Text = parts[0]; 
+                        tb.Text = parts[0];
 
                         if (parts.Length > 1 && FindName("PortTextBox") is System.Windows.Controls.TextBox portBox)
                             portBox.Text = parts[1];
@@ -52,9 +41,9 @@ namespace ToolChange.Views.ControlScriptPage
                         if (parts.Length > 3 && FindName("PasswordTextBox") is System.Windows.Controls.TextBox passBox)
                             passBox.Text = parts[3];
 
-                        e.Handled = true; 
+                        e.Handled = true;
                     }
-                    
+
                 }
             }
         }

@@ -1,19 +1,6 @@
 ﻿using AuthenticationService;
-using Microsoft.Win32;
-using POCO.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 using ToolChange.ViewModels;
 
 namespace ToolChange.Views
@@ -62,11 +49,11 @@ namespace ToolChange.Views
             }
         }
 
-       
+
         private async void BtnLogin_Click(object sender, RoutedEventArgs e)
         {
             if (isLoggingIn)
-                return; 
+                return;
 
             isLoggingIn = true;
             btnLogin.Cursor = System.Windows.Input.Cursors.Wait; // Thay đổi con trỏ chuột thành đợi
@@ -80,7 +67,7 @@ namespace ToolChange.Views
                 btnLogin.Cursor = System.Windows.Input.Cursors.Hand;
             }
         }
-       
+
         private async Task login()
         {
             try
@@ -140,8 +127,8 @@ namespace ToolChange.Views
         {
             if (e.Key == Key.Enter)
             {
-                BtnLogin_Click(sender, new RoutedEventArgs()); 
-                e.Handled = true; 
+                BtnLogin_Click(sender, new RoutedEventArgs());
+                e.Handled = true;
             }
         }
     }

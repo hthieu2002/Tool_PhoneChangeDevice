@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace POCO.ResponseModels
+﻿namespace POCO.ResponseModels
 
 {
     public class GetProxySummaryResponse

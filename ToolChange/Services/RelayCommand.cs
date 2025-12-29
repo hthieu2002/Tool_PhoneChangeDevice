@@ -1,5 +1,4 @@
-﻿using System;
-using System.Windows.Input;
+﻿using System.Windows.Input;
 
 namespace ToolChange.Services
 {
@@ -13,7 +12,7 @@ namespace ToolChange.Services
             _execute = execute ?? throw new ArgumentNullException(nameof(execute));
             _canExecute = canExecute;
         }
-        
+
         public bool CanExecute(object parameter)
         {
             return _canExecute == null || _canExecute((T)parameter);

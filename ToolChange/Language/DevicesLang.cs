@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace ToolChange.Language
+﻿namespace ToolChange.Language
 {
     public static class DevicesLang
     {
@@ -32,6 +25,6 @@ namespace ToolChange.Language
         {
             return $"{TitleProxy} {deviceName} {TitleProxyId} {deviceId}";
         }
-        
+
     }
 }

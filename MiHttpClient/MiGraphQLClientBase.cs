@@ -1,8 +1,6 @@
 ﻿using GraphQL;
 using GraphQL.Client.Http;
 using GraphQL.Client.Serializer.Newtonsoft;
-using System;
-using System.Threading.Tasks;
 
 namespace MiHttpClient
 {

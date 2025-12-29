@@ -1,10 +1,7 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using POCO.Models;
-using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Reflection;
 
 namespace Services
@@ -71,7 +68,7 @@ namespace Services
                 var content = File.ReadAllText(path);
                 var listObj = JsonConvert.DeserializeObject<List<DeviceConfigModel>>(content);
                 var deviceModel = listObj.FirstOrDefault(x => x.Serial.Equals(serial));
-                if(deviceModel != null)
+                if (deviceModel != null)
                 {
                     listObj.Remove(deviceModel);
                     JsonService<DeviceConfigModel>.saveConfiguration(path, listObj);
@@ -88,9 +85,9 @@ namespace Services
         {
             try
             {
-                
-                
-                
+
+
+
                 LocalFileService.createFileIfNotExist(path, "[]");
                 var content = File.ReadAllText(path);
                 var listObj = JsonConvert.DeserializeObject<List<T>>(content);

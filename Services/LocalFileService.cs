@@ -1,8 +1,5 @@
 ﻿using POCO.Models;
-using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Reflection;
 
 namespace Services
@@ -17,7 +14,7 @@ namespace Services
                 if (!File.Exists(path))
                 {
                     var directory_path = Path.GetDirectoryName(path);
-                    if(!string.IsNullOrEmpty(directory_path) && !Directory.Exists(directory_path))
+                    if (!string.IsNullOrEmpty(directory_path) && !Directory.Exists(directory_path))
                     {
                         Directory.CreateDirectory(directory_path);
                     }
@@ -92,7 +89,7 @@ namespace Services
                     }
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Console.WriteLine("Write file ex: {0}", ex.Message);
             }
@@ -227,9 +224,9 @@ namespace Services
         {
             var result = string.Empty;
             var lines = readAllLinesTextFile(filePath).ToList();
-            for(var i = 0; i < lines.Count; i++)
+            for (var i = 0; i < lines.Count; i++)
             {
-                if(lines[i].Split(sep_char).Length == correct_column)
+                if (lines[i].Split(sep_char).Length == correct_column)
                 {
                     result = lines[i];
                     lines[i] += sep_char.ToString() + deviceId;

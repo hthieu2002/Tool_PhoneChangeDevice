@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace POCO.Models
+﻿namespace POCO.Models
 {
     public class RentCodeModel
     {

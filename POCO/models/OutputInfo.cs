@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace POCO.Models
+﻿namespace POCO.Models
 {
     public class OutputInfo
     {

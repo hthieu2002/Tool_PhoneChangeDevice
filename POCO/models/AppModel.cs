@@ -1,5 +1,4 @@
-﻿using Newtonsoft.Json;
-namespace POCO.Models
+﻿namespace POCO.Models
 {
     public class App
     {

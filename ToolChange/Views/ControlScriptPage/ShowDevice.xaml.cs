@@ -1,23 +1,10 @@
 ﻿using Newtonsoft.Json.Linq;
 using Services;
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Animation;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 using ToolChange.Language;
-using ToolChange.Models;
 using ToolChange.ViewModels;
 
 namespace ToolChange.Views.ControlScriptPage
@@ -313,7 +300,7 @@ namespace ToolChange.Views.ControlScriptPage
                     var currentTask = TaskScheduler.FromCurrentSynchronizationContext();
                     Task.Run(() =>
                     {
-                    RunAdbCommand($"-s {idDevice} {commnadAdb}", 2000);
+                        RunAdbCommand($"-s {idDevice} {commnadAdb}", 2000);
                         logDevice.Content = $"Success adb";
                     }).ContinueWith(task =>
                     {
@@ -480,7 +467,7 @@ namespace ToolChange.Views.ControlScriptPage
                     Dispatcher.Invoke(() => wifiSetting.Text = "Bật Wi-Fi");
                     // Nếu đang bật → Tắt và trở về màn hình chính
                     RunAdbCommand($"-s {deviceId} shell svc wifi disable", 2000);
-                   // RunAdbCommand($"-s {deviceId} shell input keyevent 3", 1000); // KEYCODE_HOME
+                    // RunAdbCommand($"-s {deviceId} shell input keyevent 3", 1000); // KEYCODE_HOME
                 }
                 else
                 {

@@ -197,7 +197,7 @@
         public static readonly string WIFI_MAC_ADDRESS_ANDROID = "ro.android.wifi";
         //BlueTooth mac address
         public static readonly string BLUETOOTH_MAC_ADDRESS = "ro.lineage.bluetooth";
-        public static readonly string BLUETOOTH_MAC_ADDRESS_ANDROID = "ro.android.bluetooth"; 
+        public static readonly string BLUETOOTH_MAC_ADDRESS_ANDROID = "ro.android.bluetooth";
         public static readonly string BSSID = "ro.lineage.BSSID";
         public static readonly string SSID_ANDROID = "ro.android.SSID";
         public static readonly string BSSID_ANDROID = "ro.android.BSSID";
@@ -392,23 +392,23 @@
     {
         public const string PIF_PREFIX = "persist.sys.pihooks_";
 
-        public const string PIF_TAGS                    = PIF_PREFIX + "TAGS";
-        public const string PIF_TYPE                    = PIF_PREFIX + "TYPE";
-        public const string PIF_BOARD                   = PIF_PREFIX + "BOARD";
-        public const string PIF_BRAND                   = PIF_PREFIX + "BRAND";
-        public const string PIF_DEVICE                  = PIF_PREFIX + "DEVICE";
-        public const string PIF_FINGERPRINT             = PIF_PREFIX + "FINGERPRINT";
-        public const string PIF_HARDWARE                = PIF_PREFIX + "HARDWARE";
-        public const string PIF_ID                      = PIF_PREFIX + "ID";
-        public const string PIF_INCREMENTAL             = PIF_PREFIX + "INCREMENTAL";
-        public const string PIF_MANUFACTURER            = PIF_PREFIX + "MANUFACTURER";
-        public const string PIF_MODEL                   = PIF_PREFIX + "MODEL";
-        public const string PIF_PRODUCT                 = PIF_PREFIX + "PRODUCT";
-        public const string PIF_RELEASE                 = PIF_PREFIX + "RELEASE";
-        public const string PIF_SECURITY_PATCH          = PIF_PREFIX + "SECURITY_PATCH";
-        public const string PIF_SDK_INT                 = PIF_PREFIX + "SDK_INT";
-        public const string PIF_DEVICE_INITIAL_SDK_INT  = PIF_PREFIX + "DEVICE_INITIAL_SDK_INT";
-        public const string PIF_DEBUG                   = PIF_PREFIX + "DEBUG";
+        public const string PIF_TAGS = PIF_PREFIX + "TAGS";
+        public const string PIF_TYPE = PIF_PREFIX + "TYPE";
+        public const string PIF_BOARD = PIF_PREFIX + "BOARD";
+        public const string PIF_BRAND = PIF_PREFIX + "BRAND";
+        public const string PIF_DEVICE = PIF_PREFIX + "DEVICE";
+        public const string PIF_FINGERPRINT = PIF_PREFIX + "FINGERPRINT";
+        public const string PIF_HARDWARE = PIF_PREFIX + "HARDWARE";
+        public const string PIF_ID = PIF_PREFIX + "ID";
+        public const string PIF_INCREMENTAL = PIF_PREFIX + "INCREMENTAL";
+        public const string PIF_MANUFACTURER = PIF_PREFIX + "MANUFACTURER";
+        public const string PIF_MODEL = PIF_PREFIX + "MODEL";
+        public const string PIF_PRODUCT = PIF_PREFIX + "PRODUCT";
+        public const string PIF_RELEASE = PIF_PREFIX + "RELEASE";
+        public const string PIF_SECURITY_PATCH = PIF_PREFIX + "SECURITY_PATCH";
+        public const string PIF_SDK_INT = PIF_PREFIX + "SDK_INT";
+        public const string PIF_DEVICE_INITIAL_SDK_INT = PIF_PREFIX + "DEVICE_INITIAL_SDK_INT";
+        public const string PIF_DEBUG = PIF_PREFIX + "DEBUG";
 
     }
 }

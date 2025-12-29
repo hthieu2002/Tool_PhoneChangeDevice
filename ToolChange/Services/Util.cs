@@ -15,7 +15,7 @@ namespace ToolChange.Services
     {
         public static bool checkSim;
 
-        public static bool SaveDeviceInfo(DeviceViewModel model, ObservableCollection<Models.DeviceModel> deviceS , DeviceModel tempDevice, string deviceId, string applicationPath, bool isFakeSim = false, bool isAutoUpdatePif = false, bool keepBrand = false, bool isFakeSdk = true)
+        public static bool SaveDeviceInfo(DeviceViewModel model, ObservableCollection<Models.DeviceModel> deviceS, DeviceModel tempDevice, string deviceId, string applicationPath, bool isFakeSim = false, bool isAutoUpdatePif = false, bool keepBrand = false, bool isFakeSdk = true)
         {
             try
             {
@@ -57,13 +57,13 @@ namespace ToolChange.Services
                 //ADBService.runCMDRoot($"shell setprop persist.sys.deepdroid.sdk {isFakeSdk.ToString().ToLower()}", deviceId);
 
                 if (keepBrand)
-                {   
+                {
                     var value = CheckManuAndBrand(deviceId);
 
                     tempDevice.Manufacturer = value.manufacturer;
                     tempDevice.Brand = value.brand;
                 }
-                
+
                 if (tempDevice.Brand == null || tempDevice.Brand == "")
                 {
                     tempDevice.Brand = tempDevice.Manufacturer.ToLower();
@@ -201,7 +201,7 @@ namespace ToolChange.Services
                     }
 
                     string isRomPixelExperience = ADBService.getProp("org.pixelexperience.device", deviceId);
-                    if(!string.IsNullOrEmpty(isRomPixelExperience))
+                    if (!string.IsNullOrEmpty(isRomPixelExperience))
                     {
                         changedSystemInfo.Add("org.pixelexperience.device", tempDevice.Code);
                         changedSystemInfo.Add("org.pixelexperience.version.display", "unknown");
@@ -228,9 +228,9 @@ namespace ToolChange.Services
                     ADBService.replaceBuildProp("mnt/scratch/overlay/vendor/upper/build.prop", changedVendorInfo, deviceId);
 
                     Dictionary<string, List<string>> partitionList = new Dictionary<string, List<string>>();
-                    partitionList.Add("system", new List<string> { "/system/build.prop"});
-                    partitionList.Add("bootimage", new List<string> { "/system/build.prop"});
-                    partitionList.Add("vendor", new List<string> { "/vendor/build.prop"});
+                    partitionList.Add("system", new List<string> { "/system/build.prop" });
+                    partitionList.Add("bootimage", new List<string> { "/system/build.prop" });
+                    partitionList.Add("vendor", new List<string> { "/vendor/build.prop" });
                     partitionList.Add("product", new List<string> { "/product/build.prop", "/product/etc/build.prop" });
                     partitionList.Add("odm", new List<string> { "/odm/etc/build.prop" });
                     partitionList.Add("odm_dlkm", new List<string> { "/vendor/odm_dlkm/etc/build.prop" });
@@ -255,7 +255,7 @@ namespace ToolChange.Services
                     ADBService.putSetting(GlobalAndroidSettings.IMEI0, tempDevice.Imei, deviceId);
                     ADBService.putSetting(GlobalAndroidSettings.IMEI1, tempDevice.Imei1, deviceId);
                     ADBService.putSetting(GlobalAndroidSettings.HARDWARE_SERIALNO, tempDevice.SerialNo, deviceId);
-                    
+
                     ADBService.updateInitRc(tempDevice, randomUser, deviceId);
                     ADBService.fakeLocalHostNameV6(deviceId);
 
@@ -379,41 +379,41 @@ namespace ToolChange.Services
                 Debug.WriteLine($"{tempDevice.SimOperatorCountry} \n {tempDevice.SimOperatorName} \n {tempDevice.SimOperatorNumeric}" +
                     $"\n {tempDevice.SimPhoneNumber} ");
                 ADBService.putSetting(GlobalAndroidSettings.SIM_OPERATOR_NUMERIC, tempDevice.SimOperatorNumeric, deviceId); // set sim numeric e.g. 42503
-    
+
                 ADBService.putSetting(GlobalAndroidSettings.SIM_OPERATOR_COUNTRY, tempDevice.SimOperatorCountry, deviceId); // set country of operator code
-             
+
                 ADBService.putSetting(GlobalAndroidSettings.SIM_OPERATOR_NAME, tempDevice.SimOperatorName, deviceId); // set carrier name of current sim operator
-          
+
                 ADBService.putSetting(GlobalAndroidSettings.NETWORK_OPERATOR_NUMERIC, tempDevice.SimOperatorNumeric, deviceId);
-             
+
                 ADBService.putSetting(GlobalAndroidSettings.NETWORK_OPERATOR_COUNTRY, tempDevice.SimOperatorCountry, deviceId);
-            
+
                 ADBService.putSetting(GlobalAndroidSettings.NETWORK_OPERATOR_NAME, tempDevice.SimOperatorName, deviceId);
-            
+
                 // setting phone number, ICCID, IMSI
                 ADBService.putSetting(GlobalAndroidSettings.SIM_PHONE_NUMBER, tempDevice.SimPhoneNumber, deviceId);
-       
+
                 ADBService.putSetting(GlobalAndroidSettings.ICCID, tempDevice.ICCID, deviceId);
-         
+
                 ADBService.putSetting(GlobalAndroidSettings.IMSI, tempDevice.IMSI, deviceId);
-        
+
                 ADBService.putSetting(GlobalAndroidSettings.SIM_STATE_READY, "1", deviceId);
-         
+
                 ADBService.putSetting(GlobalAndroidSettings.SIM_ICC_AVAILABLE, "1", deviceId);
-         
+
                 ADBService.putSetting(GlobalAndroidSettings.SIM_STATE, "5", deviceId);
-             
+
                 ADBService.putSetting(GlobalAndroidSettings.NETWORK_TYPE, "13", deviceId);
-           
+
                 //public static readonly string DATA_ACTIVITY = string.Concat(MI_PREFIX, "data_activity");
                 //public static readonly string DATA_STATE = string.Concat(MI_PREFIX, "data_state");
                 //public static readonly string DATA_NETWORK_TYPE = string.Concat(MI_PREFIX, "data_network_type");
                 ADBService.putSetting(GlobalAndroidSettings.DATA_NETWORK_TYPE, "13", deviceId);
-           
+
                 ADBService.putSetting(GlobalAndroidSettings.DATA_STATE, "2", deviceId);
-         
+
                 ADBService.putSetting(GlobalAndroidSettings.DATA_ACTIVITY, "4", deviceId);
-             
+
                 return true;
             }
             catch (Exception e)

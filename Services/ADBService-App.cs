@@ -1,8 +1,6 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using System.Reflection;
 using System.Text;
-using System.Threading;
 
 namespace Services
 {
@@ -107,7 +105,7 @@ namespace Services
                     break;
             }
 
-            if(string.IsNullOrEmpty(initRCversion))
+            if (string.IsNullOrEmpty(initRCversion))
             {
                 Console.WriteLine("Init RC Error");
                 return;
@@ -316,7 +314,7 @@ namespace Services
 
         public static void importContacts(string deviceId)
         {
-            var contentBasicCard =   "BEGIN:VCARD\r\n" +
+            var contentBasicCard = "BEGIN:VCARD\r\n" +
                                 "VERSION:2.1\r\n" +
                                 "N:;{0};;;\r\n" +
                                 "FN:{0}\r\n" +

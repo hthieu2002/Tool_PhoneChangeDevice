@@ -1,5 +1,4 @@
-﻿using System;
-using System.Reflection;
+﻿using System.Reflection;
 using System.Text;
 
 namespace Services
@@ -25,7 +24,7 @@ namespace Services
         {
             get
             {
-                if(instance == null)
+                if (instance == null)
                 {
                     instance = new CmdProcessSingleton();
                 }
@@ -51,7 +50,7 @@ namespace Services
             {
                 Console.WriteLine(ex.Message);
             }
-            
+
             //watch.Stop();
 
             //System.Console.WriteLine("Command {0} takes {1}ms", argument, watch.ElapsedMilliseconds);

@@ -1,14 +1,6 @@
 ﻿using Newtonsoft.Json.Linq;
-using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Net;
-using System.Net.Http;
 using System.Reflection;
-using System.Security.Cryptography;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Services
 {
@@ -29,7 +21,7 @@ namespace Services
         public static void start(string tun2socksDir, string proxyParams, string ipProxyV4, string deviceId,
                                  string tun2socksTableId = "9988", string tun2socksInterface = "tun0", string localWifiInterface = "wlan0")
         {
-            if(string.IsNullOrEmpty(ipProxyV4))
+            if (string.IsNullOrEmpty(ipProxyV4))
             {
                 ipProxyV4 = randomLocalIPv4ForTun2socks();
             }
@@ -160,7 +152,7 @@ namespace Services
                 {
                     var commandline = $"curl --socks5 {proxyParts[0]}:{proxyParts[1]} --proxy-user {proxyParts[2]}:{proxyParts[3]} \"{url}\"";
                     var str = CmdProcess.ExecuteCommand(string.Format("/C {0}", commandline));
-                    string ipV4 = getIpv4(commandline); 
+                    string ipV4 = getIpv4(commandline);
                     if (!string.IsNullOrEmpty(ipV4))
                     {
                         return ipV4;
@@ -223,7 +215,7 @@ namespace Services
             }
         }
 
-        private static string getIpv4(string commandline) 
+        private static string getIpv4(string commandline)
         {
             string str = CmdProcess.ExecuteCommand(string.Format("/C {0}", commandline));
             if (!string.IsNullOrEmpty(str))

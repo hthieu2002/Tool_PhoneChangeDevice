@@ -1,18 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Diagnostics;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using ToolChange.Models;
 using ToolChange.Services;
 
@@ -37,7 +25,7 @@ namespace ToolChange.Views.ControlScriptPage
                 ShowDevice device = new ShowDevice(vm.DeviceId, vm.Index);
                 device.ShowDialog();
             }
-           
+
         }
 
         private void ScrcpyDeviceControl_Loaded(object sender, RoutedEventArgs e)

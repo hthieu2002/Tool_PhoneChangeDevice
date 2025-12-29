@@ -1,13 +1,6 @@
 ﻿using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
-using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
 
 namespace WindowsFormsApp.Script.RoslynScript
 {
@@ -33,12 +26,12 @@ namespace WindowsFormsApp.Script.RoslynScript
                     SyntaxFactory.UsingDirective(SyntaxFactory.ParseName("System.Threading.Tasks")),
                     SyntaxFactory.UsingDirective(SyntaxFactory.ParseName("System.Linq")),
                     SyntaxFactory.UsingDirective(SyntaxFactory.ParseName("System.IO"))
-                 //   SyntaxFactory.UsingDirective(SyntaxFactory.ParseName("Tesseract"))
+                //   SyntaxFactory.UsingDirective(SyntaxFactory.ParseName("Tesseract"))
                 )
                 .NormalizeWhitespace();
 
             System.Diagnostics.Debug.WriteLine(compilationUnit.ToFullString());
-          //  MessageBox.Show(compilationUnit.ToFullString());
+            //  MessageBox.Show(compilationUnit.ToFullString());
             var assembly = CompilerRunner.CompileAndLoadAssembly(compilationUnit, deviceID);
             if (assembly == null)
             {

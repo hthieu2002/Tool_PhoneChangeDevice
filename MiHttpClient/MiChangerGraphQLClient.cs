@@ -1,8 +1,5 @@
 ﻿using POCO.Models;
 using POCO.ResponseModels;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using System.Windows;
 
 namespace MiHttpClient
@@ -171,7 +168,7 @@ namespace MiHttpClient
             }
         }
         private DeviceModel NormalizeDeviceResponse(DeviceModel model)
-        { 
+        {
             string[] fingerPrintString = model.Fingerprint.Split('/');
             model.Product = fingerPrintString[1];
             var indexComma = fingerPrintString[2].IndexOf(':');
@@ -283,7 +280,8 @@ namespace MiHttpClient
                     sdkMin = sdkMin,
                     sdkMax = sdkMax
                 });
-                if (response.GetDeviceV4 == null) {
+                if (response.GetDeviceV4 == null)
+                {
                     response = await SendQueryAsync<GetDeviceV4Response>(query, new
                     {
                         brand = brand,
@@ -292,7 +290,7 @@ namespace MiHttpClient
                         sdkMax = sdkMax
                     });
                 }
-                    //throw new Exception("NULL");
+                //throw new Exception("NULL");
                 var result = response.GetDeviceV4;
                 return NormalizeDeviceResponse(result);
             }
@@ -334,7 +332,7 @@ namespace MiHttpClient
                 if (response.GetDeviceWadogeNew == null)
                     throw new Exception("NULL");
 
-                
+
 
                 var result = response.GetDeviceWadogeNew;
                 return NormalizeDeviceResponse(result);
@@ -464,6 +462,6 @@ namespace MiHttpClient
                 throw ex;
             }
         }
-       
+
     }
 }
