@@ -600,6 +600,20 @@ namespace Services
             //    runCMDRoot(String.Format("shell pm clear {0}", packageName), deviceId);
             //}
 
+            changeDataAppFolderName("com.google.android.gms", deviceId);
+            changeDataAppFolderName("com.android.vending", deviceId);
+            changeDataAppFolderName("com.google.android.webview", deviceId);
+            changeDataAppFolderName("com.google.android.trichromelibrary_636758232", deviceId);
+            changeDataAppFolderName("com.google.android.trichromelibrary_749903433", deviceId);
+            changeDataAppFolderName("com.google.android.safetycore", deviceId);
+            changeDataAppFolderName("com.google.android.contactkeys", deviceId);
+            changeDataAppFolderName("com.google.android.inputmethod.latin", deviceId);
+            changeDataAppFolderName("com.google.android.odad", deviceId);
+            changeDataAppFolderName("com.google.android.ims", deviceId);
+            changeDataAppFolderName("com.google.android.settings.intelligence", deviceId);
+            changeDataAppFolderName("com.google.android.inputmethod.latin", deviceId);
+            changeDataAppFolderName("com.google.ar.core", deviceId);
+
             runCMDRoot(String.Format("shell \"rm -rf {0} \"", "data/app/*/*/oat"), deviceId);
             runCMDRoot(String.Format("shell \"rm -rf {0} \"", "data/app/*/*/*.digests"), deviceId);
             runCMDRoot(String.Format("shell \"rm -rf {0} \"", "data/app/*/*/*.dm"), deviceId);
@@ -3082,6 +3096,39 @@ namespace Services
                 currentOs = validOsList[rnd.Next(validOsList.Length)];
             }
             return currentOs;
+        }
+
+        public static void changeDataAppFolderName(string packageName, string deviceId)
+        {
+            string output = runCMDRoot($"shell ls -d /data/app/*/{packageName}*", deviceId);
+
+            if (string.IsNullOrEmpty(output))
+                return;
+
+            string line = output.Split('\n')[0].Trim();
+
+            if (line.StartsWith("package:"))
+                line = line.Substring("package:".Length);
+
+            const string dataApp = "/data/app/";
+            int index = line.IndexOf(dataApp);
+            if (index == -1)
+                return;
+
+            string subPath = line.Substring(index + dataApp.Length);
+
+            string[] parts = subPath.Split('/');
+
+            if (parts.Length < 2)
+                return;
+
+            string newPath1 = $"/data/app/~~{RandomService.randomCharacters(22)}==";
+            string newPath2 = $"{newPath1}/{packageName}-{RandomService.randomCharacters(22)}==";
+            string oldPath1 = $"/data/app/{parts[0]}";
+            string oldPath2 = $"{newPath1}/{parts[1]}";
+
+            runCMDRoot($"shell mv {oldPath1} {newPath1}", deviceId);
+            runCMDRoot($"shell mv {oldPath2} {newPath2}", deviceId);
         }
     }
 
