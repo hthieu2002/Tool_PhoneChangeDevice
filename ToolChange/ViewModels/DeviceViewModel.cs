@@ -46,9 +46,9 @@ namespace ToolChange.ViewModels
         private string _fakeProxyData;
 
         private static readonly string[] OsFull = { "Android 13", "Android 14", "Android 15" };
-        //private static readonly string[] OsOppo = {"Android 14" };
-        //private static readonly string[] OsVivo = { "Android 14" };
-        //private static readonly string[] OsOnePlus = { "Android 13" };
+        private static readonly string[] OsOppo = {"Android 14" };
+        private static readonly string[] OsVivo = { "Android 14" };
+        private static readonly string[] OsOnePlus = { "Android 13" };
 
         private SimCarrier _selectedCountry;
         public SimCarrier SelectedCountry
@@ -223,24 +223,24 @@ namespace ToolChange.ViewModels
         }
 
         private static readonly List<string> AvailableBrands = new List<string>
-        {
-            "samsung",
-            //"OPPO",
-            //"vivo",
-            //"realme",
-            "Google",
-            "Xiaomi"
-        };
+{
+    "samsung",
+    "OPPO",
+    "vivo",
+    "realme",
+    "Google",
+    "Xiaomi"
+};
         private static readonly List<string> AvailableOs = new List<string>
-        {
-            //"29",
-            //"30",
-            //"31",
-            //"32",
-            "33",
-            "34",
-            "35"
-        };
+{
+    "29",
+    "30",
+    "31",
+    "32",
+    "33",
+    "34",
+    "35"
+};
         private void RandomizeBrand()
         {
             var random = new Random();
@@ -254,25 +254,28 @@ namespace ToolChange.ViewModels
             OsValue = AvailableOs[index];
         }
         public ObservableCollection<string> DeviceTypes { get; } =
-        new ObservableCollection<string>(
-            new[] {
-              "Samsung",
-              "Xiaomi",
-              "Oppo",
-              "Vivo",
-              "Google",
-              "OnePlus",
-            }.OrderBy(x => x)                // sắp xếp A-Z
-            .Prepend("Random"));             // đưa Random lên đầu
+      new ObservableCollection<string>(
+          new[]
+          {
+            "Samsung",
+            "Xiaomi",
+            "Oppo",
+            "Vivo",
+            "Google",
+            "OnePlus",
+          }
+          .OrderBy(x => x)               // sắp xếp A-Z
+          .Prepend("Random")             // đưa Random lên đầu
+      );
 
         public ObservableCollection<string> DeviceTypesOs { get; } = new ObservableCollection<string>
 
-        {
-            "Random",
-            "Android 13",
-            "Android 14",
-            "Android 15"
-        };
+{
+    "Random",
+    "Android 13",
+    "Android 14",
+    "Android 15"
+};
         private string _user = DeepDroid.Properties.Settings.Default.user.Split('@')[0];
 
         private string _brand;
@@ -691,9 +694,9 @@ namespace ToolChange.ViewModels
             ["Samsung"] = OsFull,
             ["Xiaomi"] = OsFull,
             ["Google"] = OsFull,
-            //["Oppo"] = OsOppo,
-            //["Vivo"] = OsVivo,
-            //["OnePlus"] = OsOnePlus,
+            ["Oppo"] = OsOppo,
+            ["Vivo"] = OsVivo,
+            ["OnePlus"] = OsOnePlus,
             // fallback cho brand khác nếu cần có thể thêm ở đây
         };
 
