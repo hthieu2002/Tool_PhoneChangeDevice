@@ -585,20 +585,12 @@ namespace Services
             //{
             //    runCMDRoot(String.Format("shell pm clear {0}", packageName), deviceId);
             //}
-
-            changeDataAppFolderName("com.google.android.gms", deviceId);
+            
             changeDataAppFolderName("com.android.vending", deviceId);
+            changeDataAppFolderName("com.google.android.gms", deviceId);
             changeDataAppFolderName("com.google.android.webview", deviceId);
-            changeDataAppFolderName("com.google.android.trichromelibrary_636758232", deviceId);
-            changeDataAppFolderName("com.google.android.trichromelibrary_749903433", deviceId);
             changeDataAppFolderName("com.google.android.safetycore", deviceId);
-            changeDataAppFolderName("com.google.android.contactkeys", deviceId);
             changeDataAppFolderName("com.google.android.inputmethod.latin", deviceId);
-            changeDataAppFolderName("com.google.android.odad", deviceId);
-            changeDataAppFolderName("com.google.android.ims", deviceId);
-            changeDataAppFolderName("com.google.android.settings.intelligence", deviceId);
-            changeDataAppFolderName("com.google.android.inputmethod.latin", deviceId);
-            changeDataAppFolderName("com.google.ar.core", deviceId);
 
             runCMDRoot(String.Format("shell \"rm -rf {0} \"", "data/app/*/*/oat"), deviceId);
             runCMDRoot(String.Format("shell \"rm -rf {0} \"", "data/app/*/*/*.digests"), deviceId);
