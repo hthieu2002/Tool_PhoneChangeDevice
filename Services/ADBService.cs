@@ -588,17 +588,21 @@ namespace Services
                 runCMDRoot("remount", deviceId);
             }
 
-            string packageData = runCMDRoot("shell ls data/data/", deviceId);
-            List<string> packageDataFormat = new List<string>();
-            foreach (var line in packageData.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries))
-            {
-                packageDataFormat.Add(line.Trim());
-            }
+            //string packageData = runCMDRoot("shell ls data/data/", deviceId);
+            //List<string> packageDataFormat = new List<string>();
+            //foreach (var line in packageData.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries))
+            //{
+            //    packageDataFormat.Add(line.Trim());
+            //}
 
-            foreach (var packageName in packageDataFormat)
-            {
-                runCMDRoot(String.Format("shell pm clear {0}", packageName), deviceId);
-            }
+            //foreach (var packageName in packageDataFormat)
+            //{
+            //    runCMDRoot(String.Format("shell pm clear {0}", packageName), deviceId);
+            //}
+
+            runCMDRoot(String.Format("shell \"rm -rf {0} \"", "data/app/*/*/oat"), deviceId);
+            runCMDRoot(String.Format("shell \"rm -rf {0} \"", "data/app/*/*/*.digests"), deviceId);
+            runCMDRoot(String.Format("shell \"rm -rf {0} \"", "data/app/*/*/*.dm"), deviceId);
 
             runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/data/*/*"), deviceId);
             runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/user/*/*/*"), deviceId);
