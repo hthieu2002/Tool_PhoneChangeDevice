@@ -169,6 +169,7 @@ namespace MiHttpClient
         }
         private DeviceModel NormalizeDeviceResponse(DeviceModel model)
         {
+            if (model == null) return model;
             string[] fingerPrintString = model.Fingerprint.Split('/');
             model.Product = fingerPrintString[1];
             var indexComma = fingerPrintString[2].IndexOf(':');
@@ -193,6 +194,18 @@ namespace MiHttpClient
                     break;
                 case "11":
                     model.SDK = "30";
+                    break;
+                case "12":
+                    model.SDK = "32";
+                    break;
+                case "13":
+                    model.SDK = "33";
+                    break;
+                case "14":
+                    model.SDK = "34";
+                    break;
+                case "15":
+                    model.SDK = "35";
                     break;
                 default:
                     model.SDK = "25";
@@ -243,8 +256,8 @@ namespace MiHttpClient
         public async Task<DeviceModel> GetRandomDeviceV4(
             string brand = "",
             string model = "",
-            int sdkMin = 30,
-            int sdkMax = 33)
+            int sdkMin = 33,
+            int sdkMax = 35)
         {
             var query = @"
                      query getDeviceV4($brand: String, $model: String, $sdkMin: Int, $sdkMax: Int) {

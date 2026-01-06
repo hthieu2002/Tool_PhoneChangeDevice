@@ -23,7 +23,7 @@ namespace Services
                 { "oppo",     new[] { "34" } },           // 10,11,12,14
                 { "samsung",  new[] { "33", "34", "35" } },
                 { "vivo",     new[] { "34" } },                 // 10,11,14
-                { "xiaomi",   new[] { "34", "35" } }                        // ví dụ: 11,12
+                { "xiaomi",   new[] { "33", "34", "35" } }                        // ví dụ: 11,12
             };
 
         private static readonly string[] BrandsPool =
@@ -2980,7 +2980,7 @@ namespace Services
         public static (string brand, string os) GetRandomValue(object brandInput, object osInput)
         {
             string valueRandomBrand = "samsung";
-            string valueRandomOs = "29";
+            string valueRandomOs = "33";
             var rnd = Random.Shared;
 
             // --- BRAND ---
@@ -3013,7 +3013,7 @@ namespace Services
             else
             {
                 {
-                    valueRandomOs = osInput as string ?? "29";
+                    valueRandomOs = osInput as string ?? "33";
                     if (!OsAll.Contains(valueRandomOs))
                     {
                         switch (valueRandomOs)
@@ -3021,7 +3021,7 @@ namespace Services
                             case "Android 13": valueRandomOs = "33"; break;
                             case "Android 14": valueRandomOs = "34"; break;
                             case "Android 15": valueRandomOs = "35"; break;
-                            default: valueRandomOs = "29"; break;
+                            default: valueRandomOs = "33"; break;
                         }
                     }
 
@@ -3041,7 +3041,7 @@ namespace Services
                     else
                     {
                         if (valueRandomOs == "32" && !isSamsung)
-                            valueRandomOs = "31";
+                            valueRandomOs = "33";
                     }
                 }
 
