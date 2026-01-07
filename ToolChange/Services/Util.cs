@@ -1,4 +1,5 @@
 ﻿
+using DeepDroid.Models;
 using POCO.Models;
 using Services;
 using System.Collections.ObjectModel;
@@ -6,8 +7,10 @@ using System.Diagnostics;
 using System.Net.Http;
 using System.Text.Json;
 using System.Text.RegularExpressions;
+using System.Xml.Linq;
 using ToolChange.ViewModels;
 using ToolChange.ViewModels.Constants;
+using ToolChange.Views;
 
 namespace ToolChange.Services
 {
@@ -596,6 +599,82 @@ namespace ToolChange.Services
             {
                 Console.WriteLine("Error: " + ex.Message);
                 return;
+            }
+        }
+
+        public static DeviceModel reconfigImei(DeviceModel model)
+        {
+            string imei = model.Imei;
+            string imei1 = model.Imei1;
+
+            string dataUrl = $"https://raw.githubusercontent.com/doanvtamhuynh/database/main/tac_imei/tac_imei_{model.Manufacturer.ToLower()}.json";
+            using HttpClient client = new HttpClient();
+            try
+            {
+                string imeiJson = client.GetStringAsync(dataUrl)
+                                        .GetAwaiter()
+                                        .GetResult();
+
+                if (string.IsNullOrWhiteSpace(imeiJson))
+                    return model;
+
+                var options = new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
+                };
+
+                Dictionary<string, TacImei> db =
+                    JsonSerializer.Deserialize<Dictionary<string, TacImei>>(imeiJson, options);
+
+                if (db == null || db.Count == 0)
+                    return model;
+
+                TacImei tacModel = new TacImei();
+                List<long> tacList = new List<long>();
+
+
+                if (!string.IsNullOrWhiteSpace(model.Model))
+                {
+                    if (db.ContainsKey(model.Model))
+                    {
+                        tacModel = db[model.Model];
+
+                        if (tacModel != null && tacModel.Tac != null && tacModel.Tac.Count > 0)
+                        {
+                            tacList.AddRange(tacModel.Tac);
+                        }
+                    }
+                    else 
+                    {
+                        foreach (var item in db.Values)
+                        {
+                            if (!string.IsNullOrWhiteSpace(item.Name) &&
+                                item.Name.ToUpperInvariant().EndsWith(model.Model.ToUpperInvariant()) &&
+                                item.Tac != null &&
+                                item.Tac.Count > 0)
+                            {
+                                tacList.AddRange(item.Tac);
+                            }
+                        }
+                    }
+                }
+
+                if (tacList == null || tacList.Count == 0)
+                    return model;
+
+                model.Imei = RandomService.GenerateImeiFromTac(tacList);
+                do
+                {
+                    model.Imei1 = RandomService.GenerateImeiFromTac(tacList);
+                }
+                while (model.Imei1 == model.Imei);
+
+                return model;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error: " + ex.Message);
+                return model;
             }
         }
 

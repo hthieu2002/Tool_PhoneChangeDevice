@@ -1537,6 +1537,8 @@ namespace ToolChange.ViewModels
 
                 tempDeviceAll.SDK = value.os;
 
+                tempDeviceAll = Util.reconfigImei(tempDeviceAll);
+
                 Brand = tempDeviceAll.Manufacturer;
                 Name = tempDeviceAll.Board;
                 Model = tempDeviceAll.Model;
@@ -2087,7 +2089,7 @@ namespace ToolChange.ViewModels
                                             changePifInfo.Add($"{PifKey.PIF_MODEL}", $"\"{pifData.MODEL}\"");
                                             changePifInfo.Add($"{PifKey.PIF_SECURITY_PATCH}", pifData.SECURITY_PATCH);
                                             changePifInfo.Add($"{PifKey.PIF_DEVICE_INITIAL_SDK_INT}", pifData.DEVICE_INITIAL_SDK_INT);
-                                            changePifInfo.Add($"persist.sys.pihooks_SDK_INT", pifData.SDK_INT);
+                                            changePifInfo.Add($"{PifKey.PIF_SDK_INT}", pifData.SDK_INT);
                                             if (!string.IsNullOrEmpty(pifData.RELEASE))
                                                 changePifInfo.Add($"{PifKey.PIF_RELEASE}", pifData.RELEASE);
                                             else

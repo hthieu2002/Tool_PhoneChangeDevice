@@ -1,4 +1,5 @@
 ﻿using POCO.Models;
+using System;
 using System.Globalization;
 using System.IO;
 using System.Reflection;
@@ -516,6 +517,39 @@ namespace Services
 
             long randomOffset = (long)(rand.NextDouble() * totalSeconds);
             return start.AddSeconds(randomOffset);
+        }
+
+        public static string GenerateImeiFromTac(List<long> tacList)
+        {
+            long tac = tacList[rand.Next(0, tacList.Count)];
+            string tacStr = tac.ToString("D8");
+            string serial = rand.Next(0, 1_000_000).ToString("D6");
+            string imei14 = tacStr + serial;
+
+            int checkDigit = CalculateLuhn(imei14);
+            return imei14 + checkDigit;
+        }
+
+        private static int CalculateLuhn(string number)
+        {
+            int sum = 0;
+            bool doubleDigit = true;
+
+            for (int i = number.Length - 1; i >= 0; i--)
+            {
+                int d = number[i] - '0';
+
+                if (doubleDigit)
+                {
+                    d *= 2;
+                    if (d > 9) d -= 9;
+                }
+
+                sum += d;
+                doubleDigit = !doubleDigit;
+            }
+
+            return (10 - (sum % 10)) % 10;
         }
 
     }
