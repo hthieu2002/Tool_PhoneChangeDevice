@@ -79,6 +79,9 @@
     <Content Include="logo.ico">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <EmbeddedResource Include="Resources\mac_vivo.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
     <EmbeddedResource Include="Resources\mac_oneplus.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>
@@ -106,45 +109,45 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content  Include="Resources\adb.exe">
+    <Content Include="Resources\adb.exe">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content >
-    <Content  Include="Resources\AdbWinApi.dll">
+    </Content>
+    <Content Include="Resources\AdbWinApi.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content >
-    <Content  Include="Resources\AdbWinUsbApi.dll">
+    </Content>
+    <Content Include="Resources\AdbWinUsbApi.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content >
-    <Content  Include="Resources\avcodec-61.dll">
+    </Content>
+    <Content Include="Resources\avcodec-61.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content >
-    <Content  Include="Resources\avformat-61.dll">
+    </Content>
+    <Content Include="Resources\avformat-61.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content >
-    <Content  Include="Resources\avutil-59.dll">
+    </Content>
+    <Content Include="Resources\avutil-59.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content >
-    <Content  Include="Resources\carriers.json">
+    </Content>
+    <Content Include="Resources\carriers.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content >
-    <Content  Include="Resources\checkPython.py">
+    </Content>
+    <Content Include="Resources\checkPython.py">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content >
-    <Content  Include="Resources\curl">
+    </Content>
+    <Content Include="Resources\curl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content >
-    <Content  Include="Resources\init.lineage20.rc">
+    </Content>
+    <Content Include="Resources\init.lineage20.rc">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content >
-    <Content  Include="Resources\init.lineage21.rc">
+    </Content>
+    <Content Include="Resources\init.lineage21.rc">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content >
-    <Content  Include="Resources\init.lineage22.rc">
+    </Content>
+    <Content Include="Resources\init.lineage22.rc">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content >
-    <Content  Include="Resources\tun2socks">
+    </Content>
+    <Content Include="Resources\tun2socks">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content >
+    </Content>
     <Resource Include="Resources\icon.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Resource>
