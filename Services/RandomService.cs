@@ -519,9 +519,8 @@ namespace Services
             return start.AddSeconds(randomOffset);
         }
 
-        public static string GenerateImeiFromTac(List<long> tacList)
+        public static string GenerateImeiFromTac(long tac)
         {
-            long tac = tacList[rand.Next(0, tacList.Count)];
             string tacStr = tac.ToString("D8");
             string serial = rand.Next(0, 1_000_000).ToString("D6");
             string imei14 = tacStr + serial;

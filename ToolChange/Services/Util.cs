@@ -1,6 +1,6 @@
 ﻿
 using DeepDroid.Models;
-using POCO.Models;
+using Newtonsoft.Json;
 using Services;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
@@ -10,7 +10,6 @@ using System.Text.RegularExpressions;
 using System.Xml.Linq;
 using ToolChange.ViewModels;
 using ToolChange.ViewModels.Constants;
-using ToolChange.Views;
 
 namespace ToolChange.Services
 {
@@ -18,7 +17,7 @@ namespace ToolChange.Services
     {
         public static bool checkSim;
 
-        public static bool SaveDeviceInfo(DeviceViewModel model, ObservableCollection<Models.DeviceModel> deviceS, DeviceModel tempDevice, string deviceId, string applicationPath, bool isFakeSim = false, bool isAutoUpdatePif = false, bool keepBrand = false, bool isFakeSdk = true)
+        public static bool SaveDeviceInfo(DeviceViewModel model, ObservableCollection<Models.DeviceModel> deviceS, POCO.Models.DeviceModel tempDevice, string deviceId, string applicationPath, bool isFakeSim = false, bool isAutoUpdatePif = false, bool keepBrand = false, bool isFakeSdk = true)
         {
             try
             {
@@ -426,7 +425,7 @@ namespace ToolChange.Services
 
 
         }
-        public static void FakeSimInfo(DeviceModel tempDevice, string deviceId, bool isFakeSim)
+        public static void FakeSimInfo(POCO.Models.DeviceModel tempDevice, string deviceId, bool isFakeSim)
         {
             if (isFakeSim)
             {
@@ -475,7 +474,7 @@ namespace ToolChange.Services
                 ADBService.deleteSetting(GlobalAndroidSettings.DATA_ACTIVITY, deviceId);
             }
         }
-        private static void RepleacePropertiesForPartition(DeviceModel tempDevice, Dictionary<string, List<string>> partitions, string deviceId)
+        private static void RepleacePropertiesForPartition(POCO.Models.DeviceModel tempDevice, Dictionary<string, List<string>> partitions, string deviceId)
         {
             foreach (var partition in partitions)
             {
@@ -549,49 +548,68 @@ namespace ToolChange.Services
 
                 if (!string.IsNullOrWhiteSpace(pifJson))
                 {
-                    var pifDevices = JsonSerializer.Deserialize<JsonElement>(pifJson);
+                    List<PifData> pifList = JsonConvert.DeserializeObject<List<PifData>>(pifJson);
 
-                    if (pifDevices.ValueKind != JsonValueKind.Array || pifDevices.GetArrayLength() == 0)
+                    if (pifList == null || pifList.Count == 0)
                         return;
 
-                    int index = RandomService.randomInRange(0, pifDevices.GetArrayLength());
-                    JsonElement pifElement = pifDevices[index];
+                    PifData pifData = pifList[RandomService.randomInRange(0, pifList.Count)];
 
-                    foreach (JsonProperty prop in pifElement.EnumerateObject())
+                    if (pifData != null)
                     {
-                        if (prop.Value.ValueKind != JsonValueKind.Null)
+                        var props = typeof(PifData).GetProperties()
+                                                    .Where(p => p.PropertyType == typeof(string))
+                                                    .Select(p => new { Name = p.Name, Value = p.GetValue(pifData) as string })
+                                                    .Where(p => string.IsNullOrEmpty(p.Value) && p.Name != "RELEASE")
+                                                    .ToList();
+
+                        if (!props.Any())
                         {
-                            ADBService.runCMDRoot(
-                                $"shell setprop {PifKey.PIF_PREFIX}{prop.Name} \"{prop.Value.ToString()}\"",
-                                deviceId
-                            );
+                            if (!string.IsNullOrEmpty(pifData.FINGERPRINT))
+                            {
+                                string[] parts = pifData.FINGERPRINT.Split("/");
+                                List<string> splitFingerprint = new List<string>();
+                                foreach (string part in parts)
+                                {
+                                    string[] subParts = part.Split(':');
+                                    splitFingerprint.AddRange(subParts);
+                                }
+
+                                if (splitFingerprint.Count == 8)
+                                {
+                                    var changePifInfo = new Dictionary<string, string>();
+                                    changePifInfo.Add($"{PifKey.PIF_TYPE}", "user");
+                                    changePifInfo.Add($"{PifKey.PIF_TAGS}", "release-keys");
+                                    changePifInfo.Add($"{PifKey.PIF_BRAND}", splitFingerprint[0]);
+                                    changePifInfo.Add($"{PifKey.PIF_PRODUCT}", splitFingerprint[1]);
+                                    changePifInfo.Add($"{PifKey.PIF_DEVICE}", splitFingerprint[2]);
+                                    changePifInfo.Add($"{PifKey.PIF_BOARD}", splitFingerprint[2]);
+                                    changePifInfo.Add($"{PifKey.PIF_HARDWARE}", splitFingerprint[2]);
+                                    changePifInfo.Add($"{PifKey.PIF_ID}", splitFingerprint[4]);
+                                    changePifInfo.Add($"{PifKey.PIF_INCREMENTAL}", splitFingerprint[5]);
+                                    changePifInfo.Add($"{PifKey.PIF_FINGERPRINT}", pifData.FINGERPRINT);
+                                    changePifInfo.Add($"{PifKey.PIF_MANUFACTURER}", pifData.MANUFACTURER);
+                                    changePifInfo.Add($"{PifKey.PIF_MODEL}", $"\"{pifData.MODEL}\"");
+                                    changePifInfo.Add($"{PifKey.PIF_SECURITY_PATCH}", pifData.SECURITY_PATCH);
+                                    changePifInfo.Add($"{PifKey.PIF_DEVICE_INITIAL_SDK_INT}", pifData.DEVICE_INITIAL_SDK_INT);
+                                    changePifInfo.Add($"{PifKey.PIF_SDK_INT}", pifData.SDK_INT);
+                                    if (!string.IsNullOrEmpty(pifData.RELEASE))
+                                        changePifInfo.Add($"{PifKey.PIF_RELEASE}", pifData.RELEASE);
+                                    else
+                                    {
+                                        changePifInfo.Add($"{PifKey.PIF_RELEASE}", splitFingerprint[3]);
+                                    }
+
+                                    foreach (var item in changePifInfo)
+                                    {
+                                        ADBService.runCMDRoot(
+                                            $"shell setprop {item.Key} \"{item.Value}\"",
+                                            deviceId
+                                        );
+                                    }
+                                }
+                            }
                         }
-                    }
-                    var device = pifElement.GetProperty("DEVICE").GetString();
-
-                    if (!string.IsNullOrEmpty(device))
-                    {
-                        ADBService.runCMDRoot(
-                            $"shell setprop {PifKey.PIF_BOARD} \"{device}\"",
-                            deviceId
-                        );
-
-                        ADBService.runCMDRoot(
-                            $"shell setprop {PifKey.PIF_HARDWARE} \"{device}\"",
-                            deviceId
-                        );
-                    }
-
-                    var fingerprint = pifElement.GetProperty("FINGERPRINT").GetString();
-
-                    if (!string.IsNullOrEmpty(fingerprint))
-                    {
-                        var fingerprintSplit = fingerprint.Split(':');
-                        var incremental = fingerprintSplit[1].Split("/")[2];
-                        ADBService.runCMDRoot(
-                            $"shell setprop {PifKey.PIF_INCREMENTAL} \"{incremental}\"",
-                            deviceId
-                        );
                     }
                 }
             }
@@ -602,7 +620,7 @@ namespace ToolChange.Services
             }
         }
 
-        public static DeviceModel reconfigImei(DeviceModel model)
+        public static POCO.Models.DeviceModel reconfigImei(POCO.Models.DeviceModel model)
         {
             string imei = model.Imei;
             string imei1 = model.Imei1;
@@ -623,33 +641,30 @@ namespace ToolChange.Services
                     PropertyNameCaseInsensitive = true
                 };
 
-                Dictionary<string, TacImei> db =
-                    JsonSerializer.Deserialize<Dictionary<string, TacImei>>(imeiJson, options);
+                Dictionary<string, TacImei> db = JsonConvert.DeserializeObject<Dictionary<string, TacImei>>(imeiJson);
 
                 if (db == null || db.Count == 0)
                     return model;
 
-                TacImei tacModel = new TacImei();
                 List<long> tacList = new List<long>();
-
 
                 if (!string.IsNullOrWhiteSpace(model.Model))
                 {
-                    if (db.ContainsKey(model.Model))
+                    foreach (var kv in db)
                     {
-                        tacModel = db[model.Model];
-
-                        if (tacModel != null && tacModel.Tac != null && tacModel.Tac.Count > 0)
+                        if (kv.Key.StartsWith(model.Model, StringComparison.OrdinalIgnoreCase))
                         {
-                            tacList.AddRange(tacModel.Tac);
+                            tacList.AddRange(kv.Value.Tac);
                         }
                     }
-                    else 
+
+                    if (tacList == null || tacList.Count == 0)
                     {
                         foreach (var item in db.Values)
                         {
                             if (!string.IsNullOrWhiteSpace(item.Name) &&
-                                item.Name.ToUpperInvariant().EndsWith(model.Model.ToUpperInvariant()) &&
+                                item.Name.ToUpperInvariant().EndsWith(Regex.Replace(model.Model.ToUpperInvariant(), @"\s*\([^)]*\)", "")
+                                                                            .Replace("ACTIVE", "").Trim()) &&
                                 item.Tac != null &&
                                 item.Tac.Count > 0)
                             {
@@ -662,10 +677,12 @@ namespace ToolChange.Services
                 if (tacList == null || tacList.Count == 0)
                     return model;
 
-                model.Imei = RandomService.GenerateImeiFromTac(tacList);
+                long tac = tacList[RandomService.randomInRange(0, tacList.Count)];
+
+                model.Imei = RandomService.GenerateImeiFromTac(tac);
                 do
                 {
-                    model.Imei1 = RandomService.GenerateImeiFromTac(tacList);
+                    model.Imei1 = RandomService.GenerateImeiFromTac(tac);
                 }
                 while (model.Imei1 == model.Imei);
 
