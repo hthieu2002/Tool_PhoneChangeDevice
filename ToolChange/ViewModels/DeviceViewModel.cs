@@ -19,6 +19,7 @@ using ToolChange.Language;
 using ToolChange.Models;
 using ToolChange.Services;
 using ToolChange.ViewModels.Constants;
+using ToolChange.Views;
 using ToolChange.Views.ControlScriptPage;
 
 namespace ToolChange.ViewModels
@@ -1762,105 +1763,6 @@ namespace ToolChange.ViewModels
 
 
                         _processingDeviceIds.Add(device.DeviceId);
-                        if (false)
-                        {
-                            DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "0%", "In progress push file keybox.xml to phone");
-                            await Task.Delay(1000);
-                            ADBService.ExecuteAdbCommand(
-                                $"push {selectedFilePath} /data/local/tmp/",
-                                device.DeviceId
-                            );
-
-                            DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "0%", "Push file keybox.xml to phone success");
-                            await Task.Delay(1000);
-                        }
-                        if (false)
-                        {
-                            DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "0%", "In progress push file pif.json to phone");
-                            await Task.Delay(1000);
-                            ADBService.ExecuteAdbCommand(
-                                $"push {selectedFilePathJson} /data/local/tmp/",
-                                device.DeviceId
-                            );
-
-                            DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "0%", "Push file pif.json to phone success");
-                            await Task.Delay(1000);
-
-
-                            DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "0%", "In progress setprop pihooks to phone");
-                            string jsonContent = File.ReadAllText(selectedFilePathJson);
-                            await Task.Delay(1000);
-                            PifData pifData = JsonConvert.DeserializeObject<PifData>(jsonContent);
-
-                            if (pifData == null)
-                            {
-                                DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "0%", "File PIF data null");
-                            }
-                            else
-                            {
-                                var props = typeof(PifData).GetProperties()
-                                                            .Where(p => p.PropertyType == typeof(string))
-                                                            .Select(p => new { Name = p.Name, Value = p.GetValue(pifData) as string })
-                                                            .Where(p => string.IsNullOrEmpty(p.Value) && p.Name != "RELEASE")
-                                                            .ToList();
-
-                                if (props.Any())
-                                {
-                                    string missing = string.Join(", ", props.Select(p => p.Name));
-                                    DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "0%", $"Missing or empty fields: {missing}");
-                                }
-                                else
-                                {
-                                    if (!string.IsNullOrEmpty(pifData.FINGERPRINT))
-                                    {
-                                        string[] parts = pifData.FINGERPRINT.Split("/");
-                                        List<string> splitFingerprint = new List<string>();
-                                        foreach (string part in parts)
-                                        {
-                                            string[] subParts = part.Split(':');
-                                            splitFingerprint.AddRange(subParts);
-                                        }
-
-                                        if (splitFingerprint.Count == 8)
-                                        {
-                                            var changePifInfo = new Dictionary<string, string>();
-                                            changePifInfo.Add("persist.sys.pihooks_BRAND", splitFingerprint[0]);
-                                            changePifInfo.Add("persist.sys.pihooks_PRODUCT", splitFingerprint[1]);
-                                            changePifInfo.Add("persist.sys.pihooks_DEVICE", splitFingerprint[2]);
-                                            changePifInfo.Add("persist.sys.pihooks_BOARD", splitFingerprint[2]);
-                                            changePifInfo.Add("persist.sys.pihooks_HARDWARE", splitFingerprint[2]);
-                                            changePifInfo.Add("persist.sys.pihooks_ID", splitFingerprint[4]);
-                                            changePifInfo.Add("persist.sys.pihooks_INCREMENTAL", splitFingerprint[5]);
-                                            changePifInfo.Add("persist.sys.pihooks_FINGERPRINT", pifData.FINGERPRINT);
-                                            changePifInfo.Add("persist.sys.pihooks_MANUFACTURER", pifData.MANUFACTURER);
-                                            changePifInfo.Add("persist.sys.pihooks_MODEL", $"\"{pifData.MODEL}\"");
-                                            changePifInfo.Add("persist.sys.pihooks_SECURITY_PATCH", pifData.SECURITY_PATCH);
-                                            changePifInfo.Add("persist.sys.pihooks_DEVICE_INITIAL_SDK_INT", pifData.DEVICE_INITIAL_SDK_INT);
-                                            changePifInfo.Add("persist.sys.pihooks_SDK_INT", pifData.SDK_INT);
-                                            if (!string.IsNullOrEmpty(pifData.RELEASE))
-                                                changePifInfo.Add("persist.sys.pihooks_RELEASE", pifData.RELEASE);
-                                            else
-                                            {
-                                                changePifInfo.Add("persist.sys.pihooks_RELEASE", splitFingerprint[3]);
-                                            }
-
-                                            ADBService.replaceBuildProp("/product/etc/build.prop", changePifInfo, device.DeviceId);
-
-                                            DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "0%", "Setprop pihooks to phone success");
-                                            await Task.Delay(1000);
-                                        }
-                                        else
-                                        {
-                                            DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "0%", "Invalid FINGERPRINT format");
-                                        }
-                                    }
-                                    else
-                                    {
-                                        DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "0%", "FINGERPRINT is null or empty");
-                                    }
-                                }
-                            }
-                        }
 
                         tasks.Add(ProcessChangeDeviceAsync(device));
                     }
@@ -2020,100 +1922,6 @@ namespace ToolChange.ViewModels
                         }
 
                         _processingDeviceIds.Add(device.DeviceId);
-                        if (false)
-                        {
-                            ADBService.ExecuteAdbCommand(
-                                $"push {selectedFilePath} /data/local/tmp/",
-                                device.DeviceId
-                            );
-                        }
-                        if (false)
-                        {
-                            DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "0%", "In progress push file pif.json to phone");
-                            await Task.Delay(1000);
-                            ADBService.ExecuteAdbCommand(
-                                $"push {selectedFilePathJson} /data/local/tmp/",
-                                device.DeviceId
-                            );
-
-                            DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "0%", "Push file pif.json to phone success");
-                            await Task.Delay(1000);
-
-
-                            DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "0%", "In progress setprop pihooks to phone");
-                            string jsonContent = File.ReadAllText(selectedFilePathJson);
-                            await Task.Delay(1000);
-                            PifData pifData = JsonConvert.DeserializeObject<PifData>(jsonContent);
-
-                            if (pifData == null)
-                            {
-                                DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "0%", "File PIF data null");
-                            }
-                            else
-                            {
-                                var props = typeof(PifData).GetProperties()
-                                                            .Where(p => p.PropertyType == typeof(string))
-                                                            .Select(p => new { Name = p.Name, Value = p.GetValue(pifData) as string })
-                                                            .Where(p => string.IsNullOrEmpty(p.Value) && p.Name != "RELEASE")
-                                                            .ToList();
-
-                                if (props.Any())
-                                {
-                                    string missing = string.Join(", ", props.Select(p => p.Name));
-                                    DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "0%", $"Missing or empty fields: {missing}");
-                                }
-                                else
-                                {
-                                    if (!string.IsNullOrEmpty(pifData.FINGERPRINT))
-                                    {
-                                        string[] parts = pifData.FINGERPRINT.Split("/");
-                                        List<string> splitFingerprint = new List<string>();
-                                        foreach (string part in parts)
-                                        {
-                                            string[] subParts = part.Split(':');
-                                            splitFingerprint.AddRange(subParts);
-                                        }
-
-                                        if (splitFingerprint.Count == 8)
-                                        {
-                                            var changePifInfo = new Dictionary<string, string>();
-                                            changePifInfo.Add($"{PifKey.PIF_BRAND}", splitFingerprint[0]);
-                                            changePifInfo.Add($"{PifKey.PIF_PRODUCT}", splitFingerprint[1]);
-                                            changePifInfo.Add($"{PifKey.PIF_DEVICE}", splitFingerprint[2]);
-                                            changePifInfo.Add($"{PifKey.PIF_BOARD}", splitFingerprint[2]);
-                                            changePifInfo.Add($"{PifKey.PIF_HARDWARE}", splitFingerprint[2]);
-                                            changePifInfo.Add($"{PifKey.PIF_ID}", splitFingerprint[4]);
-                                            changePifInfo.Add($"{PifKey.PIF_INCREMENTAL}", splitFingerprint[5]);
-                                            changePifInfo.Add($"{PifKey.PIF_FINGERPRINT}", pifData.FINGERPRINT);
-                                            changePifInfo.Add($"{PifKey.PIF_MANUFACTURER}", pifData.MANUFACTURER);
-                                            changePifInfo.Add($"{PifKey.PIF_MODEL}", $"\"{pifData.MODEL}\"");
-                                            changePifInfo.Add($"{PifKey.PIF_SECURITY_PATCH}", pifData.SECURITY_PATCH);
-                                            changePifInfo.Add($"{PifKey.PIF_DEVICE_INITIAL_SDK_INT}", pifData.DEVICE_INITIAL_SDK_INT);
-                                            changePifInfo.Add($"{PifKey.PIF_SDK_INT}", pifData.SDK_INT);
-                                            if (!string.IsNullOrEmpty(pifData.RELEASE))
-                                                changePifInfo.Add($"{PifKey.PIF_RELEASE}", pifData.RELEASE);
-                                            else
-                                            {
-                                                changePifInfo.Add($"{PifKey.PIF_RELEASE}", splitFingerprint[3]);
-                                            }
-
-                                            ADBService.replaceBuildProp("/product/etc/build.prop", changePifInfo, device.DeviceId);
-
-                                            DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "0%", "Setprop pihooks to phone success");
-                                            await Task.Delay(1000);
-                                        }
-                                        else
-                                        {
-                                            DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "0%", "Invalid FINGERPRINT format");
-                                        }
-                                    }
-                                    else
-                                    {
-                                        DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "0%", "FINGERPRINT is null or empty");
-                                    }
-                                }
-                            }
-                        }
 
                         tasks.Add(ProcessChangeDeviceAsync(device, 1));
                     }
@@ -2731,25 +2539,51 @@ namespace ToolChange.ViewModels
 
                             if (splitFingerprint.Count == 8)
                             {
+                                string isRomPixelExperience = ADBService.getProp("org.pixelexperience.device", device.DeviceId);
                                 var changePifInfo = new Dictionary<string, string>();
-                                changePifInfo.Add($"{PifKey.PIF_BRAND}", splitFingerprint[0]);
-                                changePifInfo.Add($"{PifKey.PIF_PRODUCT}", splitFingerprint[1]);
-                                changePifInfo.Add($"{PifKey.PIF_DEVICE}", splitFingerprint[2]);
-                                changePifInfo.Add($"{PifKey.PIF_BOARD}", splitFingerprint[2]);
-                                changePifInfo.Add($"{PifKey.PIF_HARDWARE}", splitFingerprint[2]);
-                                changePifInfo.Add($"{PifKey.PIF_ID}", splitFingerprint[4]);
-                                changePifInfo.Add($"{PifKey.PIF_INCREMENTAL}", splitFingerprint[5]);
-                                changePifInfo.Add($"{PifKey.PIF_FINGERPRINT}", pifData.FINGERPRINT);
-                                changePifInfo.Add($"{PifKey.PIF_MANUFACTURER}", pifData.MANUFACTURER);
-                                changePifInfo.Add($"{PifKey.PIF_MODEL}", $"\"{pifData.MODEL}\"");
-                                changePifInfo.Add($"{PifKey.PIF_SECURITY_PATCH}", pifData.SECURITY_PATCH);
-                                changePifInfo.Add($"{PifKey.PIF_DEVICE_INITIAL_SDK_INT}", pifData.DEVICE_INITIAL_SDK_INT);
-                                changePifInfo.Add($"{PifKey.PIF_SDK_INT}", pifData.SDK_INT);
-                                if (!string.IsNullOrEmpty(pifData.RELEASE))
-                                    changePifInfo.Add($"{PifKey.PIF_RELEASE}", pifData.RELEASE);
+                                if (string.IsNullOrEmpty(isRomPixelExperience))
+                                {
+                                    changePifInfo.Add($"{PifKey.PIF_EVO_BRAND}", splitFingerprint[0]);
+                                    changePifInfo.Add($"{PifKey.PIF_EVO_PRODUCT}", splitFingerprint[1]);
+                                    changePifInfo.Add($"{PifKey.PIF_EVO_DEVICE}", splitFingerprint[2]);
+                                    changePifInfo.Add($"{PifKey.PIF_EVO_BOARD}", splitFingerprint[2]);
+                                    changePifInfo.Add($"{PifKey.PIF_EVO_HARDWARE}", splitFingerprint[2]);
+                                    changePifInfo.Add($"{PifKey.PIF_EVO_ID}", splitFingerprint[4]);
+                                    changePifInfo.Add($"{PifKey.PIF_EVO_INCREMENTAL}", splitFingerprint[5]);
+                                    changePifInfo.Add($"{PifKey.PIF_EVO_FINGERPRINT}", pifData.FINGERPRINT);
+                                    changePifInfo.Add($"{PifKey.PIF_EVO_MANUFACTURER}", pifData.MANUFACTURER);
+                                    changePifInfo.Add($"{PifKey.PIF_EVO_MODEL}", $"\"{pifData.MODEL}\"");
+                                    changePifInfo.Add($"{PifKey.PIF_EVO_SECURITY_PATCH}", pifData.SECURITY_PATCH);
+                                    changePifInfo.Add($"{PifKey.PIF_EVO_DEVICE_INITIAL_SDK_INT}", pifData.DEVICE_INITIAL_SDK_INT);
+                                    changePifInfo.Add($"{PifKey.PIF_EVO_SDK_INT}", pifData.SDK_INT);
+                                    if (!string.IsNullOrEmpty(pifData.RELEASE))
+                                        changePifInfo.Add($"{PifKey.PIF_EVO_RELEASE}", pifData.RELEASE);
+                                    else
+                                    {
+                                        changePifInfo.Add($"{PifKey.PIF_EVO_RELEASE}", splitFingerprint[3]);
+                                    }
+                                }
                                 else
                                 {
-                                    changePifInfo.Add($"{PifKey.PIF_RELEASE}", splitFingerprint[3]);
+                                    changePifInfo.Add($"{PifKey.PIF_DEEPDROID_BRAND}", splitFingerprint[0]);
+                                    changePifInfo.Add($"{PifKey.PIF_DEEPDROID_PRODUCT}", splitFingerprint[1]);
+                                    changePifInfo.Add($"{PifKey.PIF_DEEPDROID_DEVICE}", splitFingerprint[2]);
+                                    changePifInfo.Add($"{PifKey.PIF_DEEPDROID_BOARD}", splitFingerprint[2]);
+                                    changePifInfo.Add($"{PifKey.PIF_DEEPDROID_HARDWARE}", splitFingerprint[2]);
+                                    changePifInfo.Add($"{PifKey.PIF_DEEPDROID_ID}", splitFingerprint[4]);
+                                    changePifInfo.Add($"{PifKey.PIF_DEEPDROID_INCREMENTAL}", splitFingerprint[5]);
+                                    changePifInfo.Add($"{PifKey.PIF_DEEPDROID_FINGERPRINT}", pifData.FINGERPRINT);
+                                    changePifInfo.Add($"{PifKey.PIF_DEEPDROID_MANUFACTURER}", pifData.MANUFACTURER);
+                                    changePifInfo.Add($"{PifKey.PIF_DEEPDROID_MODEL}", $"\"{pifData.MODEL}\"");
+                                    changePifInfo.Add($"{PifKey.PIF_DEEPDROID_SECURITY_PATCH}", pifData.SECURITY_PATCH);
+                                    changePifInfo.Add($"{PifKey.PIF_DEEPDROID_DEVICE_INITIAL_SDK_INT}", pifData.DEVICE_INITIAL_SDK_INT);
+                                    changePifInfo.Add($"{PifKey.PIF_DEEPDROID_SDK_INT}", pifData.SDK_INT);
+                                    if (!string.IsNullOrEmpty(pifData.RELEASE))
+                                        changePifInfo.Add($"{PifKey.PIF_DEEPDROID_RELEASE}", pifData.RELEASE);
+                                    else
+                                    {
+                                        changePifInfo.Add($"{PifKey.PIF_DEEPDROID_RELEASE}", splitFingerprint[3]);
+                                    }
                                 }
 
                                 ADBService.replaceBuildProp("/product/etc/build.prop", changePifInfo, device.DeviceId);

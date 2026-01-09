@@ -390,25 +390,43 @@
 
     internal static class PifKey
     {
-        public const string PIF_PREFIX = "persist.sys.pihooks_";
+        public const string PIF_EVO_PREFIX = "persist.sys.pihooks_";
+        public const string PIF_EVO_TAGS = PIF_EVO_PREFIX + "TAGS";
+        public const string PIF_EVO_TYPE = PIF_EVO_PREFIX + "TYPE";
+        public const string PIF_EVO_BOARD = PIF_EVO_PREFIX + "BOARD";
+        public const string PIF_EVO_BRAND = PIF_EVO_PREFIX + "BRAND";
+        public const string PIF_EVO_DEVICE = PIF_EVO_PREFIX + "DEVICE";
+        public const string PIF_EVO_FINGERPRINT = PIF_EVO_PREFIX + "FINGERPRINT";
+        public const string PIF_EVO_HARDWARE = PIF_EVO_PREFIX + "HARDWARE";
+        public const string PIF_EVO_ID = PIF_EVO_PREFIX + "ID";
+        public const string PIF_EVO_INCREMENTAL = PIF_EVO_PREFIX + "INCREMENTAL";
+        public const string PIF_EVO_MANUFACTURER = PIF_EVO_PREFIX + "MANUFACTURER";
+        public const string PIF_EVO_MODEL = PIF_EVO_PREFIX + "MODEL";
+        public const string PIF_EVO_PRODUCT = PIF_EVO_PREFIX + "PRODUCT";
+        public const string PIF_EVO_RELEASE = PIF_EVO_PREFIX + "RELEASE";
+        public const string PIF_EVO_SECURITY_PATCH = PIF_EVO_PREFIX + "SECURITY_PATCH";
+        public const string PIF_EVO_SDK_INT = PIF_EVO_PREFIX + "SDK_INT";
+        public const string PIF_EVO_DEVICE_INITIAL_SDK_INT = PIF_EVO_PREFIX + "DEVICE_INITIAL_SDK_INT";
+        public const string PIF_EVO_DEBUG = PIF_EVO_PREFIX + "DEBUG";
 
-        public const string PIF_TAGS = PIF_PREFIX + "TAGS";
-        public const string PIF_TYPE = PIF_PREFIX + "TYPE";
-        public const string PIF_BOARD = PIF_PREFIX + "BOARD";
-        public const string PIF_BRAND = PIF_PREFIX + "BRAND";
-        public const string PIF_DEVICE = PIF_PREFIX + "DEVICE";
-        public const string PIF_FINGERPRINT = PIF_PREFIX + "FINGERPRINT";
-        public const string PIF_HARDWARE = PIF_PREFIX + "HARDWARE";
-        public const string PIF_ID = PIF_PREFIX + "ID";
-        public const string PIF_INCREMENTAL = PIF_PREFIX + "INCREMENTAL";
-        public const string PIF_MANUFACTURER = PIF_PREFIX + "MANUFACTURER";
-        public const string PIF_MODEL = PIF_PREFIX + "MODEL";
-        public const string PIF_PRODUCT = PIF_PREFIX + "PRODUCT";
-        public const string PIF_RELEASE = PIF_PREFIX + "RELEASE";
-        public const string PIF_SECURITY_PATCH = PIF_PREFIX + "SECURITY_PATCH";
-        public const string PIF_SDK_INT = PIF_PREFIX + "SDK_INT";
-        public const string PIF_DEVICE_INITIAL_SDK_INT = PIF_PREFIX + "DEVICE_INITIAL_SDK_INT";
-        public const string PIF_DEBUG = PIF_PREFIX + "DEBUG";
+        public const string PIF_DEEPDROID_PREFIX = "persist.sys.deepdroid.pihooks_";
+        public const string PIF_DEEPDROID_TAGS = PIF_DEEPDROID_PREFIX + "TAGS";
+        public const string PIF_DEEPDROID_TYPE = PIF_DEEPDROID_PREFIX + "TYPE";
+        public const string PIF_DEEPDROID_BOARD = PIF_DEEPDROID_PREFIX + "BOARD";
+        public const string PIF_DEEPDROID_BRAND = PIF_DEEPDROID_PREFIX + "BRAND";
+        public const string PIF_DEEPDROID_DEVICE = PIF_DEEPDROID_PREFIX + "DEVICE";
+        public const string PIF_DEEPDROID_FINGERPRINT = PIF_DEEPDROID_PREFIX + "FINGERPRINT";
+        public const string PIF_DEEPDROID_HARDWARE = PIF_DEEPDROID_PREFIX + "HARDWARE";
+        public const string PIF_DEEPDROID_ID = PIF_DEEPDROID_PREFIX + "ID";
+        public const string PIF_DEEPDROID_INCREMENTAL = PIF_DEEPDROID_PREFIX + "INCREMENTAL";
+        public const string PIF_DEEPDROID_MANUFACTURER = PIF_DEEPDROID_PREFIX + "MANUFACTURER";
+        public const string PIF_DEEPDROID_MODEL = PIF_DEEPDROID_PREFIX + "MODEL";
+        public const string PIF_DEEPDROID_PRODUCT = PIF_DEEPDROID_PREFIX + "PRODUCT";
+        public const string PIF_DEEPDROID_RELEASE = PIF_DEEPDROID_PREFIX + "RELEASE";
+        public const string PIF_DEEPDROID_SECURITY_PATCH = PIF_DEEPDROID_PREFIX + "SECURITY_PATCH";
+        public const string PIF_DEEPDROID_SDK_INT = PIF_DEEPDROID_PREFIX + "SDK_INT";
+        public const string PIF_DEEPDROID_DEVICE_INITIAL_SDK_INT = PIF_DEEPDROID_PREFIX + "DEVICE_INITIAL_SDK_INT";
+        public const string PIF_DEEPDROID_DEBUG = PIF_DEEPDROID_PREFIX + "DEBUG";
 
     }
 }

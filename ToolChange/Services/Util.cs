@@ -21,43 +21,6 @@ namespace ToolChange.Services
         {
             try
             {
-                //tempDevice.Brand = "google";
-                //tempDevice.Manufacturer = "Google";
-                //tempDevice.Name = "comet";
-                //tempDevice.Fingerprint = "google/comet_beta/comet:16/BP41.250916.010.A1/14281945:user/release-keys";
-                //tempDevice.Manufacturer = "Google";
-                //tempDevice.Model = "Pixel 9 Pro Fold";
-                //tempDevice.Code = "comet";
-                //tempDevice.Release = "16";
-                //tempDevice.BuildId = "BP41.250916.010.A1";
-                //tempDevice.BuildIncremental = "14281945";
-                //tempDevice.Product = "comet_beta";
-                //tempDevice.SecurityPath = "2025-10-05";
-
-                //tempDevice.Manufacturer = "Google";
-                //tempDevice.Brand = "google";
-                //tempDevice.Model = "Pixel 3a";
-                //tempDevice.Fingerprint = "google/sargo/sargo:12/SP2A.220505.008/8782922:user/release-keys";
-                //tempDevice.Product = "sargo";
-                //tempDevice.Code = "sargo";
-                //tempDevice.Release = "12";
-                //tempDevice.BuildId = "SP2A.220505.008";
-                //tempDevice.BuildDisplayId = "SP2A.220505.008";
-                //tempDevice.BuildIncremental = "8782922";
-                //tempDevice.BuildDescription = "sargo-user 12 SP2A.220505.008 8782922 release-keys";
-                //tempDevice.BuildFlavor = "sargo-user";
-                //tempDevice.BuildHost = "abfarm801";
-                //tempDevice.BuildDate = "Wed Jun 29 18:10:44 UTC 2022";
-                //tempDevice.BuildDateUtc = "1656526244";
-                //tempDevice.SecurityPath = "2022-05-05";
-                //tempDevice.Platform = "sdm710";
-                //tempDevice.SDK = "32";
-                //tempDevice.Hardware = "sargo";
-                //tempDevice.Board = "sargo";
-                //tempDevice.Bootloader = "b4s4-0.4-8048689";
-
-                //ADBService.runCMDRoot($"shell setprop persist.sys.deepdroid.sdk {isFakeSdk.ToString().ToLower()}", deviceId);
-
                 if (keepBrand)
                 {
                     var value = CheckManuAndBrand(deviceId);
@@ -87,37 +50,22 @@ namespace ToolChange.Services
                     return false;
                 }
 
+                string isRomPixelExperience = ADBService.getProp("org.pixelexperience.device", deviceId);
+
                 string securityPatchProp = ADBService.getProp("persist.sys.pihooks_SECURITY_PATCH", deviceId);
+
+                if (!string.IsNullOrEmpty(isRomPixelExperience))
+                {
+                    securityPatchProp = ADBService.getProp("persist.sys.deepdroid.pihooks_SECURITY_PATCH", deviceId);
+                }
+
                 string roBuildDate = RandomService.generateBuildDate(securityPatchProp);
                 string roBuildDateUtc = RandomService.generateBuildDateUTC(securityPatchProp);
-
                 tempDevice.BuildDate = roBuildDate;
                 tempDevice.BuildDateUtc = roBuildDateUtc;
 
                 string bluetoothName = RandomService.generateName();
                 string deviceName = RandomService.generateName();
-
-                /**
-                 * Keep OUI of wifi mac address
-                 */
-
-                //string prefixMac = ADBService.runCMDRoot($"shell cat /sys/class/net/wlan0/address", deviceId);
-
-                //if (!string.IsNullOrEmpty(prefixMac))
-                //{
-                //    prefixMac = prefixMac.Trim();
-                //    prefixMac = prefixMac.Substring(0, 8);
-
-                //    tempDevice.WifiMacAddress = RandomService.generateWifiMacAddress(
-                //        tempDevice.Manufacturer.ToLower(),
-                //        prefixMac
-                //    );
-
-                //    tempDevice.BlueToothMacAddress = RandomService.generateWifiMacAddress(
-                //        tempDevice.Manufacturer.ToLower(),
-                //        prefixMac
-                //    );
-                //}
 
                 if (ADBService.getDeviceStatus(deviceId) == DeviceStatus.ReadyToChange)
                 {
@@ -126,7 +74,14 @@ namespace ToolChange.Services
 
                     if (isAutoUpdatePif)
                     {
-                        autoUpdatePif(deviceId);
+                        if (!string.IsNullOrEmpty(isRomPixelExperience))
+                        {
+                            autoUpdatePif(deviceId, "deepdroid");
+                        }
+                        else
+                        {
+                            autoUpdatePif(deviceId, "evolution");
+                        }
                     }
 
                     ADBService.shellRemoveIfContainSpecificText("/system/build.prop", "product is obsolete", deviceId);
@@ -207,7 +162,6 @@ namespace ToolChange.Services
                         changedSystemInfo.Add("ro.ril.miui.imei1", tempDevice.Imei1);
                     }
 
-                    string isRomPixelExperience = ADBService.getProp("org.pixelexperience.device", deviceId);
                     if (!string.IsNullOrEmpty(isRomPixelExperience))
                     {
                         changedSystemInfo.Add("org.pixelexperience.device", tempDevice.Code);
@@ -540,7 +494,7 @@ namespace ToolChange.Services
         //    return $"CN=Android, OU=Android, O={listCitiesNewYork[randomCity1]} Inc., L={listCitiesNewYork[randomCity2]}, ST=New York, C=US, emailAddress={randomEmail}@yahoo.com";
         //}
 
-        public static void autoUpdatePif(string deviceId)
+        public static void autoUpdatePif(string deviceId, string deviceType = "evolution")
         {
             string pifUrl = "https://raw.githubusercontent.com/doanvtamhuynh/database/main/pif.json";
             using HttpClient client = new HttpClient();
@@ -583,26 +537,54 @@ namespace ToolChange.Services
                                 if (splitFingerprint.Count == 8)
                                 {
                                     var changePifInfo = new Dictionary<string, string>();
-                                    changePifInfo.Add($"{PifKey.PIF_TYPE}", "user");
-                                    changePifInfo.Add($"{PifKey.PIF_TAGS}", "release-keys");
-                                    changePifInfo.Add($"{PifKey.PIF_BRAND}", splitFingerprint[0]);
-                                    changePifInfo.Add($"{PifKey.PIF_PRODUCT}", splitFingerprint[1]);
-                                    changePifInfo.Add($"{PifKey.PIF_DEVICE}", splitFingerprint[2]);
-                                    changePifInfo.Add($"{PifKey.PIF_BOARD}", splitFingerprint[2]);
-                                    changePifInfo.Add($"{PifKey.PIF_HARDWARE}", splitFingerprint[2]);
-                                    changePifInfo.Add($"{PifKey.PIF_ID}", splitFingerprint[4]);
-                                    changePifInfo.Add($"{PifKey.PIF_INCREMENTAL}", splitFingerprint[5]);
-                                    changePifInfo.Add($"{PifKey.PIF_FINGERPRINT}", pifData.FINGERPRINT);
-                                    changePifInfo.Add($"{PifKey.PIF_MANUFACTURER}", pifData.MANUFACTURER);
-                                    changePifInfo.Add($"{PifKey.PIF_MODEL}", $"\"{pifData.MODEL}\"");
-                                    changePifInfo.Add($"{PifKey.PIF_SECURITY_PATCH}", pifData.SECURITY_PATCH);
-                                    changePifInfo.Add($"{PifKey.PIF_DEVICE_INITIAL_SDK_INT}", pifData.DEVICE_INITIAL_SDK_INT);
-                                    changePifInfo.Add($"{PifKey.PIF_SDK_INT}", pifData.SDK_INT);
-                                    if (!string.IsNullOrEmpty(pifData.RELEASE))
-                                        changePifInfo.Add($"{PifKey.PIF_RELEASE}", pifData.RELEASE);
+
+                                    if (deviceType.Contains("deepdroid"))
+                                    {
+                                        changePifInfo.Add($"{PifKey.PIF_DEEPDROID_TYPE}", "user");
+                                        changePifInfo.Add($"{PifKey.PIF_DEEPDROID_TAGS}", "release-keys");
+                                        changePifInfo.Add($"{PifKey.PIF_DEEPDROID_BRAND}", splitFingerprint[0]);
+                                        changePifInfo.Add($"{PifKey.PIF_DEEPDROID_PRODUCT}", splitFingerprint[1]);
+                                        changePifInfo.Add($"{PifKey.PIF_DEEPDROID_DEVICE}", splitFingerprint[2]);
+                                        changePifInfo.Add($"{PifKey.PIF_DEEPDROID_BOARD}", splitFingerprint[2]);
+                                        changePifInfo.Add($"{PifKey.PIF_DEEPDROID_HARDWARE}", splitFingerprint[2]);
+                                        changePifInfo.Add($"{PifKey.PIF_DEEPDROID_ID}", splitFingerprint[4]);
+                                        changePifInfo.Add($"{PifKey.PIF_DEEPDROID_INCREMENTAL}", splitFingerprint[5]);
+                                        changePifInfo.Add($"{PifKey.PIF_DEEPDROID_FINGERPRINT}", pifData.FINGERPRINT);
+                                        changePifInfo.Add($"{PifKey.PIF_DEEPDROID_MANUFACTURER}", pifData.MANUFACTURER);
+                                        changePifInfo.Add($"{PifKey.PIF_DEEPDROID_MODEL}", $"\"{pifData.MODEL}\"");
+                                        changePifInfo.Add($"{PifKey.PIF_DEEPDROID_SECURITY_PATCH}", pifData.SECURITY_PATCH);
+                                        changePifInfo.Add($"{PifKey.PIF_DEEPDROID_DEVICE_INITIAL_SDK_INT}", pifData.DEVICE_INITIAL_SDK_INT);
+                                        changePifInfo.Add($"{PifKey.PIF_DEEPDROID_SDK_INT}", pifData.SDK_INT);
+                                        if (!string.IsNullOrEmpty(pifData.RELEASE))
+                                            changePifInfo.Add($"{PifKey.PIF_DEEPDROID_RELEASE}", pifData.RELEASE);
+                                        else
+                                        {
+                                            changePifInfo.Add($"{PifKey.PIF_DEEPDROID_RELEASE}", splitFingerprint[3]);
+                                        }
+                                    }
                                     else
                                     {
-                                        changePifInfo.Add($"{PifKey.PIF_RELEASE}", splitFingerprint[3]);
+                                        changePifInfo.Add($"{PifKey.PIF_EVO_TYPE}", "user");
+                                        changePifInfo.Add($"{PifKey.PIF_EVO_TAGS}", "release-keys");
+                                        changePifInfo.Add($"{PifKey.PIF_EVO_BRAND}", splitFingerprint[0]);
+                                        changePifInfo.Add($"{PifKey.PIF_EVO_PRODUCT}", splitFingerprint[1]);
+                                        changePifInfo.Add($"{PifKey.PIF_EVO_DEVICE}", splitFingerprint[2]);
+                                        changePifInfo.Add($"{PifKey.PIF_EVO_BOARD}", splitFingerprint[2]);
+                                        changePifInfo.Add($"{PifKey.PIF_EVO_HARDWARE}", splitFingerprint[2]);
+                                        changePifInfo.Add($"{PifKey.PIF_EVO_ID}", splitFingerprint[4]);
+                                        changePifInfo.Add($"{PifKey.PIF_EVO_INCREMENTAL}", splitFingerprint[5]);
+                                        changePifInfo.Add($"{PifKey.PIF_EVO_FINGERPRINT}", pifData.FINGERPRINT);
+                                        changePifInfo.Add($"{PifKey.PIF_EVO_MANUFACTURER}", pifData.MANUFACTURER);
+                                        changePifInfo.Add($"{PifKey.PIF_EVO_MODEL}", $"\"{pifData.MODEL}\"");
+                                        changePifInfo.Add($"{PifKey.PIF_EVO_SECURITY_PATCH}", pifData.SECURITY_PATCH);
+                                        changePifInfo.Add($"{PifKey.PIF_EVO_DEVICE_INITIAL_SDK_INT}", pifData.DEVICE_INITIAL_SDK_INT);
+                                        changePifInfo.Add($"{PifKey.PIF_EVO_SDK_INT}", pifData.SDK_INT);
+                                        if (!string.IsNullOrEmpty(pifData.RELEASE))
+                                            changePifInfo.Add($"{PifKey.PIF_EVO_RELEASE}", pifData.RELEASE);
+                                        else
+                                        {
+                                            changePifInfo.Add($"{PifKey.PIF_EVO_RELEASE}", splitFingerprint[3]);
+                                        }
                                     }
 
                                     foreach (var item in changePifInfo)
