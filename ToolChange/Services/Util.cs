@@ -181,6 +181,11 @@ namespace ToolChange.Services
                     changedSystemInfo.Add("ro.com.google.clientidbase", $"android-{tempDevice.Brand}");
                     changedSystemInfo.Add("ro.debuggable", "0");
 
+                    changedSystemInfo.Add("ro.boot.vbmeta.avb_version", "2.0");
+                    changedSystemInfo.Add("ro.boot.vbmeta.hash_alg", "sha256");
+                    changedSystemInfo.Add("ro.boot.vbmeta.size", "16384");
+                    changedSystemInfo.Add("ro.boot.vbmeta.digest", RandomService.getRandomHex32Bytes());
+
                     string isRadioImeiAvailable = ADBService.getProp("persist.radio.imei1", deviceId);
                     if (!string.IsNullOrEmpty(isRadioImeiAvailable))
                     {

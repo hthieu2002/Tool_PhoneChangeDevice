@@ -3,6 +3,7 @@ using System;
 using System.Globalization;
 using System.IO;
 using System.Reflection;
+using System.Security.Cryptography;
 
 namespace Services
 {
@@ -549,6 +550,18 @@ namespace Services
             }
 
             return (10 - (sum % 10)) % 10;
+        }
+
+        public static string getRandomHex32Bytes()
+        {
+            byte[] bytes = new byte[32]; // 32 bytes = 256 bits
+
+            using (RandomNumberGenerator rng = RandomNumberGenerator.Create())
+            {
+                rng.GetBytes(bytes);
+            }
+
+            return Convert.ToHexString(bytes).ToLower();
         }
 
     }

@@ -590,7 +590,8 @@ namespace Services
             changeDataAppFolderName("com.google.android.gms", deviceId);
             changeDataAppFolderName("com.google.android.webview", deviceId);
             changeDataAppFolderName("com.google.android.safetycore", deviceId);
-            changeDataAppFolderName("com.google.android.inputmethod.latin", deviceId);
+            changeDataAppFolderName("com.google.android.contactkeys", deviceId);
+            changeDataAppFolderName("com.google.android.calendar", deviceId);
 
             runCMDRoot(String.Format("shell \"rm -rf {0} \"", "data/app/*/*/oat"), deviceId);
             runCMDRoot(String.Format("shell \"rm -rf {0} \"", "data/app/*/*/*.digests"), deviceId);
