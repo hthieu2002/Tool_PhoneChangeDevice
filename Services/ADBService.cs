@@ -19,11 +19,11 @@ namespace Services
             new(StringComparer.OrdinalIgnoreCase)
             {
                 { "google",   new[] { "33", "34", "35" } },// 10,11,12,13,14,15 (32 tuỳ bạn có cho hay không)
-                { "oneplus",  new[] { "33" } },                 // 10,11,13
-                { "oppo",     new[] { "34" } },           // 10,11,12,14
+                { "OnePlus",  new[] { "33" } },                 // 10,11,13
+                { "OPPO",     new[] { "34" } },           // 10,11,12,14
                 { "samsung",  new[] { "33", "34", "35" } },
                 { "vivo",     new[] { "34" } },                 // 10,11,14
-                { "xiaomi",   new[] { "33", "34", "35" } }                        // ví dụ: 11,12
+                { "Xiaomi",   new[] { "33", "34", "35" } }                        // ví dụ: 11,12
             };
 
         private static readonly string[] BrandsPool =
