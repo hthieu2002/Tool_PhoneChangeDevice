@@ -93,7 +93,7 @@ namespace ToolChange.Services
                     changedSystemInfo.Add("ro.build.type", "user");
                     changedSystemInfo.Add("ro.build.tags", "release-keys");
                     changedSystemInfo.Add("ro.build.use", randomUser);
-                    changedSystemInfo.Add("ro.build.product", tempDevice.Code);
+                    changedSystemInfo.Add("ro.build.product", tempDevice.Product);
                     changedSystemInfo.Add("ro.build.fingerprint", tempDevice.Fingerprint);
                     changedSystemInfo.Add("ro.build.display.id", tempDevice.BuildDisplayId);
                     changedSystemInfo.Add("ro.build.host", randomUser);
@@ -104,11 +104,17 @@ namespace ToolChange.Services
                     changedSystemInfo.Add("ro.build.flavor", tempDevice.BuildFlavor);
                     changedSystemInfo.Add("ro.build.id", tempDevice.BuildId);
 
-                    changedSystemInfo.Add("ro.product.name", tempDevice.Product);
+                    changedSystemInfo.Add("ro.product.name", tempDevice.Name);
                     changedSystemInfo.Add("ro.product.brand", tempDevice.Brand);
                     changedSystemInfo.Add("ro.product.manufacturer", tempDevice.Manufacturer);
                     changedSystemInfo.Add("ro.product.model", tempDevice.Model);
                     changedSystemInfo.Add("ro.product.device", tempDevice.Code);
+
+                    changedSystemInfo.Add("vendor.usb.product_string", tempDevice.Model);
+                    changedSystemInfo.Add("ro.boot.hwname", tempDevice.Code);
+                    changedSystemInfo.Add("ro.boot.hwdevice", tempDevice.Code);
+                    changedSystemInfo.Add("ro.product.hardware.sku", tempDevice.Code);
+                    changedSystemInfo.Add("ro.boot.product.hardware.sku", tempDevice.Code);
 
                     changedSystemInfo.Add("ro.android.device.mac", tempDevice.WifiMacAddress);
                     changedSystemInfo.Add("ro.android.bssid", RandomService.generateWifiMacAddress(tempDevice.Manufacturer.ToLower()));
@@ -165,11 +171,6 @@ namespace ToolChange.Services
                     if (!string.IsNullOrEmpty(isRomPixelExperience))
                     {
                         changedSystemInfo.Add("org.pixelexperience.device", tempDevice.Code);
-                        changedSystemInfo.Add("org.pixelexperience.version.display", "unknown");
-                        changedSystemInfo.Add("org.pixelexperience.build_date", "unknown");
-                        changedSystemInfo.Add("org.pixelexperience.build_date_utc", "unknown");
-                        changedSystemInfo.Add("org.pixelexperience.build_type", "unknown");
-                        changedSystemInfo.Add("org.pixelexperience.build_security_patch", "unknown");
                     }
 
                     Models.DeviceUpdater.UpdateProgress(deviceS, deviceId, "45%", "save information ");
@@ -200,11 +201,13 @@ namespace ToolChange.Services
                     partitionList.Add("system_ext", new List<string> { "/system_ext/etc/build.prop", "/system/system_ext/etc/build.prop" });
                     RepleacePropertiesForPartition(tempDevice, partitionList, deviceId);
 
-                    ADBService.deleteSetting("android_id", deviceId, "secure");
-                    ADBService.deleteSetting("bluetooth_address", deviceId, "secure");
-                    ADBService.deleteSetting("bluetooth_name", deviceId, "secure");
-                    ADBService.deleteSetting("device_name", deviceId);
+                    //ADBService.deleteSetting("android_id", deviceId, "secure");
+                    //ADBService.deleteSetting("bluetooth_address", deviceId, "secure");
+                    //ADBService.deleteSetting("bluetooth_name", deviceId, "secure");
+                    //ADBService.deleteSetting("device_name", deviceId);
+                    ADBService.putSetting("android_id", tempDevice.AndroidId, deviceId, "global");
                     ADBService.putSetting("android_id", tempDevice.AndroidId, deviceId, "secure");
+                    ADBService.putSetting("android_id", tempDevice.AndroidId, deviceId, "system");
                     ADBService.putSetting("bluetooth_address", tempDevice.BlueToothMacAddress, deviceId, "secure");
                     ADBService.putSetting("bluetooth_name", bluetoothName, deviceId, "secure");
                     ADBService.putSetting("device_name", deviceName, deviceId);
