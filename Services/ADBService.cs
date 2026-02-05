@@ -37,7 +37,7 @@ namespace Services
                 { "oppo",     new[] { "34" } },           // 10,11,12,14
                 { "samsung",  new[] { "33", "34", "35" } },
                 { "vivo",     new[] { "34" } },                 // 10,11,14
-                { "xiaomi",   new[] { "34", "35" } }                        // ví dụ: 11,12
+                { "xiaomi",   new[] { "33","34", "35" } }                        // ví dụ: 11,12
             };
 
         private static readonly string[] BrandsPool =
@@ -2788,9 +2788,9 @@ namespace Services
 
         public async static Task<bool> CheckDeviceActiveBool(string deviceId, MiChangerGraphQLClient miChangerGraphQLClient)
         {
-#if DEBUG
+
             return true;
-#endif
+
             try
             {
                 // Lấy license của thiết bị theo serial
