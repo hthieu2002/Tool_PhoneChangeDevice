@@ -130,6 +130,9 @@
                         <MenuItem Header="{Binding LanguageVM.ControlDeviceMenuDropBox4_1}"
                                   Command="{Binding DeviceListVM.FakeProxyDeviceIdCommand}"
                                   CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=ContextMenu}, Path=PlacementTarget.SelectedItem}" />
+                        <MenuItem Header="{Binding LanguageVM.ControlDeviceMenuDropBoxStopFakeProxy}"
+                                  Command="{Binding DeviceListVM.StopFakeProxyDeviceIdCommand}"
+                                  CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=ContextMenu}, Path=PlacementTarget.SelectedItem}" />
                         <MenuItem Header="{Binding LanguageVM.ControlDeviceMenuDropBox6}"
                                   Command="{Binding DeviceListVM.InstallApkSingle}"
                                   CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=ContextMenu}, Path=PlacementTarget.SelectedItem}" />

@@ -24,6 +24,13 @@ namespace Services
             rand.NextBytes(keyBytes);
             return BitConverter.ToString(keyBytes).Replace("-", string.Empty);
         }
+        public static string generateIpv4()
+        {
+            int secondOctet = rand.Next(1, 20);
+            int thirdOctet = rand.Next(1, 250);
+
+            return $"192.168.{secondOctet}.{thirdOctet}";
+        }
         public static string generateIpv6()
         {
 

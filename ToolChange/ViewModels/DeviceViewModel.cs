@@ -575,6 +575,7 @@ namespace ToolChange.ViewModels
         public ICommand ViewDevicesCommand { get; private set; }
         public ICommand FakeProxyDeviceIdCommand { get; private set; }
         public ICommand FakeProxyDeviceIdHttpCommand { get; private set; }
+        public ICommand StopFakeProxyDeviceIdCommand { get; private set; }
         public ICommand InstallApkSingle { get; private set; }
         public ICommand OpenUrlCommand { get; private set; }
         public ICommand FakeProxyAllCommand { get; private set; }
@@ -603,9 +604,10 @@ namespace ToolChange.ViewModels
             DetailsDeviceIdCommand = new RelayCommand<Models.DeviceModel>(async (device) => await DetailsDevices(device));
             ViewDevicesCommand = new RelayCommand<Models.DeviceModel>(async (device) => await ViewDevicesIC(device));
 
-            FakeProxyDeviceIdCommand = new RelayCommand<Models.DeviceModel>(FakeProxyDeviceId);
-            InstallApkSingle = new RelayCommand<Models.DeviceModel>(InstallApk);
             FakeProxyDeviceIdHttpCommand = new RelayCommand<Models.DeviceModel>(FakeProxyDeviceIdHttp);
+            FakeProxyDeviceIdCommand = new RelayCommand<Models.DeviceModel>(FakeProxyDeviceId);
+            StopFakeProxyDeviceIdCommand = new RelayCommand<Models.DeviceModel>(StopFakeProxyDeviceId);
+            InstallApkSingle = new RelayCommand<Models.DeviceModel>(InstallApk);
             RandomDeviceCommand = new RelayCommand(async () => await RandomDevice());
             RandomSimCommand = new RelayCommand(async () => await RandomSim());
             ChangeDeviceCommand = new RelayCommand(async () => await ChangeDevice());
@@ -1213,53 +1215,46 @@ namespace ToolChange.ViewModels
                 var currentTask = TaskScheduler.FromCurrentSynchronizationContext();
                 await Task.Run(() =>
                 {
-                    var isFakeTimeZone = FakeTimeZone(proxy, device.DeviceId);
-                    if (isFakeTimeZone)
+                    string timeZone = ProxyService.getTimeZoneSocksProxy(proxy, device.DeviceId);
+                    if (!string.IsNullOrEmpty(timeZone))
                     {
-                        DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "10%", DevicesLang.logTitleProxy);
-                        Thread.Sleep(10000);
-                        string ip = proxyHost;
-                        int port = int.Parse(proxyPort);
-                        string user = proxyUsername;
-                        string password = proxyPassword;
-                        string authen = (!string.IsNullOrEmpty(proxyUsername) && !string.IsNullOrEmpty(proxyPassword)) ? $"{proxyUsername}:{proxyPassword}@" : "";
-                        string proxyParams = $"{typeproxy}://{proxyHost}:{proxyPort}";
-                        if (!string.IsNullOrEmpty(authen))
-                        {
-                            proxyParams = $"{typeproxy}://{authen}{proxyHost}:{proxyPort}";
-                        }
-                        string ipProxyV4 = Tun2socksService.getIpv4SocksProxy(proxy, device.DeviceId);
+                        ADBService.FakeTimezone(timeZone, device.DeviceId);
+                    }
+                    DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "10%", DevicesLang.logTitleProxy);
+                    Thread.Sleep(3000);
+                    string authen = (!string.IsNullOrEmpty(proxyUsername) && !string.IsNullOrEmpty(proxyPassword)) ? $"{proxyUsername}:{proxyPassword}@" : "";
+                    string proxyParams = $"{typeproxy}://{proxyHost}:{proxyPort}";
+                    if (!string.IsNullOrEmpty(authen))
+                    {
+                        proxyParams = $"{typeproxy}://{authen}{proxyHost}:{proxyPort}";
+                    }
 
-                        ADBService.enableWifi(false, device.DeviceId);
-                        ADBService.rootAndRemount(device.DeviceId);
-                        ADBService.putSetting("http_proxy", ":0", device.DeviceId);
-                        Tun2socksService.stop(device.DeviceId);
-                        Tun2socksService.setUpTun2socksOnDevice("/data/local/tmp", device.DeviceId);
-                        DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "50%", DevicesLang.logTitleProxy);
-                        Tun2socksService.start("/data/local/tmp", proxyParams, ipProxyV4, device.DeviceId);
-                        DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "60%", "In progress connect wifi..");
-                        Thread.Sleep(3000);
+                    ADBService.enableWifi(false, device.DeviceId);
+                    ADBService.rootAndRemount(device.DeviceId);
+                    Tun2socksService.stop(device.DeviceId);
+                    Tun2socksService.setUpTun2socksOnDevice("/data/local/tmp", device.DeviceId);
+                    DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "50%", DevicesLang.logTitleProxy);
+                    Tun2socksService.start("/data/local/tmp", proxyParams, device.DeviceId);
+                    DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "60%", "In progress connect wifi..");
+                    Thread.Sleep(3000);
+                    ADBService.enableWifi(true, device.DeviceId);
+                    ADBService.openWifiSettings(device.DeviceId);
+                    int countCheck = 10;
+                    while ((string.IsNullOrEmpty(ProxyService.getDeviceIPv4(device.DeviceId)))
+                    && countCheck-- > 0)
+                    {
                         ADBService.enableWifi(true, device.DeviceId);
                         ADBService.openWifiSettings(device.DeviceId);
-                        int step = 0;
-                        while ((!ADBService.isWifiConnectedV2(device.DeviceId) && !ADBService.isWifiConnected(device.DeviceId)) || step++ == 40)
-                        {
-                            ADBService.openWifiSettings(device.DeviceId);
-                            Thread.Sleep(3000);
-                        }
-                        if (step >= 39)
-                        {
-                            DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "99%", "⚠ Fake proxy success, check error - wifi error");
-                            return;
-                        }
-                        Thread.Sleep(5000);
-                        ADBService.OpenBrowserWithUrl("https://browserleaks.com/ip", device.DeviceId);
-                        DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "99%", DevicesLang.logCheckProxy);
+                        Thread.Sleep(3000);
                     }
-                    else
+                    if (countCheck <= 0)
                     {
+                        DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "99%", "⚠ Fake proxy success, check error - wifi error");
                         return;
                     }
+                    Thread.Sleep(2000);
+                    ADBService.OpenBrowserWithUrl("https://browserleaks.com/ip", device.DeviceId);
+                    DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "99%", DevicesLang.logCheckProxy);
                 }).ContinueWith(task =>
                 {
                     DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "100%", DevicesLang.logTitleProxySuccess);
@@ -1330,53 +1325,46 @@ namespace ToolChange.ViewModels
                 var currentTask = TaskScheduler.FromCurrentSynchronizationContext();
                 await Task.Run(() =>
                 {
-                    var isFakeTimeZone = FakeTimeZoneHttp(proxy, device.DeviceId);
-                    if (isFakeTimeZone)
+                    string timeZone = ProxyService.getTimeZoneSocksProxy(proxy, device.DeviceId);
+                    if (!string.IsNullOrEmpty(timeZone))
                     {
-                        DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "10%", DevicesLang.logTitleProxy);
-                        Thread.Sleep(10000);
-                        string ip = proxyHost;
-                        int port = int.Parse(proxyPort);
-                        string user = proxyUsername;
-                        string password = proxyPassword;
-                        string authen = (!string.IsNullOrEmpty(proxyUsername) && !string.IsNullOrEmpty(proxyPassword)) ? $"{proxyUsername}:{proxyPassword}@" : "";
-                        string proxyParams = $"{typeproxy}://{proxyHost}:{proxyPort}";
-                        if (!string.IsNullOrEmpty(authen))
-                        {
-                            proxyParams = $"{typeproxy}://{authen}{proxyHost}:{proxyPort}";
-                        }
-                        string ipProxyV4 = Tun2socksService.getIpv4HttpProxy(proxy, device.DeviceId);
+                        ADBService.FakeTimezone(timeZone, device.DeviceId);
+                    }
+                    DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "10%", DevicesLang.logTitleProxy);
+                    Thread.Sleep(10000);
+                    string authen = (!string.IsNullOrEmpty(proxyUsername) && !string.IsNullOrEmpty(proxyPassword)) ? $"{proxyUsername}:{proxyPassword}@" : "";
+                    string proxyParams = $"{typeproxy}://{proxyHost}:{proxyPort}";
+                    if (!string.IsNullOrEmpty(authen))
+                    {
+                        proxyParams = $"{typeproxy}://{authen}{proxyHost}:{proxyPort}";
+                    }
 
-                        ADBService.enableWifi(false, device.DeviceId);
-                        ADBService.rootAndRemount(device.DeviceId);
-                        ADBService.putSetting("http_proxy", ":0", device.DeviceId);
-                        Tun2socksService.stop(device.DeviceId);
-                        Tun2socksService.setUpTun2socksOnDevice("/data/local/tmp", device.DeviceId);
-                        DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "50%", DevicesLang.logTitleProxy);
-                        Tun2socksService.start("/data/local/tmp", proxyParams, ipProxyV4, device.DeviceId);
-                        DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "60%", "In progress connect wifi..");
-                        Thread.Sleep(3000);
+                    ADBService.enableWifi(false, device.DeviceId);
+                    ADBService.rootAndRemount(device.DeviceId);
+                    Tun2socksService.stop(device.DeviceId);
+                    Tun2socksService.setUpTun2socksOnDevice("/data/local/tmp", device.DeviceId);
+                    DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "50%", DevicesLang.logTitleProxy);
+                    Tun2socksService.start("/data/local/tmp", proxyParams, device.DeviceId);
+                    DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "60%", "In progress connect wifi..");
+                    Thread.Sleep(3000);
+                    ADBService.enableWifi(true, device.DeviceId);
+                    ADBService.openWifiSettings(device.DeviceId);
+                    int countCheck = 10;
+                    while ((string.IsNullOrEmpty(ProxyService.getDeviceIPv4(device.DeviceId)))
+                    && countCheck-- > 0)
+                    {
                         ADBService.enableWifi(true, device.DeviceId);
                         ADBService.openWifiSettings(device.DeviceId);
-                        int step = 0;
-                        while ((!ADBService.isWifiConnectedV2(device.DeviceId) && !ADBService.isWifiConnected(device.DeviceId)) || step++ == 40)
-                        {
-                            ADBService.openWifiSettings(device.DeviceId);
-                            Thread.Sleep(3000);
-                        }
-                        if (step >= 39)
-                        {
-                            DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "99%", "⚠ Fake proxy success, check error - wifi error");
-                            return;
-                        }
-                        Thread.Sleep(5000);
-                        ADBService.OpenBrowserWithUrl("https://browserleaks.com/ip", device.DeviceId);
-                        DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "99%", DevicesLang.logCheckProxy);
+                        Thread.Sleep(3000);
                     }
-                    else
+                    if (countCheck <= 0)
                     {
+                        DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "99%", "⚠ Fake proxy success, check error - wifi error");
                         return;
                     }
+                    Thread.Sleep(2000);
+                    ADBService.OpenBrowserWithUrl("https://browserleaks.com/ip", device.DeviceId);
+                    DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "99%", DevicesLang.logCheckProxy);
                 }).ContinueWith(task =>
                 {
                     DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "100%", DevicesLang.logTitleProxySuccess);
@@ -1387,10 +1375,48 @@ namespace ToolChange.ViewModels
             {
                 System.Windows.MessageBox.Show(ex.Message, Lang.LogError, MessageBoxButton.OK, MessageBoxImage.Error);
             }
-
-
-
         }
+
+        private async void StopFakeProxyDeviceId(Models.DeviceModel device) 
+        {
+            if (device.Status == "Offline")
+            {
+                UpdateDeviceStatus(device.DeviceId, "0%", "⚠ Device offline");
+                return;
+            }
+            if (!await ADBService.CheckDeviceActiveBool(device.DeviceId, miChangerGraphQLClient))
+            {
+                UpdateDeviceStatus(device.DeviceId, "0%", "⚠ Device not active");
+                return;
+            }
+            if (_processingDeviceIds.Contains(device.DeviceId))
+            {
+                UpdateDeviceStatus(device.DeviceId, "%", "⏳ Device running...");
+                return;
+            }
+
+            try
+            {
+                var currentTask = TaskScheduler.FromCurrentSynchronizationContext();
+                await Task.Run(() =>
+                {
+                    UpdateDeviceStatus(device.DeviceId, "", "Stop IP address spoofing...");
+                    ADBService.enableWifi(false, device.DeviceId);
+                    ADBService.rootAndRemount(device.DeviceId);
+                    Tun2socksService.stop(device.DeviceId);
+                    ADBService.enableWifi(true, device.DeviceId);
+
+                }).ContinueWith(task =>
+                {
+                    DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "", "Complete!!!");
+                }, currentTask);
+            }
+            catch (Exception ex)
+            {
+                System.Windows.MessageBox.Show(ex.Message, Lang.LogError, MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
         private bool CanDeleteDevice(object parameter)
         {
             return parameter is Models.DeviceModel;
@@ -1537,8 +1563,6 @@ namespace ToolChange.ViewModels
                 if (tempDeviceAll.Model == null) throw new Exception("Không tìm thấy thiết bị phù hợp.");
 
                 tempDeviceAll.SDK = value.os;
-
-                tempDeviceAll = Util.reconfigImei(tempDeviceAll);
 
                 Brand = tempDeviceAll.Manufacturer;
                 Name = tempDeviceAll.Board;
@@ -3082,117 +3106,107 @@ namespace ToolChange.ViewModels
                     var currentTask = TaskScheduler.FromCurrentSynchronizationContext();
                     await Task.Run(async () =>
                     {
-                        bool isFakeTimeZone;
                         string PROXYTYPE = "";
                         if (typeProxy == "HTTP")
                         {
-                            isFakeTimeZone = FakeTimeZoneHttp(proxy, device.DeviceId);
+                            string timeZone = ProxyService.getTimeZoneHttpProxy(proxy, device.DeviceId);
+                            if (!string.IsNullOrEmpty(timeZone))
+                            {
+                                ADBService.FakeTimezone(timeZone, device.DeviceId);
+                            }
                             PROXYTYPE = "http";
                         }
                         else
                         {
-                            isFakeTimeZone = FakeTimeZone(proxy, device.DeviceId);
+                            string timeZone = ProxyService.getTimeZoneSocksProxy(proxy, device.DeviceId);
+                            if (!string.IsNullOrEmpty(timeZone))
+                            {
+                                ADBService.FakeTimezone(timeZone, device.DeviceId);
+                            }
                             PROXYTYPE = "socks5";
                         }
-                        if (isFakeTimeZone)
+
+                        if (typeProxy == "HTTP")
                         {
-                            if (typeProxy == "HTTP")
+                            DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "10%", DevicesLang.logTitleProxy);
+                            string authen = (!string.IsNullOrEmpty(proxyUsername) && !string.IsNullOrEmpty(proxyPassword)) ? $"{proxyUsername}:{proxyPassword}@" : "";
+                            string proxyParams = $"{PROXYTYPE}://{proxyHost}:{proxyPort}";
+                            if (!string.IsNullOrEmpty(authen))
                             {
-                                DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "10%", DevicesLang.logTitleProxy);
-                                Thread.Sleep(10000);
-                                string ip = proxyHost;
-                                int port = int.Parse(proxyPort);
-                                string user = proxyUsername;
-                                string password = proxyPassword;
-                                string authen = (!string.IsNullOrEmpty(proxyUsername) && !string.IsNullOrEmpty(proxyPassword)) ? $"{proxyUsername}:{proxyPassword}@" : "";
-                                string proxyParams = $"{PROXYTYPE}://{proxyHost}:{proxyPort}";
-                                if (!string.IsNullOrEmpty(authen))
-                                {
-                                    proxyParams = $"{PROXYTYPE}://{authen}{proxyHost}:{proxyPort}";
-                                }
-                                string ipProxyV4 = Tun2socksService.getIpv4HttpProxy(proxy, device.DeviceId);
+                                proxyParams = $"{PROXYTYPE}://{authen}{proxyHost}:{proxyPort}";
+                            }
 
-                                ADBService.enableWifi(false, device.DeviceId);
-                                ADBService.rootAndRemount(device.DeviceId);
-                                ADBService.putSetting("http_proxy", ":0", device.DeviceId);
-                                Tun2socksService.stop(device.DeviceId);
-                                Tun2socksService.setUpTun2socksOnDevice("/data/local/tmp", device.DeviceId);
-                                DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "50%", DevicesLang.logTitleProxy);
-                                Tun2socksService.start("/data/local/tmp", proxyParams, ipProxyV4, device.DeviceId);
-                                DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "60%", "In progress connect wifi..");
-                                await Task.Delay(2000);
+                            ADBService.enableWifi(false, device.DeviceId);
+                            ADBService.rootAndRemount(device.DeviceId);
+                            Tun2socksService.stop(device.DeviceId);
+                            Tun2socksService.setUpTun2socksOnDevice("/data/local/tmp", device.DeviceId);
+                            DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "50%", DevicesLang.logTitleProxy);
+                            Tun2socksService.start("/data/local/tmp", proxyParams, device.DeviceId);
+                            DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "60%", "In progress connect wifi..");
+                            await Task.Delay(2000);
+                            ADBService.enableWifi(true, device.DeviceId);
+                            ADBService.openWifiSettings(device.DeviceId);
+                            int countCheck = 10;
+                            while ((string.IsNullOrEmpty(ProxyService.getDeviceIPv4(device.DeviceId)))
+                            && countCheck-- > 0)
+                            {
                                 ADBService.enableWifi(true, device.DeviceId);
                                 ADBService.openWifiSettings(device.DeviceId);
-                                int step = 0;
-                                while ((!ADBService.isWifiConnectedV2(device.DeviceId) && !ADBService.isWifiConnected(device.DeviceId)) || step == 40)
-                                {
-                                    ADBService.openWifiSettings(device.DeviceId);
-                                    Thread.Sleep(3000);
-                                }
-                                if (step >= 39)
-                                {
-                                    _processingDeviceIds.Remove(device.DeviceId);
-                                    DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "99%", "Fake proxy success, check error - wifi error");
-                                    return;
-                                }
-                                Thread.Sleep(5000);
-                                ADBService.OpenBrowserWithUrl("https://browserleaks.com/ip", device.DeviceId);
-                                DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "99%", DevicesLang.logCheckProxy);
-                                await Task.Delay(2000);
-                                DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "100%", DevicesLang.logTitleProxySuccess);
-
+                                Thread.Sleep(3000);
                             }
-                            else
+                            if (countCheck <= 0)
                             {
-                                DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "10%", DevicesLang.logTitleProxy);
-                                Thread.Sleep(10000);
-                                string ip = proxyHost;
-                                int port = int.Parse(proxyPort);
-                                string user = proxyUsername;
-                                string password = proxyPassword;
-                                string authen = (!string.IsNullOrEmpty(proxyUsername) && !string.IsNullOrEmpty(proxyPassword)) ? $"{proxyUsername}:{proxyPassword}@" : "";
-                                string proxyParams = $"{PROXYTYPE}://{proxyHost}:{proxyPort}";
-                                if (!string.IsNullOrEmpty(authen))
-                                {
-                                    proxyParams = $"{PROXYTYPE}://{authen}{proxyHost}:{proxyPort}";
-                                }
-                                string ipProxyV4 = Tun2socksService.getIpv4SocksProxy(proxy, device.DeviceId);
-
-                                ADBService.enableWifi(false, device.DeviceId);
-                                ADBService.rootAndRemount(device.DeviceId);
-                                ADBService.putSetting("http_proxy", ":0", device.DeviceId);
-                                Tun2socksService.stop(device.DeviceId);
-                                Tun2socksService.setUpTun2socksOnDevice("/data/local/tmp", device.DeviceId);
-                                DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "50%", DevicesLang.logTitleProxy);
-                                Tun2socksService.start("/data/local/tmp", proxyParams, ipProxyV4, device.DeviceId);
-                                DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "60%", "In progress connect wifi..");
-                                await Task.Delay(2000);
-                                ADBService.enableWifi(true, device.DeviceId);
-                                ADBService.openWifiSettings(device.DeviceId);
-                                int step = 0;
-                                while ((!ADBService.isWifiConnectedV2(device.DeviceId) && !ADBService.isWifiConnected(device.DeviceId)) || step == 40)
-                                {
-                                    ADBService.openWifiSettings(device.DeviceId);
-                                    Thread.Sleep(3000);
-                                }
-                                if (step >= 39)
-                                {
-                                    _processingDeviceIds.Remove(device.DeviceId);
-                                    DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "99%", "Fake proxy success, check error - wifi error");
-                                    return;
-                                }
-                                Thread.Sleep(5000);
-                                ADBService.OpenBrowserWithUrl("https://browserleaks.com/ip", device.DeviceId);
-                                DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "99%", DevicesLang.logCheckProxy);
-                                await Task.Delay(2000);
-                                DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "100%", DevicesLang.logTitleProxySuccess);
+                                _processingDeviceIds.Remove(device.DeviceId);
+                                DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "99%", "Fake proxy success, check error - wifi error");
+                                return;
                             }
+                            Thread.Sleep(2000);
+                            ADBService.OpenBrowserWithUrl("https://browserleaks.com/ip", device.DeviceId);
+                            DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "99%", DevicesLang.logCheckProxy);
+                            await Task.Delay(2000);
+                            DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "100%", DevicesLang.logTitleProxySuccess);
+
                         }
                         else
                         {
-                            _processingDeviceIds.Remove(device.DeviceId);
-                            DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "0%", "⚠ Error ! Again fake proxy");
-                            return;
+                            DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "10%", DevicesLang.logTitleProxy);
+                            Thread.Sleep(10000);
+                            string authen = (!string.IsNullOrEmpty(proxyUsername) && !string.IsNullOrEmpty(proxyPassword)) ? $"{proxyUsername}:{proxyPassword}@" : "";
+                            string proxyParams = $"{PROXYTYPE}://{proxyHost}:{proxyPort}";
+                            if (!string.IsNullOrEmpty(authen))
+                            {
+                                proxyParams = $"{PROXYTYPE}://{authen}{proxyHost}:{proxyPort}";
+                            }
+
+                            ADBService.enableWifi(false, device.DeviceId);
+                            ADBService.rootAndRemount(device.DeviceId);
+                            Tun2socksService.stop(device.DeviceId);
+                            Tun2socksService.setUpTun2socksOnDevice("/data/local/tmp", device.DeviceId);
+                            DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "50%", DevicesLang.logTitleProxy);
+                            Tun2socksService.start("/data/local/tmp", proxyParams, device.DeviceId);
+                            DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "60%", "In progress connect wifi..");
+                            await Task.Delay(2000);
+                            ADBService.enableWifi(true, device.DeviceId);
+                            ADBService.openWifiSettings(device.DeviceId);
+                            int countCheck = 10;
+                            while ((string.IsNullOrEmpty(ProxyService.getDeviceIPv4(device.DeviceId)))
+                            && countCheck-- > 0)
+                            {
+                                ADBService.enableWifi(true, device.DeviceId);
+                                ADBService.openWifiSettings(device.DeviceId);
+                                Thread.Sleep(3000);
+                            }
+                            if (countCheck <= 0)
+                            {
+                                _processingDeviceIds.Remove(device.DeviceId);
+                                DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "99%", "Fake proxy success, check error - wifi error");
+                                return;
+                            }
+                            Thread.Sleep(2000);
+                            ADBService.OpenBrowserWithUrl("https://browserleaks.com/ip", device.DeviceId);
+                            DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "99%", DevicesLang.logCheckProxy);
+                            await Task.Delay(2000);
+                            DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "100%", DevicesLang.logTitleProxySuccess);
                         }
                         _processingDeviceIds.Remove(device.DeviceId);
                     }).ContinueWith(task =>
@@ -3334,105 +3348,6 @@ namespace ToolChange.ViewModels
         {
             string result = ADBService.ExecuteADBCommandDetail(deviceID, "shell settings get global mi_mac_address");
             return result.Trim();
-        }
-        private bool FakeTimeZoneHttp(string proxy, string deviceId)
-        {
-            try
-            {
-                ADBService.enableWifi(false, deviceId);
-                var url = "http://ip-api.com/json";
-                var proxyParts = proxy.Split(':');
-                ADBService.rootAndRemount(deviceId);
-
-                string commandline;
-                string str;
-
-                if (proxyParts.Length == 4)
-                {
-                    // HTTP proxy có username/password
-                    commandline = $"curl --proxy http://{proxyParts[2]}:{proxyParts[3]}@{proxyParts[0]}:{proxyParts[1]} \"{url}\"";
-                }
-                else if (proxyParts.Length == 2)
-                {
-                    // HTTP proxy không cần username/password
-                    commandline = $"curl --proxy http://{proxyParts[0]}:{proxyParts[1]} \"{url}\"";
-                }
-                else
-                {
-                    // Proxy format không hợp lệ
-                    return false;
-                }
-
-                str = CmdProcess.ExecuteCommand(string.Format("/C {0}", commandline));
-
-                if (!string.IsNullOrEmpty(str))
-                {
-                    JObject jsonObject = JObject.Parse(str);
-                    ADBService.FakeTimezone(jsonObject["timezone"]?.ToString(), deviceId);
-                    return true;
-                }
-                else
-                {
-                    return false;
-                }
-            }
-            catch (Exception)
-            {
-                return false;
-            }
-        }
-
-        private bool FakeTimeZone(string proxy, string deviceId)
-        {
-            try
-            {
-                ADBService.enableWifi(false, deviceId);
-                var url = "http://ip-api.com/json";
-                var proxyParts = proxy.Split(':');
-                ADBService.rootAndRemount(deviceId);
-                if (proxyParts.Length == 4)
-                {
-                    var commandline = $"curl --socks5 {proxyParts[0]}:{proxyParts[1]} --proxy-user {proxyParts[2]}:{proxyParts[3]} \"{url}\"";
-                    var str = CmdProcess.ExecuteCommand(string.Format("/C {0}", commandline));
-                    if (!string.IsNullOrEmpty(str))
-                    {
-                        JObject jsonOblect = JObject.Parse(str);
-                        ADBService.FakeTimezone(jsonOblect["timezone"].ToString(), deviceId);
-                        return true;
-                    }
-                    else
-                    {
-                        // MessageBox.Show($"{ViewChangeStatic.logErrorFakeTimeZone} {proxyParts[0]} {ViewChangeStatic.logErrorFakeTimeZone1} {proxyParts[0]}", ViewChangeStatic.TitleErrorFakeTimeZone, MessageBoxButtons.OK, MessageBoxIcon.Error);
-                        return false;
-                    }
-                }
-                else if (proxyParts.Length == 2)
-                {
-                    var commandline = $"curl --socks5 {proxyParts[0]}:{proxyParts[1]} \"{url}\"";
-                    var str = CmdProcess.ExecuteCommand(string.Format("/C {0}", commandline));
-                    if (!string.IsNullOrEmpty(str))
-                    {
-                        JObject jsonOblect = JObject.Parse(str);
-                        ADBService.FakeTimezone(jsonOblect["timezone"].ToString(), deviceId);
-                        return true;
-                    }
-                    else
-                    {
-                        // MessageBox.Show($"{ViewChangeStatic.logErrorFakeTimeZone} {proxyParts[0]} {ViewChangeStatic.logErrorFakeTimeZone1} {proxyParts[0]}", ViewChangeStatic.TitleErrorFakeTimeZone, MessageBoxButtons.OK, MessageBoxIcon.Error);
-                        return false;
-                    }
-                }
-                else
-                {
-                    //  MessageBox.Show(ViewChangeStatic.logFakeTimeZone, ViewChangeStatic.TitleErrorFakeTimeZone, MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    return false;
-                }
-            }
-            catch (Exception ex)
-            {
-                //MessageBox.Show(ex.Message, ViewChangeStatic.TitleErrorFakeTimeZone, MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return false;
-            }
         }
 
         private string NormalizeUrl(string url)

@@ -67,6 +67,7 @@ namespace ToolChange.ViewModels
         private string _controlDeviceMenuDropBox4_1;
         private string _controlDeviceMenuDropBox5;
         private string _controlDeviceMenuDropBox6;
+        private string _controlDeviceMenuDropBoxStopFakeProxy;
         private string _lableViewDevice1;
         private string _lableViewDevice2;
         private string _controlCheckScreen;
@@ -935,6 +936,20 @@ namespace ToolChange.ViewModels
                 }
             }
         }
+
+        public string ControlDeviceMenuDropBoxStopFakeProxy
+        {
+            get => _controlDeviceMenuDropBoxStopFakeProxy;
+            private set
+            {
+                if (_controlDeviceMenuDropBoxStopFakeProxy != value)
+                {
+                    _controlDeviceMenuDropBoxStopFakeProxy = value;
+                    OnPropertyChanged(nameof(ControlDeviceMenuDropBoxStopFakeProxy));
+                }
+            }
+        }
+
         public string LableViewDevice1
         {
             get => _lableViewDevice1;
@@ -1766,6 +1781,7 @@ namespace ToolChange.ViewModels
             ControlDeviceMenuDropBox4_1 = LocalizationService.Get("ControlDeviceMenuDropBox4_1");
             ControlDeviceMenuDropBox5 = LocalizationService.Get("ControlDeviceMenuDropBox5");
             ControlDeviceMenuDropBox6 = LocalizationService.Get("ControlDeviceMenuDropBox6");
+            ControlDeviceMenuDropBoxStopFakeProxy = LocalizationService.Get("ControlDeviceMenuDropBoxStopFakeProxy");
             LableViewDevice1 = LocalizationService.Get("LableViewDevice1");
             LableViewDevice2 = LocalizationService.Get("LableViewDevice2");
             ControlCheckScreen = LocalizationService.Get("ControlCheckScreen");

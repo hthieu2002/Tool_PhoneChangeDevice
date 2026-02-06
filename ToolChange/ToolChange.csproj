@@ -71,6 +71,7 @@
     <None Remove="Resources\tessdata\eng.traineddata" />
     <None Remove="Resources\timezone.xlsx" />
     <None Remove="Resources\tun2socks" />
+    <None Remove="Resources\tun2socks-linux-arm64" />
     <None Remove="Resources\webview.txt" />
     <None Remove="..\POCO\Resources\carriers.json" />
   </ItemGroup>
@@ -101,6 +102,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>
     <EmbeddedResource Include="Resources\mac_google.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\tun2socks">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>
     <Resource Include="Resources\logo.ico">
@@ -143,9 +147,6 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Resources\init.lineage22.rc">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Resources\tun2socks">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Resource Include="Resources\icon.png">

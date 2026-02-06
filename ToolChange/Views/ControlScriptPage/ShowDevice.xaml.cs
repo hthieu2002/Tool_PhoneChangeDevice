@@ -374,12 +374,16 @@ namespace ToolChange.Views.ControlScriptPage
                             RedSocksService.setUpRedSocksOnDevice("/data/local/tmp", idDevice);
                             RedSocksService.start(ip, port, "/data/local/tmp", idDevice, user, password);
                             ADBService.openWifiSettings(idDevice);
-                            while (!ADBService.isWifiConnectedV2(idDevice) && !ADBService.isWifiConnected(idDevice))
+                            int countCheck = 40;
+                            while ((string.IsNullOrEmpty(ProxyService.getDeviceIPv4(idDevice)))
+                            || countCheck-- > 0)
                             {
+                                ADBService.enableWifi(true, idDevice);
                                 ADBService.openWifiSettings(idDevice);
                                 Thread.Sleep(3000);
                             }
-                            Thread.Sleep(5000);
+                            if (countCheck <= 0)
+                                Thread.Sleep(5000);
                             ADBService.OpenBrowserWithUrl("https://browserleaks.com/ip", idDevice);
                         }
                         else
