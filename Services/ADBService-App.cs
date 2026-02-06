@@ -120,7 +120,7 @@ namespace Services
                 File.Copy(originalInitRcPath, clonedInitRcPath, true);
                 LocalFileService.replaceAllTextInFile(clonedInitRcPath, "#FLAGS_REPLACE_SYSTEM_PROPERTIES", props);
                 //LocalFileService.replaceAllTextInFile(clonedInitRcPath, "FLAGS_REPLACE_WEBVIEW", $"{leftPadding}setprop ro.lineage.wvversion \"{RandomService.generateWebviewVersion()}\"");
-                LocalFileService.replaceAllTextInFile(clonedInitRcPath, "#FLAGS_REPLACE_SIGNATURE", $"{leftPadding}setprop ro.android.sign \"{rawSignatureData}\"");
+                //LocalFileService.replaceAllTextInFile(clonedInitRcPath, "#FLAGS_REPLACE_SIGNATURE", $"{leftPadding}setprop ro.android.sign \"{rawSignatureData}\"");
                 runCMDRoot($"push \"{clonedInitRcPath}\" {systemPathInitRc}", deviceId);
                 File.Delete(clonedInitRcPath);
             }

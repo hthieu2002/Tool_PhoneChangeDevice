@@ -519,7 +519,7 @@ namespace Services
         public static void cleanFolder(string deviceId)
         {
             runCMDRoot("shell rm -rf /storage/emulated/0/*", deviceId);
-            runCMDRoot("shell \"cmd media rescan /storage/emulated/0 2>/dev/null || am broadcast -a android.intent.action.MEDIA_SCANNER_SCAN_FILE -d file:///storage/emulated/0\"", deviceId);
+            //runCMDRoot("shell \"cmd media rescan /storage/emulated/0 2>/dev/null || am broadcast -a android.intent.action.MEDIA_SCANNER_SCAN_FILE -d file:///storage/emulated/0\"", deviceId);
         }
 
 
@@ -574,32 +574,19 @@ namespace Services
                 runCMDRoot("remount", deviceId);
             }
 
-            //string packageData = runCMDRoot("shell ls data/data/", deviceId);
-            //List<string> packageDataFormat = new List<string>();
-            //foreach (var line in packageData.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries))
-            //{
-            //    packageDataFormat.Add(line.Trim());
-            //}
+            //changeDataAppFolderName("com.android.vending", deviceId);
+            //changeDataAppFolderName("com.google.android.gms", deviceId);
+            //changeDataAppFolderName("com.google.android.webview", deviceId);
+            //changeDataAppFolderName("com.google.android.contactkeys", deviceId);
+            //changeDataAppFolderName("com.google.android.calendar", deviceId);
 
-            //foreach (var packageName in packageDataFormat)
-            //{
-            //    runCMDRoot(String.Format("shell pm clear {0}", packageName), deviceId);
-            //}
-            
-            changeDataAppFolderName("com.android.vending", deviceId);
-            changeDataAppFolderName("com.google.android.gms", deviceId);
-            changeDataAppFolderName("com.google.android.webview", deviceId);
-            changeDataAppFolderName("com.google.android.safetycore", deviceId);
-            changeDataAppFolderName("com.google.android.contactkeys", deviceId);
-            changeDataAppFolderName("com.google.android.calendar", deviceId);
+            //runCMDRoot(String.Format("shell \"rm -rf {0} \"", "data/app/*/*/oat"), deviceId);
+            //runCMDRoot(String.Format("shell \"rm -rf {0} \"", "data/app/*/*/*.digests"), deviceId);
+            //runCMDRoot(String.Format("shell \"rm -rf {0} \"", "data/app/*/*/*.dm"), deviceId);
 
-            runCMDRoot(String.Format("shell \"rm -rf {0} \"", "data/app/*/*/oat"), deviceId);
-            runCMDRoot(String.Format("shell \"rm -rf {0} \"", "data/app/*/*/*.digests"), deviceId);
-            runCMDRoot(String.Format("shell \"rm -rf {0} \"", "data/app/*/*/*.dm"), deviceId);
-
-            runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/data/*/*"), deviceId);
-            runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/user/*/*/*"), deviceId);
-            runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/user_de/*/*/*"), deviceId);
+            runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/data/*/"), deviceId);
+            //runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/user/*/*/*"), deviceId);
+            //runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/user_de/*/"), deviceId);
 
             runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/system/sync/*"), deviceId);
             runCMDRoot(String.Format("shell \"rm -rf {0} \"", "/data/system/slice/*"), deviceId);

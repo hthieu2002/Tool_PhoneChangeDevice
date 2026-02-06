@@ -147,6 +147,15 @@ namespace ToolChange.Services
                     changedSystemInfo.Add("ro.boot.vbmeta.size", "16384");
                     changedSystemInfo.Add("ro.boot.vbmeta.digest", RandomService.getRandomHex32Bytes());
 
+                    changedSystemInfo.Add("keyguard.no_require_sim", "true");
+                    changedSystemInfo.Add("debug.sf.enable_sdr_dimming", "1");
+                    changedSystemInfo.Add("debug.sf.dim_in_gamma_in_enhanced_screenshots", "1");
+                    changedSystemInfo.Add("ro.hardware.keystore_desede", "true");
+                    changedSystemInfo.Add("ro.hardware.keystore", "trusty");
+                    changedSystemInfo.Add("ro.hardware.gatekeeper", "trusty");
+                    changedSystemInfo.Add("persist.vendor.enable.thermal.genl", "true");
+                    changedSystemInfo.Add("ro.incremental.enable", "true");
+
                     string isRadioImeiAvailable = ADBService.getProp("persist.radio.imei1", deviceId);
                     if (!string.IsNullOrEmpty(isRadioImeiAvailable))
                     {
