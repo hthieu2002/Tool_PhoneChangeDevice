@@ -56,6 +56,7 @@ namespace Services
             ADBService.runCMDRoot($"shell \"iptables -t mangle -F TUNSOCKS\"", deviceId);
             ADBService.runCMDRoot($"shell \"iptables -t mangle -I TUNSOCKS -d 192.168.0.0/16 -j RETURN\"", deviceId);
             ADBService.runCMDRoot($"shell \"iptables -t mangle -I TUNSOCKS -d 10.0.0.0/8 -j RETURN\"", deviceId);
+            ADBService.runCMDRoot($"shell \"iptables -t mangle -I TUNSOCKS -d 127.0.0.0/8 -j RETURN\"", deviceId);
             ADBService.runCMDRoot($"shell \"iptables -t mangle -I TUNSOCKS -p tcp -d 68.225.23.67 --j RETURN\"", deviceId);
             ADBService.runCMDRoot($"shell \"iptables -t mangle -A TUNSOCKS -j MARK --set-mark 99999\"", deviceId);
             ADBService.runCMDRoot($"shell \"iptables -t mangle -I OUTPUT -j TUNSOCKS\"", deviceId);
