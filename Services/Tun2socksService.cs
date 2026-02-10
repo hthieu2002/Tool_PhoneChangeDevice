@@ -41,14 +41,14 @@ namespace Services
             ADBService.runCMDRoot($"shell \"sysctl -w net.ipv4.conf.all.rp_filter=0\"", deviceId);
             ADBService.runCMDRoot($"shell \"sysctl -w net.ipv4.conf.wlan0.rp_filter=0\"", deviceId);
 
-            ADBService.runCMDRoot($"shell \"ip tuntap add dev tun0 mode tun\"", deviceId);
-            ADBService.runCMDRoot($"shell \"ifconfig tun0 {localIP} netmask 255.255.0.0\"", deviceId);
-            ADBService.runCMDRoot($"shell \"ip route add default dev tun0 table 666 metric 1\"", deviceId);
+            ADBService.runCMDRoot($"shell \"ip tuntap add dev wlan99999 mode tun\"", deviceId);
+            ADBService.runCMDRoot($"shell \"ifconfig wlan99999 {localIP} netmask 255.255.0.0\"", deviceId);
+            ADBService.runCMDRoot($"shell \"ip route add default dev wlan99999 table 666 metric 1\"", deviceId);
             ADBService.runCMDRoot($"shell \"ip rule add lookup 666 pref 10\"", deviceId);
-            ADBService.runCMDRoot($"shell \"ip rule add fwmark 4953 lookup 666 pref 10\"", deviceId);
-            ADBService.runCMDRoot($"shell \"ip -6 route add default dev tun0 table 666 metric 1\"", deviceId);
+            ADBService.runCMDRoot($"shell \"ip rule add fwmark 99999 lookup 666 pref 10\"", deviceId);
+            ADBService.runCMDRoot($"shell \"ip -6 route add default dev wlan99999 table 666 metric 1\"", deviceId);
             ADBService.runCMDRoot($"shell \"ip -6 rule add lookup 666 pref 10\"", deviceId);
-            ADBService.runCMDRoot($"shell \"ip link set tun0 up\"", deviceId);
+            ADBService.runCMDRoot($"shell \"ip link set wlan99999 up\"", deviceId);
             ADBService.runCMDRoot($"shell \"ip route flush cache\"", deviceId);
             ADBService.runCMDRoot($"shell \"ip -6 route flush cache\"", deviceId);
 
@@ -57,26 +57,26 @@ namespace Services
             ADBService.runCMDRoot($"shell \"iptables -t mangle -I TUNSOCKS -d 192.168.0.0/16 -j RETURN\"", deviceId);
             ADBService.runCMDRoot($"shell \"iptables -t mangle -I TUNSOCKS -d 10.0.0.0/8 -j RETURN\"", deviceId);
             ADBService.runCMDRoot($"shell \"iptables -t mangle -I TUNSOCKS -p tcp -d 68.225.23.67 --j RETURN\"", deviceId);
-            ADBService.runCMDRoot($"shell \"iptables -t mangle -A TUNSOCKS -j MARK --set-mark 4953\"", deviceId);
+            ADBService.runCMDRoot($"shell \"iptables -t mangle -A TUNSOCKS -j MARK --set-mark 99999\"", deviceId);
             ADBService.runCMDRoot($"shell \"iptables -t mangle -I OUTPUT -j TUNSOCKS\"", deviceId);
         }
 
         private static void startTun2socks(string proxyParams, string tun2socksDir, string deviceId)
         {
-            ADBService.runCMDRoot($"shell \"nohup {tun2socksDir}/tun2socks -device tun://tun0 -proxy {proxyParams} -interface wlan0 -mtu 1500 &> /dev/null &\"", deviceId);
+            ADBService.runCMDRoot($"shell \"nohup {tun2socksDir}/tun2socks -device tun://wlan99999 -proxy {proxyParams} -interface wlan0 -mtu 1500 &> /dev/null &\"", deviceId);
         }
 
         private static void stopTun2Socks(string deviceId)
         {
             ADBService.runCMDRoot("shell \"killall -q tun2socks\"", deviceId);
             ADBService.runCMDRoot("shell \"pkill -9 tun2socks\"", deviceId);
-            ADBService.runCMDRoot("shell \"ifconfig tun0 down\"", deviceId);
-            ADBService.runCMDRoot("shell \"ip tuntap del dev tun0 mode tun\"", deviceId);
-            ADBService.runCMDRoot("shell \"ip link delete tun0\"", deviceId);
-            ADBService.runCMDRoot("shell \"ip route del default dev tun0 table 666 metric 1\"", deviceId);
+            ADBService.runCMDRoot("shell \"ifconfig wlan99999 down\"", deviceId);
+            ADBService.runCMDRoot("shell \"ip tuntap del dev wlan99999 mode tun\"", deviceId);
+            ADBService.runCMDRoot("shell \"ip link delete wlan99999\"", deviceId);
+            ADBService.runCMDRoot("shell \"ip route del default dev wlan99999 table 666 metric 1\"", deviceId);
             ADBService.runCMDRoot("shell \"ip rule del lookup 666 pref 10\"", deviceId);
-            ADBService.runCMDRoot("shell \"ip rule del fwmark 4953 lookup 666 pref 10\"", deviceId);
-            ADBService.runCMDRoot("shell \"ip -6 route del default dev tun0 table 666 metric 1\"", deviceId);
+            ADBService.runCMDRoot("shell \"ip rule del fwmark 99999 lookup 666 pref 10\"", deviceId);
+            ADBService.runCMDRoot("shell \"ip -6 route del default dev wlan99999 table 666 metric 1\"", deviceId);
             ADBService.runCMDRoot("shell \"ip -6 rule del lookup 666 pref 10\"", deviceId);
             ADBService.runCMDRoot("shell \"ip route flush cache\"", deviceId);
             ADBService.runCMDRoot("shell \"ip -6 route flush cache\"", deviceId);
