@@ -725,7 +725,450 @@ namespace Services
         {
             runCMDRoot("reboot", deviceId);
         }
+        public static void adbShell(string deviceId, string cmd)
+        {
+            runCMDRoot(cmd, deviceId);
+        }
+        public static string WrapNumbersWithAmpersand(string input)
+        {
+            if (string.IsNullOrEmpty(input))
+                return input;
 
+            var result = new System.Text.StringBuilder();
+            bool inSpecialGroup = false;
+
+            for (int i = 0; i < input.Length; i++)
+            {
+                char c = input[i];
+
+                bool isSpecial = char.IsDigit(c) || c == '@';
+
+                if (isSpecial)
+                {
+                    if (!inSpecialGroup)
+                    {
+                        result.Append("&");
+                        inSpecialGroup = true;
+                    }
+
+                    result.Append(c);
+                }
+                else
+                {
+                    if (inSpecialGroup)
+                    {
+                        result.Append("&");
+                        inSpecialGroup = false;
+                    }
+
+                    result.Append(c);
+                }
+            }
+
+            if (inSpecialGroup)
+            {
+                result.Append("&");
+            }
+
+            return result.ToString();
+        }
+        private static Random rnd = new Random();
+
+        public static (string first, string last) InputRandomEnglishName()
+        {
+            string[] firstNames = { "John", "Michael", "David", "James", "Robert", "William", "Daniel", "Chris", "Alex", "Ryan" };
+            string[] lastNames = { "Smith", "Johnson", "Brown", "Taylor", "Anderson", "Thomas", "Jackson", "White", "Harris", "Martin" };
+
+            string first = firstNames[rnd.Next(firstNames.Length)];
+            string last = lastNames[rnd.Next(lastNames.Length)];
+
+            return (first,last);
+        }
+        public static void ClickRandomInArea(string deviceId,
+                                     int xMin, int xMax,
+                                     int yMin, int yMax)
+        {
+            Random rnd = new Random();
+
+            int x = rnd.Next(xMin, xMax + 1);
+            int y = rnd.Next(yMin, yMax + 1);
+
+            RunAdbCommand(deviceId, $"shell input tap {x} {y}");
+        }
+        public static bool SmartClickFlow(string deviceId)
+        {
+            try
+            {
+                // dump UI
+                RunAdbCommand(deviceId, "shell uiautomator dump /sdcard/ui.xml");
+                RunAdbCommand(deviceId, "pull /sdcard/ui.xml");
+
+                string xml = System.IO.File.ReadAllText("ui.xml");
+
+                // ===== CHECK GOOGLE SERVICES =====
+                if (xml.Contains("Google services: Back up your device"))
+                {
+                    ClickRandomInArea(deviceId, 112, 368, 2719, 2763);
+                    return true;
+                }
+
+                // ===== ƯU TIÊN =====
+                if (TryClickByText(deviceId, xml, "Skip"))
+                    return true;
+
+                if (TryClickByText(deviceId, xml, "I agree"))
+                    return true;
+
+                // ===== PHỤ =====
+                if (TryClickByText(deviceId, xml, "Next"))
+                    return true;
+
+                if (TryClickByText(deviceId, xml, "Confirm"))
+                    return true;
+
+                return false;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+        private static bool TryClickByText(string deviceId, string xml, string keyword)
+        {
+            var match = System.Text.RegularExpressions.Regex.Match(
+                xml,
+                $"text=\"{keyword}\".*?bounds=\"\\[(\\d+),(\\d+)\\]\\[(\\d+),(\\d+)\\]\""
+            );
+
+            if (match.Success)
+            {
+                int x1 = int.Parse(match.Groups[1].Value);
+                int y1 = int.Parse(match.Groups[2].Value);
+                int x2 = int.Parse(match.Groups[3].Value);
+                int y2 = int.Parse(match.Groups[4].Value);
+
+                int centerX = (x1 + x2) / 2;
+                int centerY = (y1 + y2) / 2;
+
+                RunAdbCommand(deviceId, $"shell input tap {centerX} {centerY}");
+                return true;
+            }
+
+            return false;
+        }
+        public static async Task<(bool found, string matchedKeyword)> Find2KeywordsSwitch(
+            string deviceId,
+            string keyword1,
+            string keyword2,
+            int totalTimeoutSeconds = 60,
+            int perKeywordCheckMs = 2000)
+        {
+            try
+            {
+                DateTime end = DateTime.Now.AddSeconds(totalTimeoutSeconds);
+
+                while (DateTime.Now < end)
+                {
+                    // ===== KEYWORD 1 =====
+                    if (CheckKeyword(deviceId, keyword1))
+                    {
+                        return (true, keyword1);
+                    }
+
+                    System.Threading.Thread.Sleep(perKeywordCheckMs);
+
+                    // ===== KEYWORD 2 =====
+                    if (CheckKeyword(deviceId, keyword2))
+                    {
+                        return (true, keyword2);
+                    }
+
+                    System.Threading.Thread.Sleep(perKeywordCheckMs);
+                }
+
+                return (false, null);
+            }
+            catch
+            {
+                return (false, null);
+            }
+        }
+        public static async Task<(bool found, string matchedKeyword)> Find3KeywordsSwitch(
+            string deviceId,
+            string keyword1,
+            string keyword2,
+            string keyword3,
+            string keyword4,
+            string keyword5,
+            int totalTimeoutSeconds = 60,
+            int perKeywordCheckMs = 2000)
+        {
+            try
+            {
+                DateTime end = DateTime.Now.AddSeconds(totalTimeoutSeconds);
+
+                while (DateTime.Now < end)
+                {
+                    // ===== KEYWORD 1 =====
+                    if (CheckKeyword(deviceId, keyword1))
+                    {
+                        return (true, keyword1);
+                    }
+
+                    System.Threading.Thread.Sleep(perKeywordCheckMs);
+
+                    // ===== KEYWORD 2 =====
+                    if (CheckKeyword(deviceId, keyword2))
+                    {
+                        return (true, keyword2);
+                    }
+                    if (CheckKeyword(deviceId, keyword3))
+                    {
+                        return (true, keyword3);
+                    }
+                    if (CheckKeyword(deviceId, keyword4))
+                    {
+                        return (true, keyword4);
+                    }
+                    if (CheckKeyword(deviceId, keyword5))
+                    {
+                        return (true, keyword5);
+                    }
+                    System.Threading.Thread.Sleep(perKeywordCheckMs);
+                }
+
+                return (false, null);
+            }
+            catch
+            {
+                return (false, null);
+            }
+        }
+        private static bool CheckKeyword(string deviceId, string keyword)
+        {
+            // dump UI
+            RunAdbCommand(deviceId, "shell uiautomator dump /sdcard/ui.xml");
+            RunAdbCommand(deviceId, "pull /sdcard/ui.xml");
+
+            string xml = System.IO.File.ReadAllText("ui.xml");
+
+            return xml.Contains($"text=\"{keyword}\"") ||
+                   xml.Contains($"content-desc=\"{keyword}\"") ||
+                   xml.Contains(keyword);
+        }
+        public static async Task<bool> FindKeywordUntilFound(string deviceId, string keyword, int timeoutSeconds = 60)
+        {
+            try
+            {
+                DateTime end = DateTime.Now.AddSeconds(timeoutSeconds);
+
+                while (DateTime.Now < end)
+                {
+                    // 1. Dump UI
+                    RunAdbCommand(deviceId, "shell uiautomator dump /sdcard/ui.xml");
+
+                    // 2. Pull file
+                    RunAdbCommand(deviceId, "pull /sdcard/ui.xml");
+
+                    // 3. Đọc xml
+                    string xml = System.IO.File.ReadAllText("ui.xml");
+
+                    // 4. Check keyword (text hoặc content-desc)
+                    if (xml.Contains($"text=\"{keyword}\"") ||
+                        xml.Contains($"content-desc=\"{keyword}\"") ||
+                        xml.Contains(keyword))
+                    {
+                        return true;
+                    }
+
+                    // 5. chưa thấy → đợi rồi thử lại
+                    System.Threading.Thread.Sleep(2000);
+                }
+
+                return false;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+        public static async Task<bool> FindAndClickUntilSuccess(string deviceId, string keyword, int timeoutSeconds = 60)
+        {
+            try
+            {
+                DateTime end = DateTime.Now.AddSeconds(timeoutSeconds);
+
+                while (DateTime.Now < end)
+                {
+                    // 1. Dump UI
+                    RunAdbCommand(deviceId, "shell uiautomator dump /sdcard/ui.xml");
+
+                    // 2. Pull về máy
+                    RunAdbCommand(deviceId, "pull /sdcard/ui.xml");
+
+                    // 3. Đọc file
+                    string xml = System.IO.File.ReadAllText("ui.xml");
+
+                    // 4. Check keyword
+                    if (xml.Contains(keyword))
+                    {
+                        // 5. Lấy bounds
+                        var match = System.Text.RegularExpressions.Regex.Match(xml,
+                            $"text=\"{keyword}\".*?bounds=\"\\[(\\d+),(\\d+)\\]\\[(\\d+),(\\d+)\\]\"");
+
+                        if (match.Success)
+                        {
+                            int x1 = int.Parse(match.Groups[1].Value);
+                            int y1 = int.Parse(match.Groups[2].Value);
+                            int x2 = int.Parse(match.Groups[3].Value);
+                            int y2 = int.Parse(match.Groups[4].Value);
+
+                            int centerX = (x1 + x2) / 2;
+                            int centerY = (y1 + y2) / 2;
+
+                            // 6. Click
+                            RunAdbCommand(deviceId, $"shell input tap {centerX} {centerY}");
+
+                            return true;
+                        }
+                    }
+
+                    // 7. Nếu chưa thấy → chờ rồi thử lại
+                    System.Threading.Thread.Sleep(2000);
+                }
+
+                return false;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+        public static async  Task<bool> IsDeviceReadyOnHome(string deviceId)
+        {
+            try
+            {
+                if (!IsDeviceOnlineReg(deviceId))
+                    return false;
+
+                // 1) Boot completed
+                string bootCompleted = RunAdbCommand(deviceId, "shell getprop sys.boot_completed").Trim();
+                if (bootCompleted != "1")
+                    return false;
+
+                // 2) Screen is ON
+                string powerInfo = RunAdbCommand(deviceId, "shell dumpsys power");
+                bool isScreenOn =
+                    powerInfo.Contains("Display Power: state=ON", StringComparison.OrdinalIgnoreCase) ||
+                    powerInfo.Contains("mHoldingDisplaySuspendBlocker=true", StringComparison.OrdinalIgnoreCase) ||
+                    powerInfo.Contains("mWakefulness=Awake", StringComparison.OrdinalIgnoreCase);
+
+                return isScreenOn;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        public static bool IsDeviceOnlineReg(string deviceId)
+        {
+            try
+            {
+                var process = new Process
+                {
+                    StartInfo = new ProcessStartInfo
+                    {
+                        FileName = "adb",
+                        Arguments = $"-s {deviceId} get-state",
+                        RedirectStandardOutput = true,
+                        UseShellExecute = false,
+                        CreateNoWindow = true
+                    }
+                };
+
+                process.Start();
+
+                string output = process.StandardOutput.ReadToEnd().Trim();
+                process.WaitForExit();
+
+                return output == "device";
+            }
+            catch
+            {
+                return false;
+            }
+        }
+        public static async Task<bool> EnsureInternet(string deviceId, string wifiName, string wifiPassword)
+        {
+            try
+            {
+                RunAdbCommand(deviceId, "shell svc wifi enable");
+                System.Threading.Thread.Sleep(5000);
+
+                string wifiInfo = RunAdbCommand(deviceId, "shell dumpsys wifi");
+
+                bool connectedToTargetWifi =
+                    wifiInfo.Contains($"SSID: \"{wifiName}\"") ||
+                    wifiInfo.Contains($"SSID: {wifiName}") ||
+                    wifiInfo.Contains(wifiName);
+
+                if (!connectedToTargetWifi)
+                {
+                    RunAdbCommand(deviceId, $"shell cmd wifi connect-network \"{wifiName}\" wpa2 \"{wifiPassword}\"");
+                    System.Threading.Thread.Sleep(10000);
+                }
+
+                for (int i = 0; i < 5; i++)
+                {
+                    wifiInfo = RunAdbCommand(deviceId, "shell dumpsys wifi");
+
+                    connectedToTargetWifi =
+                        wifiInfo.Contains($"SSID: \"{wifiName}\"") ||
+                        wifiInfo.Contains($"SSID: {wifiName}") ||
+                        wifiInfo.Contains(wifiName);
+
+                    if (connectedToTargetWifi)
+                    {
+                        string ping = RunAdbCommand(deviceId, "shell ping -c 1 8.8.8.8");
+                        if (ping.Contains("1 received") || ping.Contains("bytes from"))
+                            return true;
+                    }
+
+                    System.Threading.Thread.Sleep(3000);
+                }
+
+                return false;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+        private static string RunAdbCommand(string deviceId, string arguments)
+        {
+            var process = new Process
+            {
+                StartInfo = new ProcessStartInfo
+                {
+                    FileName = "adb",
+                    Arguments = $"-s {deviceId} {arguments}",
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true,
+                    UseShellExecute = false,
+                    CreateNoWindow = true
+                }
+            };
+
+            process.Start();
+
+            string output = process.StandardOutput.ReadToEnd();
+            string error = process.StandardError.ReadToEnd();
+
+            process.WaitForExit();
+
+            return string.IsNullOrWhiteSpace(output) ? error : output;
+        }
         public static void shellSetProp(Dictionary<string, string> settings, string deviceId)
         {
             //runCMD("root", deviceId);
@@ -3088,4 +3531,140 @@ namespace Services
         }
     }
 
+}
+public class KeyArea
+{
+    public int XMin { get; set; }
+    public int XMax { get; set; }
+    public int YMin { get; set; }
+    public int YMax { get; set; }
+
+    public (int x, int y) GetCenter()
+    {
+        return ((XMin + XMax) / 2, (YMin + YMax) / 2);
+    }
+
+    public (int x, int y) GetRandomPoint(Random rd)
+    {
+        int x = rd.Next(XMin, XMax + 1);
+        int y = rd.Next(YMin, YMax + 1);
+        return (x, y);
+    }
+}
+
+public static class AdbKeyboardTyper
+{
+    private static readonly Dictionary<char, KeyArea> KeyMap = new Dictionary<char, KeyArea>()
+    {
+        { 'a', new KeyArea { XMin = 112, XMax = 176, YMin = 2223, YMax = 2390 } },
+        { 'b', new KeyArea { XMin = 830, XMax = 888, YMin = 2425, YMax = 2514 } },
+        { 'c', new KeyArea { XMin = 532, XMax = 599, YMin = 2415, YMax = 2521 } },
+        { 'd', new KeyArea { XMin = 388, XMax = 471, YMin = 2216, YMax = 2325 } },
+        { 'e', new KeyArea { XMin = 327, XMax = 388, YMin = 2018, YMax = 2117 } },
+        { 'f', new KeyArea { XMin = 532, XMax = 606, YMin = 2220, YMax = 2309 } },
+        { 'g', new KeyArea { XMin = 676, XMax = 744, YMin = 2213, YMax = 2306 } },
+        { 'h', new KeyArea { XMin = 821, XMax = 885, YMin = 2236, YMax = 2306 } },
+        { 'i', new KeyArea { XMin = 520, XMax = 580, YMin = 1130, YMax = 1190 } },
+        { 'j', new KeyArea { XMin = 1042, XMax = 1093, YMin = 2014, YMax = 2114 } },
+        { 'k', new KeyArea { XMin = 1109, XMax = 1173, YMin = 2213, YMax = 2316 } },
+        { 'l', new KeyArea { XMin = 1250, XMax = 1318, YMin = 2220, YMax = 2319 } },
+        { 'm', new KeyArea { XMin = 1106, XMax = 1173, YMin = 2412, YMax = 2514 } },
+        { 'n', new KeyArea { XMin = 965, XMax = 1035, YMin = 2421, YMax = 2517 } },
+        { 'o', new KeyArea { XMin = 1183, XMax = 1253, YMin = 2002, YMax = 2111 } },
+        { 'p', new KeyArea { XMin = 1327, XMax = 1395, YMin = 2005, YMax = 2104 } },
+        { 'q', new KeyArea { XMin = 44, XMax = 99, YMin = 2008, YMax = 2107 } },
+        { 'r', new KeyArea { XMin = 468, XMax = 505, YMin = 2014, YMax = 2107 } },
+        { 's', new KeyArea { XMin = 256, XMax = 311, YMin = 2216, YMax = 2312 } },
+        { 't', new KeyArea { XMin = 606, XMax = 683, YMin = 2002, YMax = 2107 } },
+        { 'u', new KeyArea { XMin = 891, XMax = 968, YMin = 2008, YMax = 2107 } },
+        { 'v', new KeyArea { XMin = 679, XMax = 740, YMin = 2428, YMax = 2514 } },
+        { 'w', new KeyArea { XMin = 189, XMax = 250, YMin = 2011, YMax = 2101 } },
+        { 'x', new KeyArea { XMin = 391, XMax = 465, YMin = 2428, YMax = 2517 } },
+        { 'y', new KeyArea { XMin = 753, XMax = 814, YMin = 2018, YMax = 2111 } },
+        { 'z', new KeyArea { XMin = 262, XMax = 314, YMin = 2418, YMax = 2514 } },
+
+        { '0', new KeyArea { XMin = 1324, XMax = 1395, YMin = 2018, YMax = 2114 } },
+        { '1', new KeyArea { XMin = 44, XMax = 109, YMin = 2011, YMax = 2111 } },
+        { '2', new KeyArea { XMin = 182, XMax = 259, YMin = 2008, YMax = 2104 } },
+        { '3', new KeyArea { XMin = 330, XMax = 388, YMin = 2014, YMax = 2107 } },
+        { '4', new KeyArea { XMin = 474, XMax = 538, YMin = 2011, YMax = 2101 } },
+        { '5', new KeyArea { XMin = 609, XMax = 676, YMin = 2011, YMax = 2107 } },
+        { '6', new KeyArea { XMin = 753, XMax = 821, YMin = 2005, YMax = 2111 } },
+        { '7', new KeyArea { XMin = 894, XMax = 958, YMin = 2011, YMax = 2107 } },
+        { '8', new KeyArea { XMin = 1045, XMax = 1116, YMin = 2008, YMax = 2104 } },
+        { '9', new KeyArea { XMin = 1183, XMax = 1241, YMin = 2014, YMax = 2101 } },
+
+        { ' ', new KeyArea { XMin = 545, XMax = 1019, YMin = 2630, YMax = 2729 } },
+        { '&', new KeyArea { XMin = 51, XMax = 150, YMin = 2642, YMax = 2713} },
+        {'@', new KeyArea {XMin = 32, XMax = 102, YMin = 2220, YMax = 2309} }
+    };
+
+    public static async Task TapTextByAdbAsync(
+        string deviceId,
+        string inputText,
+        int delayMs = 600,
+        bool useRandomPoint = true,
+        CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrWhiteSpace(inputText))
+            return;
+
+        Random rd = new Random();
+
+        foreach (char rawChar in inputText.ToLower())
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            if (!KeyMap.TryGetValue(rawChar, out var area))
+            {
+                Console.WriteLine($"[BỎ QUA] Không có tọa độ cho ký tự: {rawChar}");
+                continue;
+            }
+
+            (int x, int y) point = useRandomPoint
+                ? area.GetRandomPoint(rd)
+                : area.GetCenter();
+
+            await AdbTapAsync(deviceId, point.x, point.y, cancellationToken);
+
+            Console.WriteLine($"Tapped '{rawChar}' tại ({point.x}, {point.y})");
+
+            if (delayMs > 0)
+                await Task.Delay(delayMs, cancellationToken);
+        }
+    }
+
+    private static async Task AdbTapAsync(
+        string deviceId,
+        int x,
+        int y,
+        CancellationToken cancellationToken = default)
+    {
+        var psi = new ProcessStartInfo
+        {
+            FileName = "adb",
+            Arguments = $"-s {deviceId} shell input tap {x} {y}",
+            RedirectStandardOutput = true,
+            RedirectStandardError = true,
+            UseShellExecute = false,
+            CreateNoWindow = true
+        };
+
+        using var process = new Process();
+        process.StartInfo = psi;
+        process.Start();
+
+        await process.WaitForExitAsync(cancellationToken);
+
+        if (process.ExitCode != 0)
+        {
+            string error = await process.StandardError.ReadToEndAsync();
+            throw new Exception($"ADB tap lỗi: {error}");
+        }
+    }
+}
+
+public class RestartFlowException : Exception
+{
+    public RestartFlowException(string message) : base(message) { }
 }

@@ -134,6 +134,20 @@ namespace ToolChange.ViewModels
         private bool _isButtonChangeFull = true;
         private bool _isButtonChangeSim = false;
         private bool _isButtonChangeSimFull = true;
+        private bool _isRegMailButtonEnabled = true;
+        public bool IsRegMailButtonEnabled
+        {
+            get => _isRegMailButtonEnabled;
+            set
+            {
+                if (_isRegMailButtonEnabled != value)
+                {
+                    _isRegMailButtonEnabled = value;
+                    OnPropertyChanged(nameof(IsRegMailButtonEnabled));
+                }
+            }
+        }
+
         public bool IsRandomButtonEnabled
         {
             get => _isRandomButtonEnabled;
@@ -560,6 +574,7 @@ namespace ToolChange.ViewModels
         public ICommand CopyDeviceIdCommand { get; private set; }
         public ICommand CopyDeviceIdCommandAll { get; private set; }
         public ICommand RandomDeviceCommand { get; private set; }
+        public ICommand RegMailCommand { get; private set; }
         public ICommand RandomSimCommand { get; private set; }
         public ICommand ChangeDeviceCommand { get; private set; }
         public ICommand IsCheckBoxDevice { get; private set; }
@@ -609,6 +624,7 @@ namespace ToolChange.ViewModels
             StopFakeProxyDeviceIdCommand = new RelayCommand<Models.DeviceModel>(StopFakeProxyDeviceId);
             InstallApkSingle = new RelayCommand<Models.DeviceModel>(InstallApk);
             RandomDeviceCommand = new RelayCommand(async () => await RandomDevice());
+            RegMailCommand = new RelayCommand(async () => await RegMail());
             RandomSimCommand = new RelayCommand(async () => await RandomSim());
             ChangeDeviceCommand = new RelayCommand(async () => await ChangeDevice());
             AutoChangeFullCommand = new RelayCommand(async () => await AutoChangeFull());
@@ -1528,6 +1544,649 @@ namespace ToolChange.ViewModels
 
             }
             return tempDevice;
+        }
+        private async Task RegMail()
+        {
+            IsRegMailButtonEnabled = false;
+
+            // list device
+            try
+            {
+                var selectedDevices = Devices.Where(device => device.IsChecked).ToList();
+                int selectedCount = selectedDevices.Count;
+
+                if (selectedCount == 0)
+                {
+                    System.Windows.MessageBox.Show(DevicesLang.logSelectDeviceChange, Lang.LogInfomation, MessageBoxButton.OK, MessageBoxImage.Information);
+                    return;
+                }
+
+                var tasks = new List<Task>();
+
+                var result = System.Windows.MessageBox.Show("Reg mail ?", Lang.LogInfomation, MessageBoxButton.YesNo, MessageBoxImage.Warning);
+                if (result == MessageBoxResult.Yes)
+                {
+                    foreach (var device in selectedDevices)
+                    {
+                        if (device.Status == "Offline")
+                        {
+                            UpdateDeviceStatus(device.DeviceId, "0%", "⚠ Device offline");
+                            IsRegMailButtonEnabled = true;
+                            continue;
+
+                        }
+                        if (!await ADBService.CheckDeviceActiveBool(device.DeviceId, miChangerGraphQLClient))
+                        {
+                            UpdateDeviceStatus(device.DeviceId, "0%", "⚠ Device not active");
+                            IsRegMailButtonEnabled = true;
+                            continue;
+
+                        }
+                        if (_processingDeviceIds.Contains(device.DeviceId))
+                        {
+                            UpdateDeviceStatus(device.DeviceId, "%", "⏳ Device running...");
+                            IsRegMailButtonEnabled = true;
+                            continue;
+
+                        }
+                        _processingDeviceIds.Add(device.DeviceId);
+
+                        tasks.Add(ProcessRegMailDeviceAsync(device));
+                    }
+                }
+
+                await Task.WhenAll(tasks);
+                //IsRegMailButtonEnabled = true;
+            }
+            catch (Exception ex)
+            {
+                System.Windows.MessageBox.Show($"Error in RegMail: {ex.Message}", Lang.LogError, MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+            finally
+            {
+                 _processingDeviceIds.Clear();
+                IsRegMailButtonEnabled = true;
+            }
+        }
+        private Random rnd = new Random();
+
+        public string RandomString4Char4Number()
+        {
+            string letters = "abcdefghijklmnopqrstuvwxyz";
+            string numbers = "0123456789";
+
+            string result = "";
+
+            // 4 chữ cái
+            for (int i = 0; i < 8; i++)
+            {
+                result += letters[rnd.Next(letters.Length)];
+            }
+
+            // 4 số
+            for (int i = 0; i < 6; i++)
+            {
+                result += numbers[rnd.Next(numbers.Length)];
+            }
+
+            return result;
+        }
+        public string RandomString2Char2Number()
+        {
+            string letters = "abcdefghijklmnopqrstuvwxyz";
+            string numbers = "0123456789";
+
+            string result = "";
+
+            // 4 chữ cái
+            for (int i = 0; i < 2; i++)
+            {
+                result += letters[rnd.Next(letters.Length)];
+            }
+
+            // 4 số
+            for (int i = 0; i < 2; i++)
+            {
+                result += numbers[rnd.Next(numbers.Length)];
+            }
+
+            return result;
+        }
+        public static void AppendTxt(string path, string content)
+        {
+            string dir = System.IO.Path.GetDirectoryName(path);
+
+            if (!System.IO.Directory.Exists(dir))
+            {
+                System.IO.Directory.CreateDirectory(dir);
+            }
+
+            System.IO.File.AppendAllText(path, content + Environment.NewLine);
+        }
+        public static async Task CheckSomethingWentWrongAsync(string deviceId)
+        {
+            bool hasError = await ADBService.FindKeywordUntilFound(deviceId, "Something went wrong", 2);
+            if (hasError)
+            {
+                throw new RestartFlowException("Detected 'Something went wrong'");
+            }
+        }
+        public static async Task RestartGooglePlayAsync(string deviceId)
+        {
+            try
+            {
+                // Thoát hẳn app, kể cả background
+                ADBService.adbShell(deviceId, "shell am force-stop com.android.vending");
+                await Task.Delay(1500);
+
+                // Về home cho sạch trạng thái
+                ADBService.adbShell(deviceId, "shell input keyevent KEYCODE_HOME");
+                await Task.Delay(1000);
+
+                // Mở lại CH Play
+                ADBService.adbShell(deviceId, "shell am start -n com.android.vending/com.google.android.finsky.activities.MainActivity");
+                await Task.Delay(3000);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"RestartGooglePlayAsync error: {ex.Message}");
+            }
+        }
+        public static async Task SafeStepAsync(string deviceId, Func<Task> action)
+        {
+            await action();
+            await CheckSomethingWentWrongAsync(deviceId);
+        }
+        public static async Task SafeStepAsync(string deviceId, Action action)
+        {
+            action();
+            await CheckSomethingWentWrongAsync(deviceId);
+        }
+        private async Task ProcessRegMailDeviceAsync(Models.DeviceModel device, int checkChange = 0)
+        {
+            var nameMail = "";
+            var passMail = "";
+            var modelCpu = "";
+
+            UpdateDeviceStatus(device.DeviceId, "0%", "Start reg mail brand samsung os 13");
+            // Random device brand samsung name exynos os 13
+
+            POCO.Models.DeviceModel deviceReg = await GetDevice(device);
+            modelCpu = deviceReg.Board;
+            // Đã lấy thành công device
+
+            await ProcessChangeDeviceRegMailAsync(device, deviceReg);
+
+            // Đợi thiết bị online trở lại 
+            UpdateDeviceStatus(device.DeviceId, "10%", "Đã change thiết bị thành công");
+            await Task.Delay(2000);
+            UpdateDeviceStatus(device.DeviceId, "10%", "Đợi thiết bị kết nối trở lại ...");
+            while (true)
+            {
+                if (await ADBService.IsDeviceReadyOnHome(device.DeviceId))
+                {
+                    UpdateDeviceStatus(device.DeviceId, "10%", "Thiết bị đã kết nối");
+                    await Task.Delay(2000);
+                    break;
+                }
+                else
+                {
+                    UpdateDeviceStatus(device.DeviceId, "10%", "Đợi thiết bị kết nối trở lại ...");
+                    await Task.Delay(2000);
+                }
+            }
+
+            UpdateDeviceStatus(device.DeviceId, "11%", "Kết nối wifi skyboss");
+
+            bool ok = await ADBService.EnsureInternet(device.DeviceId, "Skyboss_5G", "duchanh456");
+
+            if (ok)
+            {
+                UpdateDeviceStatus(device.DeviceId, "15%", "Đã kết nối skyboss");
+            }
+
+            int retryCount = 0;
+            const int maxRetry = 10;
+
+            while (retryCount < maxRetry)
+            {
+                try
+                {
+                    retryCount++;
+                    Console.WriteLine($"==== RUN FLOW LẦN {retryCount} ====");
+
+                    await RunCreateMailFlowAsync(device, modelCpu);
+
+                    Console.WriteLine("🎉 Flow hoàn tất");
+                    break;
+                }
+                catch (RestartFlowException ex)
+                {
+                    Console.WriteLine($"⚠️ Restart flow: {ex.Message}");
+                    UpdateDeviceStatus(device.DeviceId, "0%", "Something went wrong -> restart flow");
+
+                    await RestartGooglePlayAsync(device.DeviceId);
+                    continue;
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"❌ Lỗi thường: {ex.Message}");
+                    UpdateDeviceStatus(device.DeviceId, "0%", "Flow error -> restart");
+
+                    await RestartGooglePlayAsync(device.DeviceId);
+                    continue;
+                }
+            }
+
+
+            IsRegMailButtonEnabled = true;
+        }
+        public async Task RunCreateMailFlowAsync(Models.DeviceModel device, string modelCpu)
+        {
+            string nameMail = "";
+            string passMail = "";
+            // reg mail
+            // open chplay
+            var (first, last) = ADBService.InputRandomEnglishName();
+            UpdateDeviceStatus(device.DeviceId, "20%", "Open Chplay");
+            ADBService.adbShell(device.DeviceId, "shell am start -n com.android.vending/com.google.android.finsky.activities.MainActivity");
+            await Task.Delay(1000);
+            UpdateDeviceStatus(device.DeviceId, "25%", "Click sign in and create account ...");
+            await ADBService.FindAndClickUntilSuccess(device.DeviceId, "Sign in");
+            await Task.Delay(1000);
+            await ADBService.FindAndClickUntilSuccess(device.DeviceId, "Create account");
+            await Task.Delay(1000);
+            // x 184 - 695 y 1811 1777
+            ADBService.ClickRandomInArea(device.DeviceId, 184, 695, 1724, 1798); // lick ô tạo tài khoản
+            await Task.Delay(2000);
+            await ADBService.FindKeywordUntilFound(device.DeviceId, "Create a Google Account");
+            await Task.Delay(1000);
+
+            while (true)
+            {
+                if (await ADBService.FindKeywordUntilFound(device.DeviceId, "Basic information", 3))
+                {
+                    await Task.Delay(3000);
+                    UpdateDeviceStatus(device.DeviceId, "30%", "Enter infomation basic");
+                    break;
+                }
+                else
+                {
+                    UpdateDeviceStatus(device.DeviceId, "27%", "Enter Name");
+                    await Task.Delay(1000);
+                    ADBService.ClickRandomInArea(device.DeviceId, 233, 1114, 813, 878); // click ô nhập name
+                    await Task.Delay(3000);                                             //ADBService.adbShell(device.DeviceId, $"shell input text \"{first}\"");
+                    await AdbKeyboardTyper.TapTextByAdbAsync(device.DeviceId, first);
+                    UpdateDeviceStatus(device.DeviceId, "28%", "Enter Last name");
+                    await Task.Delay(1000);
+                    ADBService.ClickRandomInArea(device.DeviceId, 174, 1182, 1066, 1114); // click ô nhập last name
+                    await Task.Delay(3000);                                                                           //ADBService.adbShell(device.DeviceId, $"shell input text \"{last}\"");
+                    await AdbKeyboardTyper.TapTextByAdbAsync(device.DeviceId, last);
+                    UpdateDeviceStatus(device.DeviceId, "29%", "Next..");
+                    
+                    await ADBService.FindAndClickUntilSuccess(device.DeviceId, "Next", 10);
+
+                    await Task.Delay(6000);
+
+                    if (await ADBService.FindKeywordUntilFound(device.DeviceId, "Basic information", 5))
+                    {
+                        await Task.Delay(3000);
+                        UpdateDeviceStatus(device.DeviceId, "30%", "Enter infomation basic");
+                        break;
+                    }
+                    // đã xong phần điền tên 
+                }
+            }
+            ADBService.ClickRandomInArea(device.DeviceId, 150, 375, 842, 929); // click ô chọn tháng
+            await Task.Delay(2000);
+            ADBService.ClickRandomInArea(device.DeviceId, 121, 404, 1053, 2447); // click ô chọn tháng
+            await Task.Delay(1000);
+
+            ADBService.ClickRandomInArea(device.DeviceId, 580, 830, 829, 922); // click ô chọn ngày
+            await Task.Delay(2000);
+            ADBService.adbShell(device.DeviceId, $"shell input text \"11\""); // click ô chọn ngày
+            await Task.Delay(1000);
+
+            ADBService.ClickRandomInArea(device.DeviceId, 1000, 1228, 852, 935); // click ô chọn năm
+            await Task.Delay(2000);
+            ADBService.adbShell(device.DeviceId, $"shell input text \"2000\""); // click ô chọn năm
+            await Task.Delay(1000);
+
+            ADBService.ClickRandomInArea(device.DeviceId, 157, 1135, 1092, 1178); // click ô chọn giới tính
+            await Task.Delay(2000);
+            ADBService.ClickRandomInArea(device.DeviceId, 166, 1237, 1470, 1550); // click ô chọn giới tính
+            await Task.Delay(1000);
+
+            UpdateDeviceStatus(device.DeviceId, "35%", "Next..");
+            await Task.Delay(3000);
+            await ADBService.FindAndClickUntilSuccess(device.DeviceId, "Next", 10);
+            UpdateDeviceStatus(device.DeviceId, "40%", "Create gmail..");
+            var result = await ADBService.Find2KeywordsSwitch(
+                device.DeviceId,
+                "How you",
+                "Create an email address"
+            );
+
+            if (result.found)
+            {
+                UpdateDeviceStatus(device.DeviceId, "41%", "Create gmail..");
+                await Task.Delay(1000);
+                Console.WriteLine($"✅ Tìm thấy: {result.matchedKeyword}");
+                if (result.matchedKeyword == "How you")
+                {
+                    UpdateDeviceStatus(device.DeviceId, "42%", "Create gmail text..");
+                    string s = RandomString2Char2Number();
+                    ADBService.ClickRandomInArea(device.DeviceId, 150, 942, 935, 1021);
+                    await Task.Delay(2000);
+                    nameMail = $"{first}.{last}.{s}.2026";
+                    nameMail = ADBService.WrapNumbersWithAmpersand(nameMail);
+                    await AdbKeyboardTyper.TapTextByAdbAsync(device.DeviceId, nameMail);
+                    //ADBService.adbShell(device.DeviceId, $"shell input text \"{nameMail}\""); // click ô chọn năm
+                    await Task.Delay(2000);
+                    await ADBService.FindAndClickUntilSuccess(device.DeviceId, "Next", 10);
+                }
+                else
+                {
+                    UpdateDeviceStatus(device.DeviceId, "42%", "Create gmail click..");
+                    ADBService.ClickRandomInArea(device.DeviceId, 96, 150, 900, 961);
+                    await Task.Delay(3000);
+                    await ADBService.FindAndClickUntilSuccess(device.DeviceId, "Next", 10);
+                }
+            }
+            else
+            {
+                Console.WriteLine("❌ Không tìm thấy keyword nào");
+            }
+            UpdateDeviceStatus(device.DeviceId, "41%", "Create password");
+            await Task.Delay(3000);
+            await ADBService.FindKeywordUntilFound(device.DeviceId, "Create a strong password");
+            await Task.Delay(3000);
+            string sPass = RandomString4Char4Number();
+            passMail = $"{sPass}@";
+            var passMailok = ADBService.WrapNumbersWithAmpersand(passMail);
+            await Task.Delay(1000);
+            await AdbKeyboardTyper.TapTextByAdbAsync(device.DeviceId, passMailok);
+            //ADBService.adbShell(device.DeviceId, $"shell input text \"{passMail}\""); // click ô chọn năm
+            await Task.Delay(1000);
+            await ADBService.FindAndClickUntilSuccess(device.DeviceId, "Next", 10);
+            await Task.Delay(10000);
+            UpdateDeviceStatus(device.DeviceId, "50%", "Xác thực..");
+            if (await ADBService.FindKeywordUntilFound(device.DeviceId, "Verify your phone number", 10))
+            {
+                Console.WriteLine("🎉 Hoàn tất tất cả bước ==> reg thất bại");
+                UpdateDeviceStatus(device.DeviceId, "100%", "🎉 Hoàn tất tất cả bước ==> reg thất bại");
+                AppendTxt("./Resouce/regMail/mail.txt",
+                    $"DeviceID: {device.DeviceId} | DeviceName {device.Name} | PassMail : {passMail} | Cpu: {modelCpu} |Result: FALSE");
+
+                return;
+            }
+
+
+            UpdateDeviceStatus(device.DeviceId, "55%", "Xác thực ?");
+
+            bool donePhone = false;
+            bool doneReview = false;
+            bool donePrivacy = false;
+            bool doneBackup = false;
+            bool done1Backup = false;
+            int i = 1;
+            do
+            {
+                var resultEnd =await ADBService.Find3KeywordsSwitch(
+                    device.DeviceId,
+                    "Add phone number",
+                    "Review your account info",
+                    "Privacy and Terms",
+                    "Back up your device",
+                    "Google services",5
+                );
+
+                if (!resultEnd.found)
+                {
+                    Console.WriteLine("❌ Không tìm thấy keyword nào");
+                    break;
+                }
+
+                Console.WriteLine($"✅ Tìm thấy: {resultEnd.matchedKeyword}");
+                UpdateDeviceStatus(device.DeviceId, "65%", "Check key word");
+                // ===== CASE 1 =====
+                if (resultEnd.matchedKeyword == "Add phone number" && !donePhone)
+                {
+                    donePhone = true;
+
+                    UpdateDeviceStatus(device.DeviceId, "70%", "Xác thực..");
+                    await Task.Delay(1000);
+
+                    ADBService.adbShell(device.DeviceId, "shell input swipe 500 1500 500 300");
+                    await Task.Delay(1000);
+
+                    await ADBService.FindAndClickUntilSuccess(device.DeviceId, "Skip", 10);
+                    await Task.Delay(1000);
+                }
+
+                // ===== CASE 2 =====
+                else if (resultEnd.matchedKeyword == "Review your account info" && !doneReview)
+                {
+                    doneReview = true;
+
+                    UpdateDeviceStatus(device.DeviceId, "80%", "Xác thực..");
+                    await Task.Delay(1000);
+
+                    await ADBService.FindAndClickUntilSuccess(device.DeviceId, "Next", 10);
+                    await Task.Delay(1000);
+                }
+
+                // ===== CASE 3 =====
+                else if (resultEnd.matchedKeyword == "Privacy and Terms" && !donePrivacy)
+                {
+                    donePrivacy = true;
+
+                    UpdateDeviceStatus(device.DeviceId, "90%", "Xác thực..");
+                    await Task.Delay(1000);
+                    ADBService.adbShell(device.DeviceId, "shell input swipe 500 1500 500 300");
+                    await Task.Delay(1000);
+                    ADBService.adbShell(device.DeviceId, "shell input swipe 500 1500 500 300");
+                    await Task.Delay(1000);
+                    await ADBService.FindAndClickUntilSuccess(device.DeviceId, "I agree", 10);
+                    await Task.Delay(5000);
+
+                    ADBService.ClickRandomInArea(device.DeviceId, 1087, 1250, 1777, 1864);
+                    await Task.Delay(10000);
+                }
+                else if (resultEnd.matchedKeyword == "Back up your device" && !doneBackup)
+                {
+                    doneBackup = true;
+
+                    UpdateDeviceStatus(device.DeviceId, "96%", "Xác thực..");
+                    await Task.Delay(1000);
+
+                    ADBService.ClickRandomInArea(device.DeviceId, 141, 323, 2780, 2809);
+                    await Task.Delay(3000);
+                    
+                    ADBService.ClickRandomInArea(device.DeviceId, 1087, 1250, 1777, 1864);
+                    await Task.Delay(1000);
+                }
+                else if (resultEnd.matchedKeyword == "Google services" && !done1Backup)
+                {
+                    done1Backup = true;
+
+                    UpdateDeviceStatus(device.DeviceId, "97%", "Xác thực..");
+                    await Task.Delay(1000);
+
+                    await ADBService.FindAndClickUntilSuccess(device.DeviceId, "Accept", 5);
+                    await Task.Delay(5000);
+                    ADBService.ClickRandomInArea(device.DeviceId, 1087, 1250, 1777, 1864);
+                    await Task.Delay(1000);
+                }
+                // ===== DONE ALL =====
+                if (donePrivacy && doneBackup && done1Backup)
+                {
+                    Console.WriteLine("🎉 Hoàn tất tất cả bước");
+                    UpdateDeviceStatus(device.DeviceId, "100%", "OK Lưu tại Resource/regMail/mail.txt");
+                    AppendTxt("./Resouce/regMail/mail.txt",
+                        $"DeviceID: {device.DeviceId} | DeviceName {device.Name} | PassMail : {passMail} | Cpu: {modelCpu}");
+                }
+
+                UpdateDeviceStatus(device.DeviceId, "99%", $"Lặp lại từ khóa xác thực mới lần {i}");
+                i++;
+            } while (i < 7);
+        }
+        private async Task ProcessChangeDeviceRegMailAsync(Models.DeviceModel device,POCO.Models.DeviceModel model ,int checkChange = 0)
+        {
+            DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "0%", "Change device start");
+            ADBService.cleanFolder(device.DeviceId);
+
+            if (DeepDroid.Properties.Settings.Default.ClearData)
+            {
+                DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "0%", "Wipe data ON");
+                DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "0%", "Delete app");
+                await Task.Run(() =>
+                {
+                    ADBService.UninstallAllUserApps(device.DeviceId); // Chạy trên thread phụ
+
+                    Thread.Sleep(1000);
+                });
+                DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "0%", "Delete account");
+                ADBService.RemoveAccountsDb(device.DeviceId);
+            }
+            //  UpdateDeviceStatus(device.DeviceId, "0%", "Change device start");
+            DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "0%", "Change device start");
+            POCO.Models.DeviceModel deviceTemp = null;
+           
+            var uiThreadScheduler = TaskScheduler.FromCurrentSynchronizationContext();
+            var saveResult = true;
+            //UpdateDeviceStatus(device.DeviceId, "5%", "Change device start");
+            DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "5%", "Change device start");
+            await Task.Run(async () =>
+            {
+                DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "7%", "Enable Wifi");
+
+                ADBService.enableWifi(false, device.DeviceId);
+                await Task.Delay(2000);
+                //  UpdateDeviceStatus(device.DeviceId, "15%", "Change device ....");
+                Console.WriteLine(IsCheckedSim);
+                await Task.Delay(1000);
+                DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "9%", "Start change device ...");
+
+                saveResult = Util.SaveDeviceInfo(this, Devices, model, device.DeviceId, AppDomain.CurrentDomain.BaseDirectory, IsCheckedSim, IsAutoUpdatePif);
+
+                //    UpdateDeviceStatus(device.DeviceId, "75%", "Change device ....");
+                DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "75%", "Change device check");
+                if (saveResult)
+                {
+                    DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "75%", "Change device Success");
+
+
+                    DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "85%", "Wipe device");
+                    var packagesWipeAfterChanger = loadWipeListConfig();
+                    wipePackagesChanger(packagesWipeAfterChanger, device.DeviceId);
+                    ADBService.cleanGMSPackagesAndAccounts(device.DeviceId);
+                    DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "90%", "Wipe network");
+                    ADBService.cleanNetworkInternet(device.DeviceId);
+                    //    DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "93%", "Wipe");
+                    //      ADBService.cleanFolder(device.DeviceId);
+                    DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "95%", "Reboot!");
+                    _processingDeviceIds.Remove(device.DeviceId);
+                    ADBService.restartDevice(device.DeviceId);
+                    await Task.Delay(10000);
+
+                    DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "100%", "OK");
+                    await Task.Delay(2000);
+                    DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "0%", "...");
+                }
+            }).ContinueWith(task =>
+            {
+                if (!saveResult)
+                {
+                    DeviceUpdater.UpdateProgress(Devices, device.DeviceId, "0%", "⚠ Change device error!");
+                    _processingDeviceIds.Remove(device.DeviceId);
+                    System.Windows.MessageBox.Show(DevicesLang.logErrorExChangeDevice
+                                            , DevicesLang.logErrorExTitleChangeDevice + " " + device.DeviceId
+                                            , MessageBoxButton.OK
+                                            , MessageBoxImage.Error);
+                }
+            }, uiThreadScheduler);
+            _processingDeviceIds.Remove(device.DeviceId);
+        }
+        private async Task<POCO.Models.DeviceModel> GetDevice(Models.DeviceModel deviceId, string device = "samsung", string name = "exynos", int osReg = 33)
+        {
+            UpdateDeviceStatus(deviceId.DeviceId, "0%", "GET DEVICE ...");
+            POCO.Models.DeviceModel regTempDevice = null;
+            CustomCursorRandomDevice = System.Windows.Input.Cursors.Wait;
+            if (miChangerGraphQLClient == null)
+            {
+                await CreateService();
+            }
+            if (IsTokenExpired(refreshToken))
+            {
+                await CreateService();
+            }
+            var currentSelectedCarrier = SelectedSim;
+            var currentSelectedCountry = SelectedCountry;
+            var mcc = SelectedCountry?.Attribute?.Mcc;
+            var mnc = SelectedSim?.Value;
+
+            try
+            {
+                (string brand, string os) value;
+
+                object brandArg = BrandRandom ? (object)true : (object)(Brand ?? "");
+                object osArg = OsRandom ? (object)true : (object)(Os ?? "");
+
+                value = ADBService.GetRandomValue(brandArg, osArg);
+
+                bool isValid = true;
+
+                while (isValid)
+                {
+                    regTempDevice = await miChangerGraphQLClient.GetRandomDeviceV4(
+                       brand: device,
+                       sdkMin: osReg,
+                       sdkMax: osReg);
+
+                    await Task.Delay(1000);
+
+                    isValid = !(regTempDevice?.Board?
+                     .ToLower()
+                     .Contains("exynos") == true);
+                }
+                //    tempDeviceAll = await miChangerGraphQLClient.GetRandomDeviceV4();
+                if (regTempDevice.Model == null) throw new Exception("Không tìm thấy thiết bị phù hợp.");
+
+                regTempDevice.SDK = value.os;
+
+                Brand = regTempDevice.Manufacturer;
+                Name = regTempDevice.Board;
+                Model = regTempDevice.Model;
+                Os = regTempDevice.Release;
+                Imei = regTempDevice.Imei;
+                Imsi = regTempDevice.IMSI = RandomService.generateIMSI(mcc, mnc);
+                Iccid = regTempDevice.ICCID = RandomService.generateICCID(currentSelectedCountry.CountryCode, mnc);
+                Serial = regTempDevice.SerialNo = RandomService.getRandomStringHex16Digit().Substring(0, RandomService.randomInRange(8, 13));
+                Phone = regTempDevice.SimPhoneNumber = string.Format("+{0}{1}", currentSelectedCountry.CountryCode, RandomService.generatePhoneNumber());
+                Code = regTempDevice.SimOperatorNumeric = string.Concat(mcc, mnc);
+                regTempDevice.SimOperatorCountry = currentSelectedCountry.CountryIso;
+                regTempDevice.SimOperatorName = currentSelectedCarrier.Name.LastIndexOf('-') >= 0
+                                                                ? currentSelectedCarrier.Name.Substring(0, currentSelectedCarrier.Name.LastIndexOf('-'))
+                                                                : currentSelectedCarrier.Name;
+                regTempDevice.AndroidId = RandomService.getRandomStringHex16Digit();
+                Mac = regTempDevice.WifiMacAddress = RandomService.generateWifiMacAddress(regTempDevice.Manufacturer.ToLower());
+                regTempDevice.BlueToothMacAddress = RandomService.generateWifiMacAddress(regTempDevice.Manufacturer.ToLower());
+
+                Gpu = regTempDevice.Gpu;
+                CustomCursorChangeDevice = System.Windows.Input.Cursors.Hand;
+            }
+            catch (Exception ex)
+            {
+                System.Windows.MessageBox.Show($"Lỗi khi random device:\n{ex.Message}", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
+                Console.WriteLine(ex);
+            }
+            finally
+            {
+                CustomCursorRandomDevice = System.Windows.Input.Cursors.Hand;
+            }
+            UpdateDeviceStatus(deviceId.DeviceId, "5%", $"DEVICE {Brand} : {Name} : ANDROID 13");
+            return regTempDevice;
         }
         private async Task RandomDevice()
         {

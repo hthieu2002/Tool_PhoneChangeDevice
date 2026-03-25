@@ -617,6 +617,36 @@
                         BorderThickness="1">
                     <ScrollViewer VerticalScrollBarVisibility="Auto">
                         <WrapPanel>
+                            <Button Content="Reg mail"
+                                Padding="0"
+                                Width="120"
+                                Margin="5,5,0,0"
+                                CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=ContextMenu}, Path=PlacementTarget.SelectedItem}">
+                                <Button.Style>
+                                    <Style TargetType="Button"
+                                       BasedOn="{StaticResource {x:Type Button}}">
+                                    <Setter Property="Command"
+                                            Value="{Binding DeviceListVM.RegMailCommand}" />
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding DeviceListVM.IsRegMailButtonEnabled}"
+                                                    Value="False">
+                                                    <Setter Property="Foreground"
+                                                    Value="Gray" />
+                                                    <Setter Property="Background"
+                                                    Value="#FFE0E0E0" />
+                                                    <Setter Property="Cursor"
+                                                    Value="Wait" />
+                                                    <Setter Property="BorderBrush"
+                                                    Value="DarkGray" />
+                                                    <Setter Property="BorderThickness"
+                                                    Value="1" />
+                                                    <Setter Property="Command"
+                                                    Value="{x:Null}" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Button.Style>
+                            </Button>
                             <Button Content="Random Device"
                                     Padding="0"
                                     Width="120"
@@ -822,7 +852,7 @@
                                     Padding="0"
                                     Command="{Binding DeviceListVM.InstallAPKAll}"
                                     CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=ContextMenu}, Path=PlacementTarget.SelectedItem}" />
-
+                            
                         </WrapPanel>
                     </ScrollViewer>
 
